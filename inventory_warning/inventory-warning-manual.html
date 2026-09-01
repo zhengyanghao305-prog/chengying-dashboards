@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>库存预警 & 备货单 · 极简使用说明书</title>
+<style>
+  :root { --bg:#f6f7fb; --card:#fff; --ink:#1f2329; --sub:#646a73; --line:#e5e6eb;
+          --blue:#3370ff; --red:#f53f3f; --green:#00b42a; --gray:#86909c; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,sans-serif;
+         line-height:1.7; }
+  .wrap { max-width:760px; margin:0 auto; padding:24px 16px 60px; }
+  header { background:linear-gradient(135deg,#3370ff,#165dff); color:#fff;
+           border-radius:14px; padding:22px 24px; box-shadow:0 6px 20px rgba(51,112,255,.25); }
+  header h1 { margin:0 0 6px; font-size:22px; }
+  header p { margin:0; opacity:.9; font-size:13px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:12px;
+            padding:18px 20px; margin-top:16px; }
+  h2 { font-size:17px; margin:0 0 12px; padding-left:10px; border-left:4px solid var(--blue); }
+  h3 { font-size:14px; margin:16px 0 6px; color:var(--sub); }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; }
+  th,td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:#f2f3f5; font-weight:600; }
+  code { background:#f2f3f5; border-radius:4px; padding:1px 6px; font-size:12px; color:#d4380d; }
+  .tag { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; font-weight:600; }
+  .t-y { background:#fff7e8; color:#d48806; } .t-b { background:#e8f3ff; color:#1668dc; }
+  .t-g { background:#e8ffea; color:#237804; } .t-r { background:#fff1f0; color:#cf1322; }
+  .tip { background:#fff7e8; border:1px solid #ffe7ba; border-radius:8px; padding:10px 14px;
+         font-size:13px; color:#874d00; margin-top:10px; }
+  .kpi { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+  .kpi div { flex:1; min-width:140px; background:#f7f8fa; border-radius:10px; padding:12px; text-align:center; }
+  .kpi b { display:block; font-size:20px; color:var(--blue); }
+  .kpi span { font-size:12px; color:var(--sub); }
+  footer { text-align:center; color:var(--gray); font-size:12px; margin-top:24px; }
+  ul { margin:6px 0; padding-left:20px; font-size:14px; }
+  li { margin:4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📦 库存预警 & 备货单 · 极简使用说明书</h1>
+    <p>给老板 / 仓库 / 运营看的一页纸 ｜ 系统每天自动跑，你只管看卡 + 点按钮</p>
+  </header>
+
+  <section>
+    <h2>一、它每天做什么</h2>
+    <p>每天早上，系统自动完成：</p>
+    <ol>
+      <li>拉飞书里的 <b>库存</b> 和 <b>销量</b></li>
+      <li>算每个编码 <b>7 天后会不会断货</b></li>
+      <li>该备货的自动写进 <b>《备货单》</b></li>
+      <li>给你（Sunny）飞书私聊推一张 <b>汇总卡</b></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>二、你收到的飞书卡怎么看</h2>
+    <div class="kpi">
+      <div><b>KPI</b><span>监控编码数 / 紧急 / 预警 / 备货件数</span></div>
+      <div><b>🔥</b><span>爆单提示（近期突然放量）</span></div>
+      <div><b>🚚</b><span>在途跟进（在产 / 超期催单）</span></div>
+      <div><b>📉</b><span>下架库存预警（可发&lt;10）</span></div>
+    </div>
+    <ul>
+      <li><b>最需备货家族 Top8</b>（可展开）：按产品排，先看这里</li>
+      <li>两个按钮：
+        <span class="tag t-b">📦 查看备货单</span> 打开飞书《备货单》表 ｜
+        <span class="tag t-b">📊 查看预警明细</span> 打开预警明细表</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>三、你在《备货单》里要做的三件事</h2>
+    <table>
+      <tr><th>操作</th><th>怎么做</th><th>效果</th></tr>
+      <tr>
+        <td><b>开单生产</b></td>
+        <td>点某行的「一键开单」按钮</td>
+        <td>自动建工单 + 状态变「已开单」</td>
+      </tr>
+      <tr>
+        <td><b>这轮不备</b></td>
+        <td>点「暂不备货」按钮</td>
+        <td>状态变「暂不备货」；<b>库存还缺的话第二天会重新出现</b></td>
+      </tr>
+      <tr>
+        <td><b>取消这单</b></td>
+        <td>手动把状态改成「取消备货」</td>
+        <td>人工取消；<b>第二天若库存仍缺会重新被推荐</b>（另起一行）</td>
+      </tr>
+    </table>
+    <div class="tip">工单做完入库后，系统自动把状态回写为「已完成」，不用你管。</div>
+  </section>
+
+  <section>
+    <h2>四、状态颜色速记</h2>
+    <p>
+      <span class="tag t-y">🟡 待备货</span> 系统刚算出来，等你开单
+      <span class="tag t-b">🔵 已开单</span> 已下单生产
+      <span class="tag t-g">⚪ 暂不备货</span> 这轮先不备（会再来）
+      <span class="tag t-r">⚫ 取消备货</span> 你主动取消（会再来）
+      <span class="tag t-g">🟢 已完成</span> 入库搞定
+    </p>
+  </section>
+
+  <section>
+    <h2>五、两个要知道的坑</h2>
+    <div class="tip">
+      <b>1. 「取消备货 / 暂不备货」不是永久屏蔽</b><br>
+      只要库存还缺，第二天系统还会把它重新推出来。想永久不备，得从根上解决（清库存 / 下架类型，或真把库存补上）。
+    </div>
+    <div class="tip" style="background:#fff1f0;border-color:#ffccc7;color:#a8071a;">
+      <b>2. 删除工单后状态不会自动变</b><br>
+      删了跟进表里的工单，备货单状态要你<b>手动改成「取消备货」</b>（或等飞书原生自动化生效），系统本机不再自动回退。
+    </div>
+  </section>
+
+  <section>
+    <h2>六、一句话总结</h2>
+    <p style="font-size:15px;"><b>看卡 → 开单就点按钮 → 不备就点暂不备货 → 剩下的系统自己算、自己跟踪。</b></p>
+    <p style="color:var(--sub);font-size:12px;margin-top:8px;">
+      详细算法（备货数公式 / 分级口径 / 状态机）见《库存预警本机自动化-生成逻辑整理.md》。
+    </p>
+  </section>
+
+  <footer>橙萤工作台 · 库存预警系统 ｜ 生成于 2026-08-04</footer>
+</div>
+</body>
+</html>

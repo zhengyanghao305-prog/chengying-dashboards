@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>产品 · 链接钻取分析</title>
+<script src="js/echarts.min.js"></script>
+<script src="js/diagnostics-config.js?v=202608311900"></script>
+<script src="js/diagnosis.js?v=202608311900"></script>
+<script src="js/deep-link.js?v=202608311945"></script>
+<script>window.__DIAG_LINKS = [];</script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f1f5f9; color: #0f172a; padding: 20px 24px 48px;
+}
+.wrap { max-width: 1220px; margin: 0 auto; }
+
+/* ── 顶栏 ── */
+header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+header h1 { font-size: 20px; font-weight: 800; letter-spacing: .4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.date-badge {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg,#6366f1,#8b5cf6); padding: 3px 10px; border-radius: 20px; vertical-align: middle;
+}
+header .sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+.hd-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.btn-hd {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #2563eb;
+  background: #fff; border: 1px solid #dbeafe; border-radius: 10px; padding: 8px 16px; text-decoration: none;
+  transition: .15s; box-shadow: 0 1px 3px rgba(15,23,42,.04);
+}
+.btn-hd:hover { background: #eff6ff; border-color: #2563eb; }
+
+/* ── 控制区 ── */
+.ctrl { background: #fff; border: 1px solid #eef2f7; border-radius: 14px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(15,23,42,.04); margin-bottom: 16px; }
+.row1 { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.tabs { display: inline-flex; background: #f1f5f9; border-radius: 10px; padding: 3px; gap: 2px; }
+.tabs button {
+  border: none; background: transparent; padding: 7px 18px; font-size: 13px; font-weight: 600; color: #64748b;
+  border-radius: 8px; cursor: pointer; transition: .15s;
+}
+.tabs button.active { background: #2563eb; color: #fff; box-shadow: 0 1px 4px rgba(37,99,235,.3); }
+.search-box { position: relative; flex: 1; min-width: 260px; }
+.search-box input {
+  width: 100%; padding: 9px 14px 9px 38px; font-size: 13px; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; background: #f8fafc; transition: .15s;
+}
+.search-box input:focus { border-color: #2563eb; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+.search-box .ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; pointer-events: none; }
+.dd {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 12px; box-shadow: 0 8px 24px rgba(15,23,42,.1); z-index: 30; max-height: 340px; overflow: auto; display: none;
+}
+.dd.open { display: block; }
+.dd-item { padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #f1f5f9; }
+.dd-item:last-child { border-bottom: none; }
+.dd-item:hover { background: #f8faff; }
+.dd-item .nm { flex: 1; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-item .meta { font-size: 11px; color: #94a3b8; white-space: nowrap; }
+.hot-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.hot-row .lbl { font-size: 12px; color: #94a3b8; font-weight: 700; white-space: nowrap; }
+.new-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.new-row .lbl { font-size: 12px; color: #d97706; font-weight: 800; white-space: nowrap; }
+.new-chip {
+  display: inline-flex; flex-direction: column; gap: 2px; font-size: 12px; background: #fffbeb;
+  border: 1px solid #fde68a; border-radius: 12px; padding: 6px 14px; cursor: pointer; transition: .15s; color: #334155;
+  min-width: 132px;
+}
+.new-chip:hover { border-color: #f59e0b; background: #fef3c7; box-shadow: 0 2px 8px rgba(245,158,11,.2); }
+.new-chip.active { border-color: #f59e0b; background: #fde68a; box-shadow: 0 0 0 2px rgba(245,158,11,.25); }
+.new-chip .nc-nm { font-weight: 800; color: #92400e; display: flex; align-items: center; gap: 4px; }
+.new-chip .nc-meta { font-size: 11px; color: #b45309; font-variant-numeric: tabular-nums; }
+.chip {
+  display: inline-flex; align-items: center; font-size: 12px; background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 16px; padding: 5px 14px; cursor: pointer; transition: .15s; color: #334155;
+  max-width: 220px;
+}
+.chip:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+.chip .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plat-tag { font-size: 10px; font-weight: 700; color: #fff; border-radius: 4px; padding: 1px 5px; }
+.plat-tm { background: #ff5000; } .plat-pdd { background: #ff6034; }
+
+/* ── 链接列表视图 ── */
+.view { display: none; }
+.view.active { display: block; }
+.list-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.list-toolbar .cnt { font-size: 13px; color: #64748b; }
+.list-toolbar .cnt b { color: #2563eb; }
+.link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+.link-card {
+  background: #fff; border: 1px solid #eef2f7; border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(15,23,42,.04);
+  cursor: pointer; transition: .15s; display: flex; flex-direction: column; gap: 12px;
+}
+.link-card:hover { border-color: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(37,99,235,.1); }
+.link-card .hd { display: flex; align-items: flex-start; gap: 8px; }
+.link-card .hd .product { font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.4; flex: 1; }
+.link-card .hd .id { font-size: 11px; color: #94a3b8; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.link-card .plans-cnt { font-size: 11px; color: #64748b; background: #f1f5f9; border-radius: 4px; padding: 2px 8px; display: inline-block; }
+.link-card .chans { display: flex; gap: 5px; flex-wrap: wrap; }
+.link-card .chans .ch { font-size: 10px; background: #f1f5f9; color: #64748b; border-radius: 4px; padding: 2px 7px; }
+.link-card .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.link-card .metrics .m { background: #f8fafc; border-radius: 8px; padding: 8px; text-align: center; }
+.link-card .metrics .m .l { font-size: 11px; color: #94a3b8; margin-bottom: 2px; }
+.link-card .metrics .m .v { font-size: 13px; font-weight: 800; color: #0f172a; }
+.load-more { display: block; margin: 14px auto 0; border: 1px dashed #cbd5e1; background: #fff; color: #64748b; font-size: 13px; padding: 9px 26px; border-radius: 10px; cursor: pointer; }
+.load-more:hover { color: #2563eb; border-color: #2563eb; }
+
+/* ── 详情页通用 ── */
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #64748b; background: #fff;
+  border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; cursor: pointer; margin-bottom: 12px;
+}
+.back-btn:hover { color: #2563eb; border-color: #2563eb; }
+.page-hd {
+  background: #fff; border: 1px solid #eef2f7; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(15,23,42,.04); margin-bottom: 14px;
+}
+.page-hd .ttl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 17px; font-weight: 800; }
+.page-hd .meta { margin-top: 10px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; font-size: 13px; color: #64748b; }
+.page-hd .meta a { color: #2563eb; text-decoration: none; font-size: 12px; }
+.page-hd .meta a:hover { text-decoration: underline; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
+.kpi-grid .kpi { background: #fff; border: 1px solid #eef2f7; border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(15,23,42,.04); }
+.kpi-grid .kpi .l { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+.kpi-grid .kpi .v { font-size: 18px; font-weight: 800; color: #0f172a; }
+.sec { font-size: 15px; font-weight: 800; margin: 16px 0 12px; display: flex; align-items: center; gap: 8px; }
+.chart-wrap { background: #fff; border: 1px solid #eef2f7; border-radius: 14px; padding: 14px 16px 10px; box-shadow: 0 1px 3px rgba(15,23,42,.04); margin-bottom: 14px; }
+.chart { width: 100%; height: 520px; }
+
+.chan-bars { display: flex; flex-direction: column; gap: 8px; }
+.chan-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.chan-row .nm { width: 96px; color: #475569; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 0; }
+.chan-row .bar { flex: 1; height: 14px; background: #f1f5f9; border-radius: 7px; overflow: hidden; position: relative; }
+.chan-row .bar i { display: block; height: 100%; background: linear-gradient(90deg,#6366f1,#8b5cf6); border-radius: 7px; }
+.chan-row .val { width: 150px; text-align: right; color: #334155; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+
+.table-wrap { background: #fff; border: 1px solid #eef2f7; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,.04); margin-bottom: 14px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { background: #f8fafc; color: #64748b; font-size: 11px; font-weight: 700; padding: 11px 12px; text-align: left; border-bottom: 1px solid #eef2f7; white-space: nowrap; }
+.data-table td { padding: 11px 12px; border-bottom: 1px solid #f8fcfc; vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.data-table th.num { text-align: right; }
+.data-table tr:hover td { background: #f8faff; }
+.data-table .plan-name { font-weight: 700; color: #0f172a; }
+.data-table .btn-row { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #2563eb; background: #eff6ff; border: 1px solid #dbeafe; border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+.data-table .btn-row:hover { background: #dbeafe; }
+.data-table .it-link { color: #2563eb; text-decoration: none; }
+.data-table .it-link:hover { text-decoration: underline; }
+.data-table .it-id { font-size: 11px; color: #b0b8c4; margin-left: 6px; font-variant-numeric: tabular-nums; }
+
+.daily-scroll { max-height: 320px; overflow: auto; }
+table.daily { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.daily th { background: #f8fafc; color: #64748b; font-size: 11px; font-weight: 700; padding: 8px 10px; text-align: right; border-bottom: 1px solid #eef2f7; }
+table.daily th:first-child { text-align: left; }
+table.daily td { padding: 7px 10px; text-align: right; border-bottom: 1px solid #f8fcfc; font-variant-numeric: tabular-nums; }
+table.daily td:first-child { text-align: left; color: #475569; font-weight: 600; }
+table.daily tr:hover td { background: #f8faff; }
+
+.roi-good { color: #16a34a; font-weight: 700; }
+.roi-mid { color: #d97706; font-weight: 700; }
+.roi-bad { color: #dc2626; font-weight: 700; }
+
+/* ── 趋势：卡片外框着色 + 角标 ── */
+.link-card { position: relative; }
+.link-card::before {
+  content: ""; position: absolute; top: -1px; left: 14px; right: 14px; height: 4px;
+  border-radius: 0 0 4px 4px; opacity: .95;
+}
+.link-card.card-trend-up { border-color: #86efac; background: linear-gradient(180deg, #f7fef9 0%, #fff 40%); }
+.link-card.card-trend-up::before { background: #22c55e; }
+.link-card.card-trend-down { border-color: #fca5a5; background: linear-gradient(180deg, #fff7f7 0%, #fff 40%); }
+.link-card.card-trend-down::before { background: #ef4444; }
+.link-card.card-trend-flat { border-color: #e2e8f0; }
+.link-card.card-trend-flat::before { background: #94a3b8; }
+
+.trend-badge {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700;
+  border-radius: 20px; padding: 3px 10px; line-height: 1.3;
+}
+.trend-badge-up { color: #15803d; background: #dcfce7; }
+.trend-badge-flat { color: #475569; background: #f1f5f9; }
+.trend-badge-down { color: #b91c1c; background: #fee2e2; }
+
+/* ── 分析诊断 ── */
+.diag-box { background: #fff; border: 1px solid #eef2f7; border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(15,23,42,.04); margin-bottom: 14px; }
+.diag-list { display: flex; flex-direction: column; gap: 8px; }
+.diag-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border-radius: 10px; font-size: 13px; }
+.diag-item .diag-ico { font-size: 16px; line-height: 1.3; flex-shrink: 0; }
+.diag-item .diag-ttl { font-weight: 700; color: #0f172a; font-size: 13px; }
+.diag-item .diag-desc { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.55; }
+.diag-ok { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.diag-warn { background: #fffbeb; border: 1px solid #fde68a; }
+.diag-danger { background: #fef2f2; border: 1px solid #fecaca; }
+.diag-info { background: #eff6ff; border: 1px solid #bfdbfe; }
+.diag-summary {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+  font-size: 12px; color: #64748b;
+}
+.diag-summary .ds-chip { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; border-radius: 8px; padding: 3px 10px; }
+.ds-ok { color: #15803d; background: #f0fdf4; border: 1px solid #bbf7d0; }
+.ds-warn { color: #b45309; background: #fffbeb; border: 1px solid #fde68a; }
+.ds-danger { color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; }
+
+/* ── 趋势筛选条 ── */
+.trend-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.trend-row .lbl { font-size: 12px; color: #94a3b8; font-weight: 700; white-space: nowrap; }
+.trend-chips { display: inline-flex; background: #f1f5f9; border-radius: 10px; padding: 3px; gap: 2px; }
+.trend-chips button {
+  border: none; background: transparent; padding: 6px 14px; font-size: 12px; font-weight: 700; color: #64748b;
+  border-radius: 8px; cursor: pointer; transition: .15s; display: inline-flex; align-items: center; gap: 4px;
+}
+.trend-chips button.active { background: #fff; color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,.15); }
+.trend-chips button.t-up.active { color: #15803d; }
+.trend-chips button.t-flat.active { color: #475569; }
+.trend-chips button.t-down.active { color: #b91c1c; }
+
+.empty-state { text-align: center; color: #94a3b8; padding: 60px 0; font-size: 14px; }
+.loading { text-align: center; padding: 80px 0; color: #94a3b8; font-size: 14px; }
+footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
+
+@media (max-width: 900px) {
+  .link-grid { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .data-table th, .data-table td { padding: 9px 8px; font-size: 12px; }
+}
+@media (max-width: 620px) {
+  body { padding: 12px 10px 40px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<script src="js/freshness-alert.js?v=202609011516"></script>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>🔗 产品 · 链接钻取分析 <span class="date-badge" id="dateBadge">—</span></h1>
+      <div class="sub">点击产品卡片 → 查看该产品下所有链接 → 点开链接查看所有推广计划 → 再点推广计划看详细数据</div>
+    </div>
+    <div class="hd-actions">
+      <a class="btn-hd" href="index.html">🏠 返回工作台</a>
+    </div>
+  </header>
+
+  <div class="ctrl">
+    <div class="row1">
+      <div class="tabs" id="tabs">
+        <button data-plat="全部" class="active">全部平台</button>
+        <button data-plat="天猫">天猫</button>
+        <button data-plat="拼多多">拼多多</button>
+      </div>
+      <div class="search-box">
+        <span class="ico">🔍</span>
+        <input id="searchInput" type="text" placeholder="输入产品名 / 链接ID / 推广计划名 …" autocomplete="off">
+        <div class="dd" id="dropdown"></div>
+      </div>
+    </div>
+    <div class="hot-row">
+      <span class="lbl">⚡ 快捷产品</span>
+      <span id="hotChips"></span>
+    </div>
+    <div class="new-row">
+      <span class="lbl">🆕 新品专区</span>
+      <span id="newChips"></span>
+    </div>
+    <div class="trend-row">
+      <span class="lbl">📊 销售趋势</span>
+      <span class="trend-chips" id="trendChips">
+        <button data-trend="all" class="active">全部</button>
+        <button data-trend="up" class="t-up">📈 上升</button>
+        <button data-trend="flat" class="t-flat">➡️ 平稳</button>
+        <button data-trend="down" class="t-down">📉 下滑</button>
+      </span>
+    </div>
+  </div>
+
+  <!-- 视图0：产品总看板 -->
+  <div class="view active" id="viewProduct">
+    <div class="list-toolbar">
+      <div class="cnt" id="prodCnt"></div>
+      <div style="font-size:11px;color:#94a3b8">点击卡片查看该产品下所有链接 · 按花费降序</div>
+    </div>
+    <div id="productGrid"></div>
+  </div>
+
+  <!-- 视图1：产品下的链接卡片列表 -->
+  <div class="view" id="viewList">
+    <button class="back-btn" id="backBtnProduct" style="display:none">← 返回产品看板</button>
+    <div id="productDiag"></div>
+    <div class="list-toolbar">
+      <div class="cnt" id="listCnt"></div>
+      <div style="font-size:11px;color:#94a3b8">点击卡片进入链接详情 · 按花费降序</div>
+    </div>
+    <div id="linkGrid"></div>
+  </div>
+
+  <!-- 视图2：链接详情（含推广计划列表） -->
+  <div class="view" id="viewLink"></div>
+
+  <!-- 视图3：推广计划详情 -->
+  <div class="view" id="viewPlan"></div>
+</div>
+
+<footer id="footer"></footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var DATA = null;
+  var plat = "全部";
+  var kw = "";
+  var hotFilter = null; // {plat, name} 由快捷产品触发
+  var listLimit = 100;
+  var STEP = 100;
+  var myChart = null;
+  var currentProduct = null; // 当前选中的产品（用于从链接列表返回）
+  var trendFilter = "all";   // all / up / flat / down
+  var newFilter = null;      // 当前选中的新品名（null 表示未筛选）
+  var focusLinks = null;     // 聚焦模式：只展示诊断卡片所指的链接列表（null=全部）
+  var focusMode = null;      // 'loss' | 'waste' | 'loweff'
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function fmtMoney(n) {
+    if (n == null || isNaN(n)) return "—";
+    if (Math.abs(n) >= 10000) return "¥" + (n / 10000).toFixed(2) + "万";
+    return "¥" + Math.round(n).toLocaleString("zh-CN");
+  }
+  function fmtNum(n) {
+    if (n == null || isNaN(n)) return "—";
+    return Math.round(n).toLocaleString("zh-CN");
+  }
+  function fmtPct(n) {
+    if (n == null || isNaN(n)) return "—";
+    return n.toFixed(2) + "%";
+  }
+  function fmtRoi(n) {
+    if (n == null || isNaN(n)) return "—";
+    return n.toFixed(2);
+  }
+  function roiCls(r) {
+    if (r == null) return "";
+    if (r >= 1.5) return "roi-good";
+    if (r >= 1.0) return "roi-mid";
+    return "roi-bad";
+  }
+  function trendTag(t) {
+    if (t === "up") return '<span class="trend-badge trend-badge-up">📈 上升</span>';
+    if (t === "down") return '<span class="trend-badge trend-badge-down">📉 下滑</span>';
+    return '<span class="trend-badge trend-badge-flat">➡️ 平稳</span>';
+  }
+  function trendCardCls(t) {
+    if (t === "up") return " card-trend-up";
+    if (t === "down") return " card-trend-down";
+    return " card-trend-flat";
+  }
+  function trendIco(t) {
+    if (t === "up") return "📈";
+    if (t === "down") return "📉";
+    return "➡️";
+  }
+  function platTag(p, withName) {
+    var c = p === "天猫" ? "plat-tm" : "plat-pdd";
+    return '<span class="plat-tag ' + c + '">' + (withName ? p : (p === "天猫" ? "猫" : "拼")) + "</span>";
+  }
+  function escHtml(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function trunc(s, n) {
+    s = String(s == null ? "" : s);
+    return s.length > n ? s.slice(0, n - 1) + "…" : s;
+  }
+
+  // 聚焦模式：只展示诊断卡片所指的链接（优先级最高）
+  function latestDayStats(lk) {
+    var plans = (typeof lk.plans === "string" ? (function(){ try { return JSON.parse(String(lk.plans).replace(/'/g,'"')); } catch(e){ return []; } })() : lk.plans) || [];
+    var by = {};
+    plans.forEach(function (p) {
+      (p.daily || []).forEach(function (d) {
+        if (!d || !d.d) return;
+        var k = String(d.d);
+        by[k] = by[k] || { c: 0, g: 0, o: 0 };
+        by[k].c += parseFloat(d.c) || 0;
+        by[k].g += parseFloat(d.g) || 0;
+        by[k].o += parseInt(d.o, 10) || 0;
+      });
+    });
+    var ds = Object.keys(by).sort();
+    var e = ds.length ? by[ds[ds.length - 1]] : null;
+    return { cost: e ? e.c : 0, gmv: e ? e.g : 0, orders: e ? e.o : 0, roi: (e && e.c > 0) ? e.g / e.c : 0 };
+  }
+  function computeFocusLinks(filter, scope) {
+    if (!DATA) return [];
+    return DATA.links.filter(function (lk) {
+      if (scope && scope !== "全部" && lk.plat !== scope) return false;
+      var s = latestDayStats(lk);
+      if (filter === "loss") return s.cost >= 5 && s.roi < 1;
+      if (filter === "waste") return s.cost > 50 && s.orders === 0;
+      if (filter === "loweff") return s.cost > 50 && s.roi >= 1 && s.roi < 1.5;
+      return true;
+    }).sort(function (a, b) {
+      return latestDayStats(b).cost - latestDayStats(a).cost;
+    });
+  }
+
+  function filteredLinks() {
+    if (!DATA) return [];
+    if (focusLinks) return focusLinks;
+    return DATA.links.filter(function (lk) {
+      if (plat !== "全部" && lk.plat !== plat) return false;
+      if (trendFilter !== "all" && lk.t.trend !== trendFilter) return false;
+      if (hotFilter && (lk.plat !== hotFilter.plat || lk.product !== hotFilter.name)) return false;
+      var kwl = kw.trim().toLowerCase();
+      if (!kwl) return true;
+      var hay = (lk.product + " " + lk.id + " " +
+        lk.plans.map(function (p) { return p.plan; }).join(" ")).toLowerCase();
+      return hay.indexOf(kwl) >= 0;
+    });
+  }
+
+  function findLinkIndex(lk) {
+    for (var i = 0; i < DATA.links.length; i++) {
+      if (DATA.links[i].plat === lk.plat && DATA.links[i].id === lk.id && DATA.links[i].product === lk.product) return i;
+    }
+    return -1;
+  }
+
+  function findProductIndex(prod) {
+    for (var i = 0; i < DATA.products.length; i++) {
+      if (DATA.products[i].plat === prod.plat && DATA.products[i].name === prod.name) return i;
+    }
+    return -1;
+  }
+
+  /* ── 产品看板 ── */
+  function filteredProducts() {
+    if (!DATA) return [];
+    return DATA.products.filter(function (prod) {
+      if (plat !== "全部" && prod.plat !== plat) return false;
+      if (trendFilter !== "all" && prod.t.trend !== trendFilter) return false;
+      if (newFilter && prod.new !== newFilter) return false;
+      var kwl = kw.trim().toLowerCase();
+      if (!kwl) return true;
+      return (prod.name + " " + prod.plat).toLowerCase().indexOf(kwl) >= 0;
+    });
+  }
+
+  function renderProducts() {
+    var rows = filteredProducts();
+    $("prodCnt").innerHTML = '共 <b>' + rows.length + '</b> 个产品' + (kw ? '（匹配「<b>' + escHtml(kw) + '</b>」）' : "");
+
+    var shown = rows.slice(0, listLimit);
+    var html = shown.map(function (prod) {
+      var t = prod.t;
+      var planCnt = prod.links.reduce(function (s, l) { return s + l.plans.length; }, 0);
+      return '<div class="link-card' + trendCardCls(t.trend) + '" data-pi="' + findProductIndex(prod) + '">' +
+        '<div class="hd">' +
+          '<div>' +
+            '<div class="product">' + platTag(prod.plat) + " " + escHtml(prod.name) + '</div>' +
+          "</div>" +
+          trendTag(t.trend) +
+        "</div>" +
+        '<div><span class="plans-cnt">📎 ' + prod.links.length + " 个链接 · " + planCnt + " 个推广计划 · " + t.days + " 天数据</span></div>" +
+        '<div class="metrics">' +
+          '<div class="m"><div class="l">花费</div><div class="v">' + fmtMoney(t.c) + "</div></div>" +
+          '<div class="m"><div class="l">成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
+          '<div class="m"><div class="l">ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
+          '<div class="m"><div class="l">订单</div><div class="v">' + fmtNum(t.o) + "</div></div>" +
+          '<div class="m"><div class="l">点击</div><div class="v">' + fmtNum(t.k) + "</div></div>" +
+          '<div class="m"><div class="l">点击率</div><div class="v">' + fmtPct(t.ct) + "</div></div>" +
+          '<div class="m"><div class="l">转化率</div><div class="v">' + fmtPct(t.cv) + "</div></div>" +
+          '<div class="m"><div class="l">链接数</div><div class="v">' + prod.links.length + "</div></div>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+
+    if (!shown.length) html = '<div class="empty-state">没有匹配的产品，换个关键词试试～</div>';
+    $("productGrid").innerHTML = html + (rows.length > shown.length
+      ? '<button class="load-more" id="loadMoreProd">加载更多（' + rows.length + " / 已显示 " + shown.length + "）</button>" : "");
+
+    document.querySelectorAll("#productGrid .link-card").forEach(function (card) {
+      card.addEventListener("click", function () {
+        enterProduct(DATA.products[+card.getAttribute("data-pi")]);
+      });
+    });
+    var lm = $("loadMoreProd");
+    if (lm) lm.addEventListener("click", function () {
+      listLimit += STEP;
+      renderProducts();
+    });
+  }
+
+  function enterProduct(prod) {
+    currentProduct = prod;
+    $("viewProduct").classList.remove("active");
+    $("viewList").classList.add("active");
+    hotFilter = { plat: prod.plat, name: prod.name };
+    kw = prod.name;
+    $("searchInput").value = prod.name;
+    listLimit = STEP;
+    renderDiag($("productDiag"), diagForProduct(prod));
+    renderList();
+  }
+
+  // 快捷产品 / 搜索入口：先回到产品看板，聚焦展示该产品卡片，点击卡片后才进入链接
+  function focusProductCard(prod) {
+    currentProduct = null;
+    hotFilter = null;
+    newFilter = null;
+    kw = prod.name;
+    $("searchInput").value = prod.name;
+    listLimit = STEP;
+    $("viewList").classList.remove("active");
+    $("viewLink").classList.remove("active");
+    $("viewPlan").classList.remove("active");
+    $("viewProduct").classList.add("active");
+    resetTrend();
+    renderNew();
+    renderProducts();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  /* ── 视图1：链接卡片列表 ── */
+  function renderList() {
+    var backBtn = $("backBtnProduct");
+    if (backBtn) backBtn.style.display = currentProduct ? "inline-flex" : "none";
+
+    var rows = filteredLinks();
+    $("listCnt").innerHTML = '共 <b>' + rows.length + '</b> 条链接' + (kw ? '（匹配「<b>' + escHtml(kw) + '</b>」）' : "");
+
+    var shown = rows.slice(0, listLimit);
+    var html = shown.map(function (lk) {
+      var t = lk.t;
+      var chans = [];
+      lk.plans.forEach(function (p) {
+        (p.chans || []).forEach(function (c) { if (chans.indexOf(c) < 0) chans.push(c); });
+      });
+      return '<div class="link-card' + trendCardCls(lk.t.trend) + '" data-idx="' + findLinkIndex(lk) + '">' +
+        '<div class="hd">' +
+          '<div>' +
+            '<div class="product">' + platTag(lk.plat) + " " + escHtml(lk.product) + '</div>' +
+            '<div class="id">ID ' + lk.id + " · " + lk.t.n + " 个推广计划</div>" +
+          "</div>" +
+          trendTag(lk.t.trend) +
+        "</div>" +
+        (focusMode ? '<div class="focus-badge" style="margin:6px 0 2px;font-size:11px;font-weight:800;color:#b91c1c;background:#fee2e2;display:inline-block;padding:2px 8px;border-radius:8px;">' + (focusMode === 'loss' ? '📉 最新日亏损' : focusMode === 'waste' ? '🚫 最新日零成交' : '⚠️ 最新日微利') + '</div>' : '') +
+        '<div><span class="plans-cnt">📎 ' + lk.t.n + " 个推广计划 · " + lk.t.days + " 天数据</span></div>" +
+        '<div class="chans">' + chans.slice(0, 5).map(function (c) { return '<span class="ch">' + escHtml(c) + "</span>"; }).join("") + "</div>" +
+        '<div class="metrics">' +
+          '<div class="m"><div class="l">花费</div><div class="v">' + fmtMoney(t.c) + "</div></div>" +
+          '<div class="m"><div class="l">成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
+          '<div class="m"><div class="l">ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
+          '<div class="m"><div class="l">订单</div><div class="v">' + fmtNum(t.o) + "</div></div>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+
+    if (!shown.length) html = '<div class="empty-state">没有匹配的链接，换个关键词试试～</div>';
+    $("linkGrid").innerHTML = html + (rows.length > shown.length
+      ? '<button class="load-more" id="loadMore">加载更多（' + rows.length + " / 已显示 " + shown.length + "）</button>" : "");
+
+    document.querySelectorAll("#linkGrid .link-card").forEach(function (card) {
+      card.addEventListener("click", function () {
+        showLink(DATA.links[+card.getAttribute("data-idx")]);
+      });
+    });
+    var lm = $("loadMore");
+    if (lm) lm.addEventListener("click", function () {
+      listLimit += STEP;
+      renderList();
+    });
+  }
+
+  /* ── 视图2：链接详情（含推广计划列表） ── */
+  function showLink(lk) {
+    $("viewList").classList.remove("active");
+    $("viewLink").classList.remove("active");
+    $("viewPlan").classList.remove("active");
+
+    var t = lk.t;
+    var plans = lk.plans || [];
+
+    var kpiHtml = '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="l">总花费</div><div class="v">' + fmtMoney(t.c) + "</div></div>" +
+      '<div class="kpi"><div class="l">总成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
+      '<div class="kpi"><div class="l">ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
+      '<div class="kpi"><div class="l">订单</div><div class="v">' + fmtNum(t.o) + "</div></div>" +
+      '<div class="kpi"><div class="l">点击</div><div class="v">' + fmtNum(t.k) + "</div></div>" +
+      '<div class="kpi"><div class="l">点击率</div><div class="v">' + fmtPct(t.ct) + "</div></div>" +
+      '<div class="kpi"><div class="l">转化率</div><div class="v">' + fmtPct(t.cv) + "</div></div>" +
+      '<div class="kpi"><div class="l">推广计划</div><div class="v">' + plans.length + " 个</div></div>" +
+      "</div>";
+
+    var plansRows = plans.map(function (p, i) {
+      var pt = p.t;
+      return "<tr>" +
+        '<td><span class="plan-name">' + escHtml(p.plan) + "</span></td>" +
+        '<td class="num">' + fmtMoney(pt.c) + "</td>" +
+        '<td class="num">' + fmtMoney(pt.g) + "</td>" +
+        '<td class="num"><span class="' + roiCls(pt.r) + '">' + fmtRoi(pt.r) + "</span></td>" +
+        '<td class="num">' + fmtNum(pt.o) + "</td>" +
+        '<td class="num">' + fmtPct(pt.ct) + "</td>" +
+        '<td class="num">' + fmtPct(pt.cv) + "</td>" +
+        '<td class="num">' + fmtMoney(pt.cpo) + "</td>" +
+        '<td class="num">' + fmtPct(pt.cart_rate) + "</td>" +
+        '<td class="num">' + fmtMoney(pt.cpa) + "</td>" +
+        '<td class="num">' + pt.days + " 天</td>" +
+        '<td><span class="btn-row" data-pi="' + i + '">查看详情</span></td>' +
+        "</tr>";
+    }).join("");
+
+    $("viewLink").innerHTML =
+      '<button class="back-btn" id="backBtn">← 返回链接列表</button>' +
+      '<div class="page-hd">' +
+        '<div class="ttl">' + platTag(lk.plat, true) + " " + escHtml(lk.product) + "</div>" +
+        '<div class="meta">' +
+          '<span>链接ID：<b>' + lk.id + "</b></span>" +
+          '<span>' + plans.length + " 个推广计划</span>" +
+          (lk.url ? '<a href="' + lk.url + '" target="_blank" rel="noopener">打开商品详情 ↗</a>' : "") +
+        "</div>" +
+      "</div>" +
+      kpiHtml +
+      '<div class="sec">🧭 分析诊断</div>' +
+      '<div class="diag-box" id="linkDiag"></div>' +
+      '<div class="sec">📎 该链接下的所有推广计划</div>' +
+      '<div class="table-wrap"><table class="data-table"><thead><tr>' +
+        "<th>推广计划</th><th class=\"num\">花费</th><th class=\"num\">成交</th><th class=\"num\">ROI</th><th class=\"num\">订单</th>" +
+        "<th class=\"num\">点击率</th><th class=\"num\">转化率</th><th class=\"num\">成交成本</th><th class=\"num\">加购率</th><th class=\"num\">加购成本</th><th class=\"num\">天数</th><th>操作</th>" +
+      "</tr></thead><tbody>" + (plansRows || '<tr><td colspan="12" style="text-align:center;color:#94a3b8;padding:24px">无推广计划</td></tr>') + "</tbody></table></div>";
+
+    $("viewLink").classList.add("active");
+    renderDiag($("linkDiag"), diagForLink(lk));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    $("backBtn").addEventListener("click", function () {
+      $("viewLink").classList.remove("active");
+      $("viewList").classList.add("active");
+    });
+    document.querySelectorAll("#viewLink .btn-row").forEach(function (b) {
+      b.addEventListener("click", function () {
+        showPlan(lk, plans[+b.getAttribute("data-pi")]);
+      });
+    });
+  }
+
+  /* ── 视图3：推广计划详情 ── */
+  function showPlan(lk, p) {
+    $("viewList").classList.remove("active");
+    $("viewLink").classList.remove("active");
+    $("viewPlan").classList.remove("active");
+
+    var t = p.t;
+    var items = p.items || [];
+
+    var kpiHtml = '<div class="kpi-grid">' +
+      '<div class="kpi"><div class="l">总花费</div><div class="v">' + fmtMoney(t.c) + "</div></div>" +
+      '<div class="kpi"><div class="l">总成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
+      '<div class="kpi"><div class="l">ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
+      '<div class="kpi"><div class="l">订单</div><div class="v">' + fmtNum(t.o) + "</div></div>" +
+      '<div class="kpi"><div class="l">点击</div><div class="v">' + fmtNum(t.k) + "</div></div>" +
+      '<div class="kpi"><div class="l">点击率</div><div class="v">' + fmtPct(t.ct) + "</div></div>" +
+      '<div class="kpi"><div class="l">转化率</div><div class="v">' + fmtPct(t.cv) + "</div></div>" +
+      '<div class="kpi"><div class="l">数据天数</div><div class="v">' + p.days + " 天</div></div>" +
+      "</div>";
+
+    var itemsHtml = items.map(function (it) {
+      return "<tr>" +
+        '<td>' + (it.url ? '<a class="it-link" href="' + it.url + '" target="_blank" rel="noopener">' + escHtml(trunc(it.n, 40)) + "</a>" : escHtml(trunc(it.n, 40))) +
+        '<span class="it-id">ID ' + it.id + "</span></td>" +
+        '<td class="num">' + fmtMoney(it.c) + "</td>" +
+        '<td class="num">' + fmtMoney(it.g) + "</td>" +
+        '<td class="num"><span class="' + roiCls(it.r) + '">' + fmtRoi(it.r) + "</span></td>" +
+        "</tr>";
+    }).join("");
+
+    $("viewPlan").innerHTML =
+      '<button class="back-btn" id="backBtnPlan">← 返回链接详情</button>' +
+      '<div class="page-hd">' +
+        '<div class="ttl">' + platTag(lk.plat, true) + " " + escHtml(p.plan) + "</div>" +
+        '<div class="meta">' +
+          '<span>所属产品：<b>' + escHtml(lk.product) + '</b></span>' +
+          '<span>链接ID：<b>' + lk.id + "</b></span>" +
+          '<span>' + p.days + " 天数据</span>" +
+          (lk.url ? '<a href="' + lk.url + '" target="_blank" rel="noopener">打开商品详情 ↗</a>' : "") +
+        "</div>" +
+      "</div>" +
+      kpiHtml +
+      '<div class="sec">🧭 分析诊断</div>' +
+      '<div class="diag-box" id="planDiag"></div>' +
+      '<div class="sec">📈 花费 / 成交额 / ROI 趋势</div>' +
+      '<div class="chart-wrap"><div class="chart" id="planChart"></div></div>' +
+      '<div class="sec">🔀 渠道分布</div>' +
+      '<div class="table-wrap"><div class="chan-bars" id="planChans" style="padding:12px 16px"></div></div>' +
+      '<div class="sec">📦 所属商品明细</div>' +
+      '<div class="table-wrap"><table class="data-table"><thead><tr>' +
+        "<th>商品</th><th class=\"num\">花费</th><th class=\"num\">成交</th><th class=\"num\">ROI</th>" +
+      "</tr></thead><tbody>" + (itemsHtml || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:24px">无商品数据</td></tr>') + "</tbody></table></div>" +
+      '<div class="sec">📋 每日明细</div>' +
+      '<div class="table-wrap daily-scroll" id="planDaily"></div>';
+
+    $("viewPlan").classList.add("active");
+    renderDiag($("planDiag"), diagForPlan(p));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    $("backBtnPlan").addEventListener("click", function () {
+      $("viewPlan").classList.remove("active");
+      $("viewLink").classList.add("active");
+      if (myChart) { myChart.dispose(); myChart = null; }
+    });
+
+    renderChart(p);
+    renderChans(p);
+    renderDaily(p);
+  }
+
+  function renderChart(p) {
+    if (myChart) { myChart.dispose(); myChart = null; }
+    var el = $("planChart");
+    myChart = echarts.init(el);
+    var daily = p.daily;
+    var dates = daily.map(function (d) { return d.d; });
+    var costs = daily.map(function (d) { return d.c; });
+    var gmvs = daily.map(function (d) { return d.g; });
+    var rois = daily.map(function (d) { return d.r; });
+    myChart.setOption({
+      tooltip: { trigger: "axis" },
+      axisPointer: { link: [{ xAxisIndex: "all" }] },
+      grid: [
+        { left: 58, right: 20, top: 26, height: "26%" },
+        { left: 58, right: 20, top: "40%", height: "26%" },
+        { left: 58, right: 20, top: "74%", height: "20%" }
+      ],
+      xAxis: [
+        { type: "category", gridIndex: 0, data: dates, axisLabel: { show: false }, axisTick: { show: false } },
+        { type: "category", gridIndex: 1, data: dates, axisLabel: { show: false }, axisTick: { show: false } },
+        { type: "category", gridIndex: 2, data: dates, axisLabel: { fontSize: 11 } }
+      ],
+      yAxis: [
+        { type: "value", gridIndex: 0, name: "花费(¥)", nameTextStyle: { color: "#6366f1", fontWeight: 700 }, splitLine: { lineStyle: { type: "dashed", opacity: .5 } },
+          axisLabel: { formatter: function (v) { return v >= 10000 ? (v / 10000) + "万" : v; }, fontSize: 11 } },
+        { type: "value", gridIndex: 1, name: "成交额(¥)", nameTextStyle: { color: "#22c55e", fontWeight: 700 }, splitLine: { lineStyle: { type: "dashed", opacity: .5 } },
+          axisLabel: { formatter: function (v) { return v >= 10000 ? (v / 10000) + "万" : v; }, fontSize: 11 } },
+        { type: "value", gridIndex: 2, name: "ROI", nameTextStyle: { color: "#f59e0b", fontWeight: 700 }, min: 0, splitLine: { lineStyle: { type: "dashed", opacity: .5 } },
+          axisLabel: { fontSize: 11 } }
+      ],
+      series: [
+        { name: "花费", type: "line", xAxisIndex: 0, yAxisIndex: 0, data: costs, smooth: true,
+          symbol: "circle", symbolSize: 6, lineStyle: { color: "#6366f1", width: 2.5 }, itemStyle: { color: "#6366f1" },
+          areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(99,102,241,.35)" }, { offset: 1, color: "rgba(99,102,241,.03)" }] } } },
+        { name: "成交额", type: "line", xAxisIndex: 1, yAxisIndex: 1, data: gmvs, smooth: true,
+          symbol: "circle", symbolSize: 6, lineStyle: { color: "#22c55e", width: 2.5 }, itemStyle: { color: "#22c55e" },
+          areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(34,197,94,.35)" }, { offset: 1, color: "rgba(34,197,94,.03)" }] } } },
+        { name: "ROI", type: "line", xAxisIndex: 2, yAxisIndex: 2, data: rois, smooth: true,
+          symbol: "circle", symbolSize: 5, lineStyle: { color: "#f59e0b", width: 2.5 }, itemStyle: { color: "#f59e0b" },
+          markLine: { silent: true, symbol: "none", lineStyle: { color: "#f59e0b", type: "dashed", opacity: .55 }, label: { formatter: "ROI=1", fontSize: 10, color: "#b45309" },
+            data: [{ yAxis: 1 }] } }
+      ]
+    });
+    setTimeout(function () { if (myChart) myChart.resize(); }, 80);
+  }
+
+  function renderChans(p) {
+    var chans = p.chan || [];
+    var total = chans.reduce(function (s, c) { return s + c.c; }, 0);
+    if (!chans.length) { $("planChans").innerHTML = '<div class="empty-state" style="padding:16px">无渠道数据</div>'; return; }
+    var mx = Math.max.apply(null, chans.map(function (c) { return c.c; }));
+    $("planChans").innerHTML = chans.map(function (c) {
+      var pct = total ? (c.c / total * 100).toFixed(1) : "0.0";
+      return '<div class="chan-row"><span class="nm">' + escHtml(c.n) + "</span>" +
+        '<div class="bar"><i style="width:' + (mx ? Math.max(2, c.c / mx * 100) : 0) + '%"></i></div>' +
+        '<div class="val">花费 ' + fmtMoney(c.c) + " · ROI " + fmtRoi(c.r) + " · " + pct + "%</div></div>";
+    }).join("");
+  }
+
+  function renderDaily(p) {
+    var daily = p.daily;
+    if (!daily.length) { $("planDaily").innerHTML = '<div class="empty-state" style="padding:16px">暂无逐日数据</div>'; return; }
+    var rev = daily.slice().reverse();
+    var html = "<table class=\"daily\"><thead><tr>" +
+      "<th>日期</th><th>花费</th><th>成交额</th><th>ROI</th><th>订单</th><th>曝光</th><th>点击</th><th>点击率</th><th>转化率</th>" +
+      "</tr></thead><tbody>";
+    rev.forEach(function (d) {
+      html += "<tr><td>" + d.d + "</td><td>" + fmtMoney(d.c) + "</td><td>" + fmtMoney(d.g) + "</td>" +
+        '<td><span class="' + roiCls(d.r) + '">' + fmtRoi(d.r) + "</span></td><td>" + d.o + "</td><td>" + fmtNum(d.i) + "</td><td>" + fmtNum(d.k) + "</td>" +
+        "<td>" + fmtPct(d.ct) + "</td><td>" + fmtPct(d.cv) + "</td></tr>";
+    });
+    html += "</tbody></table>";
+    $("planDaily").innerHTML = html;
+  }
+
+  /* ── 分析诊断 ── */
+  function diagBase(t, plat) {
+    var items = [];
+    var hasCost = t.c > 0;
+
+    // ROI（花费 ≥10 才有判断意义）
+    if (hasCost && t.c >= 10) {
+      if (t.r >= 1.5) {
+        items.push({ level: "ok", icon: "✅", ttl: "ROI 表现优秀", desc: "ROI " + fmtRoi(t.r) + "，每花 1 元带回 " + fmtRoi(t.r) + " 元成交，可考虑加大投放力度。" });
+      } else if (t.r >= 1.0) {
+        items.push({ level: "warn", icon: "⚠️", ttl: "ROI 贴近盈亏线", desc: "ROI " + fmtRoi(t.r) + "，盈利空间有限，建议优化关键词与出价提升产出。" });
+      } else {
+        items.push({ level: "danger", icon: "❌", ttl: "ROI 低于 1，投放亏损", desc: "花费 " + fmtMoney(t.c) + " 仅带回 " + fmtMoney(t.g) + " 成交，产出小于投入，建议暂停或调整投放策略。" });
+      }
+    } else if (hasCost && t.c > 0) {
+      items.push({ level: "info", icon: "ℹ️", ttl: "花费基数较小", desc: "总花费 " + fmtMoney(t.c) + "，数据量有限，ROI 参考意义不大。" });
+    }
+
+    // 销售趋势
+    if (t.trend === "up") {
+      items.push({ level: "ok", icon: "📈", ttl: "销售呈上升趋势", desc: "后半段成交额较前半段提升 " + (t.trend_pct > 0 ? "" : "约 ") + t.trend_pct + "%，增长势头良好。" });
+    } else if (t.trend === "down") {
+      items.push({ level: "danger", icon: "📉", ttl: "销售呈下滑趋势", desc: "后半段成交额较前半段下降 " + Math.abs(t.trend_pct) + "%，需关注流量来源或转化问题。" });
+    } else if (t.trend === "flat") {
+      items.push({ level: "info", icon: "➡️", ttl: "销售整体平稳", desc: "成交额波动不大，走势稳定。" });
+    }
+
+    // 点击率
+    if (t.i > 0 && t.ct != null) {
+      if (t.ct >= 4) {
+        items.push({ level: "ok", icon: "👆", ttl: "点击率正常", desc: "点击率 " + fmtPct(t.ct) + "，主图 / 标题吸引力良好。" });
+      } else if (t.ct >= 2) {
+        items.push({ level: "warn", icon: "👆", ttl: "点击率偏低", desc: "点击率 " + fmtPct(t.ct) + "，建议优化主图与标题提升点击。" });
+      } else {
+        items.push({ level: "danger", icon: "👆", ttl: "点击率明显偏低", desc: "点击率 " + fmtPct(t.ct) + "，曝光多但点击少，主图 / 价格 / 卖点可能缺乏吸引力。" });
+      }
+    }
+
+    // 转化率
+    if (t.k > 0 && t.cv != null) {
+      if (t.cv >= 5) {
+        items.push({ level: "ok", icon: "🛒", ttl: "转化率良好", desc: "转化率 " + fmtPct(t.cv) + "，进店成交效率高。" });
+      } else if (t.cv >= 2) {
+        items.push({ level: "warn", icon: "🛒", ttl: "转化率一般", desc: "转化率 " + fmtPct(t.cv) + "，详情页或价格可能有优化空间。" });
+      } else {
+        items.push({ level: "danger", icon: "🛒", ttl: "转化率偏低", desc: "转化率 " + fmtPct(t.cv) + "，点击多但下单少，建议检查详情页、评价与价格竞争力。" });
+      }
+    }
+
+    // 加购率：仅当数据源真实存在 cart 字段时才显示诊断
+    if (t.cart_rate != null) {
+      if (t.cart_rate >= 15) {
+        items.push({ level: "ok", icon: "🛍️", ttl: "加购率良好", desc: "加购率 " + fmtPct(t.cart_rate) + "，加购意愿强，成交转化潜力大。" });
+      } else if (t.cart_rate >= 8) {
+        items.push({ level: "warn", icon: "🛍️", ttl: "加购率一般", desc: "加购率 " + fmtPct(t.cart_rate) + "，可考虑加购礼 / 优惠券促进下单。" });
+      } else {
+        items.push({ level: "danger", icon: "🛍️", ttl: "加购率偏低", desc: "加购率 " + fmtPct(t.cart_rate) + "，用户加购意愿弱，商品吸引力或价格需要优化。" });
+      }
+    }
+
+    // 成交成本 vs 客单价
+    if (t.cpo > 0 && t.aov > 0 && t.o > 0) {
+      if (t.cpo > t.aov) {
+        items.push({ level: "danger", icon: "💰", ttl: "成交成本高于客单价", desc: "每单成交成本 " + fmtMoney(t.cpo) + " 高于客单价 " + fmtMoney(t.aov) + "，订单越多亏得越多。" });
+      } else if (t.cpo > t.aov * 0.6) {
+        items.push({ level: "warn", icon: "💰", ttl: "成交成本偏高", desc: "成交成本 " + fmtMoney(t.cpo) + " 占客单价 " + fmtMoney(t.aov) + " 比例较高，利润空间被压缩。" });
+      }
+    }
+
+    return items;
+  }
+
+  function diagForProduct(prod) {
+    var items = diagBase(prod.t, prod.plat);
+    var links = prod.links || [];
+    if (links.length) {
+      var top = links[0];
+      var pct = prod.t.c > 0 ? (top.t.c / prod.t.c * 100) : 0;
+      if (links.length >= 2 && pct >= 60) {
+        items.push({ level: "warn", icon: "🔗", ttl: "花费高度集中在单个链接", desc: "TOP 链接「" + trunc(top.id, 16) + "」占产品总花费 " + pct.toFixed(0) + "%，集中度高、风险较大。" });
+      } else if (links.length >= 2) {
+        items.push({ level: "info", icon: "🔗", ttl: "链接分布较均衡", desc: "共 " + links.length + " 条链接，TOP 链接占比 " + pct.toFixed(0) + "%，花费分散较健康。" });
+      } else {
+        items.push({ level: "info", icon: "🔗", ttl: "仅 1 条链接", desc: "该产品只有 1 条链接，建议多建链接分散测试。" });
+      }
+    }
+    return items.slice(0, 6);
+  }
+
+  function diagForLink(lk) {
+    var items = diagBase(lk.t, lk.plat);
+    var plans = lk.plans || [];
+    if (plans.length) {
+      var top = plans[0];
+      var bad = null;
+      for (var i = 0; i < plans.length; i++) {
+        if (plans[i].t.r < 1 && plans[i].t.c >= 10) {
+          if (!bad || plans[i].t.r < bad.t.r) bad = plans[i];
+        }
+      }
+      var topPct = lk.t.c > 0 ? (top.t.c / lk.t.c * 100) : 0;
+      if (bad) {
+        items.push({ level: "danger", icon: "🎯", ttl: "存在低效推广计划", desc: "「" + trunc(bad.plan, 16) + "」ROI " + fmtRoi(bad.t.r) + " 且花费 " + fmtMoney(bad.t.c) + "，建议暂停或调整。" });
+      } else if (topPct >= 70) {
+        items.push({ level: "warn", icon: "🎯", ttl: "推广计划高度集中", desc: "TOP 计划「" + trunc(top.plan, 16) + "」占链接花费 " + topPct.toFixed(0) + "%，需关注单一计划风险。" });
+      } else {
+        items.push({ level: "info", icon: "🎯", ttl: "推广计划分布合理", desc: "共 " + plans.length + " 个推广计划，未发现显著低效计划。" });
+      }
+    }
+    return items.slice(0, 6);
+  }
+
+  function diagForPlan(p) {
+    var items = diagBase(p.t, p.plat);
+    // 近期走势：最后一天成交 vs 前段平均
+    var daily = p.daily || [];
+    if (daily.length >= 4) {
+      var last = daily[daily.length - 1];
+      var prev = daily.slice(0, daily.length - 1);
+      var avg = prev.reduce(function (s, d) { return s + d.g; }, 0) / prev.length;
+      if (avg > 0) {
+        var ratio = last.g / avg;
+        if (ratio >= 1.3) {
+          items.push({ level: "ok", icon: "📊", ttl: "最近一天成交冲高", desc: "最新 " + last.d + " 成交 " + fmtMoney(last.g) + "，较前期均值高出 " + ((ratio - 1) * 100).toFixed(0) + "%。" });
+        } else if (ratio <= 0.6) {
+          items.push({ level: "danger", icon: "📊", ttl: "最近一天成交走低", desc: "最新 " + last.d + " 成交 " + fmtMoney(last.g) + "，仅为前期均值的 " + (ratio * 100).toFixed(0) + "%，需警惕下滑。" });
+        }
+      }
+    }
+    // 渠道集中度
+    var chans = p.chan || [];
+    if (chans.length >= 2) {
+      var topCh = chans[0];
+      var chPct = p.t.c > 0 ? (topCh.c / p.t.c * 100) : 0;
+      if (chPct >= 80) {
+        items.push({ level: "warn", icon: "🔀", ttl: "渠道高度集中", desc: "「" + topCh.n + "」占花费 " + chPct.toFixed(0) + "%，建议多渠道分散降低风险。" });
+      }
+    }
+    return items.slice(0, 6);
+  }
+
+  function renderDiag(el, items) {
+    if (!items || !items.length) { el.innerHTML = ""; return; }
+    var cnt = { ok: 0, warn: 0, danger: 0 };
+    items.forEach(function (it) { if (cnt[it.level] != null) cnt[it.level]++; });
+    var summary = '<div class="diag-summary">诊断结果：' +
+      (cnt.ok ? '<span class="ds-chip ds-ok">✅ 正常 ' + cnt.ok + '</span>' : "") +
+      (cnt.warn ? '<span class="ds-chip ds-warn">⚠️ 关注 ' + cnt.warn + '</span>' : "") +
+      (cnt.danger ? '<span class="ds-chip ds-danger">❌ 风险 ' + cnt.danger + '</span>' : "") +
+      "</div>";
+    var html = items.map(function (it) {
+      return '<div class="diag-item diag-' + it.level + '">' +
+        '<span class="diag-ico">' + it.icon + "</span>" +
+        '<div><div class="diag-ttl">' + it.ttl + "</div>" +
+        (it.desc ? '<div class="diag-desc">' + it.desc + "</div>" : "") +
+        "</div></div>";
+    }).join("");
+    el.innerHTML = summary + '<div class="diag-list">' + html + "</div>";
+  }
+
+  /* ── 快捷产品 ── */
+  function renderHot() {
+    if (!DATA) { $("hotChips").innerHTML = '<span style="font-size:12px;color:#cbd5e1">暂无</span>'; return; }
+    var src = plat === "全部" ? DATA.hot : DATA.hot.filter(function (h) { return h.plat === plat; });
+    if (!src.length) { $("hotChips").innerHTML = '<span style="font-size:12px;color:#cbd5e1">暂无</span>'; return; }
+    $("hotChips").innerHTML = src.map(function (h) {
+      return '<span class="chip" data-plat="' + h.plat + '" data-name="' + escHtml(h.name) + '" title="' + escHtml(h.name) + '">' +
+        '<span class="nm">' + escHtml(trunc(h.name, 22)) + "</span></span>";
+    }).join("");
+    document.querySelectorAll("#hotChips .chip").forEach(function (c) {
+      c.addEventListener("click", function () {
+        var name = c.getAttribute("data-name");
+        var pplat = c.getAttribute("data-plat");
+        var prod = DATA.products.find(function (p) { return p.plat === pplat && p.name === name; });
+        if (prod) focusProductCard(prod);
+      });
+    });
+  }
+
+  /* ── 新品专区 ── */
+  function renderNew() {
+    if (!DATA || !DATA.new) { $("newChips").innerHTML = ""; return; }
+    $("newChips").innerHTML = DATA.new.map(function (n) {
+      return '<span class="new-chip' + (newFilter === n.name ? " active" : "") + '" data-name="' + escHtml(n.name) + '" title="' + escHtml(n.name) + '">' +
+        '<span class="nc-nm">🆕 ' + escHtml(trunc(n.name, 10)) + '</span>' +
+        '<span class="nc-meta">' + fmtMoney(n.t.c) + " · ROI " + fmtRoi(n.t.r) + " " + trendIco(n.t.trend) + "</span>" +
+      "</span>";
+    }).join("");
+    document.querySelectorAll("#newChips .new-chip").forEach(function (c) {
+      c.addEventListener("click", function () {
+        var name = c.getAttribute("data-name");
+        // 再次点击同一新品 = 取消筛选
+        newFilter = newFilter === name ? null : name;
+        hotFilter = null;
+        currentProduct = null;
+        kw = "";
+        $("searchInput").value = "";
+        listLimit = STEP;
+        $("viewList").classList.remove("active");
+        $("viewLink").classList.remove("active");
+        $("viewPlan").classList.remove("active");
+        $("viewProduct").classList.add("active");
+        renderNew();
+        renderProducts();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+  }
+
+  /* ── 搜索联想 ── */
+  function renderDropdown() {
+    var box = $("dropdown");
+    if (!kw.trim()) { box.classList.remove("open"); return; }
+    var inProduct = $("viewProduct").classList.contains("active");
+    if (inProduct) {
+      var rows = filteredProducts().slice(0, 30);
+      if (!rows.length) {
+        box.innerHTML = '<div class="dd-empty">没有匹配的产品</div>';
+      } else {
+        box.innerHTML = rows.map(function (prod) {
+          return '<div class="dd-item" data-pi="' + findProductIndex(prod) + '">' +
+            platTag(prod.plat) + ' <span class="nm">' + escHtml(trunc(prod.name, 36)) + "</span>" +
+            '<span class="meta">' + prod.links.length + " 链接 · 花费 " + fmtMoney(prod.t.c) + "</span></div>";
+        }).join("");
+      }
+      box.classList.add("open");
+      box.querySelectorAll(".dd-item").forEach(function (it) {
+        it.addEventListener("click", function () {
+          var idx = +it.getAttribute("data-pi");
+          box.classList.remove("open");
+          focusProductCard(DATA.products[idx]);
+        });
+      });
+    } else {
+      var rows = filteredLinks().slice(0, 30);
+      if (!rows.length) {
+        box.innerHTML = '<div class="dd-empty">没有匹配的链接</div>';
+      } else {
+        box.innerHTML = rows.map(function (lk) {
+          return '<div class="dd-item" data-idx="' + findLinkIndex(lk) + '">' +
+            platTag(lk.plat) + ' <span class="nm">' + escHtml(trunc(lk.product + " · " + lk.id, 36)) + "</span>" +
+            '<span class="meta">' + lk.t.n + " 计划 · 花费 " + fmtMoney(lk.t.c) + "</span></div>";
+        }).join("");
+      }
+      box.classList.add("open");
+      box.querySelectorAll(".dd-item").forEach(function (it) {
+        it.addEventListener("click", function () {
+          var idx = +it.getAttribute("data-idx");
+          $("searchInput").value = "";
+          kw = "";
+          hotFilter = null;
+          box.classList.remove("open");
+          showLink(DATA.links[idx]);
+        });
+      });
+    }
+  }
+
+  $("searchInput").addEventListener("input", function () {
+    kw = this.value;
+    hotFilter = null;
+    newFilter = null;
+    listLimit = STEP;
+    renderNew();
+    renderDropdown();
+    if ($("viewProduct").classList.contains("active")) {
+      renderProducts();
+    } else {
+      renderList();
+    }
+  });
+  $("searchInput").addEventListener("focus", function () {
+    if (kw.trim()) renderDropdown();
+  });
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".search-box")) $("dropdown").classList.remove("open");
+  });
+  $("searchInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      if ($("viewProduct").classList.contains("active")) {
+        var rows = filteredProducts();
+        if (rows.length) { $("dropdown").classList.remove("open"); focusProductCard(rows[0]); }
+      } else {
+        var rows = filteredLinks();
+        if (rows.length) { this.value = ""; kw = ""; $("dropdown").classList.remove("open"); showLink(rows[0]); }
+      }
+    }
+  });
+
+  /* ── 返回产品看板 ── */
+  $("backBtnProduct").addEventListener("click", function () {
+    $("viewList").classList.remove("active");
+    $("viewProduct").classList.add("active");
+    currentProduct = null;
+    hotFilter = null;
+    kw = "";
+    $("searchInput").value = "";
+    listLimit = STEP;
+    newFilter = null;
+    resetTrend();
+    renderNew();
+    renderProducts();
+  });
+
+  /* ── 趋势筛选 ── */
+  function resetTrend() {
+    trendFilter = "all";
+    document.querySelectorAll("#trendChips button").forEach(function (x) { x.classList.remove("active"); });
+    document.querySelector("#trendChips button[data-trend='all']").classList.add("active");
+  }
+  document.querySelectorAll("#trendChips button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#trendChips button").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      trendFilter = b.getAttribute("data-trend");
+      listLimit = STEP;
+      if ($("viewProduct").classList.contains("active")) {
+        renderProducts();
+      } else {
+        renderList();
+      }
+    });
+  });
+
+  /* ── Tab ── */
+  document.querySelectorAll("#tabs button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#tabs button").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      plat = b.getAttribute("data-plat");
+      hotFilter = null;
+      currentProduct = null;
+      focusLinks = null; focusMode = null;
+      kw = "";
+      $("searchInput").value = "";
+      listLimit = STEP;
+      // 切平台时回到产品看板
+      $("viewList").classList.remove("active");
+      $("viewLink").classList.remove("active");
+      $("viewPlan").classList.remove("active");
+      $("viewProduct").classList.add("active");
+      resetTrend();
+      newFilter = null;
+      renderNew();
+      renderHot();
+      renderProducts();
+    });
+  });
+
+  var pendingFocus = (typeof DeepLink !== 'undefined') ? DeepLink.read() : null;
+
+  // 深度链接：从首页诊断卡片直达问题核心
+  // 优先进入「聚焦模式」：只展示诊断卡片所指的那批链接（可滚动索引），退出重进看全部
+  window.applyProductLinksFocus = function (focus) {
+    if (!focus || !DATA) return;
+    if (focus.scope && ['全部', '天猫', '拼多多'].indexOf(focus.scope) >= 0) plat = focus.scope;
+    hotFilter = null; newFilter = null; trendFilter = 'all'; listLimit = STEP;
+    document.querySelectorAll("#tabs button").forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-plat') === plat); });
+    resetTrend();
+
+    function focusListBanner(label, n, target) {
+      setTimeout(function () {
+        // 顶部悬浮提示条
+        if (typeof DeepLink !== 'undefined') {
+          DeepLink.toast(label + '（共 ' + n + ' 条）', target ? ('已定位第 1 条：' + target.product + ' · 点击下方卡片可查看详情') : '点击下方卡片可查看详情');
+        }
+        // 列表顶部聚焦横幅
+        var banner = document.getElementById('plFocusBanner');
+        if (!banner) {
+          banner = document.createElement('div');
+          banner.id = 'plFocusBanner';
+          banner.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:12px;';
+          var vl = $("viewList");
+          if (vl) vl.insertBefore(banner, vl.firstChild || null);
+        }
+        banner.innerHTML = '';
+        var s1 = document.createElement('span');
+        s1.textContent = '🔍 聚焦模式：';
+        var b = document.createElement('b');
+        b.textContent = label + '（' + n + ' 条）';
+        var s2 = document.createElement('span');
+        s2.style.cssText = 'font-weight:400;color:#a16207;';
+        s2.textContent = '— 仅展示诊断所指数据，可滚动浏览';
+        var exitBtn = document.createElement('button');
+        exitBtn.textContent = '查看全部';
+        exitBtn.style.cssText = 'margin-left:auto;border:1px solid #d97706;background:#fff;color:#92400e;padding:4px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;';
+        exitBtn.onclick = function () {
+          focusLinks = null; focusMode = null; plat = '全部'; kw = '';
+          $("searchInput").value = '';
+          renderNew(); renderHot();
+          $("viewList").classList.remove("active");
+          $("viewLink").classList.remove("active");
+          $("viewPlan").classList.remove("active");
+          $("viewProduct").classList.add("active");
+          renderProducts();
+          if (banner) banner.remove();
+        };
+        banner.appendChild(s1); banner.appendChild(b); banner.appendChild(s2); banner.appendChild(exitBtn);
+        // 高亮目标链接卡片
+        if (target && typeof DeepLink !== 'undefined') {
+          setTimeout(function () { DeepLink.highlight('#linkGrid', target.id); }, 350);
+        }
+      }, 300);
+    }
+
+    // 1) 聚焦模式：只展示诊断卡片所指的那批链接
+    if (focus.filter && ['loss', 'waste', 'loweff'].indexOf(focus.filter) >= 0) {
+      focusLinks = computeFocusLinks(focus.filter, plat);
+      focusMode = focus.filter;
+      listLimit = STEP; kw = ''; $("searchInput").value = '';
+      $("viewProduct").classList.remove("active");
+      $("viewLink").classList.remove("active");
+      $("viewPlan").classList.remove("active");
+      $("viewList").classList.add("active");
+      renderList();
+      var targetLk = focus.linkId
+        ? focusLinks.find(function (l) { return l.id === focus.linkId; })
+        : focusLinks[0];
+      var label = focus.filter === 'loss' ? '亏本投放链接（ROI<1）' : focus.filter === 'waste' ? '只花钱零成交链接' : '微利且花费偏高链接';
+      focusListBanner(label, focusLinks.length, targetLk || null);
+      return;
+    }
+
+    function linkBanner(lk) {
+      setTimeout(function () {
+        if (typeof DeepLink !== 'undefined') {
+          DeepLink.toast(lk.product + '（ID ' + lk.id + '）', '诊断所指问题链接 · 请优先处理');
+        }
+        var banner = document.getElementById('plFocusBanner');
+        if (!banner) {
+          banner = document.createElement('div');
+          banner.id = 'plFocusBanner';
+          banner.style.cssText = 'background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:12px;';
+          var vl = $("viewLink");
+          if (vl && vl.firstChild) vl.insertBefore(banner, vl.firstChild);
+        }
+        banner.innerHTML = '';
+        var s1 = document.createElement('span');
+        s1.textContent = '🎯 已定位到问题链接：';
+        var b = document.createElement('b');
+        b.textContent = lk.product + '（ID ' + lk.id + '）';
+        var s2 = document.createElement('span');
+        s2.style.cssText = 'font-weight:400;color:#a16207;';
+        s2.textContent = ' — 诊断所指，请优先处理';
+        banner.appendChild(s1); banner.appendChild(b); banner.appendChild(s2);
+      }, 300);
+    }
+
+    // 2) 精确定位到具体链接 → 直接打开该链接详情
+    if (focus.linkId) {
+      var lk = DATA.links.find(function (l) { return l.id === focus.linkId && (plat === '全部' || l.plat === plat); });
+      if (lk) {
+        showLink(lk);
+        linkBanner(lk);
+        setTimeout(function () {
+          if (typeof DeepLink !== 'undefined') DeepLink.highlight('#viewLink', lk.product || lk.id);
+        }, 300);
+        return;
+      }
+    }
+    // 3) 定位到产品 → 进入该产品链接列表，并高亮诊断所指链接
+    if (focus.keyword) {
+      var prod = DATA.products.find(function (p) { return p.name === focus.keyword && (plat === '全部' || p.plat === plat); });
+      if (prod) {
+        enterProduct(prod);
+        var target = focus.linkId
+          ? DATA.links.find(function (l) { return l.id === focus.linkId; })
+          : null;
+        setTimeout(function () {
+          if (target) {
+            if (typeof DeepLink !== 'undefined') DeepLink.highlight('#linkGrid', target.id || target.product);
+          } else if (typeof DeepLink !== 'undefined') {
+            DeepLink.highlight('#linkGrid', focus.keyword);
+          }
+        }, 300);
+        return;
+      }
+      var lk2 = DATA.links.find(function (l) { return l.id === focus.keyword && (plat === '全部' || l.plat === plat); });
+      if (lk2) {
+        showLink(lk2);
+        setTimeout(function () { if (typeof DeepLink !== 'undefined') DeepLink.highlight('#viewLink', lk2.product || lk2.id); }, 300);
+        return;
+      }
+      kw = focus.keyword;
+      $("searchInput").value = focus.keyword;
+      $("viewList").classList.remove("active");
+      $("viewLink").classList.remove("active");
+      $("viewPlan").classList.remove("active");
+      $("viewProduct").classList.add("active");
+      renderProducts();
+      setTimeout(function () { if (typeof DeepLink !== 'undefined') DeepLink.highlight('#productGrid', focus.keyword); }, 300);
+    }
+  };
+
+  /* ── 初始化 ── */
+  function init() {
+    $("productGrid").innerHTML = '<div class="loading">数据加载中…</div>';
+    fetch("data/product-links.json").then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }).then(function (d) {
+      DATA = d;
+      try { window.__DIAG_LINKS = (d && d.links) || []; } catch (e) {} // 全量链接(1674)用于诊断
+      $("dateBadge").textContent = "数据至 " + (d.updated || "—") + " | 生成于 " + (d.generated || "");
+      $("footer").innerHTML = "产品 " + d.products.length + " 个 · 链接 " + d.links.length + " 条 · 推广计划 " +
+        d.products.reduce(function (s, p) { return s + p.links.reduce(function (ss, l) { return ss + l.plans.length; }, 0); }, 0) +
+        " 个 · 生成于 " + (d.generated || "") + " · 数据源 data/ad-roi.json";
+      renderNew();
+      renderHot();
+      renderProducts();
+      if (pendingFocus && pendingFocus.board === 'product-links') {
+        window.applyProductLinksFocus(pendingFocus);
+        pendingFocus = null;
+      }
+    }).catch(function (err) {
+      $("productGrid").innerHTML = '<div class="loading">数据加载失败：' + err + '<br>请确认 data/product-links.json 存在且服务可访问</div>';
+    });
+  }
+
+  init();
+})();
+</script>
+<script>
+  // 诊断功能
+  if (window.DIAG) {
+    window.addEventListener('load', function () {
+      DIAG.attachFloat({ boardId: 'product-links', title: '产品链接钻取', getRows: function () { return window.__DIAG_LINKS || []; } });
+    });
+  }
+</script>
+</body>
+</html>

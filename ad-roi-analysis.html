@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>推广投放分析</title>
+<script src="js/echarts.min.js"></script>
+<script src="js/diagnostics-config.js?v=202608311900"></script>
+<script src="js/diagnosis.js?v=202608311900"></script>
+<script src="js/deep-link.js?v=202608311945"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f7f8fa; color: #1f2937; line-height: 1.5; padding: 22px 22px 48px;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .ttl { display: flex; align-items: center; gap: 10px; }
+  .back { font-size: 13px; color: #6b7280; text-decoration: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 5px 11px; background: #fff; transition: .15s; }
+  .back:hover { border-color: #7c3aed; color: #7c3aed; }
+  h1 { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  .date-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg,#7c3aed,#a78bfa);
+    padding: 3px 10px; border-radius: 20px; letter-spacing: .3px;
+    vertical-align: middle;
+  }
+  .sub { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .tabs { display: inline-flex; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 3px; }
+  .tabs button { border: none; background: transparent; padding: 7px 15px; font-size: 13px; font-weight: 600; color: #6b7280; border-radius: 7px; cursor: pointer; transition: .15s; }
+  .tabs button.active { background: #7c3aed; color: #fff; }
+  /* signal */
+  .signal { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+  .signal .dots { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; font-weight: 600; }
+  .signal .dots .d { display: inline-flex; align-items: baseline; gap: 6px; }
+  .signal .dots .v { font-size: 16px; font-weight: 800; }
+  .signal .dots .l { color: #9ca3af; font-weight: 500; }
+  .signal .verdict { margin-top: 11px; font-size: 13.5px; color: #374151; }
+  .signal .verdict b { color: #111827; }
+  .signal .warn { color: #dc2626; font-weight: 700; }
+  .signal .good { color: #16a34a; font-weight: 700; }
+  .signal .meta { margin-top: 8px; font-size: 11.5px; color: #9ca3af; }
+  /* card */
+  .card { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+  .card-hd { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
+  .card-hd .t { font-size: 14px; font-weight: 700; }
+  .card-hd .hint { font-size: 11.5px; color: #9ca3af; margin-top: 3px; }
+  .card-hd .hint b.red { color: #dc2626; } .card-hd .hint b.amber { color: #d97706; } .card-hd .hint b.green { color: #16a34a; }
+  .filters { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .filters button { border: 1px solid #e5e7eb; background: #fff; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 16px; cursor: pointer; color: #6b7280; transition: .15s; }
+  .filters button.active { background: #111827; color: #fff; border-color: #111827; }
+  .copy-all {
+    border: 1px solid #7c3aed; background: #7c3aed; color: #fff;
+    padding: 4px 12px; font-size: 12px; font-weight: 700; border-radius: 16px;
+    cursor: pointer; transition: .15s;
+  }
+  .copy-all:hover { background: #6d28d9; border-color: #6d28d9; }
+  .copy-all.copied { background: #16a34a; border-color: #16a34a; }
+  .chart { width: 100%; }
+  /* date filter */
+  .date-filter { display: inline-flex; align-items: center; gap: 4px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 3px; margin-left: auto; }
+  .date-filter button { border: none; background: transparent; padding: 5px 11px; font-size: 12px; font-weight: 600; color: #6b7280; border-radius: 7px; cursor: pointer; transition: .15s; white-space: nowrap; }
+  .date-filter button.active { background: #7c3aed; color: #fff; }
+  .date-picker-wrap { display: none; align-items: center; gap: 4px; position: absolute; z-index: 10; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px; box-shadow: 0 4px 12px rgba(0,0,0,.1); margin-top: 4px; }
+  .date-picker-wrap.show { display: flex; }
+  .date-picker-wrap input[type="date"] { border: 1px solid #e5e7eb; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-family: inherit; outline: none; color: #374151; }
+  .date-picker-wrap input[type="date"]:focus { border-color: #7c3aed; }
+  .date-picker-wrap .dp-btn { border: 1px solid #7c3aed; background: #7c3aed; color: #fff; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+  .date-picker-wrap .dp-btn:hover { background: #6d28d9; }
+  /* list */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; font-size: 11.5px; color: #9ca3af; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid #f0f1f3; }
+  thead th.num, tbody td.num { text-align: right; }
+  tbody td { padding: 9px 10px; border-bottom: 1px solid #f6f7f8; }
+  tbody tr.loss { box-shadow: inset 3px 0 0 #dc2626; background: #fff7f7; }
+  .nm { font-weight: 600; color: #1f2937; font-size: 12.5px; }
+  .pf { font-size: 10.5px; color: #6b7280; margin-right: 4px; }
+  .roi { font-weight: 700; }
+  .roi.red { color: #dc2626; } .roi.amber { color: #d97706; } .roi.green { color: #16a34a; }
+  .copy-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0 5px; height: 18px; margin-left: 4px; border: none; background: #f3f4f6;
+    border-radius: 4px; cursor: pointer; font-size: 10px; color: #6b7280;
+    vertical-align: middle; transition: .15s; white-space: nowrap;
+  }
+  .copy-btn:hover { background: #7c3aed; color: #fff; }
+  td.id-cell { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: 11.5px; color: #374151; }
+  .copy-ok { animation: copyFlash .8s ease; }
+  @keyframes copyFlash { 0% { background: #16a34a; color: #fff; } 100% { background: #f3f4f6; color: #6b7280; } }
+  tfoot td { padding: 10px; border-top: 2px solid #e5e7eb; font-weight: 700; font-size: 12.5px; color: #374151; background: #fafafa; }
+  tfoot td.num { text-align: right; }
+  tfoot .sum-label { color: #6b7280; }
+</style>
+</head>
+<body>
+<script src="js/freshness-alert.js?v=202609011516"></script>
+<div class="wrap">
+  <header>
+    <div class="ttl">
+      <a class="back" href="index.html">← 返回</a>
+      <div>
+        <h1>推广投放分析 <span class="date-badge" id="dateBadge">—</span></h1>
+        <div class="sub" id="sub">近7天 · 计划级花费与投产</div>
+      </div>
+    </div>
+    <div class="tabs" id="tabs">
+      <button data-scope="全平台" class="active">全平台</button>
+      <button data-scope="天猫">天猫</button>
+      <button data-scope="拼多多">拼多多</button>
+    </div>
+    <div style="position:relative;">
+      <div class="date-filter" id="dateFilter">
+        <button data-days="1">近1天</button>
+        <button data-days="7" class="active">近7天</button>
+        <button data-days="custom">自定义</button>
+      </div>
+      <div class="date-picker-wrap" id="datePickerWrap">
+        <input type="date" id="dpStart" /> — <input type="date" id="dpEnd" />
+        <button class="dp-btn" onclick="applyCustomDate()">确定</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="signal" id="signal">
+    <div style="text-align:center;color:#9ca3af;padding:14px 0;">数据加载中…</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div>
+        <div class="t">花费 TOP15 计划 · 投产效率</div>
+        <div class="hint">条形长度=花费 · <b class="red">红=亏损(ROI&lt;1.5)</b> · <b class="amber">黄=保本(1.5~2)</b> · <b class="green">绿=盈利(ROI&gt;2)</b> · 标签=ROI</div>
+      </div>
+      <div class="filters" id="channels">
+        <button data-ch="全部" class="active">全部渠道</button>
+        <button data-ch="商品推广">商品推广</button>
+        <button data-ch="关键词推广">关键词推广</button>
+        <button data-ch="货品全站推广">货品全站</button>
+        <button data-ch="短视频">短视频</button>
+        <button data-ch="人群推广">人群推广</button>
+      </div>
+    </div>
+    <div class="chart" id="chart"></div>
+    <div class="note">按花费降序取前 15 个计划；计划名已截断，悬停看全名。ROI = 成交额 ÷ 花费。</div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div class="t" id="listTtl">计划明细</div>
+      <div style="display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="copy-all" onclick="copyAllIds(this)">复制全部ID</button>
+        <div class="filters" id="roiFilters">
+          <button data-roi="全部" class="active">全部</button>
+          <button data-roi="亏损">亏损</button>
+          <button data-roi="保本">保本</button>
+          <button data-roi="盈利">盈利</button>
+        </div>
+      </div>
+    </div>
+    <table id="list">
+      <thead><tr>
+        <th>店铺</th>
+        <th>计划</th>
+        <th>ID</th>
+        <th>渠道</th>
+        <th class="num">花费</th>
+        <th class="num">成交</th>
+        <th class="num">ROI</th>
+        <th class="num">成交笔数</th>
+      </tr></thead>
+      <tbody></tbody>
+      <tfoot><tr><td colspan="8"></td></tr></tfoot>
+    </table>
+    <div class="note" id="listNote"></div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+(function () {
+  var raw = null;
+  var allRaw = null;          // 原始全量数据（不过滤日期）
+  var scope = "全平台";
+  var channel = "全部";
+  var roiFilter = "全部";
+  var dateMode = "7";         // "1" | "7" | "custom"
+  var customStart = null;
+  var customEnd = null;
+  var chart = null;
+  var diagLossMode = false;   // 聚焦模式：只显示诊断口径的亏损计划（花费≥5元且ROI<1）
+  var pendingFocus = (typeof DeepLink !== 'undefined') ? DeepLink.read() : null;
+
+  function fmtMoney(v) { v = v || 0; return v >= 10000 ? "¥" + (v / 10000).toFixed(1) + "万" : "¥" + Math.round(v); }
+  function fmtRoi(v) { return (v || 0).toFixed(2); }
+  function roiCls(v) { return v < 1.5 ? "red" : v <= 2 ? "amber" : "green"; }
+  function roiColor(v) { return v < 1.5 ? "#dc2626" : v <= 2 ? "#d97706" : "#16a34a"; }
+
+  // 数据加载：相对路径 → 本机 3588 兜底（file:// 等受限环境）
+  function loadJSON(url) {
+    var sep = url.indexOf("?") >= 0 ? "&" : "?";
+    return fetch(url + sep + Date.now())
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .catch(function () {
+        return fetch("http://localhost:3588/" + url.replace(/^\.?\//, "") + sep + Date.now())
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+      });
+  }
+
+  // 计划级聚合
+  function aggregate() {
+    var map = {};
+    (raw || []).forEach(function (r) {
+      if (scope !== "全平台" && r.platform !== scope) return;
+      if (channel !== "全部" && r.channel !== channel) return;
+      var key = (r.platform || "") + "|" + (r.plan || "") + "|" + (r.channel || "");
+      var a = map[key] || (map[key] = { platform: r.platform, plan: r.plan, channel: r.channel, store: r.store || "", item_id: r.item_id || "", cost: 0, gmv: 0, orders: 0, days: 0 });
+      if (!a.store && r.store) a.store = r.store;
+      if (!a.item_id && r.item_id) a.item_id = r.item_id;
+      a.cost += parseFloat(r.cost) || 0;
+      a.gmv += parseFloat(r.total_gmv) || 0;
+      a.orders += parseInt(r.orders, 10) || 0;
+      a.days++;
+    });
+    var plans = Object.keys(map).map(function (k) {
+      var p = map[k];
+      p.roi = p.cost > 0 ? p.gmv / p.cost : 0;
+      return p;
+    });
+    plans.sort(function (a, b) { return b.cost - a.cost; });
+    return plans;
+  }
+
+  function render() {
+    document.getElementById("tabs").querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-scope") === scope);
+    });
+    document.getElementById("channels").querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-ch") === channel);
+    });
+    document.getElementById("roiFilters").querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-roi") === roiFilter);
+    });
+
+    var plans = aggregate();
+    var totalCost = plans.reduce(function (s, p) { return s + p.cost; }, 0);
+    var totalGmv = plans.reduce(function (s, p) { return s + p.gmv; }, 0);
+    var totalRoi = totalCost > 0 ? totalGmv / totalCost : 0;
+
+    // 亏损计划（ROI<1.5）
+    var lossPlans = plans.filter(function (p) { return p.roi < 1.5 && p.cost > 0; });
+    var lossCost = lossPlans.reduce(function (s, p) { return s + p.cost; }, 0);
+    // 花费最多且亏损的（按花费降序取第一个）
+    var worst = lossPlans[0] || null;
+    // 盈利计划（ROI>2）
+    var healthy = plans.filter(function (p) { return p.roi > 2; }).length;
+
+    // 信号条
+    var sig = '<div class="dots">'
+      + '<span class="d"><span class="l">总花费</span><span class="v">' + fmtMoney(totalCost) + '</span></span>'
+      + '<span class="d"><span class="l">成交额</span><span class="v">' + fmtMoney(totalGmv) + '</span></span>'
+      + '<span class="d"><span class="l">综合ROI</span><span class="v" style="color:' + roiColor(totalRoi) + '">' + fmtRoi(totalRoi) + '</span></span>'
+      + '<span class="d"><span class="l">计划</span><span class="v">' + plans.length + '</span></span>'
+      + '<span class="d"><span class="l">亏损计划</span><span class="v">' + lossPlans.length + '</span></span>'
+      + '</div>';
+
+    var verdict = '<div class="verdict">';
+    if (worst) {
+      verdict += '花费最高且<strong>亏损</strong>的计划：<span class="warn">' + worst.plan + '</span>（' + (worst.platform === "天猫" ? "天猫" : "拼多多") + ' · 花 ' + fmtMoney(worst.cost) + ' · ROI ' + fmtRoi(worst.roi) + '）';
+      if (lossCost > 0) verdict += '　亏损计划合计花费 ' + fmtMoney(lossCost) + '（' + (totalCost ? Math.round(lossCost / totalCost * 100) : 0) + '% 的预算）';
+      verdict += '。';
+    }
+    if (healthy) verdict += '　ROI>2 的盈利计划 ' + healthy + ' 个。';
+    verdict += '</div>';
+
+    if (scope === "全平台") {
+      var tm = (raw || []).filter(function (r) { return r.platform === "天猫"; });
+      var pd = (raw || []).filter(function (r) { return r.platform === "拼多多"; });
+      var tmC = tm.reduce(function (s, r) { return s + (parseFloat(r.cost) || 0); }, 0);
+      var tmG = tm.reduce(function (s, r) { return s + (parseFloat(r.total_gmv) || 0); }, 0);
+      var pdC = pd.reduce(function (s, r) { return s + (parseFloat(r.cost) || 0); }, 0);
+      var pdG = pd.reduce(function (s, r) { return s + (parseFloat(r.total_gmv) || 0); }, 0);
+      sig += '<div class="meta">平台对比：天猫 花' + fmtMoney(tmC) + ' 成交' + fmtMoney(tmG) + ' ROI <b>' + (tmC ? fmtRoi(tmG / tmC) : "—") + '</b>　·　拼多多 花' + fmtMoney(pdC) + ' 成交' + fmtMoney(pdG) + ' ROI <b>' + (pdC ? fmtRoi(pdG / pdC) : "—") + '</b></div>';
+    }
+    document.getElementById("signal").innerHTML = sig + verdict;
+
+    document.getElementById("sub").textContent = getDateLabel() + " · 计划级花费与投产" + (scope === "全平台" ? "" : " · " + scope) + (channel === "全部" ? "" : " · " + channel);
+
+    // 主图：花费 TOP15
+    var dom = document.getElementById("chart");
+    var top = plans.slice(0, 15).reverse();
+    dom.style.height = Math.max(280, top.length * 32 + 30) + "px";
+    if (chart) { try { chart.dispose(); } catch (e) {} }
+    if (typeof echarts !== "undefined" && top.length) {
+      chart = echarts.init(dom);
+      var names = top.map(function (p) { return (p.platform === "天猫" ? "🐱" : "🛒") + " " + shortName(p.plan); });
+      var data = top.map(function (p) {
+        return { value: +p.cost.toFixed(0), itemStyle: { color: roiColor(p.roi) }, _p: p };
+      });
+      chart.setOption({
+        grid: { left: 20, right: 70, top: 6, bottom: 6, containLabel: true },
+        tooltip: {
+          formatter: function (ps) {
+            var p = ps[0].data._p;
+            return "<b>" + p.plan + "</b>"
+              + "<br>平台 " + p.platform + " · 渠道 " + p.channel
+              + "<br>花费 " + fmtMoney(p.cost) + " · 成交 " + fmtMoney(p.gmv)
+              + "<br>ROI " + fmtRoi(p.roi) + " · 成交 " + p.orders + " 笔";
+          }
+        },
+        xAxis: { type: "value", axisLabel: { fontSize: 10, formatter: function (v) { return v >= 10000 ? (v / 10000) + "万" : v; } }, splitLine: { lineStyle: { color: "#f0f1f3" } } },
+        yAxis: { type: "category", data: names, axisLabel: { fontSize: 10.5, width: 150, overflow: "truncate" }, axisTick: { show: false } },
+        series: [{ type: "bar", data: data, barWidth: "58%",
+          label: { show: true, position: "right", fontSize: 10, formatter: function (p) { return "ROI " + fmtRoi(p.data._p.roi); } } }]
+      });
+    } else if (chart) { chart.clear(); }
+
+    // 列表：全部=按花费 TOP50；亏损/保本/盈利=花费>1元的全部
+    var shown, ttl, note;
+    if (roiFilter === "全部") {
+      var showN = 50;
+      shown = plans.slice(0, showN);
+      ttl = "计划明细（按花费排序 · 前 " + Math.min(showN, plans.length) + "）";
+      note = "共 " + plans.length + " 个计划 · 红行 = 亏损(ROI<1.5) · 可切换 亏损/保本/盈利 查看全部";
+    } else {
+      var LO = 1.5, HI = 2;          // 保本区间 1.5~2
+      shown = plans.filter(function (p) {
+        if (diagLossMode && roiFilter === "亏损") {
+          // 聚焦模式（来自首页诊断卡片）：只显示诊断口径的亏损计划
+          return p.cost >= 5 && p.roi < 1;
+        }
+        if (!(p.cost > 1)) return false;   // 只看花费 > 1 元的
+        if (roiFilter === "亏损") return p.roi < LO;
+        if (roiFilter === "保本") return p.roi >= LO && p.roi <= HI;
+        return p.roi > HI;                 // 盈利
+      });
+      ttl = (diagLossMode && roiFilter === "亏损" ? "诊断亏损计划" : roiFilter) + "（" + shown.length + " 个）";
+      note = diagLossMode && roiFilter === "亏损"
+        ? "聚焦模式：仅显示首页诊断所指的亏损计划（最新一天 · 花费≥5元 · ROI<1）· 查看全部请点击上方「查看全部」或重新进入"
+        : "仅统计花费 > 1 元的计划 · 亏损=ROI<1.5 · 保本=1.5~2 · 盈利=ROI>2 · 全部按花费降序";
+    }
+    var rows = shown.map(function (p) {
+      var idVal = p.item_id || "";
+      var idCell = idVal
+        ? '<td class="id-cell" data-id="' + idVal.replace(/"/g, "&quot;") + '">' + idVal + '<button class="copy-btn" onclick="copyId(\'' + idVal.replace(/'/g, "\\'") + '\',this)" title="复制ID">复制</button></td>'
+        : '<td class="id-cell">—</td>';
+      return "<tr class='" + (p.roi < 1.5 ? "loss" : "") + "' data-plan='" + encodeURIComponent(p.plan || "") + "' data-store='" + encodeURIComponent(p.store || "") + "'>"
+        + '<td>' + (p.store || "—") + '</td>'
+        + '<td class="nm"><span class="pf">' + (p.platform === "天猫" ? "天" : "拼") + '</span>' + p.plan + '</td>'
+        + idCell
+        + "<td>" + p.channel + "</td>"
+        + '<td class="num">' + fmtMoney(p.cost) + "</td>"
+        + '<td class="num">' + fmtMoney(p.gmv) + "</td>"
+        + '<td class="num roi ' + roiCls(p.roi) + '">' + fmtRoi(p.roi) + "</td>"
+        + '<td class="num">' + p.orders + "</td>"
+        + "</tr>";
+    }).join("");
+    document.querySelector("#list tbody").innerHTML = rows || '<tr><td colspan="8" style="text-align:center;color:#9ca3af;padding:18px">暂无计划</td></tr>';
+    document.getElementById("listTtl").textContent = ttl;
+    document.getElementById("listNote").textContent = note;
+
+    // 汇总行
+    var sumCost = shown.reduce(function (s, p) { return s + p.cost; }, 0);
+    var sumGmv = shown.reduce(function (s, p) { return s + p.gmv; }, 0);
+    var sumOrders = shown.reduce(function (s, p) { return s + p.orders; }, 0);
+    var sumRoi = sumCost > 0 ? sumGmv / sumCost : 0;
+    document.querySelector("#list tfoot").innerHTML =
+      '<td class="sum-label">合计（' + shown.length + ' 个计划）</td><td></td><td></td><td></td>'
+      + '<td class="num">' + fmtMoney(sumCost) + '</td>'
+      + '<td class="num">' + fmtMoney(sumGmv) + '</td>'
+      + '<td class="num roi ' + roiCls(sumRoi) + '">' + fmtRoi(sumRoi) + '</td>'
+      + '<td class="num">' + sumOrders + '</td>';
+  }
+
+  function copyId(text, btn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        btn.classList.add("copy-ok"); setTimeout(function () { btn.classList.remove("copy-ok"); }, 800);
+      }).catch(function () {});
+    } else {
+      var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); btn.classList.add("copy-ok"); setTimeout(function () { btn.classList.remove("copy-ok"); }, 800); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  }
+
+  function copyAllIds(btn) {
+    var ids = [];
+    document.querySelectorAll("#list tbody .id-cell[data-id]").forEach(function (td) {
+      ids.push(td.getAttribute("data-id"));
+    });
+    if (!ids.length) { btn.textContent = "无ID"; setTimeout(function () { btn.textContent = "复制全部ID"; }, 800); return; }
+    var text = ids.join("\n");
+    var done = function () { btn.classList.add("copied"); btn.textContent = "已复制 " + ids.length + " 个"; setTimeout(function () { btn.classList.remove("copied"); btn.textContent = "复制全部ID"; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else {
+      var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+      done();
+    }
+  }
+
+  function getDateLabel() {
+    if (dateMode === "custom") return customStart + " ~ " + customEnd;
+    return "近" + dateMode + "天";
+  }
+
+  // 根据当前 dateMode 过滤 raw 数据
+  function applyDateFilter() {
+    if (!allRaw) { raw = null; return; }
+    var days = {};
+    allRaw.forEach(function (r) { if (r.date) days[r.date] = 1; });
+    var allDates = Object.keys(days).sort();
+
+    if (dateMode === "1") {
+      var d1 = allDates.slice(-1)[0] || "";
+      raw = allRaw.filter(function (r) { return r.date === d1; });
+    } else if (dateMode === "7") {
+      var last7 = allDates.slice(-7);
+      var m7 = {};
+      last7.forEach(function (d) { m7[d] = 1; });
+      raw = allRaw.filter(function (r) { return m7[r.date]; });
+    } else if (dateMode === "custom" && customStart && customEnd) {
+      raw = allRaw.filter(function (r) { return r.date >= customStart && r.date <= customEnd; });
+    } else {
+      raw = allRaw;
+    }
+  }
+
+  function shortName(n) {
+    n = String(n || "");
+    if (n.length <= 14) return n;
+    var m = n.match(/^(.+?)_(\d{8})_?(.*)$/);
+    if (m) return m[1] + "_" + m[2];
+    return n.slice(0, 14) + "…";
+  }
+
+  document.getElementById("tabs").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    scope = b.getAttribute("data-scope"); render();
+  });
+  document.getElementById("channels").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    channel = b.getAttribute("data-ch"); render();
+  });
+  document.getElementById("roiFilters").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    roiFilter = b.getAttribute("data-roi"); render();
+  });
+
+  // 日期筛选
+  document.getElementById("dateFilter").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var d = b.getAttribute("data-days");
+    if (d === "custom") {
+      dateMode = "custom";
+      // 显示日期选择器，并设置默认值为最近7天
+      var dp = document.getElementById("datePickerWrap");
+      dp.classList.add("show");
+      if (!document.getElementById("dpStart").value && allRaw) {
+        var days = {};
+        allRaw.forEach(function (r) { if (r.date) days[r.date] = 1; });
+        var sd = Object.keys(days).sort();
+        document.getElementById("dpStart").value = sd[sd.length - 7] || "";
+        document.getElementById("dpEnd").value = sd[sd.length - 1] || "";
+      }
+    } else {
+      dateMode = d;
+      document.getElementById("datePickerWrap").classList.remove("show");
+      this.querySelectorAll("button").forEach(function (btn) {
+        btn.classList.toggle("active", btn.getAttribute("data-days") === d);
+      });
+      applyDateFilter();
+      render();
+    }
+  });
+
+  loadJSON("data/ad-roi.json").then(function (d) {
+    allRaw = Array.isArray(d) ? d : [];
+    if (!allRaw.length) {
+      document.getElementById("signal").innerHTML = '<div style="text-align:center;color:#b91c1c;padding:14px 0;">数据加载失败：data/ad-roi.json 不可用，且本机服务 3588 未响应</div>';
+      return;
+    }
+    // 统计所有日期，更新 dateBadge
+    var days = {};
+    allRaw.forEach(function (r) { if (r.date) days[r.date] = 1; });
+    var allDates = Object.keys(days).sort();
+    document.getElementById("dateBadge").textContent = "数据至 " + (allDates[allDates.length - 1] || "—").slice(5);
+
+    // 初始化自定义日期选择器的 max/min
+    if (allDates.length) {
+      var dpS = document.getElementById("dpStart");
+      var dpE = document.getElementById("dpEnd");
+      dpS.min = allDates[0]; dpS.max = allDates[allDates.length - 1];
+      dpE.min = allDates[0]; dpE.max = allDates[allDates.length - 1];
+      dpS.value = allDates[Math.max(0, allDates.length - 7)];
+      dpE.value = allDates[allDates.length - 1];
+    }
+
+    // 按当前日期模式过滤
+    applyDateFilter();
+    document.getElementById("foot").textContent = "数据来源：data/ad-roi.json（" + getDateLabel() + " · 共 " + (raw || []).length + " 条原始记录）";
+    render();
+    if (pendingFocus && pendingFocus.board === 'ad-roi-analysis') {
+      window.applyAdRoiFocus(pendingFocus);
+      pendingFocus = null;
+    }
+  }).catch(function (e) {
+    document.getElementById("signal").innerHTML = '<div style="text-align:center;color:#b91c1c;padding:14px 0;">数据加载失败：' + e + '</div>';
+  });
+
+  // 深度链接：从首页诊断卡片直达具体亏损计划（精确定位到 item_id 对应行）
+  window.applyAdRoiFocus = function (focus) {
+    if (!focus) return;
+    if (focus.scope) scope = focus.scope;
+    if (focus.channel) channel = focus.channel;
+    if (focus.roi) roiFilter = focus.roi;
+    diagLossMode = (focus.roi === '亏损');
+    if (focus.dateMode) dateMode = focus.dateMode;
+    if (focus.dateMode === 'custom' && focus.dateStart && focus.dateEnd) {
+      customStart = focus.dateStart; customEnd = focus.dateEnd;
+    }
+    if (allRaw && allRaw.length) {
+      applyDateFilter();
+      render();
+      // 聚焦模式横幅：告诉用户当前只展示诊断所指数据 + 可一键查看全部
+      if (diagLossMode) {
+        setTimeout(function () {
+          var shown = document.querySelectorAll('#list tbody tr').length;
+          var banner = document.getElementById('adFocusBanner');
+          if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'adFocusBanner';
+            banner.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:12px;';
+            var tbl = document.getElementById('list');
+            var wrap = tbl ? tbl.closest('.card') : null;
+            if (wrap) wrap.insertBefore(banner, wrap.firstChild);
+          }
+          banner.innerHTML = '';
+          var s1 = document.createElement('span');
+          s1.textContent = '🔍 聚焦模式：';
+          var b = document.createElement('b');
+          b.textContent = '仅展示诊断所指的亏损计划（' + shown + ' 条）';
+          var s2 = document.createElement('span');
+          s2.style.cssText = 'font-weight:400;color:#a16207;';
+          s2.textContent = '— 最新一天 · 花费≥5元 · ROI<1';
+          var exitBtn = document.createElement('button');
+          exitBtn.textContent = '查看全部';
+          exitBtn.style.cssText = 'margin-left:auto;border:1px solid #d97706;background:#fff;color:#92400e;padding:4px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;';
+          exitBtn.onclick = function () { location.search = ''; };
+          banner.appendChild(s1); banner.appendChild(b); banner.appendChild(s2); banner.appendChild(exitBtn);
+        }, 300);
+      }
+    }
+    setTimeout(function () {
+      var tr = null;
+      // 1) 精确：按 item_id 定位
+      if (focus.itemId) {
+        var cell = document.querySelector('#list tbody .id-cell[data-id="' + focus.itemId + '"]');
+        if (cell) tr = cell.closest('tr');
+      }
+      // 2) 精确：按计划名（data-plan）精确匹配
+      if (!tr && focus.keyword) {
+        var kwEnc = encodeURIComponent(focus.keyword);
+        var rows2 = document.querySelectorAll('#list tbody tr[data-plan]');
+        for (var i = 0; i < rows2.length; i++) {
+          if (rows2[i].getAttribute('data-plan') === kwEnc) { tr = rows2[i]; break; }
+        }
+      }
+      // 3) 兜底：文本包含匹配
+      if (!tr && focus.keyword) {
+        var rows3 = document.querySelectorAll('#list tbody tr');
+        for (var j = 0; j < rows3.length; j++) {
+          var nm = rows3[j].querySelector('.nm');
+          if (nm && nm.textContent.indexOf(focus.keyword) >= 0) { tr = rows3[j]; break; }
+        }
+      }
+      // 4) 兜底：第一个亏损计划
+      if (!tr) tr = document.querySelector('#list tbody tr.loss');
+      if (tr) {
+        tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        tr.classList.add('dl-highlight');
+        setTimeout(function () { tr.classList.remove('dl-highlight'); }, 12000);
+        var nmEl = tr.querySelector('.nm');
+        var idEl = tr.querySelector('.id-cell');
+        var name = nmEl ? nmEl.textContent.replace(/^\s*[天拼]\s*/, '') : (focus.keyword || '');
+        if (typeof DeepLink !== 'undefined') {
+          DeepLink.toast(name, idEl && idEl.getAttribute('data-id') ? ('计划ID ' + idEl.getAttribute('data-id') + ' · 请优先处理此计划') : '请优先处理此计划');
+        }
+      }
+    }, 400);
+  };
+
+  // 暴露给内联 onclick
+  window.copyId = copyId;
+  window.copyAllIds = copyAllIds;
+  window.applyCustomDate = function () {
+    var s = document.getElementById("dpStart").value;
+    var e = document.getElementById("dpEnd").value;
+    if (!s || !e) return;
+    customStart = s; customEnd = e;
+    document.getElementById("datePickerWrap").classList.remove("show");
+    applyDateFilter();
+    render();
+  };
+})();
+</script>
+<script>
+  // 诊断功能：复用 ad-roi 板块诊断规则（raw 为计划级原始数据，含 cost/total_gmv/blended_roi）
+  if (window.DIAG) {
+    window.addEventListener('load', function () {
+      DIAG.attachFloat({ boardId: 'ad-roi', title: '推广投放分析', getRows: function () { return (typeof raw !== 'undefined' && raw) || []; } });
+    });
+  }
+</script>
+</body>
+</html>

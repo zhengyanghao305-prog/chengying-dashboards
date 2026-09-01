@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>橙萤 · 新品项目进度</title>
+<style>
+  :root{
+    --bg:#0f1419; --card:#1a2129; --card2:#222b35; --line:#2c3743;
+    --txt:#e6edf3; --mut:#8b98a5; --ok:#22c55e; --warn:#f59e0b;
+    --bad:#ef4444; --run:#38bdf8; --idle:#6b7280;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh;padding:18px 14px}
+  .wrap{width:100%;max-width:720px;margin:0 auto}
+  h1{font-size:19px;margin:0 0 14px}
+
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .btn{border:none;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .btn-primary{background:#3b82f6;color:#fff}
+  .btn-ghost{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+  .btn-green{background:var(--ok);color:#fff}
+  .btn-red{background:var(--bad);color:#fff}
+  select.pick{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;cursor:pointer;min-width:180px}
+  .spacer{flex:1}
+
+  .prod-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:12px 14px;background:var(--card);border:1px solid var(--line);border-radius:10px}
+  .prod-head .name{font-size:16px;font-weight:700}
+  .prod-head .bar{flex:1;height:8px;border-radius:4px;background:var(--card2);overflow:hidden;max-width:200px}
+  .prod-head .bar>i{display:block;height:100%;border-radius:4px;background:var(--ok);transition:.2s}
+  .prod-head .pct{font-size:14px;font-weight:700;color:var(--mut)}
+  .prod-head .owner{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mut);margin-left:auto}
+  .prod-head .owner input{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:6px;padding:6px 8px;font-size:13px;width:96px;outline:none;font-family:inherit}
+  .prod-head .owner input:focus{border-color:var(--acc)}
+
+  .phase{margin-bottom:14px}
+  .phase-title{font-size:14px;font-weight:700;padding:6px 2px;border-bottom:1px solid var(--line);margin-bottom:6px}
+  .c-基建期{color:#93c5fd}.c-打品期{color:#fcd34d}.c-盈利期{color:#86efac}
+
+  .row{display:block;padding:11px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:7px;background:var(--card);cursor:pointer;transition:.12s}
+  .row:hover{background:var(--card2)}
+  .row-main{display:flex;align-items:center;gap:12px}
+  .dot{width:13px;height:13px;border-radius:50%;flex:none;border:2px solid var(--idle)}
+  .row.done .dot{background:var(--ok);border-color:var(--ok)}
+  .row.run .dot{background:var(--run);border-color:var(--run)}
+  .row.warn .dot{background:var(--warn);border-color:var(--warn)}
+  .row.bad .dot{background:var(--bad);border-color:var(--bad)}
+  .row .label{flex:1;font-size:14px}
+  .row.done .label{color:var(--mut);text-decoration:line-through}
+  .state{font-size:12px;font-weight:600;color:var(--mut);white-space:nowrap}
+  .row-sub{display:flex;align-items:center;gap:8px;margin-top:9px;padding-left:25px}
+  .sub-label{font-size:12px;color:var(--mut);white-space:nowrap}
+  .plan{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;outline:none}
+  .plan:focus{border-color:var(--run)}
+  .plan.over{color:var(--bad);border-color:var(--bad)}
+
+  .empty{text-align:center;color:var(--mut);padding:50px 20px}
+  .empty .big{font-size:16px;color:var(--txt);margin-bottom:6px}
+  .msg{margin-top:12px;padding:10px 13px;border-radius:8px;font-size:13px;display:none}
+  .msg.ok{display:block;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);color:#86efac}
+  .msg.err{display:block;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4);color:#fca5a5}
+  .msg.info{display:block;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.4);color:#93c5fd}
+  .hint{font-size:12px;color:var(--mut);margin-top:14px;text-align:center;line-height:1.6}
+  .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block;vertical-align:middle}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📦 新品项目进度</h1>
+  <div class="toolbar">
+    <select class="pick" id="pick"><option value="">— 选择产品 —</option></select>
+    <button class="btn btn-green" id="add">＋ 新增</button>
+    <button class="btn btn-primary" id="sync"><span id="syncIcon">🔄</span> 同步</button>
+    <button class="btn btn-ghost" id="reload">↻ 刷新</button>
+    <div class="spacer"></div>
+  </div>
+  <div id="board"></div>
+  <div class="msg" id="msg"></div>
+  <div class="hint">点一行切换状态：未开始 → 进行中 → 完成。填完点「同步」，工作台约 1 分钟自动刷新。</div>
+</div>
+
+<script>
+var PHASES = [
+  { name:'基建期', stages:[
+    { name:'市场分析与选品定义' },{ name:'需求与设计' },{ name:'生产开发与样检' },
+    { name:'内容物料' },{ name:'上架准备' },{ name:'新品标准化与反馈' }
+  ]},
+  { name:'打品期', stages:[
+    { name:'测款验证' },{ name:'投流自动化' },{ name:'评价口碑' },
+    { name:'活动节奏' },{ name:'监控预警工单' },{ name:'打品复盘' }
+  ]},
+  { name:'盈利期', stages:[
+    { name:'销售BI' },{ name:'利润BI' },{ name:'库存周转BI' },
+    { name:'竞品市场BI' },{ name:'盈利预警决策' }
+  ]}
+];
+// 展开成带周期前缀的完整 stage 名（与工作台/历史数据一致）
+var FULL = {};
+PHASES.forEach(function(p){ p.stages.forEach(function(s){ FULL[s.name]=p.name+'·'+s.name; }); });
+var ALL_STAGES = Object.values(FULL);
+var STAGE_CYCLE = {}; Object.keys(FULL).forEach(function(k){ STAGE_CYCLE[FULL[k]]=FULL[k].split('·')[0]; });
+// 自动使用当前访问地址(localhost/局域网IP/域名均可),避免硬编码导致跨设备失效
+var RAILWAY = location.protocol + '//' + location.host;
+var API_KEY='chengying2026', BOARD='product-pipeline';
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fullOf(short){ return FULL[short]; }
+function stageIndex(stage){ return ALL_STAGES.indexOf(stage); }
+function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function rowsOf(prod){ return ALL_ROWS.filter(function(r){ return (r.product||'')===prod; }); }
+function getRow(prod,stage){ return ALL_ROWS.find(function(r){ return r.product===prod && r.stage===stage; }); }
+function statusOf(r){
+  if(r && r.actualDue) return 'done';
+  if(r && r.subtasks && r.subtasks._done) return 'done';
+  if(r && r.subtasks && r.subtasks._started) return 'run';
+  return 'idle';
+}
+function getProdOwner(prod){
+  var rows=rowsOf(prod);
+  for(var i=0;i<rows.length;i++){ if(rows[i].owner) return rows[i].owner; }
+  return '';
+}
+function setProdOwner(prod, owner){
+  rowsOf(prod).forEach(function(r){ r.owner=owner; });
+}
+function getProdPlatform(prod){
+  var rows=rowsOf(prod);
+  for(var i=0;i<rows.length;i++){ if(rows[i].platform) return rows[i].platform; }
+  return '';
+}
+function setProdPlatform(prod, platform){
+  rowsOf(prod).forEach(function(r){ r.platform=platform; });
+}
+function cycleStatus(prod){
+  var rows=rowsOf(prod); var done=0;
+  rows.forEach(function(r){ if(statusOf(r)==='done') done++; });
+  return {done:done, total:rows.length};
+}
+// 字段级合并：本地有非空值才覆盖服务器；空串/undefined 不覆盖，避免清掉别人已填的内容
+function mergeRow(remote, local){
+  var out=Object.assign({},remote);
+  Object.keys(local).forEach(function(k){
+    var v=local[k];
+    if(v===undefined||v===null) return;
+    if(typeof v==='object' && !Array.isArray(v)){
+      var base=out[k]||{}; var m2=Object.assign({},base);
+      Object.keys(v).forEach(function(sk){ m2[sk]=v[sk]; });
+      out[k]=m2;
+    } else if(typeof v==='string' && v===''){ /* 空串不覆盖已有值 */ }
+    else { out[k]=v; }
+  });
+  return out;
+}
+
+var ALL_ROWS = []; var current='';
+var board=document.getElementById('board');
+
+function setMsg(t,h){ var m=document.getElementById('msg'); m.className='msg '+t; m.innerHTML=h; m.style.display='block'; }
+function clearMsg(){ document.getElementById('msg').style.display='none'; }
+
+function onPick(prod, short){
+  var stage=fullOf(short);
+  var r=getRow(prod,stage);
+  var cur = r ? statusOf(r) : 'idle';
+  var next = cur==='idle' ? 'run' : (cur==='run' ? 'done' : 'idle');
+  if(!r){ r={product:prod, cycle:STAGE_CYCLE[stage], stage:stage, owner:'', planDue:'', actualDue:'', subtasks:{}, note:''}; ALL_ROWS.push(r); }
+  if(next==='done'){ r.actualDue=todayStr(); r.subtasks._done=true; r.subtasks._started=false; }
+  else if(next==='run'){ r.actualDue=''; r.subtasks._done=false; r.subtasks._started=true; }
+  else { r.actualDue=''; r.subtasks._done=false; r.subtasks._started=false; }
+  renderProduct();
+  syncSoon();
+}
+
+var _t;
+function syncSoon(){ clearTimeout(_t); _t=setTimeout(doSync, 200); }
+
+function renderProduct(){
+  board.innerHTML='';
+  if(!current){ board.innerHTML='<div class="empty"><div class="big">未选择产品</div>请在上方可拉选择，或点「＋ 新增」。</div>'; return; }
+  var cs=cycleStatus(current);
+  var head=document.createElement('div'); head.className='prod-head';
+  head.innerHTML='<div class="name">'+esc(current)+'</div>'+
+    '<div class="bar"><i id="bar" style="width:'+(cs.total?Math.round(cs.done/cs.total*100):0)+'%"></i></div>'+
+    '<div class="pct" id="pct">'+cs.done+'/'+cs.total+'</div>'+
+    '<div class="owner">负责人 <input id="ownerInput" placeholder="填负责人" value="'+esc(getProdOwner(current))+'"></div>'+
+    '<div class="owner">平台 <select id="platformInput"><option value="">—</option><option value="拼多多"'+(getProdPlatform(current)==='拼多多'?' selected':'')+'>拼多多</option><option value="天猫"'+(getProdPlatform(current)==='天猫'?' selected':'')+'>天猫</option></select></div>'+
+    '<button class="btn btn-red" id="del" style="padding:6px 10px;font-size:12px">删除</button>';
+  board.appendChild(head);
+  document.getElementById('del').onclick=function(){ deleteProduct(current); };
+  document.getElementById('ownerInput').oninput=function(){ setProdOwner(current, this.value.trim()); syncSoon(); };
+  var _pi=document.getElementById('platformInput'); if(_pi){ _pi.onchange=function(){ setProdPlatform(current, this.value); syncSoon(); }; }
+
+  PHASES.forEach(function(ph){
+    var sec=document.createElement('div'); sec.className='phase';
+    var ti=document.createElement('div'); ti.className='phase-title c-'+ph.name; ti.textContent=ph.name; sec.appendChild(ti);
+    ph.stages.forEach(function(s){
+      var stage=fullOf(s.name);
+      var rr=getRow(current,stage);
+      var st=statusOf(rr);
+      var row=document.createElement('div'); row.className='row '+st;
+      var main=document.createElement('div'); main.className='row-main';
+      main.innerHTML='<span class="dot"></span><span class="label">'+esc(s.name)+'</span>'+
+        '<span class="state">'+(st==='done'?'已完成':(st==='run'?'进行中':'未开始'))+'</span>';
+      row.appendChild(main);
+      var sub=document.createElement('div'); sub.className='row-sub';
+      var sl=document.createElement('span'); sl.className='sub-label'; sl.textContent='计划完成';
+      var pi=document.createElement('input'); pi.type='date'; pi.className='plan'; pi.value=rr?((rr.planDue)||''):'';
+      pi.onclick=function(e){ e.stopPropagation(); };
+      pi.onmousedown=function(e){ e.stopPropagation(); };
+      pi.onchange=function(){
+        var r2=getRow(current,stage);
+        if(r2){ r2.planDue=this.value; this.classList.toggle('over', this.value && statusOf(r2)==='idle' && this.value < todayStr()); syncSoon(); }
+      };
+      sub.appendChild(sl); sub.appendChild(pi);
+      row.appendChild(sub);
+      row.onclick=function(){ onPick(current, s.name); };
+      sec.appendChild(row);
+    });
+    board.appendChild(sec);
+  });
+}
+
+function refreshPicker(){
+  var pick=document.getElementById('pick'); var prods={}; ALL_ROWS.forEach(function(r){ if(r.product)prods[r.product]=1; });
+  var list=Object.keys(prods).sort(); var cur=current;
+  pick.innerHTML='<option value="">— 选择产品 —</option>'+list.map(function(p){ return '<option'+(p===cur?' selected':'')+'>'+esc(p)+'</option>'; }).join('')+'<option value="__add__">＋ 新增…</option>';
+  pick.value=cur||'';
+}
+
+document.getElementById('pick').onchange=function(){ if(this.value==='__add__'){addProduct();return;} current=this.value; renderProduct(); };
+document.getElementById('add').onclick=addProduct;
+document.getElementById('reload').onclick=load;
+
+function addProduct(){
+  var name=prompt('输入产品名称：',''); if(!name||!name.trim())return; name=name.trim();
+  if(ALL_ROWS.some(function(r){ return r.product===name; })){ setMsg('err','该产品已存在。'); return; }
+  ALL_STAGES.forEach(function(stage){
+    ALL_ROWS.push({product:name, cycle:STAGE_CYCLE[stage], stage:stage, owner:'', planDue:'', actualDue:'', subtasks:{}, note:''});
+  });
+  current=name; refreshPicker(); renderProduct(); clearMsg(); setMsg('info','已创建「'+esc(name)+'」，点每行切换状态即可。');
+}
+function deleteProduct(prod){
+  if(!confirm('删除产品「'+prod+'」全部记录？'))return;
+  ALL_ROWS=ALL_ROWS.filter(function(r){ return r.product!==prod; }); if(current===prod)current='';
+  refreshPicker(); renderProduct();
+}
+
+async function load(){
+  clearMsg();
+  try{
+    var gr=await fetch(RAILWAY+'/api/files/'+BOARD,{headers:{'X-API-Key':API_KEY}});
+    if(!gr.ok) throw new Error('读取失败('+gr.status+')');
+    var gj=await gr.json(); var rows=Array.isArray(gj)?gj:(gj.data||[]);
+    ALL_ROWS=rows.map(function(r){ var o=Object.assign({},r); if(!o.subtasks)o.subtasks={}; return o; });
+    if(!current){ var prods={}; ALL_ROWS.forEach(function(r){ if(r.product)prods[r.product]=1; }); current=Object.keys(prods)[0]||''; }
+    refreshPicker(); renderProduct();
+    setMsg('info','已读取 '+ALL_ROWS.length+' 个环节。');
+  }catch(err){ board.innerHTML='<div class="empty"><div class="big">读取失败</div>'+esc(err.message)+'</div>'; }
+}
+
+async function doSync(){
+  var btn=document.getElementById('sync'); var icon=document.getElementById('syncIcon');
+  btn.disabled=true; icon.innerHTML='<span class="spin"></span>'; clearMsg();
+  try{
+    var local=ALL_ROWS.filter(function(r){ return (r.product||'').trim()&&(r.stage||'').trim(); });
+    var gr=await fetch(RAILWAY+'/api/files/'+BOARD,{headers:{'X-API-Key':API_KEY}});
+    if(!gr.ok) throw new Error('读取失败('+gr.status+')');
+    var gj=await gr.json(); var latest=Array.isArray(gj)?gj:(gj.data||[]);
+    var localMap={}; local.forEach(function(r){ localMap[(r.product||'')+'|'+(r.stage||'')]=r; });
+    var merged=[];
+    latest.forEach(function(r){
+      var k=(r.product||'')+'|'+(r.stage||'');
+      if(localMap[k]){ merged.push(mergeRow(r, localMap[k])); delete localMap[k]; } else merged.push(r);
+    });
+    Object.keys(localMap).forEach(function(k){ merged.push(localMap[k]); });
+    // 保护：合并后为空但服务器原本有数据时，拒绝覆盖（防止本地读取失败/异常清空服务器）
+    if(merged.length===0 && latest.length>0) throw new Error('本地数据为空，拒绝覆盖服务器上的 '+latest.length+' 条记录');
+    var pr=await fetch(RAILWAY+'/api/files/'+BOARD,{method:'POST',headers:{'X-API-Key':API_KEY,'Content-Type':'application/json'},body:JSON.stringify({data:merged,updatedAt:new Date().toISOString(),source:'ticket'})});
+    if(!pr.ok) throw new Error('写入失败('+pr.status+')');
+    ALL_ROWS=merged; refreshPicker(); renderProduct();
+    setMsg('ok','✅ 已同步 '+merged.length+' 个环节。');
+  }catch(err){ setMsg('err','❌ 同步失败：'+esc(err.message)); }
+  finally{ btn.disabled=false; icon.textContent='🔄'; }
+}
+document.getElementById('sync').onclick=doSync;
+
+load();
+</script>
+</body>
+</html>

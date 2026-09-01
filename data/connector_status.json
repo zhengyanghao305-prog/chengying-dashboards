@@ -1,0 +1,35 @@
+{
+  "wolong": {
+    "key": "wolong",
+    "label": "卧龙进销存",
+    "platform": "pdd",
+    "last_sync": null,
+    "last_error": "web_export 失败: page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL\nCall log:\n\u001b[2m  - navigating to \"\", waiting until \"networkidle\"\u001b[22m\n\n",
+    "sales": 0,
+    "inventory": 0,
+    "state": "error"
+  },
+  "_meta": {
+    "last_run": 1784284381
+  },
+  "shisu": {
+    "key": "shisu",
+    "label": "十速ERP",
+    "platform": "tmall",
+    "last_sync": null,
+    "last_error": "web_export 失败: page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL\nCall log:\n\u001b[2m  - navigating to \"\", waiting until \"networkidle\"\u001b[22m\n\n",
+    "sales": 0,
+    "inventory": 0,
+    "state": "error"
+  },
+  "wangdiantong": {
+    "key": "wangdiantong",
+    "label": "旺店通ERP",
+    "platform": "erp",
+    "last_sync": null,
+    "last_error": "旺店通凭据未配置（sid/appkey/appsecret）",
+    "sales": 0,
+    "inventory": 0,
+    "state": "error"
+  }
+}

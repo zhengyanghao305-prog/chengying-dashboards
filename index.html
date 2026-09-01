@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>window.__EDITION = 'cloud'; window.__SYNC_BASE = location.protocol + '//' + location.host;</script>
+<title>橙萤零售工作台</title>
+<style>
+  /* ============================================================
+     Variables & Reset
+     ============================================================ */
+  :root {
+    --bg-page: #f0f2f5;
+    --bg-card: #ffffff;
+    --bg-tag: #f0f2f5;
+    --text-primary: #1a1a2e;
+    --text-secondary: #5b6777;
+    --text-tertiary: #9aa6b5;
+    --text-muted: #b8c2d0;
+    --border: #e8ecf1;
+    --border-light: #f1f3f7;
+
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-red: #ef4444;
+    --accent-purple: #8b5cf6;
+    --accent-cyan: #06b6d4;
+    --accent-pink: #ec4899;
+    --accent-orange: #f97316;
+    --accent-indigo: #6366f1;
+
+    --tag-daily: #dbeafe; --tag-daily-text: #1d4ed8;
+    --tag-weekly: #fce7f3; --tag-weekly-text: #be185d;
+    --tag-demand: #fef3c7; --tag-demand-text: #b45309;
+    --tag-qa: #ede9fe; --tag-qa-text: #6d28d9;
+    --tag-note: #f0fdf4; --tag-note-text: #15803d;
+    --tag-call: #fff7ed; --tag-call-text: #c2410c;
+    --tag-alert: #fee2e2; --tag-alert-text: #dc2626;
+    --tag-update: #eff6ff; --tag-update-text: #2563eb;
+    --tag-check: #faf5ff; --tag-check-text: #7c3aed;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+    --shadow-card: 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ============================================================
+     Scrollbar
+     ============================================================ */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+  /* ============================================================
+     Header
+     ============================================================ */
+  .app-header {
+    background: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fbbf24 100%);
+    color: #fff;
+    padding: 28px 40px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .app-header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .app-header::before {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: 20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,183,77,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    position: relative;
+    z-index: 1;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-logo {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.8);
+    flex-shrink: 0;
+  }
+  .header-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .header-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* View Mode Toggle */
+  .view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 3px;
+    position: relative;
+    z-index: 1;
+  }
+  .view-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+  }
+  .view-btn svg { width: 14px; height: 14px; }
+  .view-btn.active {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+  }
+  .view-btn:hover:not(.active) {
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* ── 手机/窄屏 模式 ── */
+  .main-wrapper { transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  .main-wrapper.mobile-mode .main-content { padding: 12px 10px 20px; }
+  .main-wrapper.mobile-mode .card-grid { grid-template-columns: 1fr; gap: 12px; }
+  .main-wrapper.mobile-mode .filter-bar {
+    padding: 8px 10px; gap: 4px; border-radius: var(--radius-md);
+    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .main-wrapper.mobile-mode .filter-chip { font-size: 12px; padding: 5px 10px; flex-shrink: 0; }
+  .main-wrapper.mobile-mode .filter-bar-label { display: none; }
+  .main-wrapper.mobile-mode .stats-bar { gap: 5px; padding: 12px 0 10px; }
+  .main-wrapper.mobile-mode .stat-item { padding: 5px 8px; font-size: 11px; gap: 3px; }
+  .main-wrapper.mobile-mode .stat-icon { font-size: 11px; }
+  .main-wrapper.mobile-mode .group { margin-bottom: 20px; }
+  .main-wrapper.mobile-mode .group-header { gap: 6px; margin-bottom: 10px; }
+  .main-wrapper.mobile-mode .group-title { font-size: 14px; }
+  .main-wrapper.mobile-mode .group-subtitle { font-size: 11px; }
+  .main-wrapper.mobile-mode .card { padding: 14px 16px; }
+  .main-wrapper.mobile-mode .card-title { font-size: 14px; }
+  .main-wrapper.mobile-mode .card-list li { font-size: 12px; line-height: 1.6; }
+  .main-wrapper.mobile-mode .card-desc { font-size: 12px; }
+  .main-wrapper.mobile-mode .footer-info { font-size: 11px; padding: 0 4px 14px; }
+  .main-wrapper.mobile-mode .group-icon { width: 26px; height: 26px; font-size: 13px; }
+
+  /* 手机移除操作列 */
+  .main-wrapper.mobile-mode td.ops { display: none; }
+
+  /* ── 真机响应式：≤768px 全屏移动布局 ── */
+  @media (max-width: 768px) {
+    /* 头部压缩 */
+    .app-header { padding: 10px 12px 0; }
+    .header-top { margin-bottom: 8px; }
+    .header-brand { gap: 8px; }
+    .header-logo { width: 28px; height: 28px; }
+    .header-logo svg { width: 20px; height: 20px; }
+    .header-title { font-size: 14px; }
+    .header-subtitle { font-size: 10px; display: none; }
+    .header-actions { gap: 6px; }
+    .refresh-btn { padding: 5px 8px; font-size: 11px; }
+    .refresh-btn svg { width: 12px; height: 12px; }
+    .view-toggle { display: none; }
+
+    /* 驾驶舱切换标签紧凑 */
+    .header-tab { padding: 6px 10px; font-size: 12px; gap: 4px; border-radius: 6px 6px 0 0; }
+    .header-tab svg { width: 13px; height: 13px; }
+    .header-tab.active::after { width: 16px; height: 2px; }
+
+    .main-content { padding: 10px 8px calc(20px + env(safe-area-inset-bottom)); }
+    .card-grid { grid-template-columns: 1fr; gap: 10px; }
+
+    /* 筛选条水平滚动 */
+    .filter-bar { padding: 6px 8px; gap: 4px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-chip { font-size: 11px; padding: 5px 10px; flex-shrink: 0; white-space: nowrap; }
+    .filter-bar-label { display: none; }
+
+    .stats-bar { gap: 4px; padding: 8px 0; }
+    .stat-item { padding: 4px 6px; font-size: 10px; gap: 2px; }
+    .stat-icon { font-size: 10px; }
+    .group { margin-bottom: 16px; }
+    .group-header { gap: 5px; margin-bottom: 8px; }
+    .group-icon { width: 28px; height: 28px; font-size: 13px; border-radius: 7px; }
+    .group-title { font-size: 13px; }
+    .group-subtitle { font-size: 10px; display: none; }
+    .card { padding: 12px 14px; border-radius: 10px; }
+    .card-header { margin-bottom: 6px; }
+    .card-num { font-size: 10px; }
+    .card-title { font-size: 14px; }
+    .card-subtitle { font-size: 10px; }
+    .status-badge { font-size: 9px; padding: 2px 8px; }
+    .status-dot { width: 5px; height: 5px; }
+    .card-tag-row { gap: 4px; margin-bottom: 6px; }
+    .card-tag { font-size: 10px; padding: 2px 8px; }
+    .card-desc { font-size: 12px; margin-bottom: 6px; }
+    .card-list { margin-bottom: 8px; }
+    .card-list li { font-size: 11px; line-height: 1.5; padding-left: 14px; margin-bottom: 2px; }
+    .card-list li::before { font-size: 10px; }
+    .card-footer { font-size: 10px; padding-top: 6px; gap: 4px; }
+    .card-arrow { font-size: 12px; }
+    .footer-info { font-size: 10px; padding: 16px 0 20px; }
+
+    /* 手机端：聊天组件容器不拦截点击，气泡仍可点 */
+    #blue-chat-widget { pointer-events: none; }
+    #blue-chat-bubble { pointer-events: auto; }
+    .filter-chip { min-height: 36px; }
+    .header-tab { min-height: 40px; }
+    .refresh-btn { min-height: 40px; }
+    .card { -webkit-tap-highlight-color: transparent; }
+  }
+
+  @media (max-width: 414px) {
+    .app-header { padding: 8px 10px 0; }
+    .header-logo { width: 24px; height: 24px; }
+    .header-logo svg { width: 18px; height: 18px; }
+    .header-title { font-size: 13px; }
+    .header-actions { gap: 4px; }
+    .refresh-btn { padding: 4px 6px; font-size: 10px; gap: 2px; }
+    .refresh-btn span { display: none; }
+    .refresh-btn svg { width: 11px; height: 11px; }
+    .header-tab { padding: 5px 8px; font-size: 11px; }
+    .header-tab svg { width: 12px; height: 12px; }
+    .main-content { padding: 8px 6px 16px; }
+    .card { padding: 10px 12px; }
+    .card-title { font-size: 13px; }
+    .card-desc { font-size: 11px; }
+    .card-list li { font-size: 10px; }
+    .group { margin-bottom: 12px; }
+    .group-title { font-size: 12px; }
+    .group-icon { width: 24px; height: 24px; font-size: 11px; border-radius: 6px; }
+  }
+
+  /* Header Tabs */
+  .header-tabs {
+    display: flex;
+    gap: 4px;
+    position: relative;
+    z-index: 1;
+  }
+  .header-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: rgba(0,0,0,0.15);
+    color: rgba(255,255,255,0.9);
+    position: relative;
+  }
+  .header-tab svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.85;
+  }
+  .header-tab:hover {
+    color: #fff;
+    background: rgba(0,0,0,0.25);
+  }
+  .header-tab.active {
+    color: #92400e;
+    background: var(--bg-page);
+    font-weight: 600;
+  }
+  .header-tab.active svg { opacity: 1; }
+  .header-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: #d97706;
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* ============================================================
+     Main Content
+     ============================================================ */
+  .main-content {
+    padding: 24px 40px 40px;
+  }
+
+  /* ============================================================
+     Filter Bar
+     ============================================================ */
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 28px;
+    padding: 14px 20px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    align-items: center;
+  }
+  .filter-bar-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    margin-right: 6px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    user-select: none;
+    background: var(--bg-tag);
+    color: var(--text-secondary);
+  }
+  .filter-chip:hover {
+    background: #e5e9f0;
+    transform: translateY(-1px);
+  }
+  .filter-chip.active {
+    background: var(--bg-card);
+    border-color: currentColor;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-weight: 600;
+  }
+  .chip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .chip-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: 2px;
+  }
+
+  /* ============================================================
+     Board Groups
+     ============================================================ */
+  .board-groups { }
+
+  .group {
+    margin-bottom: 36px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .group:nth-child(1) { animation-delay: 0.05s; }
+  .group:nth-child(2) { animation-delay: 0.12s; }
+  .group:nth-child(3) { animation-delay: 0.19s; }
+  .group:nth-child(4) { animation-delay: 0.26s; }
+  .group:nth-child(5) { animation-delay: 0.33s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 0 4px;
+  }
+  .group-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .group-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+  .group-subtitle {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    margin-left: 4px;
+  }
+  .group-stats {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .group-stat {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .group-stat-num {
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  /* ============================================================
+     Card Grid & Cards
+     ============================================================ */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 1300px) { .card-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 1000px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px)  { .card-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 20px 22px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover {
+    border-color: #c5cdd8;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+  }
+
+  /* Card accent bar */
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+    transition: width 0.2s ease;
+  }
+  .card:hover::before { width: 4px; }
+
+  .card[data-accent="blue"]::before   { background: var(--accent-blue); }
+  .card[data-accent="green"]::before  { background: var(--accent-green); }
+  .card[data-accent="amber"]::before  { background: var(--accent-amber); }
+  .card[data-accent="purple"]::before { background: var(--accent-purple); }
+  .card[data-accent="cyan"]::before   { background: var(--accent-cyan); }
+  .card[data-accent="pink"]::before   { background: var(--accent-pink); }
+  .card[data-accent="orange"]::before { background: var(--accent-orange); }
+  .card[data-accent="red"]::before    { background: var(--accent-red); }
+  .card[data-accent="gray"]::before   { background: #9ca3af; }
+  .card[data-accent="indigo"]::before { background: var(--accent-indigo); }
+
+  .card.hidden { display: none; }
+
+  /* Card Header */
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .card-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .card-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--bg-tag);
+    padding: 1px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .status-live {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    color: #15803d;
+  }
+  .status-ready { background: #dbeafe; color: #1d4ed8; }
+  .status-pending {
+    background: #f3f4f6;
+    color: #9ca3af;
+  }
+  .status-building {
+    background: #fef3c7;
+    color: #b45309;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+  .status-dot.live {
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 4px currentColor;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  /* 数据滞后提醒角标（首页卡片） */
+  .stale-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    animation: stalePulse 1.5s infinite;
+    flex-shrink: 0;
+    cursor: default;
+    white-space: nowrap;
+  }
+  @keyframes stalePulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(220,38,38,0.15); }
+    50% { opacity: 0.85; box-shadow: 0 0 6px 2px rgba(220,38,38,0.12); }
+  }
+  .stale-badge:hover {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+  }
+  }
+
+  /* Card Tag */
+  .card-tag-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .card-tag {
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Card Body */
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .card-list {
+    list-style: none;
+    margin-bottom: 12px;
+    flex: 1;
+  }
+  .card-list li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    padding-left: 16px;
+    position: relative;
+  }
+  .card-list li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 9px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+
+  /* Card Footer */
+  .card-footer {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+  }
+  .card-arrow {
+    margin-left: auto;
+    color: var(--text-muted);
+    font-size: 14px;
+    transition: transform 0.2s;
+  }
+  .card:hover .card-arrow {
+    transform: translateX(4px);
+    color: var(--accent-blue);
+  }
+
+  /* ============================================================
+     Stats Bar
+     ============================================================ */
+  .stats-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 24px 0 16px;
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+  .stat-item:hover {
+    border-color: #c5cdd8;
+    box-shadow: var(--shadow-md);
+  }
+  .stat-icon { font-size: 15px; }
+  .stat-num {
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .stat-label { color: var(--text-tertiary); }
+
+  .footer-info {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    padding-bottom: 20px;
+  }
+  .footer-info a {
+    color: var(--accent-blue);
+    text-decoration: none;
+  }
+  .footer-info a:hover { text-decoration: underline; }
+
+  /* ============================================================
+     Refresh Button (强制刷新)
+     ============================================================ */
+  .refresh-btn {
+    background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+    color: #fff; padding: 6px 14px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s; font-family: inherit; white-space: nowrap;
+  }
+  .refresh-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .refresh-btn:hover { background: rgba(255,255,255,0.35); transform: scale(1.03); }
+  .refresh-btn:active { transform: scale(0.97); }
+
+  /* ====================================================
+     Cockpit Panels (驾驶舱面板)
+     ==================================================== */
+  .cockpit-panel { width: 100%; }
+
+  /* ====================================================
+     Employee Cockpit Filters (员工驾驶舱筛选)
+     ==================================================== */
+  .emp-filter-bar { display:flex; align-items:center; gap:12px; padding:14px 0 10px; flex-wrap:wrap; }
+  .emp-filter-bar label { font-size:13px; font-weight:600; color:var(--text-secondary); }
+  .emp-filter-bar select {
+    padding:7px 12px; border:1px solid var(--border); border-radius:8px;
+    font-size:13px; color:var(--text-primary); background:#fff; cursor:pointer;
+    min-width:140px; outline:none; transition:border-color 0.2s;
+  }
+  .emp-filter-bar select:focus { border-color:var(--accent-blue); box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
+
+  /* ====================================================
+     Refresh Overlay (强制刷新遮罩)
+     ==================================================== */
+  #refreshOverlay {
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);
+    display:none; align-items:center; justify-content:center; z-index:9999; flex-direction:column; gap:16px;
+  }
+  .refresh-spinner { width:44px; height:44px; border:4px solid rgba(255,255,255,0.2); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg);} }
+  .refresh-status { color:#fff; font-size:16px; font-weight:600; }
+  .refresh-progress { color:rgba(255,255,255,0.7); font-size:13px; }
+
+  /* ====================================================
+     Blue Chat Widget (AI 聊天)
+     ==================================================== */
+  #blue-chat-widget { position: fixed; bottom: 24px; right: 24px; z-index: 99997; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; }
+  #blue-chat-bubble { position: absolute; bottom: 0; right: 0; width: 56px; height: 56px; border-radius: 50%; border: none; background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; font-size: 26px; cursor: pointer; box-shadow: 0 4px 16px rgba(234, 88, 12, 0.35); transition: transform .25s, box-shadow .25s, opacity .3s; display: flex; align-items: center; justify-content: center; z-index: 2; touch-action: none; -webkit-user-select: none; user-select: none; }
+  #blue-chat-bubble:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(234, 88, 12, 0.45); }
+  #blue-chat-bubble.blue-bubble-hidden { opacity: 0; pointer-events: none; transform: scale(0.6); }
+  .blue-badge { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; border-radius: 10px; background: #ef4444; color: #fff; font-size: 11px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+  #blue-chat-panel { position: absolute; inset: 0; width: 380px; height: 520px; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); display: flex; flex-direction: column; overflow: hidden; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), opacity .25s; transform-origin: bottom right; resize: both; min-width: 300px; min-height: 350px; }
+  .blue-panel-closed { transform: scale(0.3) translateY(80px); opacity: 0; pointer-events: none; }
+  .blue-panel-open { transform: scale(1); opacity: 1; pointer-events: auto; }
+  .blue-panel-header { padding: 12px 14px; background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 6px; }
+  .blue-header-left { display: flex; align-items: center; gap: 8px; }
+  .blue-header-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .blue-header-name { font-size: 14px; font-weight: 600; }
+  .blue-header-status { font-size: 10px; opacity: 0.8; }
+  .blue-header-menu { width: 26px; height: 26px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; line-height: 1; transition: background .2s; }
+  .blue-header-menu:hover { background: rgba(255,255,255,0.3); }
+  .blue-model-trigger { background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 3px 8px; font-size: 10px; cursor: pointer; white-space: nowrap; transition: background .2s; }
+  .blue-model-trigger:hover { background: rgba(255,255,255,0.3); }
+  .blue-model-dropdown { position: absolute; top: 100%; right: 30px; margin-top: 4px; min-width: 140px; background: #1e1e2e; border: 1px solid #2a2a44; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); padding: 4px; display: none; z-index: 100; overflow: hidden; }
+  .blue-model-dropdown.blue-dropdown-open { display: block; }
+  .blue-model-option { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; font-size: 11px; color: #d0d0e8; cursor: pointer; border-radius: 6px; transition: background .15s; }
+  .blue-model-option:hover { background: rgba(249,115,22,0.15); color: #fff; }
+  .blue-model-option.blue-model-selected { background: rgba(249,115,22,0.25); color: #f97316; font-weight: 600; }
+  .blue-model-fee { font-size: 9px; opacity: 0.7; margin-left: 6px; }
+  .blue-model-selected .blue-model-fee { opacity: 1; }
+  .blue-header-close { width: 26px; height: 26px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: #fff; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; }
+  .blue-header-close:hover { background: rgba(255,255,255,0.3); }
+  #blue-conv-sidebar { position: absolute; top: 0; left: 0; bottom: 0; width: 220px; background: #fff; border-right: 1px solid #e8ecf1; z-index: 10; display: flex; flex-direction: column; transition: transform .25s; }
+  #blue-conv-sidebar.blue-conv-closed { transform: translateX(-100%); }
+  #blue-conv-sidebar.blue-conv-open { transform: translateX(0); }
+  .blue-conv-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 10px; font-size: 12px; font-weight: 600; color: #333; border-bottom: 1px solid #e8ecf1; }
+  .blue-conv-close { width: 22px; height: 22px; border: none; background: transparent; color: #888; cursor: pointer; font-size: 13px; border-radius: 4px; }
+  .blue-conv-close:hover { background: #f0f0f0; }
+  .blue-conv-list { flex: 1; overflow-y: auto; padding: 6px; }
+  .blue-conv-item { padding: 8px 8px; border-radius: 6px; cursor: pointer; margin-bottom: 2px; transition: background .15s; }
+  .blue-conv-item:hover { background: #f5f5f5; }
+  .blue-conv-item.blue-conv-active { background: #fef3e8; }
+  .blue-conv-title { font-size: 11px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .blue-conv-meta { font-size: 9px; color: #999; margin-top: 1px; }
+  .blue-conv-empty { padding: 24px 10px; text-align: center; color: #aaa; font-size: 11px; }
+  .blue-mode-bar { display: flex; gap: 6px; padding: 6px 14px 0; flex-shrink: 0; }
+  .blue-mode-btn { flex: 1; padding: 6px 6px; border: 1px solid #e0e0e0; border-radius: 8px 8px 0 0; background: #f5f5f5; color: #555; font-size: 11px; cursor: pointer; transition: all .2s; text-align: center; }
+  .blue-mode-btn:hover { background: #eee; }
+  .blue-mode-btn.blue-mode-active { background: #fff; color: #ea580c; border-color: #ea580c; border-bottom-color: #fff; font-weight: 600; }
+  .blue-mode-newchat { padding: 6px 10px; border: 1px dashed #ccc; border-radius: 8px 8px 0 0; background: transparent; color: #888; font-size: 10px; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .blue-mode-newchat:hover { background: #f0fff0; border-color: #4ade80; color: #16a34a; }
+  .blue-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: #f8f9fb; }
+  .blue-msg { display: flex; max-width: 85%; }
+  .blue-msg-user { align-self: flex-end; }
+  .blue-msg-assistant { align-self: flex-start; }
+  .blue-msg-bubble { padding: 9px 12px; border-radius: 12px; font-size: 13px; line-height: 1.5; word-break: break-word; }
+  .blue-msg-user .blue-msg-bubble { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; border-bottom-right-radius: 4px; }
+  .blue-msg-assistant .blue-msg-bubble { background: #fff; color: #1a1a2e; border: 1px solid #e8ecf1; border-bottom-left-radius: 4px; }
+  .blue-msg-bubble a { color: #f97316; text-decoration: none; }
+  .blue-msg-bubble pre { background: #f0f2f5; border-radius: 8px; padding: 8px; margin: 6px 0; overflow-x: auto; font-size: 12px; font-family: 'SF Mono', 'Menlo', monospace; }
+  .blue-msg-bubble code.blue-inline-code { background: #f0f2f5; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .blue-typing-dots { display: flex; align-items: center; gap: 4px; padding: 10px 14px !important; }
+  .blue-typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: #c4cbd8; animation: blueTyping 1.2s infinite; }
+  .blue-typing-dots span:nth-child(2) { animation-delay: .2s; }
+  .blue-typing-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blueTyping { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+  .blue-input-area { display: flex; align-items: center; gap: 6px; padding: 8px 12px 10px; border-top: 1px solid #eee; flex-shrink: 0; background: #fff; }
+  .blue-input { flex: 1; border: 1px solid #e8ecf1; border-radius: 10px; padding: 8px 12px; font-size: 13px; resize: none; outline: none; max-height: 100px; font-family: inherit; }
+  .blue-input:focus { border-color: #f97316; box-shadow: 0 0 0 2px rgba(249,115,22,0.1); }
+  .blue-send-btn { width: 36px; height: 36px; border-radius: 10px; border: none; background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .blue-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .blue-rz-handle { position: absolute; width: 12px; height: 12px; z-index: 3; }
+  .blue-rz-se { bottom: 0; right: 0; cursor: se-resize; }
+  .blue-rz-sw { bottom: 0; left: 0; cursor: sw-resize; }
+  .blue-rz-ne { top: 0; right: 0; cursor: ne-resize; }
+  .blue-rz-nw { top: 0; left: 0; cursor: nw-resize; }
+  @media (max-width: 600px) {
+    #blue-chat-panel { width: 100vw; height: 100dvh; border-radius: 0; bottom: 0; right: 0; resize: none; }
+    #blue-chat-bubble { width: 48px; height: 48px; font-size: 22px; bottom: 16px; right: 16px; }
+    #blue-conv-sidebar { width: 80vw; }
+    .blue-panel-header { padding-top: max(14px, env(safe-area-inset-top)); }
+    .blue-messages { padding-bottom: env(safe-area-inset-bottom); }
+  }
+  @media (prefers-color-scheme: dark) {
+    #blue-chat-panel { background: #1a1a2e; }
+    .blue-messages { background: #16162a; }
+    .blue-msg-assistant .blue-msg-bubble { background: #22223a; color: #e0e0f0; border-color: #2a2a44; }
+    .blue-msg-bubble pre, .blue-msg-bubble code.blue-inline-code { background: #2a2a44; color: #d0d0e8; }
+    .blue-mode-btn { background: #1e1e30; color: #888; border-color: #2a2a44; }
+    .blue-mode-btn:hover { background: #252540; }
+    .blue-mode-btn.blue-mode-active { background: #1a1a2e; color: #ea580c; border-color: #ea580c; border-bottom-color: #1a1a2e; }
+    .blue-mode-newchat { border-color: #333; color: #666; }
+    .blue-mode-newchat:hover { background: #0a2a1a; border-color: #16a34a; color: #4ade80; }
+    .blue-input-area { background: #1a1a2e; border-color: #2a2a44; }
+    .blue-input { background: #22223a; color: #e0e0f0; border-color: #2a2a44; }
+    .blue-input:focus { border-color: #f97316; }
+    #blue-conv-sidebar { background: #1a1a2e; border-color: #2a2a44; }
+    .blue-conv-header { color: #e0e0f0; border-color: #2a2a44; }
+    .blue-conv-item:hover { background: #22223a; }
+    .blue-conv-item.blue-conv-active { background: #2a2a44; }
+    .blue-conv-title { color: #e0e0f0; }
+    .blue-conv-meta { color: #6b6b8a; }
+  }
+</style>
+<style id="v2-redesign">
+/* ============================================================
+   现代简约浅色 · 设计体系 (v2 visual system)
+   覆盖原视觉层，保持结构 / JS 不变
+   ============================================================ */
+:root{
+  --bg-page:#f6f7f9;
+  --bg-card:#ffffff;
+  --bg-tag:#f1f2f4;
+  --text-primary:#18181b;
+  --text-secondary:#52525b;
+  --text-tertiary:#a1a1aa;
+  --text-muted:#c4c4cc;
+  --border:#ececec;
+  --border-light:#f2f2f3;
+  --accent:#4f46e5;
+  --accent-soft:#eef0fe;
+  --accent-text:#4338ca;
+  --brand:#ea580c;
+  --brand-soft:#fff1e6;
+  --accent-blue:#2563eb;
+  --accent-green:#059669;
+  --accent-amber:#d97706;
+  --accent-red:#dc2626;
+  --accent-purple:#7c3aed;
+  --accent-cyan:#0891b2;
+  --accent-pink:#db2777;
+  --accent-orange:#ea580c;
+  --accent-indigo:#4f46e5;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:14px; --radius-xl:20px;
+  --shadow-sm:0 1px 2px rgba(16,17,26,.05);
+  --shadow-md:0 4px 12px rgba(16,17,26,.06);
+  --shadow-lg:0 8px 24px rgba(16,17,26,.08);
+  --shadow-card:0 1px 2px rgba(16,17,26,.04);
+}
+html{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+body{
+  background:var(--bg-page);
+  color:var(--text-primary);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  letter-spacing:-0.005em;
+}
+::-webkit-scrollbar{ width:8px; height:8px; }
+::-webkit-scrollbar-thumb{ background:#d8d8dd; border-radius:8px; border:2px solid var(--bg-page); }
+::-webkit-scrollbar-thumb:hover{ background:#c2c2c9; }
+
+/* ── Header：浅色 · 干净 ── */
+.app-header{
+  background:#ffffff;
+  border-bottom:1px solid var(--border);
+  color:var(--text-primary);
+  padding:18px 40px 0;
+}
+.app-header::before,.app-header::after{ display:none; }
+.header-top{ margin-bottom:16px; }
+.header-logo{
+  width:38px;height:38px;border-radius:10px;
+  background:var(--brand-soft);color:var(--brand);
+  border:1px solid rgba(234,92,12,.15);
+}
+.header-logo svg{ width:22px;height:22px; }
+.header-title{ font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--text-primary); }
+.header-subtitle{ font-size:13px;color:var(--text-tertiary);font-weight:400;margin-top:2px; }
+.header-subtitle #versionLabel{ color:var(--text-tertiary); }
+
+/* View toggle */
+.view-toggle{ background:#f4f4f5;border:1px solid var(--border);border-radius:9px;padding:3px; }
+.view-btn{ color:var(--text-tertiary); }
+.view-btn svg{ width:14px;height:14px; }
+.view-btn.active{ background:#fff;color:var(--text-primary);box-shadow:0 1px 2px rgba(16,17,26,.08); }
+.view-btn:hover:not(.active){ color:var(--text-secondary); }
+
+/* Refresh */
+.refresh-btn{ background:#fff;border:1px solid var(--border);color:var(--text-secondary);padding:6px 14px;border-radius:8px;font-size:13px; }
+.refresh-btn svg{ width:15px;height:15px; }
+.refresh-btn:hover{ background:#f7f7f8;border-color:#d4d4d8;color:var(--text-primary); }
+.refresh-btn:active{ transform:scale(.97); }
+
+/* Header tabs */
+.header-tabs{ gap:4px;margin-top:14px; }
+.header-tab{
+  padding:10px 18px 13px;margin-bottom:-1px;
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  color:var(--text-tertiary);font-size:14px;font-weight:500;
+}
+.header-tab svg{ width:16px;height:16px;opacity:.8; }
+.header-tab:hover{ color:var(--text-secondary);background:transparent; }
+.header-tab.active{ color:var(--text-primary);font-weight:600;background:transparent;border-bottom-color:var(--accent); }
+.header-tab.active svg{ opacity:1; }
+.header-tab.active::after{ display:none; }
+
+/* ── Main ── */
+.main-content{ padding:28px 40px 48px; }
+.filter-bar{ padding:12px 18px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm); }
+.filter-bar-label{ color:var(--text-tertiary); }
+.filter-chip{ background:var(--bg-tag);color:var(--text-secondary);border:1px solid transparent; }
+.filter-chip:hover{ background:#e9eaee;transform:translateY(-1px); }
+.filter-chip.active{ background:#fff;color:var(--text-primary);border-color:var(--text-primary);box-shadow:0 1px 2px rgba(16,17,26,.06);font-weight:600; }
+.chip-count{ color:var(--text-muted); }
+
+/* Group */
+.group{ margin-bottom:34px; }
+.group-header{ margin-bottom:14px; }
+.group-icon{ width:34px;height:34px;border-radius:10px;font-size:17px; }
+.group-title{ font-size:16px;font-weight:700;letter-spacing:-0.01em;color:var(--text-primary); }
+.group-subtitle{ font-size:13px;color:var(--text-tertiary); }
+.group-stat{ font-size:12px;color:var(--text-tertiary); }
+.group-stat-num{ font-weight:600;color:var(--text-secondary);font-variant-numeric:tabular-nums; }
+
+/* Card */
+.card-grid{ gap:16px; }
+.card{ background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;box-shadow:var(--shadow-card); }
+.card:hover{ border-color:#d8d8dd;box-shadow:var(--shadow-lg);transform:translateY(-3px); }
+.card::before{ width:3px;border-radius:0 2px 2px 0; }
+.card:hover::before{ width:4px; }
+.card[data-accent="blue"]::before{ background:var(--accent-blue); }
+.card[data-accent="green"]::before{ background:var(--accent-green); }
+.card[data-accent="amber"]::before{ background:var(--accent-amber); }
+.card[data-accent="purple"]::before{ background:var(--accent-purple); }
+.card[data-accent="cyan"]::before{ background:var(--accent-cyan); }
+.card[data-accent="pink"]::before{ background:var(--accent-pink); }
+.card[data-accent="orange"]::before{ background:var(--accent-orange); }
+.card[data-accent="red"]::before{ background:var(--accent-red); }
+.card[data-accent="gray"]::before{ background:#a1a1aa; }
+.card[data-accent="indigo"]::before{ background:var(--accent-indigo); }
+
+.card-header{ margin-bottom:10px; }
+.card-title{ font-size:15px;font-weight:600;letter-spacing:-0.01em;color:var(--text-primary); }
+.card-subtitle{ font-size:11px;color:var(--text-tertiary); }
+.card-num{ font-size:11px;font-weight:700;color:var(--text-muted);background:var(--bg-tag);padding:1px 7px;border-radius:5px;font-variant-numeric:tabular-nums; }
+
+.status-badge{ border-radius:6px;font-size:11px;font-weight:600;padding:3px 9px; }
+.status-live{ background:#ecfdf3;color:#067647; }
+.status-ready{ background:#eff6ff;color:#1d4ed8; }
+.status-pending{ background:#f4f4f5;color:#8a8a93; }
+.status-building{ background:#fffaeb;color:#b54708; }
+.status-dot{ width:6px;height:6px; }
+
+.stale-badge{ border-radius:8px;font-size:10px;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fecaca; }
+.stale-badge:hover{ background:#fee2e2; }
+
+.card-tag{ border-radius:6px;font-size:11px;font-weight:500; }
+.card-desc{ font-size:13px;color:var(--text-secondary);line-height:1.55;font-weight:400;margin-bottom:10px; }
+.card-list li{ font-size:13px;color:var(--text-secondary);line-height:1.7; }
+.card-list li::before{ background:var(--text-muted); }
+
+.card-footer{ font-size:12px;color:var(--text-tertiary);padding-top:12px;border-top:1px solid var(--border-light);margin-top:auto; }
+.card-arrow{ color:var(--text-muted);font-size:14px;transition:transform .2s,color .2s; }
+.card:hover .card-arrow{ transform:translateX(4px);color:var(--accent); }
+
+.stats-bar{ padding:22px 0 14px;gap:10px; }
+.stat-item{ padding:10px 18px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);font-size:13px;color:var(--text-secondary); }
+.stat-item:hover{ border-color:#d8d8dd;box-shadow:var(--shadow-md); }
+.stat-num{ font-weight:700;color:var(--text-primary);font-variant-numeric:tabular-nums; }
+.stat-label{ color:var(--text-tertiary); }
+
+.footer-info{ font-size:12px;color:var(--text-tertiary);padding-bottom:24px; }
+.footer-info a{ color:var(--accent);text-decoration:none; }
+.footer-info a:hover{ text-decoration:underline; }
+
+/* Focus visibility */
+.refresh-btn:focus-visible,.view-btn:focus-visible,.filter-chip:focus-visible,.card:focus-visible{ outline:2px solid var(--accent);outline-offset:2px; }
+
+/* ── Mobile：浅色头微调 ── */
+@media (max-width:768px){
+  .app-header{ padding:14px 16px 0; }
+  .header-logo{ width:32px;height:32px; }
+  .header-title{ font-size:16px; }
+  .header-tab{ padding:9px 14px 11px;font-size:13px; }
+  .main-content{ padding:18px 14px 40px; }
+}
+@media (max-width:414px){
+  .app-header{ padding:12px 12px 0; }
+  .header-title{ font-size:15px; }
+  .header-tab{ padding:8px 11px 10px;font-size:12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="app-header">
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <div>
+        <div class="header-title">橙萤零售工作台</div>
+        <div class="header-subtitle">郑仰浩 · 零售全链路驾驶舱 <span id="versionLabel" style="font-size:10px;opacity:0.7;margin-left:4px;"></span></div>
+<script>(function(){var e=document.getElementById('versionLabel');if(!e)return;var m={mgmt:'本地版',cloud:'公共版',employee:'员工版'};e.textContent='| '+(m[window.__EDITION]||window.__EDITION);})();</script>
+      </div>
+      <!-- 同步状态指示器（Electron 桌面端显示） -->
+      <div id="syncIndicator" style="display:none;align-items:center;gap:8px;font-size:12px;position:relative;z-index:1;">
+        <span id="syncDot" style="width:8px;height:8px;border-radius:50%;background:#9ca3af;display:inline-block;transition:background 0.3s;"></span>
+        <span id="syncLabel" style="color:rgba(255,255,255,0.7);transition:color 0.3s;">同步</span>
+        <button id="syncBtn" onclick="manualSync()" style="background:#f4f4f5;border:1px solid #e5e5e7;color:#52525b;padding:4px 12px;border-radius:6px;font-size:11px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='#ececed'" onmouseout="this.style.background='#f4f4f5'">
+          同步
+        </button>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="refresh-btn" onclick="forceRefreshAll()" id="refreshBtn" title="清除缓存并同步最新数据">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64-4.64A9 9 0 0 1 20.49 15"/></svg>
+        强制刷新
+      </button>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setViewMode('pc')" id="viewPcBtn" title="PC 端视图">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          PC
+        </button>
+        <button class="view-btn" onclick="setViewMode('mobile')" id="viewMobileBtn" title="手机端视图">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          手机
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-tabs">
+    <button class="header-tab active" onclick="switchTab('leader', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      管理驾驶舱
+    </button>
+    <button class="header-tab" onclick="switchTab('employee', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      员工驾驶舱
+    </button>
+  </div>
+</header>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<div class="main-wrapper"><div class="main-content">
+<!-- 经营健康总览（体检报告） -->
+<div id="homeHealth" style="margin-bottom:18px;"></div>
+<div id="leaderCockpit" class="cockpit-panel" style="display:block">
+
+  <!-- Filter Bar -->
+  <div class="filter-bar" id="filterBar">
+    <span class="filter-bar-label">筛选</span>
+    <div class="filter-chip active" data-filter="all" onclick="setFilter('all')">
+      <span class="chip-dot" style="background:#6366f1"></span>全部
+    </div>
+    <div class="filter-chip" data-filter="daily" onclick="setFilter('daily')">
+      <span class="chip-dot" style="background:#3b82f6"></span>每天自动
+    </div>
+    <div class="filter-chip" data-filter="weekly" onclick="setFilter('weekly')">
+      <span class="chip-dot" style="background:#ec4899"></span>每月复盘
+    </div>
+    <div class="filter-chip" data-filter="demand" onclick="setFilter('demand')">
+      <span class="chip-dot" style="background:#f59e0b"></span>按需触发
+    </div>
+    <div class="filter-chip" data-filter="qa" onclick="setFilter('qa')">
+      <span class="chip-dot" style="background:#8b5cf6"></span>你问我答
+    </div>
+    <div class="filter-chip" data-filter="alert" onclick="setFilter('alert')">
+      <span class="chip-dot" style="background:#ef4444"></span>预警·提醒
+    </div>
+    <div class="filter-chip" data-filter="update" onclick="setFilter('update')">
+      <span class="chip-dot" style="background:#06b6d4"></span>每周更新
+    </div>
+    <div class="filter-chip" data-filter="check" onclick="setFilter('check')">
+      <span class="chip-dot" style="background:#7c3aed"></span>按需·对账
+    </div>
+    <div class="filter-chip" data-filter="call" onclick="setFilter('call')">
+      <span class="chip-dot" style="background:#f97316"></span>随时调用
+    </div>
+  </div>
+
+  <!-- Board Groups -->
+  <div class="board-groups" id="boardGroups">
+
+    <!-- ============================================================
+         GROUP 1：经营分析
+         ============================================================ -->
+    <div class="group">
+      <div class="group-header">
+        <div class="group-icon" style="background:rgba(59,130,246,0.12);color:var(--accent-blue)">📊</div>
+        <span class="group-title">经营分析</span>
+        <span class="group-subtitle">每日数据 · 销售 · 品类趋势</span>
+        <div class="group-stats">
+          <span class="group-stat"><span class="group-stat-num" data-count></span></span>
+        </div>
+      </div>
+      <div class="card-grid">
+
+        <!-- 1 — 店铺日报 -->
+        <div class="card" onclick="location.href='board.html?id=daily-pulse'" data-accent="blue" data-tags="daily" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#01</span>
+              <span class="card-title">店铺日报</span>
+              <span class="card-subtitle">Daily Pulse</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每天自动</span>
+          </div>
+          <div class="card-desc">每天早9点自动推送，一眼看全店铺数据</div>
+          <ul class="card-list">
+            <li>拼多多 + 天猫双平台数据</li>
+            <li>各品类销售额 / 订单量 / UV</li>
+            <li>核心指标环比对比</li>
+          </ul>
+          <div class="card-footer">📡 飞书多维表格 Base · 自动推送 → 飞书群<span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- 2 — BI销售分析与预警（原②③合并） -->
+        <div class="card" onclick="location.href='board.html?id=sales-alert'" data-accent="red" data-tags="weekly,daily,alert" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#02</span>
+              <span class="card-title">BI销售分析与预警</span>
+              <span class="card-subtitle">Sales &amp; Alert</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-alert);color:var(--tag-alert-text)">🔔 预警·提醒</span>
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每天自动</span>
+          </div>
+          <div class="card-desc">趋势看得懂、异常第一时间知道</div>
+          <ul class="card-list">
+            <li>日 / 周 / 月销售趋势图表</li>
+            <li>按产品 + 平台维度拆解</li>
+            <li>连续增长喜报 / 下滑预警推送</li>
+            <li>下滑分级：严重≥30% / 明显≥15%</li>
+          </ul>
+          <div class="card-footer">📡 数据拉取 → 趋势检测 → 分级判断 → 飞书推送<span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- 3 — 品类分析 -->
+        <div class="card" onclick="location.href='category-analysis.html'" data-accent="purple" data-tags="daily,demand" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#03</span>
+              <span class="card-title">品类分析</span>
+              <span class="card-subtitle">Category Analytics</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每日更新</span>
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 按需触发</span>
+          </div>
+          <div class="card-desc">哪个品类在涨、哪个在掉，一眼看清</div>
+          <ul class="card-list">
+            <li>全平台 / 天猫 / 拼多多 三视图切换</li>
+            <li>一句话结论：下滑最猛 / 上升最快 / 连跌预警</li>
+            <li>品类变动排名（绿涨红跌）</li>
+            <li>明细列表：日均 / 变动 / 连涨连跌</li>
+          </ul>
+          <div class="card-footer">📡 已接入 → 店铺日报品类趋势（自动同步）<span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- 4 — 竞争分析 -->
+        <div class="card" onclick="location.href='competition-analysis.html'" data-accent="orange" data-tags="daily,demand,weekly" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#04</span>
+              <span class="card-title">竞争分析</span>
+              <span class="card-subtitle">Competition Analytics</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每日更新</span>
+            <span class="card-tag" style="background:var(--tag-weekly);color:var(--tag-weekly-text)">📊 竞品监控</span>
+          </div>
+          <div class="card-desc">同行 vs 我方，每个产品单独打一场</div>
+          <ul class="card-list">
+            <li>拼多多已接入 / 天猫竞品监控已接入（我方数据补录中）</li>
+            <li>品类竞争总览：市占率 + 状态标签</li>
+            <li>同行 vs 我方日销市占趋势图</li>
+            <li>竞品链接监控：毛利 / 投产 / 日销</li>
+            <li>市场概况与打法洞察</li>
+          </ul>
+          <div class="card-footer">📡 市占趋势日监控 + 市场同行监控（拼多多）· 天猫竞品监控表<span class="card-arrow">→</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         GROUP 2：增长营销
+         ============================================================ -->
+    <div class="group">
+      <div class="group-header">
+        <div class="group-icon" style="background:rgba(239,68,68,0.12);color:var(--accent-red)">🚀</div>
+        <span class="group-title">增长营销</span>
+        <span class="group-subtitle">推广 · 投放 · 增长工作流</span>
+        <div class="group-stats">
+          <span class="group-stat"><span class="group-stat-num" data-count></span></span>
+        </div>
+      </div>
+      <div class="card-grid">
+
+        <!-- 4 — 推广投放分析 -->
+        <div class="card" onclick="location.href='ad-roi-analysis.html'" data-accent="blue" data-tags="demand,alert,daily" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#04</span>
+              <span class="card-title">推广投放分析</span>
+              <span class="card-subtitle">Ad ROI</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 按需触发</span>
+            <span class="card-tag" style="background:var(--tag-alert);color:var(--tag-alert-text)">🔔 预警·提醒</span>
+          </div>
+          <div class="card-desc">钱花哪了、值不值，一眼看清</div>
+          <ul class="card-list">
+            <li>花费 / 成交 / 综合 ROI 总览（天猫 vs 拼多多）</li>
+            <li>花费 TOP15 计划投产效率（亏钱红标）</li>
+            <li>计划级 ROI 明细 · ROI&lt;1 红行预警</li>
+            <li>按渠道筛选（商品推广 / 关键词 / 短视频…）</li>
+          </ul>
+          <div class="card-footer">📡 已接入 → 推广后台 / 第三方（自动同步）<span class="card-arrow">→</span></div>
+        </div>
+
+
+        <!-- 5 — 天猫专项分析 -->
+        <div class="card" onclick="location.href='tmall-redirect.html'" data-accent="orange" data-tags="call,daily,demand" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#05</span>
+              <span class="card-title">天猫专项分析</span>
+              <span class="card-subtitle">27 模板导航</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-call);color:var(--tag-call-text)">📂 总入口</span>
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每天自动</span>
+          </div>
+          <div class="card-desc">按工作场景选模板，27 个分析模板一站式入口</div>
+          <ul class="card-list">
+            <li>日常盯盘 / 销售增长 / 产品供应链</li>
+            <li>客户组织 / 流量运营 / 全景诊断</li>
+            <li>点击「运行中」卡片直达对应分析页</li>
+          </ul>
+          <div class="card-footer">📡 飞书妙搭 · 云端已发布<span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- 6 — 电商自动化工作流 -->
+        <div class="card" onclick="location.href='board.html?id=ecom-workflow'" data-accent="red" data-tags="demand,update,weekly" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#06</span>
+              <span class="card-title">电商自动化工作流</span>
+              <span class="card-subtitle">E-com Workflow</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 按需触发</span>
+            <span class="card-tag" style="background:var(--tag-update);color:var(--tag-update-text)">🔄 每周更新</span>
+          </div>
+          <div class="card-desc">从市场到回本的全链路自动化管理</div>
+          <ul class="card-list">
+            <li>市场数据分析（行业 / 平台趋势）</li>
+            <li>客户需求分析（搜索词 / 评价挖掘）</li>
+            <li>打品计划（选品 → 打样 → 测款）</li>
+            <li>回本周期测算（ROI / 盈亏平衡）</li>
+            <li>自动化流转（数据触发下一步动作）</li>
+          </ul>
+          <div class="card-footer">📡 已接入 → 飞书 Base + 各平台后台（自动同步）<span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- 7 — 产品链接钻取分析 -->
+        <div class="card" onclick="location.href='product-links.html'" data-accent="indigo" data-tags="demand,daily" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#07</span>
+              <span class="card-title">产品链接钻取分析</span>
+              <span class="card-subtitle">Product Links</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 按需触发</span>
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每天自动</span>
+          </div>
+          <div class="card-desc">输入产品名（或点快捷按钮）→ 直达该产品全部推广链接 → 点链接看逐日趋势</div>
+          <ul class="card-list">
+            <li>平台筛选 + 产品搜索联想 + 快捷产品按钮</li>
+            <li>产品维度聚合全部推广计划（花费 / 成交 / ROI / 转化）</li>
+            <li>链接级逐日趋势图 + 渠道分布 + 每日明细</li>
+          </ul>
+          <div class="card-footer">📡 数据源 → 推广后台（ad-roi 自动同步）<span class="card-arrow">→</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         GROUP 3：产品供应链
+         ============================================================ -->
+    <div class="group">
+      <div class="group-header">
+        <div class="group-icon" style="background:rgba(16,185,129,0.12);color:var(--accent-green)">📦</div>
+        <span class="group-title">产品供应链</span>
+        <span class="group-subtitle">新品 · 进销存 · 库存物流</span>
+        <div class="group-stats">
+          <span class="group-stat"><span class="group-stat-num" data-count></span></span>
+        </div>
+      </div>
+      <div class="card-grid">
+
+        <!-- 8 — 新品项目追踪 -->
+        <div class="card" onclick="location.href='board.html?id=product-pipeline'" data-accent="green" data-tags="update,demand" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#08</span>
+              <span class="card-title">新品项目追踪</span>
+              <span class="card-subtitle">Product Pipeline</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-update);color:var(--tag-update-text)">🔄 每周更新</span>
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 按需触发</span>
+          </div>
+          <div class="card-desc">新品从立项到上架的全项目管控</div>
+          <ul class="card-list">
+            <li>打样 → 定样 → 上架 全链路</li>
+            <li>项目里程碑 / 甘特节点追踪</li>
+            <li>责任人 + 截止日 + 风险标记</li>
+            <li>开模 / 辅贴销售跟进</li>
+          </ul>
+          <div class="card-footer">📋 收集反馈 → 判断责任人 → 写入 Base → 加速推进<span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- 8 — 数据抓取中心 -->
+        <div class="card" onclick="location.href='connectors.html'" data-accent="cyan" data-tags="update,alert" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#09</span>
+              <span class="card-title">数据抓取中心</span>
+              <span class="card-subtitle">Data Sync Hub</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>可触发</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-update);color:var(--tag-update-text)">🔄 一键抓取</span>
+            <span class="card-tag" style="background:var(--tag-alert);color:var(--tag-alert-text)">🔗 第三方接入</span>
+          </div>
+          <div class="card-desc">套住卧龙进销存 / 十速ERP / 旺店通，统一抓取归一化</div>
+          <ul class="card-list">
+            <li>🟡 拼多多 → 卧龙进销存</li>
+            <li>🟡 天猫 → 十速ERP</li>
+            <li>🟡 库存 → 旺店通（你给账号）</li>
+            <li>🟢 抓取后自动进工作台 BI</li>
+          </ul>
+          <div class="card-footer">⚙️ connectors/ 后端驱动<span class="card-arrow">→</span></div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         GROUP 4：系统与数据
+         ============================================================ -->
+    <div class="group">
+      <div class="group-header">
+        <div class="group-icon" style="background:rgba(99,102,241,0.12);color:var(--accent-indigo)">⚙️</div>
+        <span class="group-title">系统与数据</span>
+        <span class="group-subtitle">自动化 · 日志 · 数据接入</span>
+        <div class="group-stats">
+          <span class="group-stat"><span class="group-stat-num" data-count></span></span>
+        </div>
+      </div>
+      <div class="card-grid">
+
+        <!-- 9 — 自动化运行日志 -->
+        <div class="card" onclick="location.href='board.html?id=automation-log'" data-accent="green" data-tags="daily,alert" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#10</span>
+              <span class="card-title">自动化运行日志</span>
+              <span class="card-subtitle">Automation Log</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每天自动</span>
+            <span class="card-tag" style="background:var(--tag-alert);color:var(--tag-alert-text)">🔔 预警·提醒</span>
+          </div>
+          <div class="card-desc">每次自动运行都记一笔，问题一眼可见</div>
+          <ul class="card-list">
+            <li>✅ 正常输出 / 按要求完成</li>
+            <li>🟡 需补充数据后重跑</li>
+            <li>🔴 错误 / 失败</li>
+            <li>🟠 警告 · 部分成功 · 无新数据</li>
+          </ul>
+          <div class="card-footer">⚙️ sync_board_data.py / gen_weekly_report.py 自动写入<span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- 10 — 自动化项目管理 -->
+        <div class="card" onclick="location.href='board.html?id=automation-projects'" data-accent="indigo" data-tags="daily,update" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#10</span>
+              <span class="card-title">自动化项目管理</span>
+              <span class="card-subtitle">Auto Projects</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每天同步</span>
+            <span class="card-tag" style="background:var(--tag-update);color:var(--tag-update-text)">🔄 输出状态</span>
+          </div>
+          <div class="card-desc">自动化项目管理 · 版本与输出质量一目了然</div>
+          <ul class="card-list">
+            <li>✅ 运行中 / 按节奏稳定输出</li>
+            <li>🟡 已暂停 / 待启动</li>
+            <li>🔴 错误 / 失败</li>
+            <li>🟠 警告 · 部分成功 · 无新数据</li>
+          </ul>
+          <div class="card-footer">⚙️ sync_auto_projects.py 自动写入<span class="card-arrow">→</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================
+         GROUP 5：智能 Agent 工作台
+         ============================================================ -->
+    <div class="group">
+      <div class="group-header">
+        <div class="group-icon" style="background:rgba(139,92,246,0.12);color:#8b5cf6">🤖</div>
+        <span class="group-title">智能 Agent 工作台</span>
+        <span class="group-subtitle">对话 · 编排 · 自动化</span>
+        <div class="group-stats">
+          <span class="group-stat"><span class="group-stat-num" data-count></span></span>
+        </div>
+      </div>
+      <div class="card-grid">
+
+        <!-- 11 — 智能 Agent 工作台 -->
+        <div class="card" onclick="location.href='agent-workbench.html'" data-accent="purple" data-tags="call,qa" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#11</span>
+              <span class="card-title">智能 Agent 工作台</span>
+              <span class="card-subtitle">Agent Workbench</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">🤖 随时对话</span>
+            <span class="card-tag" style="background:var(--tag-alert);color:var(--tag-alert-text)">⚡ 工作流编排</span>
+          </div>
+          <div class="card-desc">多个智能 Agent 协同的自动化控制台</div>
+          <ul class="card-list">
+            <li>Agent 管理 · 分类 · 测试对话</li>
+            <li>工作流引擎 N1–N7 闭环</li>
+            <li>数据源 / 任务 / 定时 / 知识库 / 审批</li>
+          </ul>
+          <div class="card-footer">🚀 点击进入智能 Agent 工作台<span class="card-arrow">→</span></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       Stats Bar
+       ============================================================ -->
+  <div class="stats-bar">
+    <div class="stat-item"><span class="stat-icon">📄</span><span class="stat-num">4</span> <span class="stat-label">个自动化脚本</span></div>
+    <div class="stat-item"><span class="stat-icon">🔗</span><span class="stat-num">4</span> <span class="stat-label">条飞书 Base 数据源</span></div>
+    <div class="stat-item"><span class="stat-icon">⚡</span><span class="stat-num">4</span> <span class="stat-label">个定时任务运行中</span></div>
+    <div class="stat-item"><span class="stat-icon">📡</span><span class="stat-num">10</span> <span class="stat-label">个板块运行中</span></div>
+    <div class="stat-item"><span class="stat-icon">🛠</span><span class="stat-num">0</span> <span class="stat-label">个板块搭建中</span></div>
+    <div class="stat-item"><span class="stat-icon">🔄</span><span class="stat-num">0</span> <span class="stat-label">个板块规划中</span></div>
+    <div class="stat-item"><span class="stat-icon">🔲</span><span class="stat-num">0</span> <span class="stat-label">个板块待补充</span></div>
+    <div class="stat-item"><span class="stat-icon">🎯</span><span class="stat-num">4</span> <span class="stat-label">大板块</span></div>
+    <div class="stat-item"><span class="stat-icon">📝</span><span class="stat-num">25+</span> <span class="stat-label">个功能项</span></div>
+  </div>
+
+  <style>
+    .stale-badge { display:inline-block; margin-left:6px; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; background:#fef3c7; color:#b45309; vertical-align:middle; }
+    .stale-badge-severe { background:#fee2e2; color:#b91c1c; }
+  </style>
+  <div id="staleBanner" style="display:none;align-items:center;gap:8px;margin:0 0 14px;padding:12px 16px;border-radius:10px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;font-size:13px;font-weight:600;"></div>
+
+  <div class="footer-info">
+    编码规则：板块拼音首字母 + 序号（如 XS-005）&nbsp;|&nbsp;
+    版本标记：<a href="#">最新/准</a> &nbsp;·&nbsp; <a href="#">推荐查看</a> &nbsp;|&nbsp;
+    风格 = 历史存档
+  </div>
+
+</div><!-- /leaderCockpit -->
+
+<!-- ============================================================
+     EMPLOYEE COCKPIT (员工驾驶舱)
+     ============================================================ -->
+<div id="employeeCockpit" class="cockpit-panel" style="display:none">
+
+  <div class="emp-filter-bar">
+    <label>部门：</label>
+    <select id="deptSelect" onchange="filterByDept(this.value)">
+      <option value="">全部部门</option>
+      <option value="运营部">运营部</option>
+      <option value="设计部">设计部</option>
+      <option value="客服部">客服部</option>
+      <option value="仓储部">仓储部</option>
+      <option value="综合部">综合部</option>
+    </select>
+    <label>员工：</label>
+    <select id="empSelect" onchange="filterByEmployee(this.value)">
+      <option value="">全部员工</option>
+    </select>
+  </div>
+
+  <!-- Group: 日常协作 -->
+  <div class="group">
+    <div class="group-header">
+      <div class="group-icon" style="background:rgba(59,130,246,0.12);color:var(--accent-blue)">📋</div>
+      <span class="group-title">日常协作</span>
+      <span class="group-subtitle">通知 · 任务 · 日报</span>
+      <div class="group-stats"><span class="group-stat"><span class="group-stat-num" data-count="daily">3 个板块</span></span></div>
+    </div>
+    <div class="card-grid" id="empGridDaily"></div>
+  </div>
+
+  <!-- Group: 能力与业绩 -->
+  <div class="group">
+    <div class="group-header">
+      <div class="group-icon" style="background:rgba(16,185,129,0.12);color:var(--accent-green)">📈</div>
+      <span class="group-title">能力与业绩</span>
+      <span class="group-subtitle">知识 · 绩效</span>
+      <div class="group-stats"><span class="group-stat"><span class="group-stat-num" data-count="growth">1 个板块</span></span></div>
+    </div>
+    <div class="card-grid" id="empGridGrowth"></div>
+  </div>
+
+  <!-- Group: 组织管理 -->
+  <div class="group">
+    <div class="group-header">
+      <div class="group-icon" style="background:rgba(139,92,246,0.12);color:var(--accent-purple)">👥</div>
+      <span class="group-title">组织管理</span>
+      <span class="group-subtitle">成员 · 花名册</span>
+      <div class="group-stats"><span class="group-stat"><span class="group-stat-num" data-count="mgmt">1 个板块</span></span></div>
+    </div>
+    <div class="card-grid" id="empGridMgmt"></div>
+  </div>
+
+  <div class="stats-bar" id="empBottomStats" style="padding:18px 0 16px;">
+    <div class="stat-item"><span class="stat-icon">👥</span><span class="stat-num" id="empTotalCount">0</span> <span class="stat-label">位员工</span></div>
+    <div class="stat-item"><span class="stat-icon">📋</span><span class="stat-num">5</span> <span class="stat-label">个员工板块</span></div>
+    <div class="stat-item"><span class="stat-icon">🔄</span><span class="stat-num">实时</span> <span class="stat-label">与员工版双向同步</span></div>
+  </div>
+
+  <div class="footer-info" style="padding-bottom:20px;">
+    数据来源：员工版 · 云端 · 领导端 · 员工只能访问自己的 emp- 命名空间数据
+  </div>
+
+</div><!-- /employeeCockpit -->
+
+<!-- 强制刷新遮罩 -->
+<div id="refreshOverlay">
+  <div class="refresh-spinner"></div>
+  <div class="refresh-status">正在同步最新数据…</div>
+  <div class="refresh-progress" id="refreshProgress">准备中…</div>
+</div>
+</div></div>
+
+<script>
+// ==================== 视图切换 ====================
+function setViewMode(mode) {
+  var wrapper = document.querySelector('.main-wrapper');
+  var pcBtn = document.getElementById('viewPcBtn');
+  var mbBtn = document.getElementById('viewMobileBtn');
+  if (mode === 'mobile') {
+    wrapper.classList.add('mobile-mode');
+    pcBtn.classList.remove('active');
+    mbBtn.classList.add('active');
+  } else {
+    wrapper.classList.remove('mobile-mode');
+    mbBtn.classList.remove('active');
+    pcBtn.classList.add('active');
+  }
+}
+
+// ==================== 原有功能 ====================
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.header-tab').forEach(function(t) { t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  var leader = document.getElementById('leaderCockpit');
+  var emp = document.getElementById('employeeCockpit');
+  if (tab === 'leader') { if(leader) leader.style.display='block'; if(emp) emp.style.display='none'; }
+  else if (tab === 'employee') { if(leader) leader.style.display='none'; if(emp) emp.style.display='block'; }
+}
+
+function updateGroupCounts() {
+  document.querySelectorAll('.group').forEach(function(g) {
+    var total = g.querySelectorAll('.card').length;
+    var cnt = g.querySelector('[data-count]');
+    if (cnt) cnt.textContent = total + ' 个板块';
+  });
+}
+
+function setFilter(filter) {
+  document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+  document.querySelector('[data-filter="' + filter + '"]').classList.add('active');
+
+  document.querySelectorAll('.group').forEach(function(group) {
+    var groupVisible = false;
+    group.querySelectorAll('.card').forEach(function(card) {
+      var tags = (card.dataset.tags || '').split(',');
+      var show = filter === 'all' || tags.indexOf(filter) !== -1;
+      card.classList.toggle('hidden', !show);
+      if (show) groupVisible = true;
+    });
+    group.style.display = groupVisible ? '' : 'none';
+    var cnt = group.querySelector('[data-count]');
+    if (cnt) cnt.textContent = (groupVisible ? group.querySelectorAll('.card:not(.hidden)').length : 0) + ' 个板块';
+  });
+}
+
+updateGroupCounts();
+renderEmployeeCockpit();
+
+// ==================== 强制刷新 ====================
+async function forceRefreshAll() {
+  var ov = document.getElementById('refreshOverlay');
+  var pg = document.getElementById('refreshProgress');
+  if (!ov) return;
+  ov.style.display = 'flex';
+
+  // 收集所有板块 ID
+  var boardIds = [];
+  if (typeof BOARDS !== 'undefined') {
+    for (var k in BOARDS) { if (BOARDS.hasOwnProperty(k)) boardIds.push(k); }
+  }
+  // 补充不在 BOARDS 中的板块（如 automation-projects 等）
+  var extraIds = ['automation-projects','dept-members','emp-notice','emp-task','emp-daily','emp-kb','emp-performance'];
+  extraIds.forEach(function(id){ if(boardIds.indexOf(id)===-1) boardIds.push(id); });
+
+  var total = boardIds.length;
+  var done = 0;
+  var ok = 0;
+
+  // 第1步：清除缓存
+  if (pg) pg.textContent = '正在清除本地缓存…';
+  try { localStorage.clear(); } catch(e) {}
+  await new Promise(function(r){ setTimeout(r, 300); });
+
+  // 第2步：逐个拉取最新数据
+  for (var i = 0; i < boardIds.length; i++) {
+    var id = boardIds[i];
+    if (pg) pg.textContent = '正在同步 (' + (i+1) + '/' + total + ') ' + id + '…';
+    try {
+      var result = await Store.forceLoad(id, 'data/' + id + '.json');
+      if (result) ok++;
+    } catch(e) {
+      console.warn('[强制刷新] 失败:', id, e.message);
+    }
+    done++;
+    // 小延迟避免并发过快
+    await new Promise(function(r){ setTimeout(r, 50); });
+  }
+
+  // 第3步：完成
+  if (pg) pg.textContent = '同步完成！' + ok + '/' + total + ' 个板块已更新';
+  setTimeout(function() {
+    ov.style.display = 'none';
+    location.reload(true);
+  }, 800);
+}
+
+// ==================== 员工驾驶舱 ====================
+function getDeptMap() {
+  return {'运营部':['张三','李四','王五'],'设计部':['赵六'],'客服部':['钱七','孙八'],'仓储部':['周九'],'综合部':['吴十']};
+}
+function renderEmployeeCockpit() {
+  // 员工驾驶舱卡片渲染（动态从 boards-config 获取）
+  if (typeof BOARDS_CONFIG === 'undefined') return;
+  var dailyGroup = ['emp-notice','emp-task','emp-daily'];
+  var growthGroup = ['emp-kb','emp-performance'];
+  var mgmtGroup = ['dept-members'];
+  function renderCard(bid, containerId) {
+    var cfg = BOARDS_CONFIG[bid]; if (!cfg) return;
+    var c = document.createElement('div'); c.className='card'+(cfg.pending?' pending':'');
+    c.onclick=function(){location.href='board.html?id='+bid};
+    c.setAttribute('data-accent', cfg.accent||'blue');
+    var h='<div class="card-header"><div class="card-title-group">';
+    h+='<span class="card-title">'+cfg.title+'</span>';
+    if (cfg.subtitle) h+='<span class="card-subtitle">'+cfg.subtitle+'</span>';
+    if (cfg.status) h+='<span class="status-badge status-'+cfg.status+'">'+(cfg.status==='live'?'运行中':cfg.status==='building'?'搭建中':'规划中')+'</span>';
+    h+='</div></div><div class="card-desc">'+(cfg.desc||'')+'</div><div class="card-footer">'+(cfg.source||'')+'<span class="card-arrow">→</span></div>';
+    c.innerHTML=h;
+    var el=document.getElementById(containerId); if(el) el.appendChild(c);
+  }
+  dailyGroup.forEach(function(b){renderCard(b,'empGridDaily');});
+  growthGroup.forEach(function(b){renderCard(b,'empGridGrowth');});
+  mgmtGroup.forEach(function(b){renderCard(b,'empGridMgmt');});
+  // 更新员工下拉
+  var deptSel=document.getElementById('deptSelect');
+  var empSel=document.getElementById('empSelect');
+  if(deptSel&&empSel) {
+    deptSel.onchange=function(){ filterByDept(this.value); };
+    var map=getDeptMap(); var all=[];
+    for(var d in map){ for(var i=0;i<map[d].length;i++) all.push(map[d][i]); }
+    all.sort(); all.forEach(function(n){
+      var o=document.createElement('option'); o.value=n; o.textContent=n; empSel.appendChild(o);
+    });
+  }
+}
+function filterByDept(dept) {
+  var empSel=document.getElementById('empSelect');
+  if(!empSel) return;
+  empSel.innerHTML='<option value="">全部员工</option>';
+  if(!dept) return;
+  var names=getDeptMap()[dept]||[];
+  names.forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; empSel.appendChild(o); });
+}
+function filterByEmployee(emp) {
+  // 给所有 emp- 卡片链接加上 ?employee=XXX
+  document.querySelectorAll('#employeeCockpit .card').forEach(function(c){
+    var href=c.getAttribute('onclick')||'';
+    if(emp && href.indexOf('board.html?id=emp-')!==-1){
+      c.setAttribute('onclick',href.replace("board.html?id=","board.html?employee="+encodeURIComponent(emp)+"&id="));
+    } else {
+      // restore original
+      var bid=(href.match(/id=(\S+?)[)'" ]/)||[])[1]||'';
+      if(bid) c.setAttribute('onclick',"location.href='board.html?id="+bid+"'");
+    }
+  });
+}
+
+// ==================== 同步功能（Electron 桌面端） ====================
+
+var syncIndicator = document.getElementById('syncIndicator');
+var syncDot = document.getElementById('syncDot');
+var syncLabel = document.getElementById('syncLabel');
+var syncBtn = document.getElementById('syncBtn');
+
+/** 更新同步状态 UI */
+function updateSyncUI(status) {
+  if (!syncDot || !syncLabel) return;
+
+  if (!status) {
+    syncDot.style.background = '#9ca3af';
+    syncLabel.textContent = '未连接';
+    syncLabel.style.color = 'rgba(255,255,255,0.5)';
+    return;
+  }
+
+  switch (status.status) {
+    case 'syncing':
+      syncDot.style.background = '#f59e0b';
+      syncLabel.textContent = '同步中...';
+      syncBtn.disabled = true;
+      break;
+    case 'connected':
+      syncDot.style.background = '#10b981';
+      syncLabel.textContent = '已同步' + (status.lastSync ? ' ' + new Date(status.lastSync).toLocaleTimeString() : '');
+      syncBtn.disabled = false;
+      break;
+    case 'error':
+      syncDot.style.background = '#ef4444';
+      syncLabel.textContent = '同步失败';
+      syncBtn.disabled = false;
+      break;
+    case 'no_server':
+      syncDot.style.background = '#f59e0b';
+      syncLabel.textContent = '未配置服务器';
+      syncBtn.textContent = '设置';
+      break;
+    default:
+      syncDot.style.background = '#9ca3af';
+      syncLabel.textContent = '未连接';
+      syncBtn.disabled = false;
+  }
+  syncLabel.style.color = 'rgba(255,255,255,0.7)';
+}
+
+/** 手动触发同步 */
+async function manualSync() {
+  if (!window.electronAPI) return;
+
+  // 获取当前配置
+  var status = await window.electronAPI.getSyncStatus();
+  var config = await window.electronAPI.getSyncConfig();
+
+  if (!status.serverUrl) {
+    var url = prompt('请输入云端同步服务器地址：\n（例如 https://chengying-sync-server.up.railway.app）\n\n如果还没有部署，可以先留空');
+    if (url && url.trim()) {
+      var key = prompt('请输入 API 密钥（如果服务端设置了的话，没有设置可留空）：');
+      await window.electronAPI.configureSync(url.trim(), (key || '').trim());
+      status = await window.electronAPI.getSyncStatus();
+    } else {
+      return;
+    }
+  }
+
+  syncLabel.textContent = '同步中...';
+  syncDot.style.background = '#f59e0b';
+
+  try {
+    var result = await window.electronAPI.triggerSync();
+    if (result && result.status === 'ok') {
+      syncDot.style.background = '#10b981';
+      var msg = '同步完成';
+      if (result.pushed > 0) msg += ' · 上传 ' + result.pushed;
+      if (result.pulled > 0) msg += ' · 下载 ' + result.pulled;
+      syncLabel.textContent = msg;
+    } else if (result && result.status === 'no_server') {
+      syncDot.style.background = '#f59e0b';
+      syncLabel.textContent = '未配置服务器';
+    }
+  } catch (e) {
+    syncDot.style.background = '#ef4444';
+    syncLabel.textContent = '同步失败: ' + (e.message || e);
+    console.error('同步失败:', e);
+  }
+}
+
+/** 初始化同步功能 */
+function initSync() {
+  // 检测 Electron 环境
+  if (!window.electronAPI) {
+    syncIndicator.style.display = 'none';
+    return;
+  }
+
+  syncIndicator.style.display = 'flex';
+
+  // 获取初始同步状态
+  window.electronAPI.getSyncStatus().then(function(status) {
+    updateSyncUI(status);
+  });
+
+  // 监听同步状态变化
+  window.electronAPI.onSyncStatusChange(function(status) {
+    updateSyncUI(status);
+  });
+
+  // 监听数据文件变化（提示刷新）
+  window.electronAPI.onBoardFileChanged(function(boardId) {
+    // 在页面上显示一个小提示
+    var toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1a1a2e;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:9999;animation:fadeUp 0.3s ease;';
+    toast.innerHTML = '📂 数据已更新 (' + boardId + ')<br><small style="color:#9ca3af">刷新页面查看最新数据</small>';
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 5000);
+  });
+
+  // 监听「打开同步状态」
+  window.electronAPI.onOpenSyncStatus(function() {
+    alert('同步状态：\n' + JSON.stringify(window.electronAPI.getSyncStatus(), null, 2));
+  });
+
+  // 监听「配置同步」
+  window.electronAPI.onConfigureSync(function() {
+    manualSync();
+  });
+}
+
+// 页面加载完成后初始化同步
+initSync();
+</script>
+
+
+<script src="js/store.js?v=202609011814"></script>
+<script src="js/boards-config.js?v=202609011814"></script>
+<script src="js/diagnostics-config.js?v=202609011814"></script>
+<script src="js/diagnosis.js?v=202609011814"></script>
+<script src="js/deep-link.js?v=202609011814"></script>
+<script src="js/home-health.js?v=202609011814"></script>
+<script src="js/web-sync.js?v=202609011814"></script>
+<script src="js/auth.js?v=202609011814"></script>
+<script src="js/chat-widget.js?v=202609011814"></script>
+<script>
+/* ============================================================
+ * 本地数据引导（仅浏览器 http / 预览静态模式）
+ * - Electron 模式：Store.isElectron() → 走主进程 IPC，跳过
+ * - 云端 https 模式：web-sync.js 已接管（window.WebSync），跳过
+ * - 其余（本机 http 浏览器 / 预览静态站）：从 data/<id>.json 预载
+ * ============================================================ */
+(function () {
+  function bootstrapLocalData() {
+    if (typeof Store === 'undefined') return;
+    if (Store.isElectron()) return;                 // Electron 走 IPC
+    if (typeof window.WebSync !== 'undefined' && window.WebSync && window.WebSync.enabled) return; // 云端已接管
+    // 仅预载确有本地数据文件的板块（避免规划中板块 404 噪音）
+    var ids = ['daily-pulse', 'sales-alert', 'sales-alert-ship-detail', 'automation-projects',
+      'automation-log', 'emp-notice', 'emp-task', 'emp-daily', 'emp-kb',
+      'emp-performance', 'dept-members',
+      'daily-pulse-details', 'sales-alert-details', 'last-update'];
+    ids.forEach(function (id) {
+      try { Store.preload(id, 'data/' + id + '.json'); } catch (e) {}
+    });
+    console.log('[Bootstrap] 本地数据预载已触发，板块数：' + ids.length);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootstrapLocalData);
+  else bootstrapLocalData();
+})();
+
+/* ============================================================
+ * 首页卡片数据滞后检测
+ * - 检查每个 data-status="live" 的卡片对应的数据文件最新日期
+ * - 最新日期 < 昨天 → 在卡片的 card-header 里插入红色"⚠️ 未更新"角标
+ * ============================================================ */
+(function checkCardStale() {
+  function ymd(d) {
+    var y = d.getFullYear(), m = ('0'+(d.getMonth()+1)).slice(-2), day = ('0'+d.getDate()).slice(-2);
+    return y+'-'+m+'-'+day;
+  }
+  var yesterday = ymd(new Date(Date.now() - 86400000));
+
+  // 卡片 onclick → 提取 board id
+  function cardBoardId(card) {
+    var href = (card.getAttribute('onclick') || '') + (card.getAttribute('data-href') || '');
+    var m = href.match(/id=([a-zA-Z0-9_-]+)/);
+    return m ? m[1] : null;
+  }
+
+  // 从 localStorage（Store）读取数据文件的最新日期
+  function getLatestDate(boardId) {
+    try {
+      var raw = localStorage.getItem('wb:data:' + boardId);
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      if (!Array.isArray(data) || !data.length) return null;
+      var dates = data.map(function(r) { return r.date; }).filter(Boolean).sort().reverse();
+      return dates[0] || null;
+    } catch(e) { return null; }
+  }
+
+  function insertStaleBadge(card, latest, diff) {
+    // 避免重复插入
+    if (card.querySelector('.stale-badge')) return;
+    var header = card.querySelector('.card-header');
+    if (!header) header = card.querySelector('.card-title-group');
+    if (!header) return;
+    var severe = diff >= 3;
+    var badge = document.createElement('span');
+    badge.className = 'stale-badge' + (severe ? ' stale-badge-severe' : '');
+    badge.title = '最新数据: ' + latest + '，应为 ' + yesterday + '（滞后' + diff + '天），请检查同步或手动更新';
+    badge.textContent = (severe ? '🛑 ' : '⚠️ ') + '滞后' + diff + '天';
+    // 插入到 title-group 末尾（status-badge 后面）
+    var tg = card.querySelector('.card-title-group');
+    if (tg) tg.appendChild(badge);
+    else header.appendChild(badge);
+  }
+
+  function runCheck() {
+    var stale = [];
+    document.querySelectorAll('.card[data-status="live"]').forEach(function(card) {
+      var bid = cardBoardId(card);
+      if (!bid) return;
+      var latest = getLatestDate(bid);
+      if (!latest || latest >= yesterday) return; // 正常或无数据
+      var diff = Math.round((Date.parse(yesterday) - Date.parse(latest)) / 86400000);
+      if (diff >= 1) { insertStaleBadge(card, latest, diff); stale.push({ bid: bid, diff: diff }); }
+    });
+    var banner = document.getElementById('staleBanner');
+    if (banner) {
+      if (stale.length) {
+        stale.sort(function(a, b) { return b.diff - a.diff; });
+        banner.style.display = 'flex';
+        banner.innerHTML = '⚠️ <b>' + stale.length + ' 个板块数据已滞后</b>（最久：' + stale[0].bid + ' 滞后 ' + stale[0].diff + ' 天）· 建议点「同步最新」或检查自动化';
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+  }
+
+  // 数据预载完成后检查（延迟等 Store 写完 localStorage）
+  setTimeout(runCheck, 800);
+
+  // 同时支持直接从 data/ 文件 fetch（云版模式）
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(runCheck, 1200); });
+  }
+})();
+</script>
+<script>
+  // 经营健康总览：所有板块诊断聚合（体检报告）
+  (function () {
+    function bootHealth() {
+      try {
+        if (window.HomeHealth) {
+          window.HomeHealth.init('homeHealth');
+          console.log('[HomeHealth] 经营健康总览已加载');
+        }
+      } catch (e) { console.warn('[HomeHealth] 初始化失败', e); }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootHealth);
+    } else {
+      bootHealth();
+    }
+  })();
+</script>
+</body>
+</html>

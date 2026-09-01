@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>竞争分析</title>
+<script src="js/echarts.min.js"></script>
+<script src="js/diagnostics-config.js?v=202608311900"></script>
+<script src="js/diagnosis.js?v=202608311745"></script>
+<script src="js/deep-link.js?v=202608311945"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f7f8fa; color: #1f2937; line-height: 1.5; padding: 22px 22px 48px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  /* header */
+  header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+  .ttl { display: flex; align-items: center; gap: 10px; }
+  .back { font-size: 13px; color: #6b7280; text-decoration: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 5px 11px; background: #fff; transition: .15s; }
+  .back:hover { border-color: #f97316; color: #f97316; }
+  h1 { font-size: 19px; font-weight: 800; }
+  .sub { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .date { font-size: 11.5px; color: #9ca3af; margin-top: 3px; background: #f3f4f6; display: inline-block; padding: 2px 8px; border-radius: 6px; }
+  .tabs { display: inline-flex; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 3px; }
+  .tabs button { border: none; background: transparent; padding: 7px 15px; font-size: 13px; font-weight: 600; color: #6b7280; border-radius: 7px; cursor: pointer; transition: .15s; }
+  .tabs button.active { background: #f97316; color: #fff; }
+
+  /* 平台占位 */
+  .placeholder { background: #fff; border: 1px dashed #d1d5db; border-radius: 14px; padding: 60px 20px; text-align: center; color: #9ca3af; }
+  .placeholder .ph-ico { font-size: 34px; margin-bottom: 10px; }
+  .placeholder .ph-t { font-size: 15px; font-weight: 700; color: #6b7280; }
+  .placeholder .ph-d { font-size: 12.5px; margin-top: 6px; }
+
+  /* 一句话结论 */
+  .signal { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; font-size: 13.5px; color: #374151; display: flex; gap: 12px; align-items: flex-start; }
+  .signal .si { font-size: 16px; margin-top: 1px; }
+  .signal b { color: #111827; }
+  .signal .warn { color: #dc2626; font-weight: 700; }
+  .signal .good { color: #16a34a; font-weight: 700; }
+
+  /* 品类卡片网格 */
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .cat-card { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 14px 15px; cursor: pointer; transition: .16s; position: relative; overflow: hidden; }
+  .cat-card:hover { border-color: #fdba74; box-shadow: 0 4px 14px rgba(249,115,22,.10); transform: translateY(-1px); }
+  .cat-card .cc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .cat-card .cc-name { font-size: 14.5px; font-weight: 800; }
+  .cat-card .cc-tag { font-size: 10.5px; padding: 2px 7px; border-radius: 10px; font-weight: 700; }
+  .cat-card .cc-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 5px; }
+  .cat-card .cc-label { font-size: 11px; color: #9ca3af; }
+  .cat-card .cc-val { font-size: 13.5px; font-weight: 700; }
+  .cat-card .cc-val small { font-size: 10.5px; font-weight: 600; color: #9ca3af; }
+  .cat-card .cc-share { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 800; }
+  .cat-card .cc-chg { font-size: 11px; font-weight: 700; }
+  .cat-card .cc-chg.up { color: #16a34a; } .cat-card .cc-chg.down { color: #dc2626; } .cat-card .cc-chg.flat { color: #9ca3af; }
+  .cat-card .cc-bar { height: 3px; border-radius: 2px; background: #f1f3f6; margin-top: 10px; overflow: hidden; }
+  .cat-card .cc-bar i { display: block; height: 100%; border-radius: 2px; }
+  .cat-card .cc-foot { display: flex; justify-content: space-between; font-size: 10.5px; color: #b8c2d0; margin-top: 7px; }
+
+  /* 卡片状态颜色 */
+  .tag-lead { background: #d1fae5; color: #047857; }
+  .tag-gap { background: #fef3c7; color: #b45309; }
+  .tag-risk { background: #fee2e2; color: #dc2626; }
+  .tag-none { background: #f1f3f6; color: #9ca3af; }
+  .bar-lead { background: linear-gradient(90deg,#10b981,#34d399); }
+  .bar-gap { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+  .bar-risk { background: linear-gradient(90deg,#ef4444,#f87171); }
+
+  /* 通用卡片 */
+  .card { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+  .card-hd { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
+  .card-hd .t { font-size: 14px; font-weight: 700; }
+  .card-hd .hint { font-size: 11.5px; color: #9ca3af; margin-top: 3px; }
+  .filters { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .filters button { border: 1px solid #e5e7eb; background: #fff; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 16px; cursor: pointer; color: #6b7280; transition: .15s; }
+  .filters button.active { background: #111827; color: #fff; border-color: #111827; }
+  .chart { width: 100%; height: 320px; }
+
+  /* 竞品表 */
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead th { text-align: left; font-size: 11px; color: #9ca3af; font-weight: 600; padding: 7px 8px; border-bottom: 1px solid #f0f1f3; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { color: #6b7280; }
+  thead th.num, tbody td.num { text-align: right; }
+  tbody td { padding: 7px 8px; border-bottom: 1px solid #f6f7f8; }
+  tbody tr:hover { background: #fafafa; }
+  .nm { font-weight: 600; color: #1f2937; }
+  .gp { font-size: 10.5px; padding: 1px 6px; border-radius: 8px; background: #f3f4f6; color: #6b7280; white-space: nowrap; }
+  .m-hi { background: #dcfce7; color: #15803d; }
+  .m-mid { background: #fef9c3; color: #a16207; }
+  .m-lo { background: #fee2e2; color: #b91c1c; }
+  .m-no { background: #f3f4f6; color: #9ca3af; }
+  .lk { color: #2563eb; text-decoration: none; font-size: 11.5px; }
+  .lk:hover { text-decoration: underline; }
+  .spark { height: 30px; width: 90px; }
+  .tbl-count { font-size: 11.5px; color: #9ca3af; margin-left: 4px; }
+  .empty { text-align: center; color: #b8c2d0; padding: 22px 0; font-size: 12.5px; }
+
+  /* 头部竞品对比 */
+  .vs-head { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 9px 14px; font-size: 12.5px; color: #7c2d12; margin-bottom: 10px; line-height: 1.7; }
+  .vs-head b { color: #c2410c; }
+  #vsTable table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  #vsTable th { background: #fafafa; color: #6b7280; font-weight: 600; padding: 7px 8px; text-align: center; border-bottom: 2px solid #f1f3f6; white-space: nowrap; }
+  #vsTable td { padding: 7px 8px; border-bottom: 1px solid #f5f6f8; text-align: center; color: #374151; }
+  #vsTable tr.vs-top td { background: #fff8f0; }
+  #vsTable tr.vs-ours td { background: #f0fdf4; }
+  .vs-ours-badge { background: #10b981; color: #fff; font-size: 10px; padding: 1px 7px; border-radius: 8px; font-weight: 600; }
+  .vs-ours-tag { font-size: 10px; color: #10b981; }
+  .vs-gap { font-size: 10px; color: #9ca3af; margin-left: 4px; font-weight: 400; }
+  .vs-gap.vs-base { color: #f97316; }
+  .vs-gap-bad { color: #dc2626; background: #fef2f2; padding: 1px 5px; border-radius: 7px; }
+  .vs-gap-good { color: #16a34a; background: #f0fdf4; padding: 1px 5px; border-radius: 7px; }
+  .vs-gap-ok { color: #9ca3af; background: #f8fafc; padding: 1px 5px; border-radius: 7px; }
+  .vs-my { color: #059669; font-weight: 600; }
+  .vs-my-tag { font-size: 10px; color: #9ca3af; font-weight: 400; }
+  #marginTrendBody table { min-width: 780px; }
+  .vs-est { color: #f59e0b; }
+  .vs-vs-tag { display:block; font-size:10px; color:#9ca3af; font-weight:400; margin-top:2px; }
+  .vs-vs-tag.vs-strong { color:#dc2626; }
+  .vs-vs-tag.vs-weak { color:#16a34a; }
+  /* vs 分区：日销图 / 雷达+结论 */
+  .vs-sec { margin-top: 14px; }
+  .vs-sec-hd { display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; color:#374151; margin-bottom:8px; }
+  .vs-sec-hd::before { content:""; width:3px; height:13px; border-radius:2px; background:#f97316; }
+  .vs-compare { display:grid; grid-template-columns:300px 1fr; gap:14px; margin-top:14px; }
+  .vs-panel { background:#fafafa; border:1px solid #f0f1f3; border-radius:12px; padding:12px 14px; min-width:0; }
+  #vsTable { overflow-x:auto; }
+  #vsTable table { min-width: 960px; }
+  #vsAdvice { display:flex; flex-direction:column; justify-content:center; }
+  #vsAdvice .adv-card { background:#fff; border:1px solid #eef0f3; border-radius:12px; padding:14px 16px; font-size:13px; line-height:1.9; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+  #vsAdvice .adv-title { font-weight:800; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  #vsAdvice .adv-win { color:#16a34a; font-weight:700; }
+  #vsAdvice .adv-lose { color:#dc2626; font-weight:700; }
+  #vsAdvice .adv-tip { color:#9ca3af; font-size:12px; margin-top:10px; border-top:1px dashed #f0f1f3; padding-top:8px; }
+  #vsChart { margin-top: 6px; }
+
+  /* 洞察卡 */
+  .insight-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .insight { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 13px 15px; }
+  .insight .in-t { font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .insight .in-b { font-size: 12px; color: #4b5563; white-space: pre-wrap; line-height: 1.65; }
+  .insight .in-b b { color: #111827; }
+  .insight .in-flag { font-size: 10.5px; color: #f97316; background: #fff7ed; padding: 1px 6px; border-radius: 8px; }
+  .insight .in-new { font-size: 10.5px; color: #2563eb; background: #eff6ff; padding: 1px 6px; border-radius: 8px; }
+
+  footer { font-size: 11px; color: #b9bfc7; text-align: center; margin-top: 6px; }
+  .hidden { display: none !important; }
+
+  /* 数据新鲜度提示 */
+  #freshBadge { margin-bottom: 12px; }
+  .fresh-ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 10px; padding: 9px 14px; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .fresh-bad { background: linear-gradient(135deg,#fff1f2,#fef2f2); border: 1px solid #fecaca; color: #991b1b; border-radius: 10px; padding: 9px 14px; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; line-height: 1.6; }
+  .fresh-bad b { color: #dc2626; }
+</style>
+</head>
+<body>
+<script src="js/freshness-alert.js?v=202609011516"></script>
+<div class="wrap">
+  <header>
+    <div class="ttl">
+      <a class="back" href="index.html">← 返回</a>
+      <div>
+        <h1>竞争分析</h1>
+        <div class="sub">按品类集成分析 · 同行 vs 我方</div>
+        <div class="date" id="dataDate">加载中…</div>
+      </div>
+    </div>
+    <div class="tabs" id="tabs">
+      <button data-platform="拼多多" class="active">拼多多</button>
+      <button data-platform="天猫">天猫</button>
+    </div>
+  </header>
+
+  <!-- 平台视图（拼多多/天猫 共用渲染，切换时动态换数据源） -->
+  <div id="platView">
+    <div id="freshBadge"></div>
+    <div class="signal" id="signal"></div>
+
+    <!-- 品类总览 -->
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <div class="t">品类竞争总览</div>
+          <div class="hint">卡片 = 最近一天大盘 / 我方·同行日销 / 市占率 · 点击卡片查看详细趋势与竞品监控</div>
+        </div>
+        <div class="filters" id="stateFilter">
+          <button data-state="全部" class="active">全部</button>
+          <button data-state="lead">领先</button>
+          <button data-state="gap">追赶</button>
+          <button data-state="risk">失守</button>
+          <button data-state="none">无我方</button>
+        </div>
+      </div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+
+    <!-- 品类详情 -->
+    <div class="card hidden" id="detailCard">
+      <div class="card-hd">
+        <div>
+          <div class="t" id="dtName">—</div>
+          <div class="hint" id="dtHint"></div>
+        </div>
+        <div class="filters" id="rangeFilter">
+          <button data-range="30">近30天</button>
+          <button data-range="90">近90天</button>
+          <button data-range="all" class="active">全部</button>
+        </div>
+      </div>
+      <div class="chart" id="trendChart"></div>
+
+      <!-- 头部竞品对比（仅天猫展示） -->
+      <div class="card hidden" id="vsCard" style="border:none;border-top:1px dashed #eef0f3;border-radius:0;padding:14px 0 10px;margin-bottom:8px;">
+        <div class="card-hd">
+          <div>
+            <div class="t">主推品 vs 头部竞品 <span class="tbl-count" id="vsCount"></span></div>
+            <div class="hint">我方主推品 vs 按日销排序 Top 5 头部竞品 · 逐指标对比单量/点击率/转化率/加购率/点击成本/ROI · ≈ 为按我方每日值跨天反推的估算值</div>
+          </div>
+        </div>
+        <div id="vsTable"></div>
+
+        <div class="vs-sec">
+          <div class="vs-sec-hd">日销对比 · 我方 vs 头部 Top5</div>
+          <div class="chart" id="vsChart" style="height:210px"></div>
+        </div>
+
+        <div class="vs-compare">
+          <div class="vs-panel">
+            <div class="vs-sec-hd">强弱雷达 · 我方 vs 头部 Top3</div>
+            <div class="chart" id="vsRadar" style="height:225px"></div>
+          </div>
+          <div class="vs-panel" id="vsAdvice"></div>
+        </div>
+      </div>
+
+      <!-- 竞品监控 -->
+      <div class="card" style="border:none;border-top:1px dashed #eef0f3;border-radius:0;padding:14px 0 4px;margin-bottom:8px;">
+        <div class="card-hd">
+          <div>
+            <div class="t">竞品链接监控<span class="tbl-count" id="compCount"></span></div>
+            <div class="hint" id="compHint">来自《市场同行监控》· 点击链接可跳转竞品详情</div>
+          </div>
+          <div class="filters" id="compFilter">
+            <button data-f="全部" class="active">全部</button>
+            <button data-f="活跃">近30天有销量</button>
+            <span class="comp-filter-tmall">
+              <button data-f="高毛">高毛利</button>
+              <button data-f="中毛">中毛利</button>
+              <button data-f="低毛">低毛利</button>
+            </span>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead id="compHead"><tr></tr></thead>
+            <tbody id="compBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 毛利段趋势分析（仅拼多多展示） -->
+      <div class="card hidden" id="marginTrendCard" style="border:none;border-top:1px dashed #eef0f3;border-radius:0;padding:14px 0 4px;margin-bottom:8px;">
+        <div class="card-hd">
+          <div>
+            <div class="t">毛利段趋势分析 <span class="tbl-count" id="marginTrendCount"></span></div>
+            <div class="hint">按竞品毛利段聚合 · 近7天日均 vs 前7天日均 · 判断哪个毛利段在增长/收缩，给出优先打法建议</div>
+          </div>
+        </div>
+        <div id="marginTrendBody" style="overflow-x:auto;"></div>
+        <div id="marginTrendAdvice"></div>
+      </div>
+
+      <!-- 市场洞察 -->
+      <div id="insightArea"></div>
+    </div>
+
+    <!-- 市场概况 -->
+    <div class="card" id="overviewCard">
+      <div class="card-hd">
+        <div>
+          <div class="t">市场概况 · 每周观察</div>
+          <div class="hint">来自《市场同行监控》市场概况表 · 新发现与下一步动作</div>
+        </div>
+      </div>
+      <div class="insight-grid" id="overviewGrid"></div>
+    </div>
+  </div>
+
+  <footer>数据来源：市占趋势日监控 · 市场同行监控（拼多多 1.市场监控）· 天猫-市场大盘登记表</footer>
+</div>
+
+<script>
+/* ============================================================
+   竞争分析 · 拼多多
+   ============================================================ */
+var DATA = null;
+var CATS = [];            // 有市占趋势的品类
+var EXTRA = [];           // 仅竞品监控品类
+var currentCat = null;
+var currentPlatform = "拼多多";
+var rangeDays = 0;        // 0=全部
+var compFilter = "全部";
+var compSort = { key: "latest_sales", dir: -1 };
+var stateFilter = "全部";
+
+function $(id) { return document.getElementById(id); }
+
+/* ---------- 品类状态判定 ---------- */
+function catState(cat) {
+  var s = cat.series;
+  if (!s || !s.length) return { key: "none", label: "无我方", cls: "tag-none" };
+  var last = s[s.length - 1];
+  var pct = last.ours_pct != null ? last.ours_pct : (last.market && last.ours != null ? last.ours / last.market : null);
+  if (pct == null) return { key: "none", label: "无我方", cls: "tag-none" };
+  if (pct >= 0.5) return { key: "lead", label: "领先", cls: "tag-lead" };
+  if (pct >= 0.3) return { key: "gap", label: "追赶", cls: "tag-gap" };
+  if (pct >= 0.1) return { key: "risk", label: "失守", cls: "tag-risk" };
+  return { key: "none", label: "边缘", cls: "tag-none" };
+}
+
+function avgRange(series, days) {
+  // 最近 days 天（或全部）平均市占率/我方/同行
+  var n = series.length;
+  var arr = days && days < n ? series.slice(n - days) : series;
+  var pct = 0, ours = 0, comp = 0, cnt = 0;
+  arr.forEach(function (d) {
+    var p = d.ours_pct != null ? d.ours_pct : (d.market && d.ours != null ? d.ours / d.market : null);
+    if (p != null && d.market) { pct += p; ours += d.ours; comp += (d.comp || 0); cnt++; }
+  });
+  return cnt ? { pct: pct / cnt, ours: ours / cnt, comp: comp / cnt } : null;
+}
+
+function fmt(n) {
+  if (n == null || isNaN(n)) return "—";
+  if (Math.abs(n) >= 10000) return (n / 10000).toFixed(1) + "w";
+  return Math.round(n).toLocaleString();
+}
+function fmtPct(n, dp) {
+  if (n == null || isNaN(n)) return "—";
+  return (n * 100).toFixed(dp == null ? 1 : dp) + "%";
+}
+
+/* ---------- 品类总览卡片 ---------- */
+function renderCatGrid() {
+  var grid = $("catGrid");
+  grid.innerHTML = "";
+  var all = CATS.concat(EXTRA.map(function (c) {
+    return Object.assign({}, c, { _extra: true });
+  }));
+  all = all.filter(function (c) {
+    if (stateFilter === "全部") return true;
+    return catState(c).key === stateFilter;
+  });
+  if (!all.length) {
+    grid.innerHTML = '<div class="empty">没有符合条件的品类</div>';
+    return;
+  }
+  all.forEach(function (cat) {
+    var st = catState(cat);
+    var last = cat.series.length ? cat.series[cat.series.length - 1] : null;
+    // 市占率变化（近30天 vs 前30天）
+    var chgHtml = '<span class="cc-chg flat">无我方对比</span>';
+    var shareHtml = '—';
+    var barHtml = '';
+    if (last && last.market) {
+      var pct = last.ours_pct != null ? last.ours_pct : (last.ours != null ? last.ours / last.market : null);
+      shareHtml = pct != null ? '<span class="cc-share">' + fmtPct(pct) + '</span>' : '<span class="cc-share">补录中</span>';
+      var r30 = avgRange(cat.series, 30);
+      var r60 = avgRange(cat.series, 60);
+      if (r30 && r60 && pct != null) {
+        var d = r30.pct - r60.pct;
+        if (Math.abs(d) < 0.01) chgHtml = '<span class="cc-chg flat">↔ 0.0%</span>';
+        else if (d > 0) chgHtml = '<span class="cc-chg up">↑ ' + fmtPct(d) + '</span>';
+        else chgHtml = '<span class="cc-chg down">↓ ' + fmtPct(-d) + '</span>';
+      }
+      if (pct != null) {
+        barHtml = '<div class="cc-bar"><i class="' + (st.key === 'lead' ? 'bar-lead' : st.key === 'gap' ? 'bar-gap' : 'bar-risk') + '" style="width:' + Math.round(pct * 100) + '%"></i></div>';
+      }
+    }
+    var compCnt = cat.competitors ? cat.competitors.length : 0;
+    grid.innerHTML += '<div class="cat-card" data-name="' + escapeHtml(cat.name) + '">' +
+      '<div class="cc-top"><span class="cc-name">' + escapeHtml(cat.name) + '</span>' +
+      '<span class="cc-tag ' + st.cls + '">' + st.label + '</span></div>' +
+      '<div class="cc-row"><span class="cc-label">大盘(最新)</span><span class="cc-val">' + fmt(last ? last.market : null) + '<small> 单</small></span></div>' +
+      '<div class="cc-row"><span class="cc-label">我方 / 同行</span><span class="cc-val">' + fmt(last ? last.ours : null) + ' <small>/</small> ' + fmt(last ? last.comp : null) + '</span></div>' +
+      '<div class="cc-row"><span class="cc-label">我方市占</span>' + shareHtml + chgHtml + '</div>' +
+      barHtml +
+      '<div class="cc-foot"><span>' + (cat._extra ? "仅竞品监控" : "市占趋势 " + (cat.series.length || 0) + "天") + '</span><span>' + compCnt + ' 个竞品</span></div>' +
+      '</div>';
+  });
+  // 绑定点击
+  grid.querySelectorAll(".cat-card").forEach(function (el) {
+    el.addEventListener("click", function () { openDetail(el.getAttribute("data-name")); });
+  });
+}
+
+function escapeHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+/* ---------- 一句话结论 ---------- */
+function renderSignal() {
+  var box = $("signal");
+  var parts = [];
+  var lead = [], risk = [], pending = [];
+  CATS.forEach(function (c) {
+    var st = catState(c);
+    var last = c.series[c.series.length - 1];
+    if (!last || !last.market) return;
+    if (st.key === "lead") lead.push(c.name);
+    else if (st.key === "risk" || st.key === "none") {
+      // 我方数据未录入 → 待补录；已录入但市占低 → 需关注
+      if (last.ours == null && last.ours_pct == null) pending.push(c.name);
+      else risk.push(c.name);
+    }
+  });
+  var marketTotal = 0, oursTotal = 0, hasOurs = false;
+  CATS.forEach(function (c) {
+    var last = c.series[c.series.length - 1];
+    if (last && last.market) {
+      marketTotal += last.market;
+      oursTotal += (last.ours || 0);
+      if (last.ours != null) hasOurs = true;
+    }
+  });
+  var overall;
+  if (!marketTotal) overall = "—";
+  else if (!hasOurs) overall = "数据补录中";
+  else overall = fmtPct(oursTotal / marketTotal);
+  parts.push(currentPlatform + '全品类我方最新市占 <b>' + overall + '</b>');
+  if (lead.length) parts.push('<b class="good">领先品类 ' + lead.length + ' 个</b>（' + lead.join("、") + '）');
+  if (risk.length) parts.push('<b class="warn">需关注品类 ' + risk.length + ' 个</b>（' + risk.join("、") + '）');
+  if (pending.length) parts.push('<b class="warn">待补录数据 ' + pending.length + ' 个</b>（' + pending.join("、") + '）');
+  if (!risk.length && !pending.length) parts.push('<b class="good">暂无失守品类</b>');
+  box.innerHTML = '<span class="si">🎯</span><div>' + parts.join(" · ") + '</div>';
+}
+
+/* ---------- 品类详情 ---------- */
+var trendChart = null;
+var vsChart = null;
+var vsRadarChart = null;
+function openDetail(name) {
+  var cat = CATS.concat(EXTRA.map(function (c) { return Object.assign({}, c, { _extra: true }); }))
+    .find(function (c) { return c.name === name; });
+  if (!cat) return;
+  currentCat = cat;
+  $("detailCard").classList.remove("hidden");
+  $("dtName").textContent = cat.name;
+  var compCnt = cat.competitors ? cat.competitors.length : 0;
+  $("dtHint").textContent = "市占趋势 " + (cat.series.length || 0) + "天 · 竞品监控 " + compCnt + " 个 · 点击其他卡片可切换";
+  renderTrend();
+  renderVsBlock();
+  renderCompTable();
+  renderMarginTrend();
+  renderInsight();
+  $("detailCard").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ---------- 毛利段趋势分析（仅拼多多） ---------- */
+function renderMarginTrend() {
+  var card = $("marginTrendCard");
+  if (currentPlatform !== "拼多多") {
+    card.classList.add("hidden");
+    return;
+  }
+  card.classList.remove("hidden");
+  var comps = (currentCat && currentCat.competitors) || [];
+  var TIERS = ["高", "中", "低", "负"];
+  var tierLabel = { 高: "高毛利", 中: "中毛利", 低: "低毛利", 负: "负毛利" };
+  var tierColor = { 高: "#16a34a", 中: "#0ea5e9", 低: "#f59e0b", 负: "#dc2626" };
+
+  // 单链接近7日均 vs 前7日均
+  function linkRecentAvg(dl) {
+    var dates = Object.keys(dl || {}).sort();
+    if (dates.length < 7) return null;
+    var sum = 0;
+    dates.slice(-7).forEach(function (d) { sum += dl[d] || 0; });
+    return sum / 7;
+  }
+  function linkPrevAvg(dl) {
+    var dates = Object.keys(dl || {}).sort();
+    if (dates.length < 14) return null;
+    var sum = 0;
+    dates.slice(-14, -7).forEach(function (d) { sum += dl[d] || 0; });
+    return sum / 7;
+  }
+
+  // 每段统计
+  var seg = {};
+  TIERS.forEach(function (t) {
+    seg[t] = { comps: [], up: 0, down: 0, flat: 0, upAdd: 0, downCut: 0, recentSum: 0 };
+  });
+  comps.forEach(function (cp) {
+    var t = cp.margin_tier && TIERS.indexOf(cp.margin_tier) >= 0 ? cp.margin_tier : null;
+    if (!t) return;
+    var dl = cp.daily || {};
+    var recent = linkRecentAvg(dl);
+    var prev = linkPrevAvg(dl);
+    var s = seg[t];
+    if (recent == null) return;
+    s.comps.push(cp);
+    s.recentSum += recent;
+    if (prev == null) { s.flat++; return; }
+    var growth = (recent - prev) / prev;
+    var delta = recent - prev;
+    if (growth > 0.05) { s.up++; s.upAdd += delta; }
+    else if (growth < -0.05) { s.down++; s.downCut += -delta; }
+    else { s.flat++; }
+  });
+
+  var rows = [];
+  TIERS.forEach(function (t) {
+    var s = seg[t];
+    if (!s.comps.length) return;
+    var net = s.upAdd - s.downCut;
+    var pct = s.recentSum > 0 && net !== 0 ? Math.round(net / s.recentSum * 100) : 0;
+    rows.push({
+      tier: t, label: tierLabel[t], color: tierColor[t],
+      n: s.comps.length,
+      up: s.up, down: s.down, flat: s.flat,
+      upAdd: Math.round(s.upAdd), downCut: Math.round(s.downCut),
+      net: Math.round(net), pct: pct,
+      recent: Math.round(s.recentSum)
+    });
+  });
+
+  $("marginTrendCount").textContent = "（" + rows.length + " 个毛利段 · 竞品 " + comps.length + " 个）";
+
+  var body = $("marginTrendBody");
+  if (!rows.length) {
+    body.innerHTML = '<div class="empty">暂无毛利段数据（竞品未标注毛利或近7天无日销）</div>';
+    $("marginTrendAdvice").innerHTML = "";
+    return;
+  }
+  // 排序：净增量优先，其次体量
+  rows.sort(function (a, b) {
+    if (b.net !== a.net) return b.net - a.net;
+    return b.recent - a.recent;
+  });
+
+  var html = '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+    '<thead><tr style="background:#fafafa;">' +
+    '<th style="padding:7px 8px;border-bottom:2px solid #f1f3f6;text-align:left;">毛利段</th>' +
+    '<th style="padding:7px 8px;border-bottom:2px solid #f1f3f6;">链接</th>' +
+    '<th style="padding:7px 8px;border-bottom:2px solid #f1f3f6;color:#16a34a;">↑上升</th>' +
+    '<th style="padding:7px 8px;border-bottom:2px solid #f1f3f6;color:#dc2626;">↓下降</th>' +
+    '<th style="padding:7px 8px;border-bottom:2px solid #f1f3f6;">净增量</th>' +
+    '<th style="padding:7px 8px;border-bottom:2px solid #f1f3f6;">近7天日均</th>' +
+    '<th style="padding:7px 8px;border-bottom:2px solid #f1f3f6;">段趋势</th>' +
+    '<th style="padding:7px 8px;border-bottom:2px solid #f1f3f6;">体量占比</th></tr></thead><tbody>';
+  var allRecent = rows.reduce(function (a, r) { return a + r.recent; }, 0);
+  rows.forEach(function (r) {
+    var upTxt = r.up ? '<span style="color:#16a34a;font-weight:600;">' + r.up + ' 个</span> <span style="color:#9ca3af;">+' + r.upAdd + '单</span>' : '<span style="color:#9ca3af;">—</span>';
+    var downTxt = r.down ? '<span style="color:#dc2626;font-weight:600;">' + r.down + ' 个</span> <span style="color:#9ca3af;">-' + r.downCut + '单</span>' : '<span style="color:#9ca3af;">—</span>';
+    var netCls = r.net > 0 ? "#16a34a" : (r.net < 0 ? "#dc2626" : "#9ca3af");
+    var netTxt = r.net > 0 ? "+" + r.net : (r.net < 0 ? String(r.net) : "0");
+    var trendTxt = r.pct > 0 ? "↑ +" + r.pct + "%" : (r.pct < 0 ? "↓ " + r.pct + "%" : "→ 持平");
+    var trendCls = r.pct > 0 ? "#16a34a" : (r.pct < 0 ? "#dc2626" : "#9ca3af");
+    var share = allRecent ? Math.round(r.recent / allRecent * 100) : 0;
+    var barW = Math.min(share, 100);
+    html += '<tr><td style="padding:7px 8px;border-bottom:1px solid #f5f6f8;text-align:left;">' +
+      '<span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:' + r.color + ';margin-right:6px;"></span>' +
+      '<b>' + r.label + '</b></td>' +
+      '<td style="padding:7px 8px;border-bottom:1px solid #f5f6f8;">' + r.n + '</td>' +
+      '<td style="padding:7px 8px;border-bottom:1px solid #f5f6f8;">' + upTxt + '</td>' +
+      '<td style="padding:7px 8px;border-bottom:1px solid #f5f6f8;">' + downTxt + '</td>' +
+      '<td style="padding:7px 8px;border-bottom:1px solid #f5f6f8;color:' + netCls + ';font-weight:600;">' + netTxt + '</td>' +
+      '<td style="padding:7px 8px;border-bottom:1px solid #f5f6f8;"><b>' + fmt(r.recent) + '</b></td>' +
+      '<td style="padding:7px 8px;border-bottom:1px solid #f5f6f8;color:' + trendCls + ';font-weight:600;">' + trendTxt + '</td>' +
+      '<td style="padding:7px 8px;border-bottom:1px solid #f5f6f8;"><span style="display:inline-block;width:56px;height:6px;background:#f1f3f6;border-radius:3px;vertical-align:middle;margin-right:5px;"><span style="display:block;height:6px;width:' + barW + '%;background:' + r.color + ';border-radius:3px;"></span></span>' + share + '%</td></tr>';
+  });
+  html += "</tbody></table>";
+  body.innerHTML = html;
+
+  // 建议：排除负毛利（利润薄、打品易亏），优先选 净增量大 + 体量大 的段
+  var advice = $("marginTrendAdvice");
+  var candidates = rows.filter(function (r) { return r.tier !== "负"; });
+  var pick = null;
+  if (candidates.length) {
+    candidates.sort(function (a, b) {
+      // 净增量为正优先；再比体量；再比净增量绝对值
+      var aPos = a.net > 0 ? 1 : 0, bPos = b.net > 0 ? 1 : 0;
+      if (aPos !== bPos) return bPos - aPos;
+      if (b.recent !== a.recent) return b.recent - a.recent;
+      return b.net - a.net;
+    });
+    pick = candidates[0];
+  }
+  var pickReason = "";
+  if (pick) {
+    var share2 = allRecent ? Math.round(pick.recent / allRecent * 100) : 0;
+    var netSign = pick.net > 0 ? "净增 " + pick.net + " 单" : (pick.net < 0 ? "净减 " + (-pick.net) + " 单" : "持平");
+    if (pick.tier === "负") {
+      pickReason = "负毛利段利润空间薄、打品易亏损，不建议优先切入。";
+    } else if (pick.net > 0 && pick.recent >= Math.max(60, allRecent * 0.3)) {
+      pickReason = pick.label + "段同时具备「增长 + 体量」：" + pick.up + " 个链接上升（共 +" + pick.upAdd + " 单）、" + pick.down + " 个下降（共 -" + pick.downCut + " 单），" + netSign + "；近7天日均 " + fmt(pick.recent) + " 单，占竞品体量 " + share2 + "% → 市场在放大，建议优先切入。";
+    } else if (pick.net > 0) {
+      pickReason = pick.label + "段净增量为正（" + netSign + "），" + pick.up + " 升 / " + pick.down + " 降，近7天日均 " + fmt(pick.recent) + " 单 → 有增长信号，可结合体量做重点切入。";
+    } else {
+      pickReason = "各非负毛利段整体净增量不为正。" + pick.label + "段体量相对最大（近7天日均 " + fmt(pick.recent) + " 单，占 " + share2 + "%），建议作为重点观察对象。";
+    }
+  } else {
+    pickReason = "数据不足，暂无法给出建议。";
+  }
+  advice.innerHTML = '<div class="vs-head" style="margin-top:10px;">💡 <b>优先建议</b>：' + pickReason + '</div>';
+}
+
+function renderTrend() {
+  var dom = $("trendChart");
+  var s = currentCat.series;
+  if (!s || !s.length) {
+    dom.innerHTML = '<div class="empty">该品类暂无市占趋势数据（仅竞品监控）</div>';
+    return;
+  }
+  var slice = rangeDays ? s.slice(-rangeDays) : s;
+  var dates = slice.map(function (d) { return d.date.slice(5); });
+  var compV = slice.map(function (d) { return d.comp; });
+  var oursV = slice.map(function (d) { return d.ours; });
+  var pctV = slice.map(function (d) {
+    return d.ours_pct != null ? +(d.ours_pct * 100).toFixed(1) : (d.market && d.ours != null ? +(d.ours / d.market * 100).toFixed(1) : null);
+  });
+  var cm = Math.max.apply(null, compV.map(function (v) { return v || 0; }));
+  var om = Math.max.apply(null, oursV.map(function (v) { return v || 0; }));
+  // 无同行数据（如天猫）时隐藏"同行销量"系列
+  var hasComp = compV.some(function (v) { return v != null; });
+  var legendData = ["我方销量", "我方市占"];
+  var seriesArr = [
+    { name: "我方销量", type: "line", data: oursV, smooth: true, symbol: "none", lineStyle: { width: 2, color: "#3b82f6" }, areaStyle: { opacity: .1, color: "#3b82f6" } },
+    { name: "我方市占", type: "line", yAxisIndex: 1, data: pctV, smooth: true, symbol: "none", lineStyle: { width: 2, type: "dashed", color: "#10b981" } }
+  ];
+  if (hasComp) {
+    legendData.unshift("同行销量");
+    seriesArr.unshift({ name: "同行销量", type: "line", data: compV, smooth: true, symbol: "none", lineStyle: { width: 2, color: "#ef4444" }, areaStyle: { opacity: .08, color: "#ef4444" } });
+  }
+
+  trendChart = echarts.init(dom, null, { renderer: "canvas" });
+  trendChart.setOption({
+    tooltip: { trigger: "axis", formatter: function (ps) {
+      var d = ps.length ? ps[0].axisValueLabel : "";
+      var out = "<b>" + d + "</b>";
+      ps.forEach(function (p) {
+        var v = p.value == null ? "—" : Math.round(p.value);
+        if (p.seriesName === "我方市占") out += "<br>" + p.marker + p.seriesName + "：" + (v == "—" ? v : v + "%");
+        else out += "<br>" + p.marker + p.seriesName + "：" + (v == "—" ? v : fmt(v));
+      });
+      return out;
+    } },
+    legend: { data: legendData, top: 0, textStyle: { fontSize: 11.5 } },
+    grid: { left: 10, right: 10, top: 34, bottom: 4, containLabel: true },
+    xAxis: { type: "category", data: dates, axisLabel: { fontSize: 10.5, color: "#9ca3af", interval: Math.max(0, Math.floor(dates.length / 10)) } },
+    yAxis: [
+      { type: "value", name: "日销量", nameTextStyle: { fontSize: 10.5, color: "#9ca3af" }, splitLine: { lineStyle: { color: "#f1f3f6" } }, axisLabel: { fontSize: 10.5, color: "#9ca3af" } },
+      { type: "value", name: "市占率", min: 0, max: 100, axisLabel: { formatter: "{value}%", fontSize: 10.5, color: "#9ca3af" }, splitLine: { show: false } }
+    ],
+    series: seriesArr
+  });
+  // 重绘处理
+  trendChart._raf = null;
+}
+
+/* ---------- 头部竞品对比（仅天猫；拼多多保持初版竞品监控） ---------- */
+function renderVsBlock() {
+  var box = $("vsTable");
+  var chartDom = $("vsChart");
+  if (currentPlatform !== "天猫") {
+    $("vsCard").classList.add("hidden");
+    if (vsChart) { vsChart.dispose(); vsChart = null; }
+    return;
+  }
+  $("vsCard").classList.remove("hidden");
+  var oursList = currentCat.ours_products || [];
+  var comps = currentCat.competitors || [];
+  var top = comps.slice().filter(function (c) { return c.latest_sales != null; })
+    .sort(function (a, b) { return (b.latest_sales || 0) - (a.latest_sales || 0); })
+    .slice(0, 5);
+  $("vsCount").textContent = "（我方主推品 · 竞品 " + top.length + "）";
+  var s = currentCat.series;
+  var last = s && s.length ? s[s.length - 1] : null;
+  var market = last && last.market ? last.market : null;
+  var ours = last ? last.ours : null;
+  var oursPct = market ? (last.ours_pct != null ? last.ours_pct : (ours != null ? ours / market : null)) : null;
+
+  var op = oursList[0] || {};
+  var t = op.t || {};
+
+  // 我方主推品精确值（访客缺省时用 支付单量÷转化率 推算）
+  function myVal(k) {
+    if (k === "sales") return t.o != null ? t.o : null;
+    if (k === "ctr") return t.ct != null ? t.ct : null;
+    if (k === "conv_rate") return t.cv != null ? t.cv : null;
+    if (k === "cart_rate") return t.cart_rate != null && t.cart_rate > 0 ? t.cart_rate : null;
+    if (k === "cpc") return t.cpa != null ? t.cpa : null;
+    if (k === "roi") return t.r != null ? t.r : null;
+    if (k === "visitors") {
+      if (t.i != null) return t.i;
+      if (t.o != null && t.cv != null && t.cv > 0) return Math.round(t.o / t.cv);
+      return null;
+    }
+    return null;
+  }
+  // 竞品值：点击成本/ROI 若为"比本品高/低"相对标记 → 已反推为估算值（cpc_est/roi_est）
+  function compVal(c, k) {
+    var m = c.metrics || {};
+    if (k === "sales") return c.latest_sales != null ? c.latest_sales : (m.orders != null ? m.orders : null);
+    if (k === "ctr") return c.ctr != null ? c.ctr : null;
+    if (k === "conv_rate") return c.conv_rate != null ? c.conv_rate : null;
+    if (k === "cart_rate") return c.cart_rate != null ? c.cart_rate : null;
+    if (k === "cpc") return m.cpc_est != null ? m.cpc_est : (m.cpc != null ? m.cpc : null);
+    if (k === "roi") return m.roi_est != null ? m.roi_est : (c.roi_num != null ? c.roi_num : null);
+    if (k === "visitors") return c.visitors != null ? c.visitors : null;
+    return null;
+  }
+  // 链接ID（url/link 里的 id=xxx）
+  function linkId(url) {
+    if (!url) return "—";
+    var m = String(url).match(/[?&]id=(\d+)/);
+    return m ? m[1] : "—";
+  }
+  function compIsEst(c, k) {
+    var m = c.metrics || {};
+    if (k === "cpc") return m.cpc_est != null;
+    if (k === "roi") return m.roi_est != null;
+    return false;
+  }
+  function compRange(c, k) {
+    var m = c.metrics || {};
+    if (k === "cpc") return m.cpc_low != null ? ("≈" + m.cpc_low + "~" + m.cpc_high) : null;
+    if (k === "roi") return m.roi_low != null ? ("≈" + m.roi_low + "~" + m.roi_high) : null;
+    return null;
+  }
+
+  // 指标列：dir="+" 竞品越高越不利(红)；dir="-" 竞品越低越不利(红，如点击成本)
+  var vsCols = [
+    { k: "sales", label: "单量", dir: "+", fmt: function (v) { return fmt(v); } },
+    { k: "ctr", label: "点击率", dir: "+", fmt: function (v) { return (v * 100).toFixed(1) + "%"; } },
+    { k: "conv_rate", label: "转化率", dir: "+", fmt: function (v) { return (v * 100).toFixed(1) + "%"; } },
+    { k: "cart_rate", label: "加购率", dir: "+", fmt: function (v) { return (v * 100).toFixed(1) + "%"; } },
+    { k: "cpc", label: "点击成本", dir: "-", fmt: function (v) { return "¥" + v.toFixed(2); } },
+    { k: "roi", label: "ROI", dir: "+", fmt: function (v) { return v.toFixed(2); } },
+    { k: "visitors", label: "访客", dir: "+", fmt: function (v) { return fmt(Math.round(v)); } }
+  ];
+  var headers = ["#", "产品/店铺"].concat(vsCols.map(function (c) { return c.label; }), ["走势", "链接ID", "链接"]);
+
+  // 头部摘要
+  var headRow = "";
+  if (market) {
+    var pctTxt = oursPct != null ? fmtPct(oursPct) : "—";
+    headRow = '<div class="vs-head">📦 品类大盘 <b>' + fmt(market) + '</b> 单 · 我方 <b>' + fmt(ours) + '</b> 单 · 我方市占 <b>' + pctTxt + '</b>' +
+      (top.length ? ' · 头部 <b>' + escapeHtml(top[0].shop) + '</b> ' + fmt(top[0].latest_sales) + ' 单' : '') +
+      (top.length && oursPct != null ? ' · 我方/头部 = <b>' + (oursPct / (top[0].latest_sales / market)).toFixed(2) + 'x</b>' : '') + '</div>';
+  }
+
+  var html = headRow + '<table><thead><tr>' + headers.map(function (h) { return "<th>" + h + "</th>"; }).join("") + "</tr></thead><tbody>";
+
+  // 我方主推品行（精确值）
+  if (oursList.length) {
+    html += '<tr class="vs-ours">' +
+      '<td class="num"><span class="vs-ours-badge">我方</span></td>' +
+      '<td class="nm" style="text-align:left"><b>' + escapeHtml(op.name || "我方主推品") + '</b> <span class="vs-my-tag">' + escapeHtml(currentCat.name) + '</span></td>';
+    vsCols.forEach(function (c) {
+      var v = myVal(c.k);
+      html += '<td class="num vs-my">' + (v != null ? '<b>' + c.fmt(v) + '</b>' : "—") + "</td>";
+    });
+    html += '<td><span class="vs-ours-tag">我方产品</span></td>' +
+      '<td class="num">' + linkId(t.url) + '</td>' +
+      "<td>" + (t.url ? '<a class="lk" href="' + escapeHtml(t.url) + '" target="_blank" rel="noopener">查看 →</a>' : "—") + "</td></tr>";
+  }
+
+  // 竞品行（含与主推品的差距徽章 + 相对强弱标签）
+  function vsTag(c) {
+    var strongCnt = 0, weakCnt = 0;
+    vsCols.forEach(function (col) {
+      var cv = compVal(c, col.k);
+      var mv = myVal(col.k);
+      if (cv == null || mv == null || mv <= 0) return;
+      if (col.dir === "+") { if (cv > mv * 1.05) strongCnt++; else if (cv < mv * 0.95) weakCnt++; }
+      else { if (cv < mv * 0.95) strongCnt++; else if (cv > mv * 1.05) weakCnt++; }
+    });
+    if (strongCnt > weakCnt) return '<span class="vs-vs-tag vs-strong">对我方更强 · ' + strongCnt + '项占优/' + weakCnt + '项落后</span>';
+    if (weakCnt > strongCnt) return '<span class="vs-vs-tag vs-weak">对我方较弱 · ' + weakCnt + '项落后/' + strongCnt + '项占优</span>';
+    return '<span class="vs-vs-tag">与我方接近</span>';
+  }
+  top.forEach(function (c, i) {
+    html += "<tr" + (i === 0 ? ' class="vs-top"' : "") + ">" +
+      '<td class="num">' + (i + 1) + "</td>" +
+      '<td class="nm" style="text-align:left">' + escapeHtml(c.shop) + (i === 0 ? ' <span class="vs-gap vs-base">头部</span>' : "") + vsTag(c) + "</td>";
+    vsCols.forEach(function (col) {
+      var mv = myVal(col.k);
+      var cv = compVal(c, col.k);
+      if (cv == null) { html += '<td class="num">—</td>'; return; }
+      var est = compIsEst(c, col.k);
+      var range = compRange(c, col.k);
+      var valTxt = col.fmt(cv);
+      var estTxt = est ? '<span class="vs-est" title="' + escapeHtml(range || "按我方每日值跨天反推") + '">≈' + valTxt + '</span>' : valTxt;
+      var badge = "";
+      if (mv != null && mv > 0) {
+        var ratio = cv / mv;
+        var worse = (col.dir === "+") ? (cv > mv) : (cv < mv);
+        var cls = worse ? "vs-gap-bad" : (Math.abs(ratio - 1) < 0.05 ? "vs-gap-ok" : "vs-gap-good");
+        var ratioTxt = (ratio >= 1 ? "×" + ratio.toFixed(1) : "×" + ratio.toFixed(2));
+        var gapTitle = "我方" + col.fmt(mv) + "，" + escapeHtml(c.shop) + " " + valTxt;
+        badge = '<span class="vs-gap ' + cls + '" title="' + gapTitle + '">' + (worse ? "↑" : "↓") + ratioTxt + "</span>";
+      }
+      var tip = range ? ' title="' + escapeHtml(range) + '"' : "";
+      html += '<td class="num"' + tip + ">" + estTxt + badge + "</td>";
+    });
+    var dates = Object.keys(c.daily || {}).sort().slice(-30);
+    var vals = dates.map(function (d) { return c.daily[d]; });
+    html += "<td>" + sparkline(vals) + "</td>" +
+      '<td class="num">' + linkId(c.link) + '</td>' +
+      "<td>" + (c.link ? '<a class="lk" href="' + escapeHtml(c.link) + '" target="_blank" rel="noopener">查看 →</a>' : "—") + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+
+  // 横向条形图：我方 vs 头部竞品（日销/订单）
+  if (vsChart) vsChart.dispose();
+  if (!top.length) {
+    chartDom.innerHTML = '<div class="empty">暂无竞品日销数据</div>';
+    vsChart = null;
+    return;
+  }
+  var barNames = [], barVals = [], barColors = [];
+  if (oursList.length && ours != null) {
+    barNames.push(currentCat.name.length > 8 ? currentCat.name.slice(0, 8) + "…" : currentCat.name);
+    barVals.push(Math.round(ours));
+    barColors.push("#10b981");
+  }
+  top.forEach(function (c, i) {
+    barNames.push(c.shop.length > 8 ? c.shop.slice(0, 8) + "…" : c.shop);
+    barVals.push(c.latest_sales || 0);
+    barColors.push(i === 0 ? "#f97316" : "#60a5fa");
+  });
+  vsChart = echarts.init(chartDom, null, { renderer: "canvas" });
+  vsChart.setOption({
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, formatter: function (ps) { return "<b>" + escapeHtml(barNames[ps[0].dataIndex]) + "</b><br>日销/订单：" + fmt(barVals[ps[0].dataIndex]); } },
+    grid: { left: 10, right: 40, top: 8, bottom: 4, containLabel: true },
+    xAxis: { type: "value", axisLabel: { fontSize: 10.5, color: "#9ca3af" }, splitLine: { lineStyle: { color: "#f1f3f6" } } },
+    yAxis: { type: "category", data: barNames, axisLabel: { fontSize: 10.5, color: "#4b5563" } },
+    series: [{ type: "bar", data: barVals.map(function (v, i) { return { value: v, itemStyle: { color: barColors[i], borderRadius: 4 } }; }), barWidth: 14 }]
+  });
+
+  // ⭐ 强弱雷达：我方 vs 头部 Top3（各指标按相对强弱 0~100 归一）
+  var radarDom = $("vsRadar");
+  if (vsRadarChart) { vsRadarChart.dispose(); vsRadarChart = null; }
+  if (radarDom) {
+    var dims = [
+      { k: "sales", name: "单量", dir: "+" },
+      { k: "ctr", name: "点击率", dir: "+" },
+      { k: "conv_rate", name: "转化率", dir: "+" },
+      { k: "cart_rate", name: "加购率", dir: "+" },
+      { k: "cpc", name: "点击成本", dir: "-" },
+      { k: "roi", name: "ROI", dir: "+" }
+    ];
+    var radarItems = [];
+    var myItem = { name: (op.name || "我方").slice(0, 8), vals: {} };
+    dims.forEach(function (d) {
+      myItem.vals[d.k] = myVal(d.k);
+    });
+    radarItems.push(myItem);
+    top.slice(0, 3).forEach(function (c, i) {
+      var it = { name: (c.shop || ("竞品" + (i + 1))).slice(0, 8), vals: {} };
+      dims.forEach(function (d) { it.vals[d.k] = compVal(c, d.k); });
+      radarItems.push(it);
+    });
+    // 归一化：每指标取参与项极值（成本取最小）→ 0~100
+    var seriesData = radarItems.map(function (it, idx) {
+      var values = dims.map(function (d) {
+        var vs = radarItems.map(function (x) { return x.vals[d.k]; }).filter(function (v) { return v != null && v > 0; });
+        if (!vs.length) return 0;
+        var v = it.vals[d.k];
+        if (v == null || v <= 0) return 0;
+        if (d.dir === "+") return Math.round(v / Math.max.apply(null, vs) * 100);
+        return Math.round(Math.min.apply(null, vs) / v * 100);
+      });
+      return { name: it.name, value: values, itemStyle: { color: idx === 0 ? "#10b981" : (idx === 1 ? "#f97316" : (idx === 2 ? "#60a5fa" : "#f59e0b")) }, lineStyle: { width: 2 } };
+    });
+    vsRadarChart = echarts.init(radarDom, null, { renderer: "canvas" });
+    vsRadarChart.setOption({
+      tooltip: {},
+      legend: { data: seriesData.map(function (s) { return s.name; }), bottom: 0, textStyle: { fontSize: 10.5 }, icon: "circle" },
+      radar: { indicator: dims.map(function (d) { return { name: d.name, max: 100 }; }), radius: "62%", splitNumber: 4, axisName: { fontSize: 10.5, color: "#4b5563" }, splitArea: { areaStyle: { color: ["#fff", "#f8fafc"] } } },
+      series: [{ type: "radar", data: seriesData }]
+    });
+  }
+
+  // 💡 分析结论：我方 vs 头部（前5）逐指标对比，归纳优势/劣势
+  var adv = $("vsAdvice");
+  if (adv) {
+    var winList = [], loseList = [];
+    dims.forEach(function (d) {
+      var wins = 0, loses = 0, cmp = 0;
+      top.forEach(function (c) {
+        var cv = compVal(c, d.k);
+        var mv = myVal(d.k);
+        if (cv == null || mv == null || mv <= 0) return;
+        cmp++;
+        var iBetter = (d.dir === "+") ? (mv > cv) : (mv < cv);
+        if (iBetter) wins++; else loses++;
+      });
+      if (cmp >= 2) {
+        if (wins >= 2) winList.push(d.name);
+        else if (loses >= 2) loseList.push(d.name);
+      }
+    });
+    var tip = "";
+    if (oursPct != null && top.length && top[0].latest_sales) {
+      var gapTxt = oursPct / (top[0].latest_sales / market) >= 1 ? "我方在品类大盘的份额领先头部" : "头部单量仍领先我方，需在弱势指标上补强";
+      tip = "📌 " + gapTxt + "。建议优先优化「" + (loseList.length ? loseList.join("、") : "转化率/单量") + "」，放大「" + (winList.length ? winList.join("、") : "点击成本/ROI") + "」的既有优势。";
+    } else {
+      tip = "📌 数据足够后会自动给出更准确的打法建议。";
+    }
+    adv.innerHTML = '<div class="adv-card">' +
+      '<div class="adv-title">💡 一眼看差距</div>' +
+      (winList.length ? '<div>✅ 我方占优：<span class="adv-win">' + winList.join("、") + '</span></div>' : "") +
+      (loseList.length ? '<div>⚠️ 我方落后：<span class="adv-lose">' + loseList.join("、") + '</span></div>' : "") +
+      (!winList.length && !loseList.length ? '<div>与头部水平接近，暂无显著优劣势指标。</div>' : "") +
+      '<div class="adv-tip">' + tip + '</div></div>';
+  }
+}
+
+/* ---------- 竞品表 ---------- */
+function marginClass(v) {
+  if (v == null) return "m-no";
+  if (v >= 0.5) return "m-hi";
+  if (v >= 0.2) return "m-mid";
+  return "m-lo";
+}
+function marginTxt(v) {
+  if (v == null) return "—";
+  return (v * 100).toFixed(0) + "%";
+}
+
+function filterCompetitors(list) {
+  return list.filter(function (cp) {
+    if (compFilter === "活跃") {
+      return cp.avg7 != null || cp.latest_sales != null;
+    }
+    if (compFilter === "高毛") return cp.margin_tier === "高";
+    if (compFilter === "中毛") return cp.margin_tier === "中";
+    if (compFilter === "低毛") return cp.margin_tier === "低";
+    return true;
+  });
+}
+
+/* 竞品表列配置：两平台分析维度不同 */
+var COMP_COLS = {
+  "拼多多": [
+    { key: "shop", label: "店铺" },
+    { key: "group", label: "毛利档" },
+    { key: "margin", label: "毛利率" },
+    { key: "roi", label: "投产" },
+    { key: "launch", label: "上架" },
+    { key: "latest_sales", label: "最新日销" },
+    { key: "", label: "近30天走势" },
+    { key: "", label: "链接" }
+  ],
+  "天猫": [
+    { key: "shop", label: "店铺" },
+    { key: "ctr", label: "点击率" },
+    { key: "conv_rate", label: "转化率" },
+    { key: "cart_rate", label: "加购率" },
+    { key: "latest_sales", label: "每日单量" },
+    { key: "visitors", label: "访客(日)" },
+    { key: "confirmed", label: "确认收货" },
+    { key: "", label: "近30天走势" },
+    { key: "", label: "链接" }
+  ]
+};
+
+function renderCompHead() {
+  var cols = COMP_COLS[currentPlatform] || COMP_COLS["拼多多"];
+  var h = $("compHead");
+  h.innerHTML = "<tr>" + cols.map(function (c) {
+    return '<th data-sort="' + c.key + '">' + c.label + '</th>';
+  }).join("") + "</tr>";
+}
+
+function compCell(cp, c) {
+  var key = c.key;
+  if (key === "shop") return '<td class="nm">' + escapeHtml(cp.shop || "—") + '</td>';
+  if (key === "group") return '<td><span class="gp ' + marginClass(cp.margin_num) + '">' + escapeHtml(cp.group || "未标注") + '</span></td>';
+  if (key === "margin") return '<td class="num"><span class="gp ' + marginClass(cp.margin_num) + '">' + marginTxt(cp.margin_num) + '</span></td>';
+  if (key === "roi") return '<td class="num">' + (cp.roi_num != null ? cp.roi_num.toFixed(2) : "—") + '</td>';
+  if (key === "launch") return '<td>' + (cp.launch ? escapeHtml(cp.launch).slice(0, 10) : "—") + '</td>';
+  if (key === "latest_sales") {
+    if (currentPlatform === "天猫") {
+      return '<td class="num"><b>' + fmt(cp.latest_sales) + '</b>' + (cp.avg7 != null ? ' <span style="color:#9ca3af;font-size:10.5px">7日均' + cp.avg7 + '</span>' : '') + '</td>';
+    }
+    return '<td class="num"><b>' + fmt(cp.latest_sales) + '</b>' + (cp.avg7 != null ? ' <span style="color:#9ca3af;font-size:10.5px">7日均' + cp.avg7 + '</span>' : '') + '</td>';
+  }
+  if (key === "ctr") {
+    var ctrTxt = cp.ctr != null ? (cp.ctr * 100).toFixed(1) + "%" : "—";
+    var ctrTip = cp.ctr_input ? ' title="登记区间 ' + escapeHtml(cp.ctr_input) + '"' : "";
+    return '<td class="num"' + ctrTip + '>' + ctrTxt + '</td>';
+  }
+  if (key === "conv_rate") {
+    var cvrTip = cp.conv_input ? ' title="登记区间 ' + escapeHtml(cp.conv_input) + '"' : "";
+    return '<td class="num"' + cvrTip + '>' + (cp.conv_rate != null ? (cp.conv_rate * 100).toFixed(1) + "%" : "—") + '</td>';
+  }
+  if (key === "cart_rate") {
+    var cartTip = cp.cart_input ? ' title="登记区间 ' + escapeHtml(cp.cart_input) + '"' : "";
+    return '<td class="num"' + cartTip + '>' + (cp.cart_rate != null ? (cp.cart_rate * 100).toFixed(1) + "%" : "—") + '</td>';
+  }
+  if (key === "visitors") return '<td class="num">' + fmt(cp.visitors) + '</td>';
+  if (key === "confirmed") return '<td class="num">' + fmt(cp.confirmed) + '</td>';
+  if (c.label === "近30天走势") {
+    var dates = Object.keys(cp.daily || {}).sort().slice(-30);
+    var vals = dates.map(function (d) { return cp.daily[d]; });
+    return '<td>' + sparkline(vals) + '</td>';
+  }
+  if (c.label === "链接") return '<td>' + (cp.link ? '<a class="lk" href="' + escapeHtml(cp.link) + '" target="_blank" rel="noopener">查看 →</a>' : "—") + '</td>';
+  return '<td>—</td>';
+}
+
+function renderCompTable() {
+  renderCompHead();
+  var cols = COMP_COLS[currentPlatform] || COMP_COLS["拼多多"];
+  var list = currentCat.competitors || [];
+  var filtered = filterCompetitors(list);
+  var key = compSort.key, dir = compSort.dir;
+  filtered.sort(function (a, b) {
+    var av = a[key], bv = b[key];
+    if (key === "margin") { av = a.margin_num; bv = b.margin_num; }
+    else if (key === "roi") { av = a.roi_num; bv = b.roi_num; }
+    else if (key === "shop" || key === "group") { av = String(av || ""); bv = String(bv || ""); return av < bv ? -1 * dir : av > bv ? 1 * dir : 0; }
+    av = av == null ? -1 : av; bv = bv == null ? -1 : bv;
+    return (av - bv) * dir;
+  });
+  $("compCount").textContent = "（" + filtered.length + "/" + list.length + "）";
+  var tbody = $("compBody");
+  tbody.innerHTML = "";
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="' + cols.length + '" class="empty">暂无竞品监控数据</td></tr>';
+    return;
+  }
+  filtered.forEach(function (cp) {
+    var html = "<tr>";
+    cols.forEach(function (c) { html += compCell(cp, c); });
+    html += "</tr>";
+    tbody.innerHTML += html;
+  });
+}
+
+function sparkline(vals) {
+  if (!vals.length) return '<span style="color:#d1d5db">—</span>';
+  var w = 90, h = 30, pad = 2;
+  var max = Math.max.apply(null, vals), min = Math.min.apply(null, vals);
+  var span = (max - min) || 1;
+  var pts = vals.map(function (v, i) {
+    var x = pad + (vals.length === 1 ? 0 : i * (w - pad * 2) / (vals.length - 1));
+    var y = h - pad - (v - min) / span * (h - pad * 2);
+    return x.toFixed(1) + "," + y.toFixed(1);
+  });
+  var trend = vals[vals.length - 1] >= (vals[0] || 0) ? "#16a34a" : "#dc2626";
+  return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '"><polyline points="' + pts.join(" ") + '" fill="none" stroke="' + trend + '" stroke-width="1.5"/></svg>';
+}
+
+/* ---------- 市场洞察 ---------- */
+function renderInsight() {
+  var area = $("insightArea");
+  area.innerHTML = "";
+  var cat = currentCat;
+  var blocks = "";
+  if (cat.overview) {
+    blocks += insightBlock("🔍 市场概况", cat.overview.market_situation);
+  }
+  if (cat.overview && cat.overview.new_findings) {
+    blocks += insightBlock("✨ 新发现", cat.overview.new_findings);
+  }
+  if (cat.overview && cat.overview.next_action) {
+    blocks += insightBlock("👉 下一步动作", cat.overview.next_action);
+  }
+  if (cat.strategy) {
+    var s = cat.strategy;
+    blocks += insightBlock("📋 打法汇总", s.market_analysis, "市场分析");
+    if (s.competitor_situation) blocks += insightBlock("🏪 同行情况", s.competitor_situation);
+    if (s.problems) blocks += insightBlock("⚠️ 存在问题", s.problems);
+    if (s.ideas) blocks += insightBlock("💡 想法", s.ideas);
+    if (s.conclusion) blocks += insightBlock("✅ 结论", s.conclusion);
+  }
+  if (!blocks) {
+    area.innerHTML = '<div class="empty">暂无市场洞察笔记</div>';
+    return;
+  }
+  area.innerHTML = '<div class="card-hd" style="margin-top:10px"><div class="t">市场洞察</div><div class="hint">来自《市场同行监控》汇总 / 市场概况</div></div><div class="insight-grid">' + blocks + '</div>';
+}
+
+function insightBlock(title, text, flag) {
+  if (!text) return "";
+  var f = flag ? '<span class="in-flag">' + escapeHtml(flag) + '</span>' : "";
+  return '<div class="insight"><div class="in-t">' + title + f + '</div><div class="in-b">' + escapeHtml(text) + '</div></div>';
+}
+
+/* ---------- 市场概况区 ---------- */
+function renderOverview() {
+  var grid = $("overviewGrid");
+  grid.innerHTML = "";
+  var ovs = (DATA.platforms[currentPlatform] || {}).market_overview || [];
+  if (!ovs.length) {
+    grid.innerHTML = '<div class="empty">暂无市场概况数据</div>';
+    return;
+  }
+  ovs.forEach(function (o) {
+    grid.innerHTML += '<div class="insight">' +
+      '<div class="in-t">📊 ' + escapeHtml(o.product) + '</div>' +
+      (o.market_situation ? '<div class="in-b" style="margin-bottom:6px">' + escapeHtml(o.market_situation).split("\n").join("<br>") + '</div>' : '') +
+      (o.new_findings ? '<div class="in-b"><span class="in-new">新发现</span><br>' + escapeHtml(o.new_findings).split("\n").join("<br>") + '</div>' : '') +
+      (o.next_action ? '<div class="in-b" style="margin-top:6px"><span class="in-flag">下一步</span><br>' + escapeHtml(o.next_action).split("\n").join("<br>") + '</div>' : '') +
+      '</div>';
+  });
+}
+
+/* ---------- 事件绑定 ---------- */
+$("tabs").addEventListener("click", function (e) {
+  var btn = e.target.closest("button");
+  if (!btn) return;
+  var p = btn.getAttribute("data-platform");
+  if (p === currentPlatform) return;
+  currentPlatform = p;
+  document.querySelectorAll("#tabs button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+  switchPlatform(p);
+});
+
+function switchPlatform(p) {
+  var pl = DATA.platforms[p] || { categories: [], extra_categories: [], market_overview: [] };
+  CATS = pl.categories || [];
+  EXTRA = pl.extra_categories || [];
+  stateFilter = "全部";
+  compFilter = "全部";
+  // 平台差异：天猫隐藏毛利筛选、更新表格提示
+  var isTm = p === "天猫";
+  document.querySelector(".comp-filter-tmall").style.display = isTm ? "none" : "";
+  $("compHint").textContent = isTm ? "来自《天猫-市场大盘登记表》· 转化率/加购率/访客/ROI/付免流量结构为最新监控值" : "来自《市场同行监控》· 点击链接可跳转竞品详情";
+  document.querySelectorAll("#stateFilter button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-state") === "全部"); });
+  document.querySelectorAll("#compFilter button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-f") === "全部"); });
+  $("dataDate").textContent = "数据更新：" + (DATA.updated || "—") + " · " + p + "最新市占日期：" + latestTrendDate();
+  renderFreshness();
+  renderSignal();
+  renderCatGrid();
+  renderOverview();
+  var all = CATS.concat(EXTRA.map(function (c) { return Object.assign({}, c, { _extra: true }); }));
+  if (all.length) openDetail(all[0].name);
+  else { $("detailCard").classList.add("hidden"); currentCat = null; }
+  if (trendChart) trendChart.resize();
+}
+
+$("stateFilter").addEventListener("click", function (e) {
+  var btn = e.target.closest("button");
+  if (!btn) return;
+  stateFilter = btn.getAttribute("data-state");
+  document.querySelectorAll("#stateFilter button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+  renderCatGrid();
+});
+
+$("rangeFilter").addEventListener("click", function (e) {
+  var btn = e.target.closest("button");
+  if (!btn) return;
+  rangeDays = parseInt(btn.getAttribute("data-range"), 10) || 0;
+  document.querySelectorAll("#rangeFilter button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+  renderTrend();
+});
+
+$("compFilter").addEventListener("click", function (e) {
+  var btn = e.target.closest("button");
+  if (!btn) return;
+  compFilter = btn.getAttribute("data-f");
+  document.querySelectorAll("#compFilter button").forEach(function (b) { b.classList.toggle("active", b === btn); });
+  renderCompTable();
+});
+
+$("compHead").addEventListener("click", function (e) {
+  var th = e.target.closest("th");
+  if (!th) return;
+  var key = th.getAttribute("data-sort");
+  if (!key) return;
+  if (compSort.key === key) compSort.dir *= -1; else compSort.key = key, compSort.dir = key === "launch" ? 1 : -1;
+  document.querySelectorAll("#compHead th").forEach(function (t) {
+    t.textContent = t.textContent.replace(/\s*[↑↓]\s*$/, "");
+  });
+  th.textContent = th.textContent + (compSort.dir > 0 ? " ↑" : " ↓");
+  renderCompTable();
+});
+
+window.addEventListener("resize", function () {
+  if (trendChart) trendChart.resize();
+});
+
+// 深度链接：从首页诊断卡片直达具体平台/品类
+function applyCompetitionFocus(focus) {
+  if (!focus || !DATA) return;
+  if (focus.platform && DATA.platforms[focus.platform]) {
+    currentPlatform = focus.platform;
+    CATS = (DATA.platforms[currentPlatform] || {}).categories || [];
+    EXTRA = (DATA.platforms[currentPlatform] || {}).extra_categories || [];
+    document.querySelectorAll("header .tabs button").forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-platform') === focus.platform); });
+  }
+  renderSignal();
+  renderCatGrid();
+  renderOverview();
+  if (focus.category && CATS) {
+    var found = CATS.find(function (c) { return c.name === focus.category; });
+    if (found) {
+      openDetail(found.name);
+      setTimeout(function () { if (typeof DeepLink !== 'undefined') DeepLink.highlight('#catGrid', focus.category); }, 300);
+    }
+  }
+}
+
+/* ---------- 启动 ---------- */
+fetch("data/competition.json")
+  .then(function (r) { return r.json(); })
+  .then(function (d) {
+    DATA = d;
+    var pdd = d.platforms["拼多多"];
+    CATS = pdd.categories || [];
+    EXTRA = pdd.extra_categories || [];
+    // 默认平台拼多多：显示毛利筛选按钮（switchPlatform 仅在切换时触发）
+    document.querySelector(".comp-filter-tmall").style.display = "";
+    $("compHint").textContent = "来自《市场同行监控》· 点击链接可跳转竞品详情";
+    $("dataDate").textContent = "数据更新：" + (d.updated || "—") + " · 拼多多最新市占日期：" + latestTrendDate();
+    renderFreshness();
+    renderSignal();
+    renderCatGrid();
+    renderOverview();
+    if (CATS.length) openDetail(CATS[0].name);
+    var _cf = (typeof DeepLink !== 'undefined') ? DeepLink.read() : null;
+    if (_cf && _cf.board === 'competition-analysis') applyCompetitionFocus(_cf);
+  })
+  .catch(function (err) {
+    $("dataDate").textContent = "⚠️ 数据加载失败";
+    var badge = $("freshBadge");
+    if (badge) badge.innerHTML = '<div class="fresh-bad">⚠️ 无法加载 competition.json（' + (err.message || "") + '），页面数据可能为空。</div>';
+    $("signal").innerHTML = '<span class="si">⚠️</span><div>无法加载 competition.json：' + err.message + '</div>';
+  });
+
+function latestTrendDate() {
+  var mx = "";
+  CATS.forEach(function (c) {
+    if (c.series.length && c.series[c.series.length - 1].date > mx) mx = c.series[c.series.length - 1].date;
+  });
+  return mx || "—";
+}
+
+/* 数据新鲜度检测：当前平台最新市占日期应至少到「昨天」 */
+function renderFreshness() {
+  var badge = $("freshBadge");
+  if (!badge) return;
+  var mx = latestTrendDate();
+  if (!mx || mx === "—") {
+    badge.innerHTML = '<div class="fresh-bad">⚠️ 数据未同步：本板块暂无市占日期数据，可能尚未抓取到竞品表数据。</div>';
+    return;
+  }
+  var d = new Date(mx + "T00:00:00");
+  var today0 = new Date(); today0.setHours(0, 0, 0, 0);
+  if (isNaN(d.getTime())) { badge.innerHTML = ""; return; }
+  var diffDays = Math.round((today0.getTime() - d.getTime()) / 86400000);
+  if (diffDays <= 1) {
+    // 最新日期 = 今天 或 昨天 → 正常
+    badge.innerHTML = '<div class="fresh-ok">✅ 数据已同步：' + currentPlatform + ' 最新市占日期 <b>' + mx + '</b>，正常。</div>';
+  } else {
+    var exp = new Date(today0); exp.setDate(exp.getDate() - 1);
+    var expStr = exp.getFullYear() + "-" + String(exp.getMonth() + 1).padStart(2, "0") + "-" + String(exp.getDate()).padStart(2, "0");
+    badge.innerHTML = '<div class="fresh-bad">⚠️ 数据未同步：' + currentPlatform + ' 最新市占日期仅到 <b>' + mx + '</b>' +
+      '（应至少到 <b>' + expStr + '</b>），已滞后 <b>' + diffDays + ' 天</b>。可能竞品表未更新或同步未跑。</div>';
+  }
+}
+</script>
+<script>
+  // 诊断功能：将嵌套的 competition 数据扁平化为 {platform, category, ours_pct, comp_pct, ...} 行
+  if (window.DIAG) {
+    window.addEventListener('load', function () {
+      DIAG.attachFloat({
+        boardId: 'competition-analysis',
+        title: '竞争分析',
+        getRows: function () {
+          var rows = [];
+          try {
+            (window.CATS || []).forEach(function (c) {
+              var s = c.series;
+              if (!s || !s.length) return;
+              var last = s[s.length - 1];
+              rows.push({
+                platform: c.platform || window.currentPlatform || '',
+                category: c.name,
+                ours_pct: last.ours_pct, comp_pct: last.comp_pct,
+                market: last.market, ours: last.ours, comp: last.comp,
+                date: last.date
+              });
+            });
+          } catch (e) {}
+          return rows;
+        }
+      });
+    });
+  }
+</script>
+</body>
+</html>

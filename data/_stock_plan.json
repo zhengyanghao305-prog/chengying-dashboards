@@ -1,0 +1,191 @@
+{
+  "date_range": [
+    "2026-07-22",
+    "2026-07-30"
+  ],
+  "n_days": 9,
+  "rows": [
+    {
+      "label": "静电肤感",
+      "specs": 6,
+      "matched_names": [
+        "静电肤感墙贴（薄荷绿）",
+        "静电肤感墙贴（远空蓝）",
+        "静电肤感墙贴（可可蛋奶色）",
+        "静电肤感墙贴（樱花粉）",
+        "静电肤感墙贴（雪花白）",
+        "静电肤感墙贴（奶油黄）【XJ】"
+      ],
+      "total": 2671,
+      "daily_avg": 296.8,
+      "trend": "平稳",
+      "trend_pct": 12.5,
+      "existing": 15125,
+      "cover_days": 50,
+      "target15": 4452,
+      "gap": 0
+    },
+    {
+      "label": "静电黑板贴",
+      "specs": 1,
+      "matched_names": [
+        "静电黑板贴"
+      ],
+      "total": 842,
+      "daily_avg": 93.6,
+      "trend": "平稳",
+      "trend_pct": 0.6,
+      "existing": 7673,
+      "cover_days": 82,
+      "target15": 1404,
+      "gap": 0
+    },
+    {
+      "label": "静电撕拉白板",
+      "specs": 3,
+      "matched_names": [
+        "静电白板贴撕拉线（纯白款）",
+        "静电白板贴撕拉线（方格）",
+        "静电白板贴撕拉线（米字格）"
+      ],
+      "total": 94,
+      "daily_avg": 10.4,
+      "trend": "上升",
+      "trend_pct": 34.9,
+      "existing": 749,
+      "cover_days": 71,
+      "target15": 157,
+      "gap": 0
+    },
+    {
+      "label": "墙面保护膜（静电款）",
+      "specs": 2,
+      "matched_names": [
+        "墙面保护膜（静电款）小纸管"
+      ],
+      "total": 3769,
+      "daily_avg": 418.8,
+      "trend": "上升",
+      "trend_pct": 57.2,
+      "existing": 16901,
+      "cover_days": 40,
+      "target15": 6282,
+      "gap": 0
+    },
+    {
+      "label": "墙面保护膜（静电磨砂款）",
+      "specs": 1,
+      "matched_names": [
+        "墙面保护膜（静电磨砂款）小纸管"
+      ],
+      "total": 1283,
+      "daily_avg": 142.6,
+      "trend": "上升",
+      "trend_pct": 93.0,
+      "existing": 10891,
+      "cover_days": 76,
+      "target15": 2139,
+      "gap": 0
+    },
+    {
+      "label": "无胶白板贴",
+      "specs": 1,
+      "matched_names": [
+        "无胶白板贴小纸管"
+      ],
+      "total": 4272,
+      "daily_avg": 474.7,
+      "trend": "上升",
+      "trend_pct": 74.7,
+      "existing": 16737,
+      "cover_days": 35,
+      "target15": 7120,
+      "gap": 0
+    }
+  ],
+  "spec_detail": {
+    "静电肤感": [
+      {
+        "name": "静电肤感墙贴（可可蛋奶色）",
+        "total": 731,
+        "existing": 6081
+      },
+      {
+        "name": "静电肤感墙贴（奶油黄）【XJ】",
+        "total": 10,
+        "existing": 110
+      },
+      {
+        "name": "静电肤感墙贴（樱花粉）",
+        "total": 294,
+        "existing": 1180
+      },
+      {
+        "name": "静电肤感墙贴（薄荷绿）",
+        "total": 220,
+        "existing": 2083
+      },
+      {
+        "name": "静电肤感墙贴（远空蓝）",
+        "total": 305,
+        "existing": 1339
+      },
+      {
+        "name": "静电肤感墙贴（雪花白）",
+        "total": 1111,
+        "existing": 4332
+      }
+    ],
+    "静电黑板贴": [
+      {
+        "name": "静电黑板贴",
+        "total": 842,
+        "existing": 7673
+      }
+    ],
+    "静电撕拉白板": [
+      {
+        "name": "静电白板贴撕拉线（方格）",
+        "total": 15,
+        "existing": 82
+      },
+      {
+        "name": "静电白板贴撕拉线（米字格）",
+        "total": 1,
+        "existing": 115
+      },
+      {
+        "name": "静电白板贴撕拉线（纯白款）",
+        "total": 78,
+        "existing": 552
+      }
+    ],
+    "墙面保护膜（静电款）": [
+      {
+        "name": "墙面保护膜（静电款）小纸管",
+        "total": 3769,
+        "existing": 16892
+      },
+      {
+        "name": "墙面保护膜（静电款）小纸管【XJ】",
+        "total": 0,
+        "existing": 9
+      }
+    ],
+    "墙面保护膜（静电磨砂款）": [
+      {
+        "name": "墙面保护膜（静电磨砂款）小纸管",
+        "total": 1283,
+        "existing": 10891
+      }
+    ],
+    "无胶白板贴": [
+      {
+        "name": "无胶白板贴小纸管",
+        "total": 4272,
+        "existing": 16737
+      }
+    ]
+  },
+  "generated": "2026-07-31 13:51"
+}

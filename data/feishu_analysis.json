@@ -1,0 +1,73 @@
+{
+  "scale": {
+    "sales": 2773,
+    "inv": 100,
+    "code": 2655
+  },
+  "missing": {
+    "sales": {
+      "日期": 0.0,
+      "实发数量": 0.0,
+      "货品名称": 0.0,
+      "商家编码": 0.0,
+      "下单数量": 0.0,
+      "规格名称": 0.1
+    },
+    "inv": {
+      "规格名称": 0.0,
+      "可发库存": 0.0,
+      "品牌": 0.0,
+      "库存": 0.0,
+      "警戒库存": 0.0,
+      "商家编码": 0.0,
+      "货品名称": 0.0,
+      "分类": 0.0
+    },
+    "code": {
+      "产品": 0.0,
+      "产品系列": 0.0,
+      "货品编码": 0.0,
+      "规格": 0.0,
+      "大类别": 0.0
+    }
+  },
+  "date": {
+    "total": 2773,
+    "bad_format": 0,
+    "bad_samples": [],
+    "min": "2026-07-22",
+    "max": "2026-07-28",
+    "span_days": 6
+  },
+  "join": {
+    "sales_codes": 763,
+    "inv_codes": 100,
+    "code_codes": 2651,
+    "sales∩inv": 96,
+    "inv_has_no_code": 0,
+    "sales_has_no_code": 0,
+    "inv_not_in_sales": 4,
+    "sales_not_in_inv": 667
+  },
+  "inv_health": {
+    "zero_or_neg_avail": 0,
+    "below_warn_line": 14,
+    "warn_line_set": 100,
+    "warn_line_missing": 0
+  },
+  "sales_gap": {
+    "rows_order_gt_ship": 888,
+    "total_unfilled_qty": 1993
+  },
+  "optimize": [
+    "销售表有 667 个商家编码在库存表找不到 → 这些单品有销量但没库存数据，DOH 算不出",
+    "库存表有 4 个单品在销售表无销量记录 → 可能被淘汰/长期不动销，或销售表时间范围不够",
+    "销售表 888 行『下单>实发』，缺口 1993 件（缺货/拆单），备货预警应优先看实发口径",
+    "销售表时间跨度仅 6 天，< 7 天窗口，日均销量代表性不足，建议保留 ≥30 天"
+  ],
+  "feasible": {
+    "can_compute_doh": true,
+    "matched_pairs": 96,
+    "note": "销量(实发)+库存(可发)+主键(商家编码)三要素齐备，可直接喂 inventory_alert 引擎"
+  }
+}

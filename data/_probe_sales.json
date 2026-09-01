@@ -1,0 +1,18 @@
+{
+  "ok": false,
+  "identity": "user",
+  "error": {
+    "type": "validation",
+    "subtype": "invalid_argument",
+    "message": "invalid --limit 1000: must be between 1 and 200",
+    "param": "--limit"
+  },
+  "_notice": {
+    "update": {
+      "command": "lark-cli update",
+      "current": "1.0.76",
+      "latest": "1.0.81",
+      "message": "lark-cli 1.0.81 available, current 1.0.76, run: lark-cli update"
+    }
+  }
+}

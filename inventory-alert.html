@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>备货预警 · 橙萤工作台</title>
+<script src="js/echarts.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+         background: #0f1115; color: #e5e7eb; padding: 20px; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .sub { color: #9ca3af; font-size: 12px; margin-bottom: 16px; }
+  .kpis { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .kpi { flex: 1; min-width: 120px; background: #1a1d24; border-radius: 10px;
+         padding: 14px; border-left: 4px solid #374151; }
+  .kpi .n { font-size: 26px; font-weight: 700; }
+  .kpi .l { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .kpi.urgent { border-left-color: #dc2626; }
+  .kpi.warning { border-left-color: #d97706; }
+  .kpi.watch { border-left-color: #6366f1; }
+  .kpi.ok { border-left-color: #15803d; }
+  .kpi.nosale { border-left-color: #9ca3af; }
+  #chart { width: 100%; height: 420px; background: #1a1d24; border-radius: 10px; padding: 8px; margin-bottom: 18px; }
+  .panel { background: #1a1d24; border-radius: 10px; padding: 14px; }
+  .panel h2 { font-size: 15px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #262a33; }
+  th { color: #9ca3af; font-weight: 500; }
+  tr:hover td { background: #20242e; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; color: #fff; }
+  .doh { font-weight: 700; }
+  details { margin-top: 6px; }
+  summary { cursor: pointer; color: #60a5fa; font-size: 12px; }
+  .sku-tbl td { font-size: 12px; color: #cbd5e1; }
+  .filter { margin-bottom: 10px; }
+  .filter button { background: #262a33; color: #e5e7eb; border: none; padding: 6px 12px;
+                   border-radius: 6px; margin-right: 6px; cursor: pointer; font-size: 12px; }
+  .filter button.on { background: #3b82f6; }
+</style>
+</head>
+<body>
+<script src="js/freshness-alert.js?v=202609011516"></script>
+<h1>🥚 备货预警看板</h1>
+<div class="sub" id="sub">数据源：旺店通 ERP 单品编码级（库存明细 + 发货明细）· 以 spec_no 对齐</div>
+
+<div class="kpis" id="kpis"></div>
+<div id="chart"></div>
+
+<div class="panel">
+  <h2>商品级预警（点击展开单品明细）</h2>
+  <div class="filter" id="filter">
+    <button data-f="all" class="on">全部</button>
+    <button data-f="urgent">紧急</button>
+    <button data-f="warning">预警</button>
+    <button data-f="watch">观察</button>
+    <button data-f="ok">充足</button>
+    <button data-f="no_sale">不动销</button>
+  </div>
+  <table>
+    <thead><tr>
+      <th>商品</th><th>平台</th><th>可用库存</th><th>日均销量</th>
+      <th>可售天数</th><th>等级</th><th>紧张单品</th>
+    </tr></thead>
+    <tbody id="ptbody"></tbody>
+  </table>
+</div>
+
+<script src="data/inventory-alert.data.js"></script>
+<script src="js/diagnostics-config.js?v=202608311900"></script>
+<script src="js/diagnosis.js?v=202608311745"></script>
+<script src="js/deep-link.js?v=202608311945"></script>
+<script>
+const DATA = window.__INVENTORY_ALERT;
+document.getElementById('sub').textContent =
+  `数据源：旺店通 ERP 单品编码级 · 更新 ${DATA.updated} · 窗口 ${DATA.opts.days}日 · 提前期 ${DATA.opts.lead_time}天`;
+
+const COLORS = { urgent:'#dc2626', warning:'#d97706', watch:'#6366f1', ok:'#15803d', no_sale:'#9ca3af' };
+const LABELS = { urgent:'紧急补货', warning:'预警', watch:'观察', ok:'充足', no_sale:'不动销' };
+
+// KPI
+const s = DATA.summary;
+const kpiDefs = [
+  ['urgent', s.urgent, '紧急(红)'], ['warning', s.warning, '预警(橙)'],
+  ['watch', s.watch, '观察(蓝)'], ['ok', s.ok, '充足(绿)'], ['no_sale', s.no_sale, '不动销(灰)'],
+];
+document.getElementById('kpis').innerHTML = kpiDefs.map(([k,n,l]) =>
+  `<div class="kpi ${k}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+
+// 图表：商品级 DOH 横向柱状（已按升序）
+const chart = echarts.init(document.getElementById('chart'));
+const prods = DATA.products.filter(p => p.doh != null).slice(0, 25);
+const cats = prods.map(p => p.goods_name);
+const vals = prods.map(p => ({ value: p.doh, itemStyle: { color: COLORS[p.level] } }));
+chart.setOption({
+  title: { text: '商品可售天数 (DOH)  Top25（越短越紧急）', left: 10, top: 6,
+           textStyle: { color: '#e5e7eb', fontSize: 13 } },
+  grid: { left: 140, right: 40, top: 40, bottom: 20 },
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+             formatter: p => `${p[0].name}<br/>可售天数: <b>${p[0].value}</b> 天` },
+  xAxis: { type: 'value', name: '天', axisLabel: { color: '#9ca3af' },
+           splitLine: { lineStyle: { color: '#262a33' } } },
+  yAxis: { type: 'category', data: cats, inverse: true,
+           axisLabel: { color: '#cbd5e1', fontSize: 11 } },
+  series: [{ type: 'bar', data: vals, barWidth: '60%',
+             label: { show: true, position: 'right', color: '#e5e7eb',
+                      formatter: p => p.value + '天' } }]
+});
+
+// 表格
+let curFilter = 'all';
+function renderTable() {
+  const tb = document.getElementById('ptbody');
+  const rows = DATA.products.filter(p => curFilter === 'all' || p.level === curFilter);
+  tb.innerHTML = rows.map(p => {
+    const skuRows = p.urgent_skus.length
+      ? `<tr><td colspan="7"><details><summary>展开 ${p.sku_count} 个单品明细（其中 ${p.urgent_skus.length} 个紧张）</summary>
+         <table class="sku-tbl"><thead><tr><th>单品编码</th><th>规格</th><th>可用</th><th>日均</th><th>可售天数</th><th>建议补货</th></tr></thead><tbody>
+         ${DATA.items.filter(i => i.link_id === p.link_id).map(i => `
+           <tr><td>${i.spec_no}</td><td>${i.spec_name}</td><td>${i.available}</td>
+           <td>${i.daily_avg}</td><td class="doh" style="color:${COLORS[i.level]}">${i.doh == null ? '∞' : i.doh + '天'}</td>
+           <td style="color:${COLORS[i.level]}">+${i.suggest_replenish}</td></tr>`).join('')}
+         </tbody></table></details></td></tr>`
+      : `<tr><td colspan="7" style="color:#9ca3af;font-size:12px">该商品下钻 ${p.sku_count} 个单品均正常</td></tr>`;
+    return `<tr>
+      <td>${p.goods_name}</td>
+      <td>${p.platforms.join('/')}</td>
+      <td>${p.available}</td>
+      <td>${p.daily_avg}</td>
+      <td class="doh" style="color:${COLORS[p.level]}">${p.doh == null ? '∞' : p.doh + '天'}</td>
+      <td><span class="badge" style="background:${COLORS[p.level]}">${LABELS[p.level]}</span></td>
+      <td>${p.urgent_skus.length ? `<span style="color:#dc2626">${p.urgent_skus.length}</span>` : '—'}</td>
+    </tr>${skuRows}`;
+  }).join('');
+}
+
+// 深度链接：从首页诊断卡片直达具体产品
+function applyInventoryFocus(focus) {
+  if (!focus) return;
+  if (focus.filter) {
+    curFilter = focus.filter;
+    document.querySelectorAll('#filter button').forEach(b => b.classList.remove('on'));
+    var btn = document.querySelector('#filter button[data-f="' + focus.filter + '"]');
+    if (btn) btn.classList.add('on');
+    renderTable();
+  }
+  if (focus.keyword) {
+    setTimeout(function () { if (typeof DeepLink !== 'undefined') DeepLink.highlight('#ptbody', focus.keyword); }, 200);
+  }
+}
+
+renderTable();
+if (typeof DeepLink !== 'undefined') {
+  var _if = DeepLink.read();
+  if (_if && _if.board === 'inventory-alert') applyInventoryFocus(_if);
+}
+
+document.getElementById('filter').addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  curFilter = e.target.dataset.f;
+  document.querySelectorAll('#filter button').forEach(b => b.classList.remove('on'));
+  e.target.classList.add('on');
+  renderTable();
+});
+window.addEventListener('resize', () => chart.resize());
+</script>
+<script>
+  // 诊断功能
+  if (window.DIAG) {
+    DIAG.attachFloat({ boardId: 'inventory-alert', title: '备货预警', getRows: function () { var d = window.__INVENTORY_ALERT; return (d && d.products) || []; } });
+  }
+</script>
+</body>
+</html>

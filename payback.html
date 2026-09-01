@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>回本周期测算器 · 橙萤家居</title>
+<style>
+  :root{
+    --bg:#f5f6f7; --card:#fff; --border:#e4e7ec;
+    --text:#1a1a2e; --text2:#666e7a; --text3:#9ba3af;
+    --orange:#f97316; --blue:#3b82f6; --green:#10b981;
+    --red:#ef4444; --purple:#8b5cf6; --amber:#f59e0b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB',sans-serif;background:var(--bg);color:var(--text);padding:28px 32px;min-height:100vh;}
+  .top{margin-bottom:22px;}
+  .top h1{font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px;}
+  .cat{width:5px;height:22px;border-radius:3px;background:var(--orange);display:inline-block;}
+  .top p{color:var(--text2);font-size:13px;margin-top:8px;line-height:1.6;}
+  .wrap{display:grid;grid-template-columns:390px 1fr;gap:20px;align-items:start;}
+  @media(max-width:920px){.wrap{grid-template-columns:1fr;}}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;}
+  .panel h2{font-size:14px;font-weight:600;margin-bottom:16px;color:var(--text);display:flex;align-items:center;gap:7px;}
+  .field{margin-bottom:15px;}
+  .field label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;}
+  .field input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);background:#fff;transition:border-color .15s;}
+  .field input:focus{outline:none;border-color:var(--orange);}
+  .row{display:flex;gap:10px;}
+  .row .field{flex:1;}
+  .plat{display:flex;gap:8px;margin-bottom:6px;}
+  .plat button{flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff;font-size:13px;cursor:pointer;color:var(--text2);font-weight:500;transition:all .15s;}
+  .plat button.on{background:var(--orange);color:#fff;border-color:var(--orange);}
+  .hint{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5;}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  @media(max-width:620px){.metrics{grid-template-columns:repeat(2,1fr);}}
+  .metric{background:#fafbfc;border:1px solid var(--border);border-radius:12px;padding:15px 16px;}
+  .metric .lab{font-size:12px;color:var(--text2);margin-bottom:8px;}
+  .metric .val{font-size:23px;font-weight:600;line-height:1;}
+  .metric.big{grid-column:span 3;background:#fff7ed;border-color:#fed7aa;display:flex;align-items:center;justify-content:space-between;}
+  .metric.big .val{font-size:34px;color:var(--orange);}
+  .metric.big .sub{font-size:12px;color:var(--text2);text-align:right;line-height:1.6;}
+  .val.green{color:var(--green);} .val.red{color:var(--red);} .val.blue{color:var(--blue);} .val.orange{color:var(--orange);}
+  .bar{display:flex;height:36px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-top:6px;}
+  .bar span{height:100%;transition:width .25s;}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12px;color:var(--text2);}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle;}
+  .note{margin-top:18px;font-size:12px;color:var(--text3);line-height:1.7;border-top:1px dashed var(--border);padding-top:14px;}
+  .footer{margin-top:22px;font-size:12px;color:var(--text3);text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1><span class="cat"></span>回本周期测算器</h1>
+  <p>墙贴 / 地贴 / 玻璃膜 / 开关贴 / 美边贴 · 单品回本周期快速测算<br>填左侧参数，右侧实时算出「多久回本、要卖多少单、每月净赚多少」。</p>
+</div>
+
+<div class="wrap">
+  <!-- 输入 -->
+  <div class="panel">
+    <h2>测算参数</h2>
+    <div class="plat">
+      <button id="btn-tm" class="on" onclick="setPlat('tm')">天猫</button>
+      <button id="btn-pdd" onclick="setPlat('pdd')">拼多多</button>
+    </div>
+    <div class="hint" id="platHint">天猫：平台扣点默认 5%，推广占比默认 15%</div>
+
+    <div class="field" style="margin-top:14px;">
+      <label>客单价（¥ / 单）</label>
+      <input id="price" type="number" value="19.9" step="0.1" oninput="compute()">
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>进货成本（¥ / 件）</label>
+        <input id="cost" type="number" value="4.5" step="0.1" oninput="compute()">
+      </div>
+      <div class="field">
+        <label>物流包装（¥ / 件）</label>
+        <input id="ship" type="number" value="2.5" step="0.1" oninput="compute()">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>平台扣点率（%）</label>
+        <input id="fee" type="number" value="5" step="0.1" oninput="compute()">
+      </div>
+      <div class="field">
+        <label>推广花费占比（%）</label>
+        <input id="promo" type="number" value="15" step="0.1" oninput="compute()">
+      </div>
+    </div>
+    <div class="field">
+      <label>预期日单量（单 / 天）</label>
+      <input id="daily" type="number" value="50" step="1" oninput="compute()">
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>首批备货投入（¥）</label>
+        <input id="stock" type="number" value="2000" step="100" oninput="compute()">
+      </div>
+      <div class="field">
+        <label>固定投入（打样/开模/摄影 ¥）</label>
+        <input id="fixed" type="number" value="1000" step="100" oninput="compute()">
+      </div>
+    </div>
+    <div class="hint">一次性投入 = 首批备货 + 固定投入，回本即用「日净利」去填这部分。</div>
+  </div>
+
+  <!-- 结果 -->
+  <div class="panel">
+    <h2>测算结果</h2>
+    <div class="metrics">
+      <div class="metric big">
+        <div>
+          <div class="lab">回本周期</div>
+          <div class="val orange" id="rDays">—</div>
+        </div>
+        <div class="sub" id="rDaysSub">回本所需总单量 — 单</div>
+      </div>
+
+      <div class="metric">
+        <div class="lab">单件净利润</div>
+        <div class="val" id="rUnitNet">—</div>
+      </div>
+      <div class="metric">
+        <div class="lab">预计日净利</div>
+        <div class="val green" id="rDayNet">—</div>
+      </div>
+      <div class="metric">
+        <div class="lab">月净利（30天）</div>
+        <div class="val green" id="rMonthNet">—</div>
+      </div>
+      <div class="metric">
+        <div class="lab">月净利率</div>
+        <div class="val blue" id="rMonthRate">—</div>
+      </div>
+      <div class="metric">
+        <div class="lab">单件毛利率</div>
+        <div class="val blue" id="rGross">—</div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:22px;">每单钱去哪了（客单价拆解）</h2>
+    <div class="bar" id="bar"></div>
+    <div class="legend" id="legend"></div>
+
+    <div class="note" id="advice">—</div>
+  </div>
+</div>
+
+<div class="footer">橙萤家居 · 回本周期测算器 &nbsp;|&nbsp; 假设：日单量稳定、价格与成本不变；一次性投入一次性摊完即回本</div>
+
+<script>
+let plat = 'tm';
+const $ = id => document.getElementById(id);
+
+function setPlat(p){
+  plat = p;
+  $('btn-tm').classList.toggle('on', p==='tm');
+  $('btn-pdd').classList.toggle('on', p==='pdd');
+  if(p==='tm'){ $('fee').value=5; $('promo').value=15; $('platHint').textContent='天猫：平台扣点默认 5%，推广占比默认 15%'; }
+  else { $('fee').value=0.6; $('promo').value=12; $('platHint').textContent='拼多多：基础技术服务费默认 0.6%，推广占比默认 12%'; }
+  compute();
+}
+
+const fmt = n => (Math.round(n*100)/100).toLocaleString('zh-CN');
+const yuan = n => '¥'+fmt(n);
+
+function compute(){
+  const price=+$('price').value||0;
+  const cost=+$('cost').value||0;
+  const ship=+$('ship').value||0;
+  const fee=+$('fee').value||0;
+  const promo=+$('promo').value||0;
+  const daily=+$('daily').value||0;
+  const stock=+$('stock').value||0;
+  const fixed=+$('fixed').value||0;
+
+  const feeAmt=price*fee/100;
+  const promoAmt=price*promo/100;
+  const unitNet=price-cost-ship-feeAmt-promoAmt;
+  const dayNet=unitNet*daily;
+  const monthNet=dayNet*30;
+  const oneTime=stock+fixed;
+  const monthSales=price*daily*30;
+  const monthRate=monthSales>0?monthNet/monthSales*100:0;
+  const unitGross=price-cost-ship-feeAmt;
+  const grossRate=price>0?unitGross/price*100:0;
+  const paybackDays=dayNet>0?Math.ceil(oneTime/dayNet):Infinity;
+  const paybackUnits=unitNet>0?Math.ceil(oneTime/unitNet):Infinity;
+
+  // 颜色
+  $('rUnitNet').textContent=yuan(unitNet);
+  $('rUnitNet').className='val '+(unitNet>=0?'green':'red');
+  $('rDayNet').textContent=yuan(dayNet);
+  $('rMonthNet').textContent=yuan(monthNet);
+  $('rMonthRate').textContent=monthRate.toFixed(1)+'%';
+  $('rGross').textContent=grossRate.toFixed(1)+'%';
+
+  if(paybackDays===Infinity){
+    $('rDays').textContent='亏本';
+    $('rDaysSub').textContent='当前参数下日净利为负，无法回本';
+  }else{
+    $('rDays').textContent=paybackDays+' 天';
+    $('rDaysSub').textContent='回本所需总单量 '+paybackUnits.toLocaleString('zh-CN')+' 单';
+  }
+
+  // 拆解条
+  const segs=[
+    {v:cost,c:'#f97316',n:'进货成本'},
+    {v:ship,c:'#3b82f6',n:'物流包装'},
+    {v:feeAmt,c:'#8b5cf6',n:'平台扣点'},
+    {v:promoAmt,c:'#ef4444',n:'推广花费'},
+    {v:Math.max(unitNet,0),c:'#10b981',n:'净利润'},
+  ];
+  const total=segs.reduce((s,x)=>s+x.v,0)||1;
+  $('bar').innerHTML=segs.map(s=>{
+    const w=Math.max(s.v/total*100,0);
+    return '<span style="width:'+w+'%;background:'+s.c+';" title="'+s.n+'"></span>';
+  }).join('');
+  $('legend').innerHTML=segs.map(s=>'<span><i style="background:'+s.c+'"></i>'+s.n+' '+yuan(s.v)+'</span>').join('');
+
+  // 建议
+  let a=[];
+  if(unitNet<0){ a.push('⚠️ 单件净利的算出来是负的，这价格在当下成本/推广下必亏，先调进货价或客单价。'); }
+  else {
+    if(paybackDays<=15) a.push('✅ 回本 '+paybackDays+' 天，资金周转很快，可加大推广冲量。');
+    else if(paybackDays<=45) a.push('🟡 回本 '+paybackDays+' 天，属于健康区间，盯住日单量别掉。');
+    else a.push('🟠 回本需 '+paybackDays+' 天，偏慢；要么降一次性投入，要么提日单量/客单价。');
+    if(promo>25) a.push('推广占比 '+promo+'% 偏高，挤压净利，优先优化关键词/计划 ROI。');
+    if(grossRate<30) a.push('毛利率仅 '+grossRate.toFixed(0)+'%，空间薄，谈价或提客单价更有效。');
+  }
+  $('advice').innerHTML=a.join('<br>');
+}
+compute();
+</script>
+</body>
+</html>

@@ -1,5 +1,57 @@
 [
   {
+    "id": "b43a7826",
+    "ts": "2026-09-01 21:40:11",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 210 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 30 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 180 条 / 周维度 30 条",
+        "count": 210
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "131f3b6c",
+    "ts": "2026-09-01 21:39:04",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 120 条主数据，120 条详情",
+    "details": "· 店铺日报·拼多多：[ok] 同步 60 天\n· 店铺日报·天猫：[ok] 同步 60 天\n· 店铺日报·发货数据：[ok] 合并 118 天净销售额(发货/支付)",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "ok",
+        "msg": "同步 60 天",
+        "count": 60
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "ok",
+        "msg": "同步 60 天",
+        "count": 60
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "ok",
+        "msg": "合并 118 天净销售额(发货/支付)",
+        "count": 118
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
     "id": "1992890b",
     "ts": "2026-09-01 21:13:17",
     "task": "同步 推广投放 ROI",

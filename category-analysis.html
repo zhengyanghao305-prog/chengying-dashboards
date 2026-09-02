@@ -551,7 +551,11 @@ var __TREND_DATA = {"updated": "2026-09-02 00:13", "platforms": {"拼多多": {"
     var firstTh = document.querySelector("#list thead tr th:first-child");
     if (firstTh) firstTh.textContent = "产品";
     var dateEl = document.getElementById("dataDate");
-    if (raw.updated) { dateEl.textContent = "数据日期 " + raw.updated.split(" ")[0]; dateEl.style.display = ""; } else { dateEl.style.display = "none"; }
+    // 用数据真实覆盖的最大日期（与 freshness-alert 一致），而不是 raw.updated 生成时间
+    var realMax = ALL_DATES.length ? ALL_DATES[ALL_DATES.length - 1] : "";
+    if (realMax) { dateEl.textContent = "数据日期 " + realMax; dateEl.style.display = ""; }
+    else if (raw.updated) { dateEl.textContent = "数据日期 " + raw.updated.split(" ")[0]; dateEl.style.display = ""; }
+    else { dateEl.style.display = "none"; }
 
     renderProfit(win);
     renderCategoryTrend(win);

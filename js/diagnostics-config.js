@@ -57,8 +57,8 @@
       dimensions: [], subNodes: []
     };
   }
-  function F(sev, title, detail, action, metric, nodes) {
-    return { severity: sev, title: title, detail: detail, action: action, metric: metric, nodes: nodes || [] };
+  function F(sev, title, detail, action, metric, nodes, deepLink, topic) {
+    return { severity: sev, title: title, detail: detail, action: action, metric: metric, nodes: nodes || [], deepLink: deepLink || null, topic: topic || null };
   }
 
   // 维度段排序：危险优先
@@ -66,20 +66,40 @@
 
   var DIAGNOSTICS = {};
 
-  /* ════════ 产品链接钻取（核心：细化链接维度）════════ */
+  /* ════════ 产品链接钻取（核心：细化链接维度 · 口径=最新一天）════════ */
   DIAGNOSTICS['product-links'] = {
     analyze: function (rows) {
       var links = (rows || []).filter(function (l) { return l && l.t; });
       if (!links.length) return emptyResult('产品链接');
+      // 关键：只看「最新一天」的推广表现（用户已优化过老计划，累计口径会误报）。
+      // 由各推广计划的 daily 数组按日期聚合出每链接最新一天的 花费/成交/订单。
       var P = links.map(function (l) {
         var t = parseKV(l.t);
+        var plans = (typeof l.plans === 'string' ? parseKV(l.plans) : l.plans) || [];
+        var byDate = {};
+        plans.forEach(function (p) {
+          (p.daily || []).forEach(function (d) {
+            if (!d || !d.d) return;
+            var k = String(d.d);
+            var e = byDate[k] || (byDate[k] = { c: 0, g: 0, o: 0 });
+            e.c += num(d.c); e.g += num(d.g); e.o += num(d.o);
+          });
+        });
+        var dates = Object.keys(byDate).sort();
+        var e = dates.length ? byDate[dates[dates.length - 1]] : null;
         return {
           id: l.id, name: l.product || l.name || l.id, plat: l.plat || l.platform || '—',
-          cost: num(t.c), gmv: num(t.g), orders: num(t.o), roi: num(t.r),
-          clicks: num(t.i), trend: t.trend, trendPct: num(t.trend_pct), days: num(t.days)
+          date: e ? e.date : '', days: num(t.days),
+          cost: e ? e.c : 0, gmv: e ? e.g : 0, orders: e ? e.o : 0,
+          roi: (e && e.c > 0) ? e.g / e.c : 0,
+          clicks: num(t.i), trend: t.trend, trendPct: num(t.trend_pct)
         };
       });
-      var total = P.length;
+      // 只统计有最新一天数据的链接；完全无 daily 的链接（数据未接入）跳过异常判断
+      var total = P.filter(function (x) { return x.days > 0; }).length || P.length;
+      var latestAll = '';
+      P.forEach(function (x) { if (x.date > latestAll) latestAll = x.date; });
+      if (!latestAll) latestAll = '最新日';
 
       // —— 维度1：平台分布（含亏损数）——
       var platMap = {};
@@ -96,10 +116,10 @@
       var tierOrder = ['亏损(<1)', '微利(1-1.5)', '及格(1.5-2.5)', '良好(≥2.5)'];
       var tierSeg = tierOrder.map(function (k) { return dimSeg(k, tierMap[k] || 0, k.indexOf('亏损') === 0, ''); });
 
-      // —— 维度3：状态分布 ——
-      var losing = P.filter(function (x) { return x.roi < 1 && x.cost > 0; });
+      // —— 维度3：状态分布（只统计「真实有量」：当天花费≥5元，过滤几毛钱低效链接误报）——
+      var losing = P.filter(function (x) { return x.roi < 1 && x.cost >= 5; });
       var waste = P.filter(function (x) { return x.cost > 50 && x.orders === 0; });
-      var loweff = P.filter(function (x) { return x.roi >= 1 && x.roi < 1.5 && x.cost > 200; });
+      var loweff = P.filter(function (x) { return x.roi >= 1 && x.roi < 1.5 && x.cost > 50; });
       var losingCost = sum(losing, 'cost');
       var wasteCost = sum(waste, 'cost');
 
@@ -128,40 +148,49 @@
           detail: 'ROI ' + x.roi.toFixed(2) + ' · 花费 ' + fmtMoney(x.cost) + ' · 成交 ' + x.orders + ' 单', metric: fmtMoney(x.cost) };
       });
 
-      // —— findings（可执行）——
+      // —— findings（可执行，口径=最新一天）——
       var findings = [];
       if (losing.length) {
         var ratio = (losing.length / total);
-        var top5 = losing.slice().sort(function (a, b) { return b.cost - a.cost; }).slice(0, 5)
-          .map(function (x) { return x.name + '·' + x.plat; });
+        var topL = losing.slice().sort(function (a, b) { return b.cost - a.cost; }).slice(0, 5);
+        var top5 = topL.map(function (x) { return x.name + '·' + x.plat; });
         findings.push(F(
           ratio > 0.3 ? 'danger' : 'warning',
           losing.length + ' 条链接在亏本投放（ROI<1）',
-          '全量 ' + total + ' 条链接中，' + losing.length + ' 条（' + fmtPct(ratio) + '）投产比<1，累计亏损花费约 ' + fmtMoney(losingCost) + '。平台分布：' +
+          '按 ' + latestAll + ' 最新一天口径：' + total + ' 条链接中，' + losing.length + ' 条（' + fmtPct(ratio) + '）当天花费≥5元且投产比<1，当天亏损花费约 ' + fmtMoney(losingCost) + '（低花费链接已忽略）。平台分布：' +
             platSeg.map(function (s) { return s.label + ' 亏损 ' + s.sub.split(' ')[1]; }).join('、') + '。',
-          '执行：① 导出 ROI<1 且近7日无回升的链接（见下方子节点明细）；② 对花费>200元的亏损链接今日内降出价30%或暂停；③ 3日后复盘，仍<1则转静默。责任人：推广运营（丁朝州/潘）。',
+          '执行：① 按「最新一天」口径导出 ROI<1 的链接（见下方子节点明细）；② 对当天花费>200元的亏损链接今日内降出价30%或暂停；③ 3日后复盘，仍<1则转静默。责任人：推广运营（丁朝州/潘）。',
           fmtMoney(losingCost),
-          top5.map(function (n) { return { name: n, sub: 'ROI<1' }; })
+          top5.map(function (n) { return { name: n, sub: 'ROI<1' }; }),
+          { board: 'product-links', scope: topL[0] ? topL[0].plat : '全部', filter: 'loss', keyword: topL[0] ? topL[0].name : '', linkId: topL[0] ? topL[0].id : '' },
+          'ad_loss'
         ));
       }
       if (waste.length) {
-        var wn = waste.slice().sort(function (a, b) { return b.cost - a.cost; }).slice(0, 6).map(function (x) { return x.name + '·' + x.plat; });
+        var wtop = waste.slice().sort(function (a, b) { return b.cost - a.cost; }).slice(0, 6);
+        var wn = wtop.map(function (x) { return x.name + '·' + x.plat; });
         findings.push(F(
           'danger',
           waste.length + ' 条链接只花钱、零成交',
-          waste.length + ' 条链接花费合计 ' + fmtMoney(wasteCost) + ' 却无一笔成交，疑似素材/定向失效或已断流。',
+          latestAll + ' 当天 ' + waste.length + ' 条链接花费合计 ' + fmtMoney(wasteCost) + ' 却无一笔成交，疑似素材/定向失效或已断流。',
           '执行：立即暂停这些链接的推广（名单见子节点明细），检查落地页与关键词；暂停预计止损 ' + fmtMoney(wasteCost) + '/周期。责任人：推广运营。',
           fmtMoney(wasteCost),
-          wn.map(function (n) { return { name: n, sub: '0成交' }; })
+          wn.map(function (n) { return { name: n, sub: '0成交' }; }),
+          { board: 'product-links', scope: wtop[0] ? wtop[0].plat : '全部', filter: 'waste', keyword: wtop[0] ? wtop[0].name : '', linkId: wtop[0] ? wtop[0].id : '' },
+          'ad_waste'
         ));
       }
       if (loweff.length) {
+        var lowtop = loweff.slice().sort(function (a, b) { return b.cost - a.cost; }).slice(0, 1)[0] || null;
         findings.push(F(
           'warning',
           loweff.length + ' 条链接微利（ROI 1-1.5）且花费偏高',
-          loweff.length + ' 条链接投产比仅 1-1.5（微利），但单条花费>200元，规模化后吞噬利润。',
+          latestAll + ' 当天 ' + loweff.length + ' 条链接投产比仅 1-1.5（微利），但当天花费>50元，规模化后吞噬利润。',
           '执行：对微利链接优化出价与人群，目标 ROI 提到≥1.5；7日内无改善则降预算50%。责任人：推广运营。',
-          loweff.length + '条'
+          loweff.length + '条',
+          [],
+          { board: 'product-links', scope: lowtop ? lowtop.plat : '全部', filter: 'loweff', keyword: lowtop ? lowtop.name : '', linkId: lowtop ? lowtop.id : '' },
+          'link_loweff'
         ));
       }
       if (!findings.length) {
@@ -177,12 +206,13 @@
       var all = rows || [];
       if (!all.length) return emptyResult('推广ROI');
       var ld = latestDate(all);
+      // 只看最新一天：避免已优化的旧计划继续被误报
       var cur = all.filter(function (r) { return r.date === ld; });
-      if (cur.length < 30) cur = all; // 最新日样本过少则看全量
       var withCost = cur.filter(function (r) { return num(r.cost) > 0; });
       if (!withCost.length) return emptyResult('推广ROI');
 
-      var losing = withCost.filter(function (r) { return !isF(r.blended_roi) || num(r.blended_roi) < 1; });
+      // 只统计「真实有量」的亏损：当天花费≥5 元（过滤大量几毛钱低效计划造成的误报）
+      var losing = withCost.filter(function (r) { return num(r.cost) >= 5 && (!isF(r.blended_roi) || num(r.blended_roi) < 1); });
       var waste = withCost.filter(function (r) { return num(r.cost) > 50 && num(r.orders) === 0 && (!isF(r.total_gmv) || num(r.total_gmv) === 0); });
       var loseCost = sum(losing, 'cost');
 
@@ -218,24 +248,29 @@
 
       var findings = [];
       if (losing.length) {
-        var topN = losing.slice().sort(function (a, b) { return num(b.cost) - num(a.cost); }).slice(0, 6)
-          .map(function (r) { return (r.plan || r.product || '计划') + '·' + r.platform; });
+        var topL = losing.slice().sort(function (a, b) { return num(b.cost) - num(a.cost); }).slice(0, 6);
+        var topN = topL.map(function (r) { return (r.plan || r.product || '计划') + '·' + r.platform; });
         findings.push(F(
           losing.length >= withCost.length * 0.5 ? 'danger' : 'warning',
           losing.length + ' 条推广计划亏损（ROI<1）',
-          '最新日 ' + withCost.length + ' 条有计划中，' + losing.length + ' 条投产比<1，累计花费 ' + fmtMoney(loseCost) + '。',
-          '执行：暂停 blended_roi<1 的计划，优先处理花费 Top10（见子节点明细）；预计止损 ' + fmtMoney(loseCost) + '。暂停后把预算挪到 ROI≥2.5 的优质计划。责任人：推广运营。',
+          ld + ' 最新一天 ' + withCost.length + ' 条计划中，' + losing.length + ' 条当天花费≥5元且投产比<1，当天亏损花费 ' + fmtMoney(loseCost) + '（低花费计划已忽略，避免误报）。',
+          '执行：暂停当天 blended_roi<1 的计划，优先处理花费 Top10（见子节点明细）；预计止损 ' + fmtMoney(loseCost) + '。暂停后把预算挪到 ROI≥2.5 的优质计划。责任人：推广运营。',
           fmtMoney(loseCost),
-          topN.map(function (n) { return { name: n, sub: 'ROI<1' }; })
+          topN.map(function (n) { return { name: n, sub: 'ROI<1' }; }),
+          { board: 'ad-roi-analysis', scope: topL[0] ? topL[0].platform : '全平台', roi: '亏损', dateMode: '1', keyword: topL[0] ? (topL[0].plan || topL[0].product || '') : '', itemId: topL[0] ? (topL[0].item_id || '') : '' },
+          'ad_loss'
         ));
       }
       if (waste.length) {
         var wc = sum(waste, 'cost');
+        var wtop = waste.slice().sort(function (a, b) { return num(b.cost) - num(a.cost); }).slice(0, 5);
         findings.push(F('danger', waste.length + ' 条计划只花钱无成交',
-          waste.length + ' 条计划花费 ' + fmtMoney(wc) + ' 却零成交。',
+          ld + ' 当天 ' + waste.length + ' 条计划花费 ' + fmtMoney(wc) + ' 却零成交。',
           '执行：立即暂停这些计划（名单见明细），检查定向与素材是否失效。责任人：推广运营。', fmtMoney(wc),
-          waste.slice().sort(function (a, b) { return num(b.cost) - num(a.cost); }).slice(0, 5)
-            .map(function (r) { return { name: (r.plan || r.product) + '·' + r.platform, sub: '0成交' }; })));
+          wtop.map(function (r) { return { name: (r.plan || r.product) + '·' + r.platform, sub: '0成交' }; }),
+          { board: 'ad-roi-analysis', scope: wtop[0] ? wtop[0].platform : '全平台', roi: '全部', dateMode: '1', keyword: wtop[0] ? (wtop[0].plan || wtop[0].product || '') : '', itemId: wtop[0] ? (wtop[0].item_id || '') : '' },
+          'ad_waste'
+        ));
       }
       if (!findings.length) {
         findings.push(F('info', '推广投产健康', '当前推广计划投产比整体≥1，无大面积亏损。', '维持节奏，持续监控渠道维度亏损变化。'));
@@ -272,18 +307,24 @@
               (promoRatio > 0.3 ? '将' + plat + '推广占比压回 30% 以内；' : '') +
               (cvr < 0.005 ? '排查' + plat + '落地页/价格/库存，提升转化。' : '') + '责任人：运营。',
             (roi < 1 ? 'ROI ' + roi.toFixed(2) : fmtPct(promoRatio)),
-            [{ name: plat, sub: ld }]));
+            [{ name: plat, sub: ld }],
+            { board: 'daily-pulse', filters: { platform: plat }, search: ld },
+            (issues[0] && issues[0].indexOf('推广亏损') >= 0) ? 'ad_loss' : 'daily_issue'
+          ));
           subNodes.push({ label: plat + ' ' + ld, severity: roi < 1 ? 'danger' : 'warning',
             detail: issues.join('、'), metric: roi < 1 ? roi.toFixed(2) : fmtPct(promoRatio) });
         }
       });
-      // 数据时效
+      // 数据时效（昨天=正常，仅滞后 >1 天才报异常）
       var gap = Math.round((new Date(todayStr()) - new Date(String(ld).replace(/-/g, '/'))) / 86400000);
-      if (gap > 0) {
+      if (gap > 1) {
         findings.unshift(F(gap > 7 ? 'danger' : 'warning', '数据滞后 ' + gap + ' 天',
           '店铺日报最新到 ' + ld + '，落后当前 ' + gap + ' 天，决策依据可能失真。',
           '执行：运行数据同步（飞书 Base 抓取）补到最新日期；若飞书无新数据则确认推送任务是否中断。责任人：数据运维。',
-          gap + '天'));
+          gap + '天',
+          [],
+          { board: 'daily-pulse' }
+        ));
       }
       if (!findings.length) findings.push(F('info', '店铺日报健康', ld + ' 各平台销售/推广指标正常。', '维持日常监控。'));
       return { findings: findings, dimensions: dimensions, subNodes: subNodes };
@@ -314,7 +355,10 @@
             '执行：' + (/下滑/.test(issue) ? '复盘该' + r.platform + r.dimension + '的流量/价格/竞品/活动，2日内出应对；' : '') +
               (/滞后/.test(issue) ? '核查滞后订单并联系仓储加急发货；' : '') + '责任人：运营/客服。',
             (isF(r.mom) ? r.mom + '%' : (prof != null ? prof + '%' : '')),
-            [{ name: dim, sub: issue }]));
+            [{ name: dim, sub: issue }],
+            { board: 'sales-alert', filters: { platform: r.platform || '', dimension: r.dimension || '' }, search: String(r.date || ld) },
+            /下滑/.test(issue) ? 'sales_drop' : 'ship_lag'
+          ));
           subNodes.push({ label: dim, severity: sev, detail: issue, metric: isF(r.mom) ? r.mom + '%' : '' });
         }
       });
@@ -359,12 +403,20 @@
           '执行：今日为头部动销产品下采购单（名单见子节点明细），优先 ' + topN.slice(0, 3).join('、') +
             ' 等；确认到货周期，避免断货损失。责任人：仓储/采购。',
           urgentSku + '个SKU',
-          topN.map(function (n) { return { name: n, sub: '紧急' }; })));
+          topN.map(function (n) { return { name: n, sub: '紧急' }; }),
+          { board: 'inventory-alert', filter: 'urgent', keyword: topN[0] || '' },
+          'stock_urgent'
+        ));
       }
       if (low.length) {
+        var lowtop = low.slice().sort(function (a, b) { return num(a.doh) - num(b.doh); }).slice(0, 1)[0] || null;
         findings.push(F('warning', low.length + ' 个产品库存天数<3天（临近紧急）',
-          low.length + ' 个产品 doh 在 3 天以内但未到紧急线，需提前备货。',
-          '执行：将这批产品加入本周补货计划，预防进入紧急区间。责任人：仓储。', low.length + '个'));
+          low.length + ' 个产品 doh  在 3 天以内但未到紧急线，需提前备货。',
+          '执行：将这批产品加入本周补货计划，预防进入紧急区间。责任人：仓储。', low.length + '个',
+          [],
+          { board: 'inventory-alert', filter: 'warning', keyword: lowtop ? (lowtop.goods_name || lowtop.link_id || '') : '' },
+          'stock_low'
+        ));
       }
       if (!findings.length) findings.push(F('info', '库存健康', '当前无紧急/低库存产品。', '维持库存周转监控。'));
       return { findings: findings, dimensions: dimensions, subNodes: subNodes };
@@ -391,13 +443,15 @@
           names.join('、') + ' 同步出错。' + (reason ? ' 典型原因：' + String(reason).slice(0, 80) : ''),
           '执行：打开 connectors.html 逐源点击「重试」；未配置凭据的（如旺店通 sid/appkey）先补全再同步；重试后仍失败则查后端日志。责任人：数据运维。',
           err.length + '个',
-          err.map(function (r) { return { name: r.source, sub: '失败' }; })));
+          err.map(function (r) { return { name: r.source, sub: '失败' }; }),
+          null, 'sync_error'));
         err.forEach(function (r) { subNodes.push({ label: r.source, severity: 'danger', detail: r.note || '同步失败', metric: '✗' }); });
       }
       if (stale.length) {
         findings.push(F('warning', stale.length + ' 个数据源超48小时未同步',
           stale.map(function (r) { return r.source; }).join('、') + ' 长时间未同步，下游报表可能过期。',
-          '执行：手动触发这些源同步或检查定时调度是否停止。责任人：数据运维。', stale.length + '个'));
+          '执行：手动触发这些源同步或检查定时调度是否停止。责任人：数据运维。', stale.length + '个',
+          [], null, 'sync_stale'));
       }
       if (!findings.length) findings.push(F('info', '数据同步正常', '所有数据源同步成功且时效正常。', '维持定时调度。'));
       return { findings: findings, dimensions: [], subNodes: subNodes };
@@ -449,7 +503,10 @@
               action = '执行：研究该品类竞品主推款与打法，强化我方『' + (ours[0] ? ours[0].name : c.name) + '』的投流与价格；份额<20% 优先提投流。责任人：运营。';
               findings.push(F(sev, label,
                 '我方 GMV ' + fmtMoney(og) + '、平均 ROI ' + oroi.toFixed(2) + '、估算份额 ' + fmtPct(share) + (compLatest ? '（头部竞品最新日销 ' + compLatest + '）' : '') + '。',
-                action, oroi.toFixed(2), [{ name: c.name, sub: pf }]));
+                action, oroi.toFixed(2), [{ name: c.name, sub: pf }],
+                { board: 'competition-analysis', platform: pf, category: c.name },
+                'comp_weak'
+              ));
               subNodes.push({ label: c.name + '·' + pf, severity: sev, detail: 'ROI ' + oroi.toFixed(2) + ' · 份额 ' + fmtPct(share), metric: oroi.toFixed(2) });
             } else if (hasReliableRoi && (oroi < 1.5 || (share && share < 0.3))) {
               findings.push(F('info', pf + ' ·『' + c.name + '』需关注',
@@ -476,7 +533,7 @@
             f2.push(F('warning', (r.platform || '') + ' ·『' + (r.category || '') + '』我方份额偏低',
               '我方份额 ' + (isF(r.ours_pct) ? r.ours_pct + '%' : '—') + (isF(r.comp_pct) ? '、竞品份额 ' + r.comp_pct + '%' : '') + '。',
               '执行：研究该品类竞品主推款与打法，强化我方投流与价格；份额<40% 优先提投流。责任人：运营。',
-              (isF(r.ours_pct) ? r.ours_pct + '%' : '—'), [{ name: r.category || '', sub: r.platform || '' }]));
+              (isF(r.ours_pct) ? r.ours_pct + '%' : '—'), [{ name: r.category || '', sub: r.platform || '' }], null, 'comp_weak'));
             sn2.push({ label: (r.category || '') + '·' + (r.platform || ''), severity: 'warning', detail: '份额 ' + (isF(r.ours_pct) ? r.ours_pct + '%' : '—'), metric: isF(r.ours_pct) ? r.ours_pct + '%' : '' });
           }
           var pf = r.platform || '—';
@@ -505,7 +562,10 @@
             '初/末期日均 ' + num(r.early).toFixed(0) + ' → ' + num(r.late).toFixed(0) + '。',
             '执行：检查该品类流量/价格/竞品动作，必要时调整投流与活动节奏。责任人：运营。',
             num(r.chg).toFixed(1) + '%',
-            [{ name: r.name, sub: '下滑' }]));
+            [{ name: r.name, sub: '下滑' }],
+            { board: 'category-analysis', scope: '全平台', filter: '下滑', dMode: '7d', keyword: r.name },
+            'category_decline'
+          ));
           subNodes.push({ label: r.name, severity: 'warning', detail: '下滑 ' + num(r.chg).toFixed(1) + '%', metric: num(r.chg).toFixed(1) + '%' });
         });
       }
@@ -532,7 +592,8 @@
           overdue.map(function (r) { return r.product + '(' + (r.cycle || '') + ')'; }).slice(0, 6).join('、') + ' 等超过计划完成日仍未完成。',
           '执行：逐项目列卡点（样品/素材/上架/投流），明确阻塞与责任人，本周内给出新完成时间。责任人：项目经理。',
           overdue.length + '个',
-          overdue.slice(0, 6).map(function (r) { return { name: r.product, sub: r.planDue }; })));
+          overdue.slice(0, 6).map(function (r) { return { name: r.product, sub: r.planDue }; }),
+          null, 'pipeline_overdue'));
         overdue.slice(0, 10).forEach(function (r) {
           subNodes.push({ label: r.product, severity: 'danger', detail: '逾期 · 计划 ' + r.planDue + ' · ' + (r.owner || ''), metric: '逾期' });
         });

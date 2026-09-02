@@ -5,8 +5,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>window.__EDITION = 'cloud'; window.__SYNC_BASE = location.protocol + '//' + location.host;</script>
-<script src="js/echarts.min.js?v=202609021440"></script>
-<script src="js/deep-link.js?v=202609021440"></script>
+<script src="js/echarts.min.js?v=202609021540"></script>
+<script src="js/deep-link.js?v=202609021540"></script>
 <title>板块 · 橙萤家居工作台</title>
 <style>
   :root {
@@ -317,30 +317,55 @@
     .blue-messages { padding-bottom: env(safe-area-inset-bottom); }
   }
 </style>
-<script src="https://beacon.cdn.qq.com/sdk/4.5.9/beacon_web.min.js"></script>
+<!-- 埋点脚本改为异步非阻塞：网络慢/不可达时不再卡住整页解析与点击响应 -->
 <script>
 (function(){
-  try{
-    var beacon=new BeaconAction({
-      appkey:'0WEB06U85YBSLJNL',
-      versionCode:'1.0.0',
-      channelID:'share',
-      delay:1000,
-      sessionDuration:30*60*1000,
-      isOversea:false,
-      needReportRqdEvent:false
-    });
-    beacon.onDirectUserAction('preview_page_view',{
-      'url':location.href,
-      'referrer':document.referrer,
-      'title':document.title,
-      'sandbox_id':'168c69e093d74488be683a3127390aa5'
-    });
-  }catch(e){}
+  try {
+    var s = document.createElement('script');
+    s.src = 'https://beacon.cdn.qq.com/sdk/4.5.9/beacon_web.min.js';
+    s.async = true;
+    s.onload = function(){
+      try {
+        var beacon = new BeaconAction({
+          appkey:'0WEB06U85YBSLJNL',
+          versionCode:'1.0.0',
+          channelID:'share',
+          delay:1000,
+          sessionDuration:30*60*1000,
+          isOversea:false,
+          needReportRqdEvent:false
+        });
+        beacon.onDirectUserAction('preview_page_view',{
+          'url':location.href,
+          'referrer':document.referrer,
+          'title':document.title,
+          'sandbox_id':'168c69e093d74488be683a3127390aa5'
+        });
+      } catch(e){}
+    };
+    s.onerror = function(){ /* CDN 不可达：跳过埋点，不影响页面 */ };
+    document.head.appendChild(s);
+  } catch(e){}
+})();
+
+// 全局 fetch 超时兜底：所有裸 fetch（详情钻取等）15s 内未完成则自动 abort，
+// 避免「网速慢 → 点击/跳转一直转圈」。store.js 自带超时(AbortController)的请求不受影响。
+(function(){
+  var _orig = window.fetch ? window.fetch.bind(window) : null;
+  if (!_orig) return;
+  window.fetch = function(url, opts){
+    opts = opts || {};
+    if (opts._noTimeout || opts.signal) return _orig(url, opts); // 已有超时控制，不重复包裹
+    var ctrl = ('AbortController' in window) ? new AbortController() : null;
+    var tid = ctrl ? setTimeout(function(){ try{ ctrl.abort(); }catch(e){} }, 15000) : null;
+    var p = _orig(url, ctrl ? Object.assign({}, opts, { signal: ctrl.signal }) : opts);
+    if (tid) { p = p.finally(function(){ clearTimeout(tid); }); }
+    return p;
+  };
 })();
 </script></head>
 <body>
-<script src="js/freshness-alert.js?v=202609021440"></script>
+<script src="js/freshness-alert.js?v=202609021540"></script>
   <div class="topbar" id="topbar"></div>
   <div class="head" id="head"></div>
   <div class="desc" id="desc"></div>
@@ -401,8 +426,8 @@
   <!-- 行内详情（动态插入 tbody 中） -->
 <script src="js/store.js"></script>
 <script src="js/boards-config.js"></script>
-<script src="js/diagnostics-config.js?v=202609021440"></script>
-<script src="js/diagnosis.js?v=202609021440"></script>
+<script src="js/diagnostics-config.js?v=202609021540"></script>
+<script src="js/diagnosis.js?v=202609021540"></script>
 <script src="js/auth.js"></script>
 <script src="js/web-sync.js"></script>
 <style>
@@ -5534,6 +5559,6 @@ function renderPtChart(pdd, tmall) {
 })();
 </script>
 
-<script src="js/chat-widget.js?v=202609021440"></script>
+<script src="js/chat-widget.js?v=202609021540"></script>
 </body>
 </html>

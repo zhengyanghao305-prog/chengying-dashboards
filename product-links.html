@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>产品 · 链接钻取分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609021440"></script>
-<script src="js/diagnosis.js?v=202609021440"></script>
-<script src="js/deep-link.js?v=202609021440"></script>
+<script src="js/diagnostics-config.js?v=202609021540"></script>
+<script src="js/diagnosis.js?v=202609021540"></script>
+<script src="js/deep-link.js?v=202609021540"></script>
 <script>window.__DIAG_LINKS = [];</script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -204,6 +204,24 @@ table.daily tr:hover td { background: #f8faff; }
 .ds-warn { color: #b45309; background: #fffbeb; border: 1px solid #fde68a; }
 .ds-danger { color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; }
 
+/* ── 行动建议色块 ── */
+.status-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 800; border-radius: 20px; padding: 3px 10px; line-height: 1.3;
+}
+.status-optimize { color: #b91c1c; background: #fee2e2; border: 1px solid #fecaca; }
+.status-scale    { color: #15803d; background: #dcfce7; border: 1px solid #86efac; }
+.status-watch    { color: #b45309; background: #fef3c7; border: 1px solid #fde68a; }
+.status-normal   { color: #475569; background: #f1f5f9; border: 1px solid #e2e8f0; }
+
+.data-table tr.row-optimize td { background: #fff5f5; }
+.data-table tr.row-scale td    { background: #f0fdf4; }
+.data-table tr.row-watch td    { background: #fffbeb; }
+.data-table tr.row-optimize:hover td,
+.data-table tr.row-scale:hover td,
+.data-table tr.row-watch:hover td { background: #f8faff; }
+.data-table .status-cell { width: 90px; white-space: nowrap; }
+
 /* ── 趋势筛选条 ── */
 .trend-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .trend-row .lbl { font-size: 12px; color: #94a3b8; font-weight: 700; white-space: nowrap; }
@@ -233,7 +251,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609021440"></script>
+<script src="js/freshness-alert.js?v=202609021540"></script>
 <div class="wrap">
   <header>
     <div>
@@ -367,6 +385,55 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     var c = p === "天猫" ? "plat-tm" : "plat-pdd";
     return '<span class="plat-tag ' + c + '">' + (withName ? p : (p === "天猫" ? "猫" : "拼")) + "</span>";
   }
+
+  /* ── 行动建议：需优化 / 可放大 / 关注 ── */
+  function statusRank(s) {
+    return { optimize: 3, watch: 2, scale: 1, normal: 0 }[s] || 0;
+  }
+  function statusLabel(s) {
+    return { optimize: "❌ 需优化", scale: "✅ 可放大", watch: "⚠️ 关注", normal: "— 正常" }[s] || "正常";
+  }
+  function statusChip(s) {
+    return '<span class="status-chip status-' + s + '">' + statusLabel(s) + "</span>";
+  }
+  function classifyAction(t) {
+    // 有花费且 ROI<1：亏损，优先标红
+    if (t.c >= 10 && t.r < 1) return { status: "optimize", reason: "ROI<1 亏损" };
+    // 成交成本高于客单价：越卖越亏
+    if (t.cpo > 0 && t.aov > 0 && t.cpo > t.aov) return { status: "optimize", reason: "成交成本高于客单价" };
+    // 有流量基础但点击率极低
+    if (t.i >= 100 && t.ct != null && t.ct < 2) return { status: "optimize", reason: "点击率过低" };
+    // 有点击但转化率极低
+    if (t.k >= 50 && t.cv != null && t.cv < 2) return { status: "optimize", reason: "转化率过低" };
+    // 有加购数据但加购率极低
+    if (t.cart_rate != null && t.k >= 50 && t.cart_rate < 8) return { status: "optimize", reason: "加购率过低" };
+    // 销售下滑且仍有投放
+    if (t.trend === "down" && t.c >= 10) return { status: "optimize", reason: "销售下滑" };
+
+    // ROI 优秀：可放大投放
+    if (t.c >= 10 && t.r >= 1.5) return { status: "scale", reason: "ROI 优秀" };
+    // 销售上升且盈利：可放大
+    if (t.trend === "up" && t.c >= 10 && t.r >= 1) return { status: "scale", reason: "销售上升" };
+
+    // 盈亏线附近
+    if (t.c >= 10 && t.r >= 1 && t.r < 1.5) return { status: "watch", reason: "ROI 贴近盈亏线" };
+
+    return { status: "normal", reason: "" };
+  }
+  function aggregateStatus(children) {
+    var best = { status: "normal", reason: "" };
+    for (var i = 0; i < children.length; i++) {
+      var s = children[i].status || "normal";
+      if (statusRank(s) > statusRank(best.status)) best = { status: s, reason: children[i].reason || "" };
+    }
+    return best;
+  }
+  function statusForNode(selfStat, childStats) {
+    var self = classifyAction(selfStat);
+    if (statusRank(self.status) >= statusRank(childStats.status)) return self;
+    return childStats;
+  }
+
   function escHtml(s) {
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
@@ -489,12 +556,14 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
         if (hits.plans) parts.push('计划 ' + hits.plans + ' 个');
         hitBadge = '<div style="margin:6px 0 -4px;font-size:11px;font-weight:700;color:#b45309;background:#fef3c7;display:inline-block;padding:2px 8px;border-radius:8px;">🔍 命中' + parts.join(' · ') + '</div>';
       }
+      var linkStatuses = prod.links.map(function (lk) { return classifyAction(lk.t); });
+      var st = statusForNode(t, aggregateStatus(linkStatuses));
       return '<div class="link-card' + trendCardCls(t.trend) + '" data-pi="' + findProductIndex(prod) + '">' +
         '<div class="hd">' +
           '<div>' +
             '<div class="product">' + platTag(prod.plat) + " " + escHtml(prod.name) + '</div>' +
           "</div>" +
-          trendTag(t.trend) +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;">' + statusChip(st.status) + trendTag(t.trend) + '</div>' +
         "</div>" +
         hitBadge +
         '<div><span class="plans-cnt">📎 ' + prod.links.length + " 个链接 · " + planCnt + " 个推广计划 · " + t.days + " 天数据</span></div>" +
@@ -572,13 +641,15 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       lk.plans.forEach(function (p) {
         (p.chans || []).forEach(function (c) { if (chans.indexOf(c) < 0) chans.push(c); });
       });
+      var planStatuses = lk.plans.map(function (p) { return classifyAction(p.t); });
+      var st = statusForNode(t, aggregateStatus(planStatuses));
       return '<div class="link-card' + trendCardCls(lk.t.trend) + '" data-idx="' + findLinkIndex(lk) + '">' +
         '<div class="hd">' +
           '<div>' +
             '<div class="product">' + platTag(lk.plat) + " " + escHtml(lk.product) + '</div>' +
             '<div class="id">ID ' + lk.id + " · " + lk.t.n + " 个推广计划</div>" +
           "</div>" +
-          trendTag(lk.t.trend) +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;">' + statusChip(st.status) + trendTag(lk.t.trend) + '</div>' +
         "</div>" +
         (focusMode ? '<div class="focus-badge" style="margin:6px 0 2px;font-size:11px;font-weight:800;color:#b91c1c;background:#fee2e2;display:inline-block;padding:2px 8px;border-radius:8px;">' + (focusMode === 'loss' ? '📉 最新日亏损' : focusMode === 'waste' ? '🚫 最新日零成交' : '⚠️ 最新日微利') + '</div>' : '') +
         '<div><span class="plans-cnt">📎 ' + lk.t.n + " 个推广计划 · " + lk.t.days + " 天数据</span></div>" +
@@ -628,9 +699,18 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       '<div class="kpi"><div class="l">推广计划</div><div class="v">' + plans.length + " 个</div></div>" +
       "</div>";
 
-    var plansRows = plans.map(function (p, i) {
-      var pt = p.t;
-      return "<tr>" +
+    var plansWithStatus = plans.map(function (p, i) {
+      return { p: p, idx: i, st: classifyAction(p.t) };
+    }).sort(function (a, b) {
+      var r = statusRank(b.st.status) - statusRank(a.st.status);
+      if (r !== 0) return r;
+      return (b.p.t.r || 0) - (a.p.t.r || 0);
+    });
+
+    var plansRows = plansWithStatus.map(function (x) {
+      var p = x.p, pt = p.t;
+      return '<tr class="row-' + x.st.status + '">' +
+        '<td class="status-cell">' + statusChip(x.st.status) + "</td>" +
         '<td><span class="plan-name">' + escHtml(p.plan) + "</span></td>" +
         '<td class="num">' + fmtMoney(pt.c) + "</td>" +
         '<td class="num">' + fmtMoney(pt.g) + "</td>" +
@@ -642,9 +722,11 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
         '<td class="num">' + fmtPct(pt.cart_rate) + "</td>" +
         '<td class="num">' + fmtMoney(pt.cpa) + "</td>" +
         '<td class="num">' + pt.days + " 天</td>" +
-        '<td><span class="btn-row" data-pi="' + i + '">查看详情</span></td>' +
+        '<td><span class="btn-row" data-pi="' + x.idx + '">查看详情</span></td>' +
         "</tr>";
     }).join("");
+
+    var linkSt = statusForNode(lk.t, aggregateStatus(plans.map(function (p) { return classifyAction(p.t); })));
 
     $("viewLink").innerHTML =
       '<button class="back-btn" id="backBtn">← 返回链接列表</button>' +
@@ -653,17 +735,18 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
         '<div class="meta">' +
           '<span>链接ID：<b>' + lk.id + "</b></span>" +
           '<span>' + plans.length + " 个推广计划</span>" +
+          '<span>行动建议：' + statusChip(linkSt.status) + "</span>" +
           (lk.url ? '<a href="' + lk.url + '" target="_blank" rel="noopener">打开商品详情 ↗</a>' : "") +
         "</div>" +
       "</div>" +
       kpiHtml +
       '<div class="sec">🧭 分析诊断</div>' +
       '<div class="diag-box" id="linkDiag"></div>' +
-      '<div class="sec">📎 该链接下的所有推广计划</div>' +
+      '<div class="sec">📎 该链接下的所有推广计划（已按行动建议排序：需优化 > 关注 > 可放大 > 正常）</div>' +
       '<div class="table-wrap"><table class="data-table"><thead><tr>' +
-        "<th>推广计划</th><th class=\"num\">花费</th><th class=\"num\">成交</th><th class=\"num\">ROI</th><th class=\"num\">订单</th>" +
+        '<th class="status-cell">状态</th><th>推广计划</th><th class="num">花费</th><th class="num">成交</th><th class="num">ROI</th><th class="num">订单</th>' +
         "<th class=\"num\">点击率</th><th class=\"num\">转化率</th><th class=\"num\">成交成本</th><th class=\"num\">加购率</th><th class=\"num\">加购成本</th><th class=\"num\">天数</th><th>操作</th>" +
-      "</tr></thead><tbody>" + (plansRows || '<tr><td colspan="12" style="text-align:center;color:#94a3b8;padding:24px">无推广计划</td></tr>') + "</tbody></table></div>";
+      "</tr></thead><tbody>" + (plansRows || '<tr><td colspan="13" style="text-align:center;color:#94a3b8;padding:24px">无推广计划</td></tr>') + "</tbody></table></div>";
 
     $("viewLink").classList.add("active");
     renderDiag($("linkDiag"), diagForLink(lk));
@@ -710,6 +793,8 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
         "</tr>";
     }).join("");
 
+    var planSt = classifyAction(t);
+
     $("viewPlan").innerHTML =
       '<button class="back-btn" id="backBtnPlan">← 返回链接详情</button>' +
       '<div class="page-hd">' +
@@ -718,6 +803,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
           '<span>所属产品：<b>' + escHtml(lk.product) + '</b></span>' +
           '<span>链接ID：<b>' + lk.id + "</b></span>" +
           '<span>' + p.days + " 天数据</span>" +
+          '<span>行动建议：' + statusChip(planSt.status) + "</span>" +
           (lk.url ? '<a href="' + lk.url + '" target="_blank" rel="noopener">打开商品详情 ↗</a>' : "") +
         "</div>" +
       "</div>" +

@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>品类分析</title>
-<script src="js/diagnostics-config.js?v=202609020933"></script>
-<script src="js/diagnosis.js?v=202609020933"></script>
-<script src="js/deep-link.js?v=202609020933"></script>
+<script src="js/diagnostics-config.js?v=202609021114"></script>
+<script src="js/diagnosis.js?v=202609021114"></script>
+<script src="js/deep-link.js?v=202609021114"></script>
 <script>
   // 诊断数据挂钩：render 后暴露当前品类列表
   window.__DIAG_ROWS = [];
@@ -87,7 +87,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609020933"></script>
+<script src="js/freshness-alert.js?v=202609021114"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -123,6 +123,25 @@
   </div>
 
   <div class="signal" id="signal"></div>
+
+  <div class="card" id="catTrendCard">
+    <div class="card-hd">
+      <div>
+        <div class="t">品类销售趋势（按品类聚合）</div>
+        <div class="hint" id="catTrendHint">按品类汇总当前窗口内的成交变动</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div>
+        <div style="font-size:12.5px;font-weight:700;color:#16a34a;margin:0 0 6px">📈 上升品类 TOP5</div>
+        <table id="catTrendUp"><thead><tr><th>品类</th><th class="num">日均成交</th><th class="num">变动</th><th>趋势</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div>
+        <div style="font-size:12.5px;font-weight:700;color:#dc2626;margin:0 0 6px">📉 下滑品类 TOP5</div>
+        <table id="catTrendDown"><thead><tr><th>品类</th><th class="num">日均成交</th><th class="num">变动</th><th>趋势</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
 
   <div class="card">
     <div class="card-hd">
@@ -344,6 +363,93 @@ var __TREND_DATA = {"updated": "2026-09-02 00:13", "platforms": {"拼多多": {"
     return items.filter(function (it) { return it.cls === want; });
   }
 
+  // 按品类聚合的板块专用：对 raw.categories 按窗口裁剪，输出与 buildScope 兼容的结构
+  function buildCategoryScope(win) {
+    var dayMode = !!(win && win.start === win.end);
+    var cats = raw.categories || [];
+    return cats.map(function (c) {
+      var c2 = cropSeries(c.dates || [], c.pays || [], win);
+      var dayVal = c2.pays.length ? (c2.pays[c2.pays.length - 1] || 0) : 0;
+      if (dayMode) {
+        return {
+          name: c.name, pays: c2.pays, dates: c2.dates,
+          avg: dayVal, latest: dayVal, early: dayVal, late: dayVal,
+          chg: 0, cls: "day", dayVal: dayVal,
+          streak: 0, dir: 0, dayMode: true,
+          products: c.products || [], product_count: c.product_count || 0
+        };
+      }
+      var m = function (a) { return a.length ? mean(a) : 0; };
+      var early = m(c2.pays.slice(0, 3));
+      var late = m(c2.pays.slice(-3));
+      var chg = early ? (late - early) / early * 100 : 0;
+      var cls = chg > 10 ? "riser" : chg < -10 ? "decliner" : "stable";
+      var streak = 0, dir = 0;
+      for (var j = c2.pays.length - 1; j > 0; j--) {
+        var d = c2.pays[j] - c2.pays[j - 1];
+        if (d === 0) break;
+        var nd = d > 0 ? 1 : -1;
+        if (dir === 0) dir = nd;
+        else if (nd !== dir) break;
+        streak++;
+      }
+      return {
+        name: c.name, pays: c2.pays, dates: c2.dates,
+        avg: m(c2.pays), latest: c2.pays.length ? c2.pays[c2.pays.length - 1] : 0,
+        early: early, late: late, chg: chg, cls: cls,
+        streak: streak, dir: dir, dayMode: false,
+        products: c.products || [], product_count: c.product_count || 0
+      };
+    });
+  }
+
+  // 品类销售趋势卡片：上升 TOP5 + 下滑 TOP5，跟随当前日期窗口与 scope
+  function renderCategoryTrend(win) {
+    var card = document.getElementById("catTrendCard");
+    if (!card) return;
+    var all = buildCategoryScope(win);
+    if (!all.length) { card.style.display = "none"; return; }
+    card.style.display = "";
+    var dayMode = !!(win && win.start === win.end);
+    var risers, decliners;
+    if (dayMode) {
+      var sortedDay = all.slice().sort(function (a, b) { return b.dayVal - a.dayVal; });
+      risers = sortedDay.slice(0, 5);
+      decliners = sortedDay.slice(-5).reverse();
+    } else {
+      risers = all.filter(function (it) { return it.cls === "riser"; })
+        .sort(function (a, b) { return b.chg - a.chg; }).slice(0, 5);
+      decliners = all.filter(function (it) { return it.cls === "decliner"; })
+        .sort(function (a, b) { return a.chg - b.chg; }).slice(0, 5);
+    }
+    function row(it) {
+      var cls = it.cls === "riser" ? "up" : it.cls === "decliner" ? "down" : "flat";
+      var stk = it.dir > 0 ? '<span class="stk up">↑' + it.streak + '</span>'
+               : it.dir < 0 ? '<span class="stk down">↓' + it.streak + '</span>'
+               : '<span class="stk">—</span>';
+      var cnt = it.product_count ? ' <span class="cnt">含 ' + it.product_count + ' 款产品</span>' : '';
+      var avgCell = dayMode
+        ? '<td class="num">' + fmtMoney(it.dayVal) + '</td>'
+        : '<td class="num">' + fmtMoney(it.avg) + '</td>';
+      var chgCell = dayMode
+        ? '<td class="num chg flat">—</td><td><span class="stk">—</span></td>'
+        : '<td class="num chg ' + cls + '">' + fmtPct(it.chg) + '</td><td>' + stk + '</td>';
+      return '<tr class="' + cls + '">'
+        + '<td class="nm">' + it.name + cnt + '</td>'
+        + avgCell
+        + chgCell
+        + '</tr>';
+    }
+    var hint = dayMode
+      ? '按当日成交额排序 · 窗口内品类汇总（共 ' + all.length + ' 个品类）'
+      : '按成交额变动排序 · 当前窗口内品类汇总（共 ' + all.length + ' 个品类）';
+    document.getElementById("catTrendHint").textContent = hint;
+    document.getElementById("catTrendUp").innerHTML = risers.map(row).join("")
+      || '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:12px">暂无</td></tr>';
+    document.getElementById("catTrendDown").innerHTML = decliners.map(row).join("")
+      || '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:12px">暂无</td></tr>';
+  }
+
   function render() {
     // 高亮按钮
     document.getElementById("tabs").querySelectorAll("button").forEach(function (b) {
@@ -448,6 +554,7 @@ var __TREND_DATA = {"updated": "2026-09-02 00:13", "platforms": {"拼多多": {"
     if (raw.updated) { dateEl.textContent = "数据日期 " + raw.updated.split(" ")[0]; dateEl.style.display = ""; } else { dateEl.style.display = "none"; }
 
     renderProfit(win);
+    renderCategoryTrend(win);
     renderProductTrend(win, pfilter);
   }
 

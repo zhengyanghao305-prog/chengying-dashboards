@@ -30,8 +30,8 @@
     'inventory-alert':      { file: 'data/inventory-alert.json',         tol: 2 },   // 低频，容忍 2 天
     'inventory-warning':    { file: 'data/inventory-warning.json',       tol: 0 },   // 日更
     'competition-analysis': { file: 'data/competition.json',             tol: 2 },   // 低频，与 home-health.js 一致
-    'category-analysis':    { file: 'data/trend-analysis.json',  inline: '__TREND_DATA', tol: 0 },   // 日更
-    'trend-analysis':       { file: 'data/trend-analysis.json',  inline: '__TREND_DATA', tol: 0 },   // 日更
+    'category-analysis':    { file: 'data/trend-analysis.json',  inline: '__TREND_DATA', tol: 0, scanDates: true },   // 日更
+    'trend-analysis':       { file: 'data/trend-analysis.json',  inline: '__TREND_DATA', tol: 0, scanDates: true },   // 日更
     'platform-trend':       { file: 'data/platform-trend.json',          tol: 0 }    // 日更
   };
 
@@ -98,6 +98,22 @@
     };
   }
 
+  // 品类页/趋势分析专用：从 data.categories 与 data.platforms[*].items[*].dates 扫出数据实际覆盖的最新日期
+  function scanTrendDatesMax(data) {
+    if (!data || typeof data !== 'object') return null;
+    var maxIso = '';
+    function upd(d) { if (typeof d === 'string' && d.length >= 10 && d > maxIso) maxIso = d.slice(0, 10); }
+    (data.categories || []).forEach(function (c) { (c.dates || []).forEach(upd); });
+    var plats = data.platforms || {};
+    Object.keys(plats).forEach(function (k) {
+      var sec = plats[k]; if (!sec) return;
+      (sec.items || []).forEach(function (it) { (it.dates || []).forEach(upd); });
+    });
+    if (!maxIso) return null;
+    var d = new Date(maxIso + 'T00:00:00');
+    return isNaN(d.getTime()) ? null : d;
+  }
+
   function formatGap(gapMs) {
     if (gapMs < 0) gapMs = 0;
     if (gapMs < 60 * 60000) return Math.round(gapMs / 60000) + ' 分钟';
@@ -150,7 +166,17 @@
 
   function process(data) {
     if (!data) return;
-    var info = latestInfo(data);
+    var id = detectId();
+    var cfg = MAP[id] || {};
+    var info;
+    // 品类/趋势页：忽略 data.updated（生成时间），改扫 categories 与 platforms.items[*].dates 的实际数据最新日期
+    if (cfg.scanDates) {
+      var dMax = scanTrendDatesMax(data);
+      if (dMax) {
+        info = { date: iso(dMax), ts: dMax.getTime(), raw: iso(dMax), hasTime: false, timeStr: '' };
+      }
+    }
+    if (!info) info = latestInfo(data);
     if (!info) return;
 
     var now = Date.now();

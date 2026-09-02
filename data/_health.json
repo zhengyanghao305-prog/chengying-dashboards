@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-02 11:00:02",
+  "checked_at": "2026-09-02 17:00:02",
   "today": "2026-09-02",
   "ok": 11,
   "warn": 1,
@@ -9,46 +9,46 @@
       "file": "daily-pulse.json",
       "label": "店铺日报",
       "max_lag": 2,
-      "max_date": "2026-08-31",
-      "lag_days": 2,
+      "max_date": "2026-09-01",
+      "lag_days": 1,
       "status": "ok",
-      "msg": "最新 2026-08-31（滞后 2 天）"
+      "msg": "最新 2026-09-01（滞后 1 天）"
     },
     {
       "file": "sales-alert.json",
       "label": "销售预警",
       "max_lag": 2,
-      "max_date": "2026-08-31",
-      "lag_days": 2,
+      "max_date": "2026-09-01",
+      "lag_days": 1,
       "status": "ok",
-      "msg": "最新 2026-08-31（滞后 2 天）"
+      "msg": "最新 2026-09-01（滞后 1 天）"
     },
     {
       "file": "ad-roi.json",
       "label": "广告ROI",
       "max_lag": 2,
-      "max_date": "2026-08-31",
-      "lag_days": 2,
+      "max_date": "2026-09-01",
+      "lag_days": 1,
       "status": "ok",
-      "msg": "最新 2026-08-31（滞后 2 天）"
+      "msg": "最新 2026-09-01（滞后 1 天）"
     },
     {
       "file": "ad-roi-pdd-plans.json",
       "label": "拼多多推广计划",
       "max_lag": 2,
-      "max_date": "2026-08-31",
-      "lag_days": 2,
+      "max_date": "2026-09-01",
+      "lag_days": 1,
       "status": "ok",
-      "msg": "最新 2026-08-31（滞后 2 天）"
+      "msg": "最新 2026-09-01（滞后 1 天）"
     },
     {
       "file": "sales-alert-ship-detail.json",
       "label": "发货明细",
       "max_lag": 2,
-      "max_date": "2026-08-31",
-      "lag_days": 2,
+      "max_date": "2026-09-01",
+      "lag_days": 1,
       "status": "ok",
-      "msg": "最新 2026-08-31（滞后 2 天）"
+      "msg": "最新 2026-09-01（滞后 1 天）"
     },
     {
       "file": "inventory-alert.json",
@@ -90,10 +90,10 @@
       "file": "product-links.json",
       "label": "商品链接",
       "max_lag": 8,
-      "max_date": "2026-08-31",
-      "lag_days": 2,
+      "max_date": "2026-09-01",
+      "lag_days": 1,
       "status": "ok",
-      "msg": "最新 2026-08-31（滞后 2 天）"
+      "msg": "最新 2026-09-01（滞后 1 天）"
     },
     {
       "file": "_fb_sales.json",

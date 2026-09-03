@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609032208"></script>
-<script src="js/xlsx.full.min.js?v=202609032208"></script>
+<script src="js/echarts.min.js?v=202609032223"></script>
+<script src="js/xlsx.full.min.js?v=202609032223"></script>
 <title>BI 承接 · 亏损处理中心（合并预览 v5）</title>
 <style>
   :root{
@@ -61,7 +61,7 @@
   .ov-card .k{font-size:11.5px;color:var(--text-tertiary);margin-top:4px;}
   .ov-card .d{font-size:11px;margin-top:3px;}
   .ov-loss .v{color:var(--accent-red);} .ov-pro .v{color:var(--accent-green);}
-  .ov-link .v{color:var(--accent-amber);} .ov-plan .v{color:var(--accent-blue);}
+  .ov-scale .v{color:#0ea5e9;} .ov-plan .v{color:var(--accent-blue);}
 
   .section-title{font-size:15px;font-weight:700;margin:18px 2px 10px;display:flex;align-items:center;gap:8px;}
   .section-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-purple);}
@@ -107,24 +107,35 @@
   .toast-msg{font-size:11.5px;color:#059669;font-weight:600;}
 
   /* ── 数据表行（含勾选列）── */
-  .arow,.lrow{display:grid;grid-template-columns:30px 1.7fr 0.9fr 0.8fr 0.7fr 0.9fr 0.9fr 1.25fr auto;gap:8px;align-items:center;
-    padding:8px 12px;border-bottom:1px solid var(--border);font-size:12.5px;cursor:pointer;transition:background .12s;}
-  .arow:hover,.lrow:hover{background:var(--bg-tag);}
-  .arow.head,.lrow.head{background:#fafbfc;font-weight:700;color:var(--text-secondary);cursor:default;font-size:11.5px;}
-  .arow.head:hover,.lrow.head:hover{background:#fafbfc;}
-  .arow.sel,.lrow.sel{background:#eef2ff;}
-  .arow.expanded,.lrow.expanded{background:#f5f3ff;}
-  .chk{width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;}
-  .chk-head{width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;}
+  .lrow{display:block;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
+  .lrow:hover{background:var(--bg-tag);}
+  .lrow.sel{background:#eef2ff;}
+  .lrow.expanded{background:#f5f3ff;}
+  /* 卡片式行 */
+  .r-top{display:flex;align-items:center;gap:12px;}
+  .r-title{flex:1 1 26%;min-width:0;}
+  .r-name{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .r-meta{font-size:11px;color:var(--text-tertiary);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .r-meta b{color:#7c3aed;font-weight:600;}
+  .r-metrics{display:flex;gap:18px;align-items:center;margin-left:8px;}
+  .metric{display:flex;flex-direction:column;align-items:flex-end;white-space:nowrap;}
+  .metric .k{font-size:10px;color:var(--text-tertiary);line-height:1.2;}
+  .metric .v{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.3;}
+  .r-side{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .r-why{margin-top:7px;font-size:11px;color:#44495a;background:#f6f7fb;border:1px solid #ececf1;border-radius:8px;padding:6px 10px;line-height:1.6;}
+  .r-why .wico{color:#7c3aed;}
+  .chk{width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0;}
   .lname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .lname .prod{font-weight:400;color:var(--text-tertiary);font-size:11px;margin-left:6px;}
-  .lnum{font-variant-numeric:tabular-nums;text-align:right;}
-  .neg{color:var(--accent-red);} .pos{color:var(--accent-green);}
   .lid{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
-  .act-chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:11px;white-space:nowrap;text-align:center;}
+  .neg{color:var(--accent-red);} .pos{color:var(--accent-green);}
+  .act-chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;white-space:nowrap;text-align:center;flex-shrink:0;}
   .chip-del{background:#fee2e2;color:#b91c1c;} .chip-stop{background:#ffedd5;color:#c2410c;}
   .chip-fix{background:#fef9c3;color:#a16207;} .chip-price{background:#ede9fe;color:#6d28d9;}
   .chip-struct{background:#cffafe;color:#0e7490;} .chip-watch{background:#dcfce7;color:#15803d;}
+  /* bucket 快捷入口 */
+  .bcell.special{background:#faf9ff;border:1px dashed #c4b5fd;flex-direction:column;align-items:stretch;margin-bottom:4px;}
+  .bcell.special .bdelta{font-size:10px;}
+  .bcell.special:hover{background:#f3f0ff;border-style:solid;}
   .chip-scale{background:#dcfce7;color:#15803d;} .chip-prio{background:#ede9fe;color:#6d28d9;}
   .chip-roi2{background:#fef9c3;color:#a16207;} .chip-care{background:#ffe4e6;color:#be123c;}
   .chip-keep{background:#f3f4f6;color:#6b7280;}
@@ -233,7 +244,7 @@ const PLAN_KEY='bi_digest_plan_v4';
 const STATE_OPTS=['待处理','已停推广','已下架','已提投产','已提价','已完成','不处理'];
 let PLAN={};
 let DATA={rows:[],windows:[],winRowsMap:{}};
-let WIN='', PLAT='all', ACT='all', AMT='all', SELECTED=new Set(), SEL_POOL='action';
+let WIN='', PLAT='all', ACT='all', AMT='all', DACT='all', SELECTED=new Set(), SEL_POOL='action';
 let PAGE=0, DRILL_PAGE=0, BUCKET=null;
 
 function toNum(v){ if(v===null||v===undefined||v==='')return 0; if(typeof v==='number')return v; return parseFloat(String(v).replace(/[%,¥\s]/g,''))||0; }
@@ -347,10 +358,10 @@ function renderWinBar(){
   const start=DATA.windows[0]?DATA.windows[0].slice(0,10):'';
   document.getElementById('winScope').innerHTML='<b>'+platName()+'</b> · 滚动近7天快照 · 覆盖 '+start.replace(/\//g,'-')+' → '+(end||'')+' · 共 '+DATA.windows.length+' 张，窗口链接数按所选平台统计';
   document.getElementById('winTag').textContent=WIN.replace(/\//g,'-')+' 已选中';
-  sel.onchange=()=>{ WIN=sel.value; ACT='all'; AMT='all'; PAGE=0; SELECTED.clear(); renderAll(); };
+  sel.onchange=()=>{ WIN=sel.value; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); };
   // 平台切换 + 下载按钮
   document.querySelectorAll('#platBox button').forEach(b=>b.classList.toggle('active',b.dataset.plat===PLAT));
-  document.getElementById('platBox').onclick=(e)=>{ const b=e.target.closest('button'); if(b&&b.dataset.plat!==PLAT){ PLAT=b.dataset.plat; ACT='all'; AMT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); } };
+  document.getElementById('platBox').onclick=(e)=>{ const b=e.target.closest('button'); if(b&&b.dataset.plat!==PLAT){ PLAT=b.dataset.plat; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); } };
   document.getElementById('dlBtn').onclick=downloadExcel;
 }
 function platRowCount(w){ const rows=DATA.winRowsMap[w]||[]; return PLAT==='all'?rows.length:rows.filter(r=>r.platform===PLAT).length; }
@@ -392,16 +403,23 @@ function downloadExcel(){
   XLSX.writeFile(wb,fname);
 }
 
+function prevWin(){ const i=DATA.windows.indexOf(WIN); return i>0?DATA.windows[i-1]:null; }
+function countDelta(cur,prev){ if(prev===null)return null; return cur-prev; }
+function ovDeltaHTML(diff,goodWhenUp){ if(diff===null)return''; if(diff===0)return '<span style="color:var(--text-tertiary)">→持平</span>'; const up=diff>0,good=goodWhenUp?up:!up; return '<span style="'+(good?'color:#15803d':'color:#b91c1c')+'">'+(up?'▲ +':'▼ ')+Math.abs(diff)+' 较上期</span>'; }
 function renderOverview(){
   const rows=platRows();
-  let lossN=0,lossAmt=0,proN=0,proAmt=0,saleAmt=0;
-  rows.forEach(r=>{ saleAmt+=r.s; if(r.p<0){lossN++;lossAmt+=r.p;} else if(r.p>0){proN++;proAmt+=r.p;} });
+  let lossN=0,lossAmt=0,proN=0,proAmt=0,saleAmt=0,scaleN=0,scaleAmt=0;
+  rows.forEach(r=>{ saleAmt+=r.s; if(r.p<0){lossN++;lossAmt+=r.p;} else if(r.p>0){ proN++;proAmt+=r.p; if(r.roiV>=1.8&&r.gmV>=8){scaleN++;scaleAmt+=r.p;} } });
   const pr=planProgress();
+  // 上期同口径
+  const pw=prevWin(); let pLossN=null,pProN=null,pScaleN=null;
+  if(pw){ const pr2=(DATA.winRowsMap[pw]||[]).filter(r=>PLAT==='all'||r.platform===PLAT); let ln=0,pn=0,sn=0; pr2.forEach(r=>{ if(r.p<0)ln++; else if(r.p>0){ pn++; if(r.roiV>=1.8&&r.gmV>=8)sn++; } }); pLossN=ln;pProN=pn;pScaleN=sn; }
+  const saleTxt='销售额 '+fmtMoney(saleAmt);
   document.getElementById('ovHost').innerHTML=
-    '<div class="ov-card ov-loss"><div class="v">'+lossN+'</div><div class="k">亏损链接</div><div class="d">'+fmtMoney(lossAmt)+' 元</div></div>'
-    +'<div class="ov-card ov-pro"><div class="v">'+proN+'</div><div class="k">盈利链接</div><div class="d">+'+fmtMoney(proAmt)+' 元</div></div>'
-    +'<div class="ov-card ov-link"><div class="v">'+rows.length+'</div><div class="k">窗口链接数</div><div class="d">销售额 '+fmtMoney(saleAmt)+' 元</div></div>'
-    +'<div class="ov-card ov-plan"><div class="v">'+pr.d+'/'+pr.t+'</div><div class="k">处理进度</div><div class="d">'+Math.round(pr.t?pr.d/pr.t*100:0)+'% 完成</div></div>';
+    '<div class="ov-card ov-loss"><div class="v">'+lossN+' 条</div><div class="k">亏损链接 · '+fmtMoney(lossAmt)+' 元</div><div class="d">'+ovDeltaHTML(countDelta(lossN,pLossN),false)+'</div></div>'
+    +'<div class="ov-card ov-pro"><div class="v">'+proN+' 条</div><div class="k">盈利链接 · +'+fmtMoney(proAmt)+' 元</div><div class="d">'+ovDeltaHTML(countDelta(proN,pProN),true)+'</div></div>'
+    +'<div class="ov-card ov-scale"><div class="v">'+scaleN+' 条</div><div class="k">可放大机会 · ROI≥1.8 且 毛利≥8%</div><div class="d">潜在利润 +'+fmtMoney(scaleAmt)+' · '+ovDeltaHTML(countDelta(scaleN,pScaleN),true)+'</div></div>'
+    +'<div class="ov-card ov-plan"><div class="v">'+pr.d+'/'+pr.t+'</div><div class="k">优化处理进度 · '+saleTxt+'</div><div class="d">'+Math.round(pr.t?pr.d/pr.t*100:0)+'% 完成</div></div>';
 }
 
 /* ---------- 动作清单（含批量工具条） ---------- */
@@ -585,9 +603,9 @@ function renderBuckets(){
   const pw=wi>0?DATA.windows[wi-1]:null;
   let PB=null;
   if(pw){ const pr=(DATA.winRowsMap[pw]||[]).filter(r=>PLAT==='all'||r.platform===PLAT); PB=bucketOf(pr); }
-  const block=(key,dot,goodWhenUp,cells,total)=>{
+  const block=(key,dot,goodWhenUp,cells,total,extra)=>{
     const prevTotal=PB?PB[key].reduce((a,b)=>a+b.list.length,0):null;
-    let inner='';
+    let inner=extra||'';
     cells.forEach((c,i)=>{
       const sel=BUCKET&&BUCKET.g===key&&BUCKET.i===i;
       const cls=c.list.length?('bcell '+(sel?'sel ':'')+(key==='loss'?'loss-b':key==='profit'?'pro-b':'sale-b')):'bcell bzero';
@@ -602,48 +620,68 @@ function renderBuckets(){
       +'<span class="bcnt">共 '+total+' 条</span>'+compChip(total,prevTotal,goodWhenUp)+'</div><div class="buckets">'+inner+'</div></div>';
   };
   document.getElementById('bucketHost').innerHTML=
-    block('loss','🔴',false,B.loss,rows.filter(r=>r.p<0).length)
-    +block('profit','🟢',true,B.profit,rows.filter(r=>r.p>0).length)
-    +block('sales','🔵',true,B.sales,rows.length);
+    block('loss','🔴',false,B.loss,rows.filter(r=>r.p<0).length,
+      '<div class="bcell special" data-bucket="loss_all"><div class="brow"><span class="bname" style="font-weight:700">查看全部亏损 →</span><span class="bval">'+rows.filter(r=>r.p<0).length+'</span></div></div>')
+    +block('profit','🟢',true,B.profit,rows.filter(r=>r.p>0).length,
+      '<div class="bcell special scale-s" data-bucket="profit_scale"><div class="brow"><span class="bname" style="font-weight:700">🚀 可放大机会 →</span><span class="bval">'+rows.filter(r=>r.p>0&&r.roiV>=1.8&&r.gmV>=8).length+'</span></div><div class="bdelta good"><span class="lab">ROI≥1.8 & 毛利≥8% 的盈利款，加预算放大利润额</span></div></div>')
+    +block('sales','🔵',true,B.sales,rows.length,'');
   const hint=document.getElementById('bucketHint');
   if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'点击任意档位 → 该档全部链接，每条含「动作建议+依据」：亏损=停/下架/提投产/提价/查成本；盈利=可放大/先提毛利/提投产；以利润额×利润率最大化定建议';
-  document.querySelectorAll('#bucketHost .bcell').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
+  document.querySelectorAll('#bucketHost .bcell').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DACT='all'; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
+  document.querySelectorAll('#bucketHost .bcell[data-bucket]').forEach(el=>{ el.addEventListener('click',()=>{ BUCKET={g:el.dataset.bucket,i:0}; DACT='all'; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
 }
 function drillRowHTML(r){
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
   const rec=classifyRec(r), meta=REC_META[rec.k];
+  const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?r.gmTxt:'—';
   return '<div class="lrow" data-id="'+r.link_id+'">'
+    +'<div class="r-top">'
     +chkHTML(r.link_id)
-    +'<div class="lname">'+shortTitle(r.title)+'<span class="prod">'+r.product+'</span></div>'
-    +'<div class="lid">'+r.link_id+'</div><div>'+r.platform+'</div>'
-    +'<div class="lnum '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</div>'
-    +'<div class="lnum">'+fmtMoney(r.s)+'</div>'
-    +'<div class="lnum"><span class="'+(r.roiV<1?'roi-neg':'roi-ok')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
-    +'<div class="lrec"><span class="act-chip '+meta.cls+'">'+rec.act+'</span><div class="why" title="'+esc(rec.why)+'">'+esc(rec.why)+'</div></div>'
-    +stateChipHTML(r.link_id)
-    +'</div><div class="trendbox"><div class="tlab">'+r.link_id+' · 滚动窗口利润走势</div><div class="chart"></div></div>';
+    +'<div class="r-title">'
+      +'<div class="r-name">'+esc(r.title||r.product)+'</div>'
+      +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+' · 链接 '+esc(r.link_id)+'</div>'
+      +'</div>'
+    +'<div class="r-metrics">'
+      +'<div class="metric"><span class="k">利润(7天)</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
+      +'<div class="metric"><span class="k">净销售额</span><span class="v">'+fmtMoney(r.s)+'</span></div>'
+      +'<div class="metric"><span class="k">ROI</span><span class="v '+(r.roiV<1?'neg':'pos')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
+      +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'
+      +'<div class="metric"><span class="k">趋势</span><span class="v '+dCls+'">'+dArw+'</span></div>'
+      +'</div>'
+    +'<div class="r-side"><span class="act-chip '+meta.cls+'">'+rec.act+'</span>'+stateChipHTML(r.link_id)+'</div>'
+    +'</div>'
+    +'<div class="r-why"><span class="wico">💡</span> '+esc(rec.why)+'</div>'
+    +'</div>'
+    +'<div class="trendbox"><div class="tlab">'+r.link_id+' · 滚动窗口利润走势（元/近7天）</div><div class="chart"></div></div>';
 }
 function renderDrill(){
   const host=document.getElementById('drillHost');
   if(!BUCKET){ host.innerHTML=''; return; }
-  const B=bucketOf(platRows()), cell=B[BUCKET.g][BUCKET.i];
-  const list=cell.list.slice().sort((a,b)=>BUCKET.g==='loss'?a.p-b.p:(BUCKET.g==='profit'?b.p-a.p:b.s-a.s));
+  const g=BUCKET.g, rows=platRows();
+  let list=[], cellName='', actFilter=false;
+  if(g==='loss_all'){ list=rows.filter(r=>r.p<0).sort((a,b)=>a.p-b.p); cellName='亏损 · 全部'; actFilter=true; }
+  else if(g==='profit_scale'){ list=rows.filter(r=>r.p>0&&r.roiV>=1.8&&r.gmV>=8).sort((a,b)=>b.p-a.p); cellName='盈利 · 可放大机会（ROI≥1.8 & 毛利≥8%）'; }
+  else if(g==='sales'){ const c=bucketOf(rows).sales[BUCKET.i]; list=c.list.slice().sort((a,b)=>b.s-a.s); cellName='销售额档「'+c.name+'」'; }
+  else { const B=bucketOf(rows), c=B[g][BUCKET.i]; list=c.list.slice().sort((a,b)=>g==='loss'?a.p-b.p:b.p-a.p); cellName=(g==='loss'?'亏损':'盈利')+'档「'+c.name+'」'; }
+  let actCnt=null;
+  if(actFilter){ actCnt={all:list.length}; list.forEach(r=>{const k=classifyRec(r).k; actCnt[k]=(actCnt[k]||0)+1;}); if(DACT!=='all') list=list.filter(r=>classifyRec(r).k===DACT); }
   if(!list.length){ host.innerHTML=''; return; }
   const total=list.length, pages=Math.max(1,Math.ceil(total/60)); if(DRILL_PAGE>=pages)DRILL_PAGE=0;
   const slice=list.slice(DRILL_PAGE*60,(DRILL_PAGE+1)*60);
-  const gName=BUCKET.g==='loss'?'亏损':(BUCKET.g==='profit'?'盈利':'销售额');
-  let html='<div class="listcard" id="drillCard">'+batchBarHTML('drill',total)
-    +'<div class="listhead">▾ '+gName+'档「'+cell.name+'」· '+total+' 条<span class="lsub">同样可勾选批量复制/处理</span></div>'
-    +'<div class="ltable">'
-    +'<div class="lrow head"><input type="checkbox" class="chk-head" data-b="headAll"><div>商品标题</div><div>链接id</div><div>平台</div><div style="text-align:right">利润(近7天)</div><div style="text-align:right">净销售</div><div style="text-align:right">ROI</div><div>动作建议 · 依据</div><div style="text-align:right">处理</div></div>'
-    +slice.map(r=>drillRowHTML(r)).join('')+'</div>';
+  let af='';
+  if(actFilter&&actCnt){
+    const order=[['all','全部'],['A_del','停推广下架'],['A_stop','停推广'],['B_fix','提投产'],['C_price','提价去优惠'],['D_struct','查成本退款'],['E_watch','观察收窄']];
+    af='<div class="amtbar"><span class="lab">动作类型</span>'+order.map(([k,lab])=>'<span class="amt-chip '+(DACT===k?'active':'')+(actCnt[k]?'':' disable')+'" data-dact="'+k+'">'+lab+'<span class="n">'+(actCnt[k]||0)+'</span></span>').join('')+'</div>';
+  }
+  let html='<div class="listcard" id="drillCard">'+af+batchBarHTML('drill',total)
+    +'<div class="listhead">▾ '+cellName+' · '+total+' 条<span class="lsub">点行看趋势 · 勾选批量复制 / 批量标状态</span></div>'
+    +'<div class="ltable">'+slice.map(r=>drillRowHTML(r)).join('')+'</div>';
   if(pages>1) html+='<div class="pager"><button data-pg="prev">‹ 上一页</button><span>'+(DRILL_PAGE+1)+'/'+pages+' 页</span><button data-pg="next">下一页 ›</button></div>';
   html+='</div>';
   host.innerHTML=html;
   const card=document.getElementById('drillCard');
   bindBatch(card,'drill');
-  const ha=card.querySelector('[data-b="headAll"]');
-  if(ha) ha.addEventListener('change',()=>{ const on=ha.checked; card.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=on; if(on)SELECTED.add(cb.dataset.chk); else SELECTED.delete(cb.dataset.chk);}); refreshSelUI(card,'drill'); });
+  card.querySelectorAll('.amt-chip[data-dact]').forEach(ch=>{ ch.addEventListener('click',()=>{ if(ch.classList.contains('disable'))return; DACT=ch.dataset.dact; DRILL_PAGE=0; SELECTED.clear(); renderDrill(); }); });
   card.querySelectorAll('[data-pg]').forEach(btn=>{ btn.addEventListener('click',()=>{ DRILL_PAGE+=btn.dataset.pg==='prev'?-1:1; renderDrill(); }); });
 }
 
@@ -659,13 +697,16 @@ function renderProducts(){
     html+='<div class="pgroup"><div class="ghead"><span class="arrow">▶</span><span>'+g.name+'</span><span class="gcnt">'+g.links.length+' 条</span><span class="gsum">'
       +(lossN?'<span style="color:var(--accent-red)">亏损 '+lossN+' · '+fmtMoney(lossAmt)+'</span>':'')+(proN?'<span style="color:var(--accent-green)">盈利 '+proN+'</span>':'')
       +'</span></div><div class="pbody"><div class="ltable">'
-      +'<div class="lrow head"><div></div><div>商品标题</div><div>链接id</div><div>平台</div><div style="text-align:right">利润(近7天)</div><div style="text-align:right">净销售</div><div style="text-align:right">ROI</div><div>动作建议 · 依据</div><div style="text-align:right">处理</div></div>'
       +body+'</div></div></div>';
   });
   const host=document.getElementById('prodHost');
   host.innerHTML=html;
   host.querySelectorAll('.pgroup').forEach(g=>{
-    g.querySelector('.ghead').addEventListener('click',()=>{ g.classList.toggle('open'); });
+    g.querySelector('.ghead').addEventListener('click',()=>{
+      const open=!g.classList.contains('open');
+      g.classList.toggle('open');
+      if(open){ g.querySelectorAll('.lrow[data-id]').forEach(row=>{ if(row.dataset.b)return; row.dataset.b=1; row.addEventListener('click',(e)=>{ if(e.target.closest('.chk')||e.target.closest('.ostate'))return; toggleTrend(row); }); }); }
+    });
   });
 }
 

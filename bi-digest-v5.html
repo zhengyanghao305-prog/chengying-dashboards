@@ -9,7 +9,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="js/echarts.min.js?v=202609032156"></script>
 <script src="js/xlsx.full.min.js?v=202609032156"></script>
-<title>BI 承接 · 亏损链接动作决策</title>
+<title>BI 承接 · 亏损处理中心（合并预览 v5）</title>
 <style>
   :root{
     --bg-page:#f5f6f7; --bg-card:#ffffff; --bg-tag:#f0f2f5;
@@ -74,6 +74,14 @@
   .as-card.sel{background:#f5f3ff;border-color:#c4b5fd;}
   .as-card .av{font-size:19px;font-weight:800;}
   .as-card .ak{font-size:11.5px;color:var(--text-secondary);margin-top:2px;}
+  /* 金额档位子筛 */
+  .amtbar{display:flex;align-items:center;gap:7px;padding:8px 16px;background:#faf9ff;border-bottom:1px solid #e9e5f7;flex-wrap:wrap;}
+  .amtbar .lab{font-size:11.5px;color:var(--text-tertiary);font-weight:600;}
+  .amt-chip{border:1px solid var(--border);background:#fff;padding:4px 11px;font-size:11.5px;color:var(--text-secondary);cursor:pointer;border-radius:12px;transition:all .12s;}
+  .amt-chip:hover{color:var(--text-primary);border-color:var(--accent-purple);}
+  .amt-chip.active{background:var(--accent-purple);color:#fff;border-color:var(--accent-purple);font-weight:600;}
+  .amt-chip .n{font-size:10px;opacity:.85;margin-left:3px;}
+  .amt-chip.disable{opacity:.45;cursor:not-allowed;}
   .as-del{border-top-color:#ef4444;} .as-del .av{color:#ef4444;}
   .as-stop{border-top-color:#f97316;} .as-stop .av{color:#f97316;}
   .as-fix{border-top-color:#eab308;} .as-fix .av{color:#ca8a04;}
@@ -131,7 +139,7 @@
   .ostate.stopped{background:#fee2e2;color:#b91c1c;} .ostate.skipped{background:#f3f4f6;color:#6b7280;}
 
   /* ── 分档卡片 ── */
-  .bucket-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .bucket-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
   @media(max-width:1100px){.bucket-grid{grid-template-columns:1fr;}}
   .bucket-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;}
   .bucket-card .bhead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;}
@@ -176,10 +184,10 @@
   <div class="head">
     <div class="head-icon">🎯</div>
     <div>
-      <div class="head-title">BI 承接 · 亏损链接动作决策</div>
+      <div class="head-title">BI 承接 · 亏损处理中心 <span style="font-size:12px;color:#6d28d9;background:#ede9fe;padding:2px 8px;border-radius:8px">合并版·预览</span></div>
       <div class="head-sub">按「利润/销售/ROI/毛利/趋势」自动归类：停推广下架 / 停推广 / 提投产 / 提价 / 查成本</div>
     </div>
-    <span class="head-badge">决策版 v4.1 · 批量复制/处理</span>
+    <span class="head-badge">v5 合并预览 · 亏损动作×档位 / 盈利销售额分层</span>
   </div>
 
   <div class="controlbar">
@@ -203,14 +211,14 @@
 
   <div class="ov" id="ovHost"></div>
 
-  <div class="section-title"><span class="dot"></span>🎯 动作决策 · 亏损链接<span class="hint">勾选 → 批量复制 / 批量标状态；点行看趋势</span></div>
+  <div class="section-title"><span class="dot"></span>① 亏损处理中心<span class="hint">动作类型 × 金额档位 双重筛选合一；勾选 → 批量复制 / 批量标状态；点行看趋势</span></div>
   <div id="actionHost"></div>
 
-  <div class="section-title"><span class="dot"></span>BI 分档卡片 · 与上一期对比<span class="hint" id="bucketHint"></span></div>
+  <div class="section-title"><span class="dot"></span>② 盈利 / 销售额 · 机会分层<span class="hint" id="bucketHint">盈利=可扩量 · 销售额=看结构；亏损请在①按档位/动作处理</span></div>
   <div class="bucket-grid" id="bucketHost"></div>
   <div id="drillHost"></div>
 
-  <div class="section-title"><span class="dot"></span>产品 → 链接<span class="hint">看哪些产品亏，展开定位链接</span></div>
+  <div class="section-title"><span class="dot"></span>③ 产品 → 链接<span class="hint">看亏损集中在哪些产品，展开定位</span></div>
   <div id="prodHost"></div>
 
 <script>
@@ -224,7 +232,7 @@ const PLAN_KEY='bi_digest_plan_v4';
 const STATE_OPTS=['待处理','已停推广','已下架','已提投产','已提价','已完成','不处理'];
 let PLAN={};
 let DATA={rows:[],windows:[],winRowsMap:{}};
-let WIN='', PLAT='all', ACT='all', SELECTED=new Set(), SEL_POOL='action';
+let WIN='', PLAT='all', ACT='all', AMT='all', SELECTED=new Set(), SEL_POOL='action';
 let PAGE=0, DRILL_PAGE=0, BUCKET=null;
 
 function toNum(v){ if(v===null||v===undefined||v==='')return 0; if(typeof v==='number')return v; return parseFloat(String(v).replace(/[%,¥\s]/g,''))||0; }
@@ -306,10 +314,10 @@ function renderWinBar(){
   const start=DATA.windows[0]?DATA.windows[0].slice(0,10):'';
   document.getElementById('winScope').innerHTML='<b>'+platName()+'</b> · 滚动近7天快照 · 覆盖 '+start.replace(/\//g,'-')+' → '+(end||'')+' · 共 '+DATA.windows.length+' 张，窗口链接数按所选平台统计';
   document.getElementById('winTag').textContent=WIN.replace(/\//g,'-')+' 已选中';
-  sel.onchange=()=>{ WIN=sel.value; ACT='all'; PAGE=0; SELECTED.clear(); renderAll(); };
+  sel.onchange=()=>{ WIN=sel.value; ACT='all'; AMT='all'; PAGE=0; SELECTED.clear(); renderAll(); };
   // 平台切换 + 下载按钮
   document.querySelectorAll('#platBox button').forEach(b=>b.classList.toggle('active',b.dataset.plat===PLAT));
-  document.getElementById('platBox').onclick=(e)=>{ const b=e.target.closest('button'); if(b&&b.dataset.plat!==PLAT){ PLAT=b.dataset.plat; ACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); } };
+  document.getElementById('platBox').onclick=(e)=>{ const b=e.target.closest('button'); if(b&&b.dataset.plat!==PLAT){ PLAT=b.dataset.plat; ACT='all'; AMT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); } };
   document.getElementById('dlBtn').onclick=downloadExcel;
 }
 function platRowCount(w){ const rows=DATA.winRowsMap[w]||[]; return PLAT==='all'?rows.length:rows.filter(r=>r.platform===PLAT).length; }
@@ -478,15 +486,29 @@ function renderActionSummary(counts){
   document.querySelectorAll('#actionHost .as-card').forEach(el=>{ el.addEventListener('click',()=>{ ACT=el.dataset.ak; PAGE=0; SELECTED.clear(); renderActionList(); }); });
   renderActionList();
 }
+function amtCountsAll(){
+  const rows=platRows().filter(r=>r.p<0); const c={all:rows.length};
+  CONFIG.loss.forEach((b,i)=>{ c[i]=0; });
+  rows.forEach(r=>{ CONFIG.loss.forEach((b,i)=>{ if(Math.abs(r.p)>=b[0]&&Math.abs(r.p)<b[1]) c[i]++; }); });
+  return c;
+}
+function amtBarHTML(){
+  const c=amtCountsAll();
+  let h='<div class="amtbar"><span class="lab">亏损金额档</span><span class="amt-chip '+(AMT==='all'?'active':'')+'" data-am="all">全部<span class="n">'+c.all+'</span></span>';
+  CONFIG.loss.forEach((b,i)=>{ h+='<span class="amt-chip '+(AMT===String(i)?'active':'')+(c[i]?'':' disable')+'" data-am="'+i+'">'+b[2]+'<span class="n">'+(c[i]||0)+'</span></span>'; });
+  return h+'</div>';
+}
 function renderActionList(){
   const counts=actionCounts();
-  const list=curActionList(), total=list.length;
+  const base=curActionList();
+  const list=(AMT==='all')?base:base.filter(x=>{ const v=Math.abs(x.r.p); const b=CONFIG.loss[+AMT]; return b&&v>=b[0]&&v<b[1]; });
+  const total=list.length;
   const pages=Math.max(1,Math.ceil(total/60)); if(PAGE>=pages)PAGE=0;
   const slice=list.slice(PAGE*60,(PAGE+1)*60);
   const host=document.getElementById('actionHost');
-  const cur=host.querySelector('.action-summary');
-  let html='<div class="listcard" id="actCard">'+batchBarHTML('act',total)
-    +'<div class="listhead">'+(ACT==='all'?'全部亏损':'动作「'+actLabelByKey(ACT)+'」')+' · '+total+' 条<span class="lsub">按优先级排序</span></div>'
+  const amtName=AMT!=='all'?(CONFIG.loss[+AMT][2]+' 亏损档 · '):'';
+  let html='<div class="listcard" id="actCard">'+amtBarHTML()+batchBarHTML('act',total)
+    +'<div class="listhead">'+(ACT==='all'?(amtName+'全部亏损'):('动作「'+actLabelByKey(ACT)+'」 · '+amtName))+total+' 条<span class="lsub">动作 × 金额档 双重筛选 · 按优先级排序</span></div>'
     +'<div class="ltable">'+actHeader()+slice.map(x=>actRowHTML(x.r,x.ac)).join('')+'</div>';
   if(pages>1) html+='<div class="pager"><button data-pg="prev">‹ 上一页</button><span>'+(PAGE+1)+'/'+pages+' 页</span><button data-pg="next">下一页 ›</button></div>';
   html+='</div>';
@@ -497,6 +519,7 @@ function renderActionList(){
   const ha=card.querySelector('[data-b="headAll"]');
   if(ha) ha.addEventListener('change',()=>{ const on=ha.checked; card.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=on; if(on)SELECTED.add(cb.dataset.chk); else SELECTED.delete(cb.dataset.chk);}); refreshSelUI(card,'act'); });
   card.querySelectorAll('[data-pg]').forEach(btn=>{ btn.addEventListener('click',()=>{ PAGE+=btn.dataset.pg==='prev'?-1:1; renderActionList(); }); });
+  card.querySelectorAll('.amt-chip').forEach(ch=>{ ch.addEventListener('click',()=>{ if(ch.classList.contains('disable'))return; AMT=ch.dataset.am; PAGE=0; SELECTED.clear(); renderActionList(); }); });
   // 重新整理 action-summary 到容器顶部
   const sum=host.querySelector('.action-summary'); host.insertBefore(sum,host.querySelector('.listcard'));
 }
@@ -546,11 +569,10 @@ function renderBuckets(){
       +'<span class="bcnt">共 '+total+' 条</span>'+compChip(total,prevTotal,goodWhenUp)+'</div><div class="buckets">'+inner+'</div></div>';
   };
   document.getElementById('bucketHost').innerHTML=
-    block('loss','🔴',false,B.loss,rows.filter(r=>r.p<0).length)
-    +block('profit','🟢',true,B.profit,rows.filter(r=>r.p>0).length)
+    block('profit','🟢',true,B.profit,rows.filter(r=>r.p>0).length)
     +block('sales','🔵',true,B.sales,rows.length);
   const hint=document.getElementById('bucketHint');
-  if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'点档位下钻链接（同平台口径）；▲=较上期上升 ▼=下降';
+  if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'点档位下钻；▲=较上期上升 ▼=下降';
   document.querySelectorAll('#bucketHost .bcell').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
 }
 function drillRowHTML(r){

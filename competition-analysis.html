@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>竞争分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609031933"></script>
-<script src="js/diagnosis.js?v=202609031933"></script>
-<script src="js/deep-link.js?v=202609031933"></script>
+<script src="js/diagnostics-config.js?v=202609031947"></script>
+<script src="js/diagnosis.js?v=202609031947"></script>
+<script src="js/deep-link.js?v=202609031947"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -178,7 +178,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609031933"></script>
+<script src="js/freshness-alert.js?v=202609031947"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -817,6 +817,8 @@ function renderVsBlock() {
     { k: "paid_order_pct", label: "付费订单占比", dir: "-", fmt: function (v) { return (v * 100).toFixed(0) + "%"; } },
     { k: "visitors", label: "访客", dir: "+", fmt: function (v) { return fmt(Math.round(v)); } }
   ];
+  // ⚠️ 源表异常日临时剔除：08-24/25 我方与竞品单量登记异常（我方3894/3447、竞品=区间中值1750）。运营修正源表后，清空此数组即恢复全量走势。
+  var VS_SKIP_DATES = ["2026-08-24", "2026-08-25"];
   // 转置布局：指标为行、主体（我方 + 头部竞品 Top5）为列 → 无需左右拖动；走势行放指标下方
   var headRow = "";
   if (market) {
@@ -901,10 +903,10 @@ function renderVsBlock() {
     var vals = [];
     if (en.isOurs) {
       var os = t.orders_series || {};
-      var ds = Object.keys(os).sort().slice(-30);
+      var ds = Object.keys(os).sort().slice(-30).filter(function (d) { return VS_SKIP_DATES.indexOf(d) < 0; });
       vals = ds.map(function (d) { return os[d]; });
     } else {
-      var dates = Object.keys(en.c.daily || {}).sort().slice(-30);
+      var dates = Object.keys(en.c.daily || {}).sort().slice(-30).filter(function (d) { return VS_SKIP_DATES.indexOf(d) < 0; });
       vals = dates.map(function (d) { return en.c.daily[d]; });
     }
     html += "<td>" + sparkline(vals) + "</td>";

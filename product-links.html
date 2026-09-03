@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>产品 · 链接钻取分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609031105"></script>
-<script src="js/diagnosis.js?v=202609031105"></script>
-<script src="js/deep-link.js?v=202609031105"></script>
+<script src="js/diagnostics-config.js?v=202609031314"></script>
+<script src="js/diagnosis.js?v=202609031314"></script>
+<script src="js/deep-link.js?v=202609031314"></script>
 <script>window.__DIAG_LINKS = [];</script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -235,6 +235,17 @@ table.daily tr:hover td { background: #f8faff; }
 .trend-chips button.t-flat.active { color: #475569; }
 .trend-chips button.t-down.active { color: #b91c1c; }
 
+/* ── 状态筛选条 ── */
+.status-chips { display: inline-flex; background: #f1f5f9; border-radius: 10px; padding: 3px; gap: 2px; }
+.status-chips button {
+  border: none; background: transparent; padding: 6px 14px; font-size: 12px; font-weight: 700; color: #64748b;
+  border-radius: 8px; cursor: pointer; transition: .15s; display: inline-flex; align-items: center; gap: 4px;
+}
+.status-chips button.active { background: #fff; color: #0f172a; box-shadow: 0 1px 3px rgba(15,23,42,.15); }
+.status-chips button.s-optimize.active { color: #b91c1c; }
+.status-chips button.s-scale.active    { color: #15803d; }
+.status-chips button.s-normal.active   { color: #475569; }
+
 .empty-state { text-align: center; color: #94a3b8; padding: 60px 0; font-size: 14px; }
 .loading { text-align: center; padding: 80px 0; color: #94a3b8; font-size: 14px; }
 footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
@@ -251,7 +262,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609031105"></script>
+<script src="js/freshness-alert.js?v=202609031314"></script>
 <div class="wrap">
   <header>
     <div>
@@ -284,14 +295,25 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       <span class="lbl">🆕 新品专区</span>
       <span id="newChips"></span>
     </div>
-    <div class="trend-row">
-      <span class="lbl">📊 销售趋势</span>
-      <span class="trend-chips" id="trendChips">
-        <button data-trend="all" class="active">全部</button>
-        <button data-trend="up" class="t-up">📈 上升</button>
-        <button data-trend="flat" class="t-flat">➡️ 平稳</button>
-        <button data-trend="down" class="t-down">📉 下滑</button>
-      </span>
+    <div class="trend-row" style="justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="lbl">📊 销售趋势</span>
+        <span class="trend-chips" id="trendChips">
+          <button data-trend="all" class="active">全部</button>
+          <button data-trend="up" class="t-up">📈 上升</button>
+          <button data-trend="flat" class="t-flat">➡️ 平稳</button>
+          <button data-trend="down" class="t-down">📉 下滑</button>
+        </span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="lbl">🎯 状态</span>
+        <span class="status-chips" id="statusChips">
+          <button data-status="all" class="active">全部</button>
+          <button data-status="optimize" class="s-optimize">❌ 需优化</button>
+          <button data-status="scale" class="s-scale">✅ 可放大</button>
+          <button data-status="normal" class="s-normal">— 正常</button>
+        </span>
+      </div>
     </div>
   </div>
 
@@ -337,6 +359,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
   var myChart = null;
   var currentProduct = null; // 当前选中的产品（用于从链接列表返回）
   var trendFilter = "all";   // all / up / flat / down
+  var statusFilter = "all";  // all / optimize / scale / watch / normal
   var newFilter = null;      // 当前选中的新品名（null 表示未筛选）
   var focusLinks = null;     // 聚焦模式：只展示诊断卡片所指的链接列表（null=全部）
   var focusMode = null;      // 'loss' | 'waste' | 'loweff'
@@ -433,6 +456,14 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     if (statusRank(self.status) >= statusRank(childStats.status)) return self;
     return childStats;
   }
+  function getProductStatus(prod) {
+    var linkStatuses = prod.links.map(function (lk) { return classifyAction(lk.t); });
+    return statusForNode(prod.t, aggregateStatus(linkStatuses)).status;
+  }
+  function getLinkStatus(lk) {
+    var planStatuses = lk.plans.map(function (p) { return classifyAction(p.t); });
+    return statusForNode(lk.t, aggregateStatus(planStatuses)).status;
+  }
 
   function escHtml(s) {
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -480,6 +511,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     return DATA.links.filter(function (lk) {
       if (plat !== "全部" && lk.plat !== plat) return false;
       if (trendFilter !== "all" && lk.t.trend !== trendFilter) return false;
+      if (statusFilter !== "all" && getLinkStatus(lk) !== statusFilter) return false;
       if (hotFilter && (lk.plat !== hotFilter.plat || lk.product !== hotFilter.name)) return false;
       var kwl = kw.trim().toLowerCase();
       if (!kwl) return true;
@@ -509,6 +541,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     return DATA.products.filter(function (prod) {
       if (plat !== "全部" && prod.plat !== plat) return false;
       if (trendFilter !== "all" && prod.t.trend !== trendFilter) return false;
+      if (statusFilter !== "all" && getProductStatus(prod) !== statusFilter) return false;
       if (newFilter && prod.new !== newFilter) return false;
       var kwl = kw.trim().toLowerCase();
       if (!kwl) return true;
@@ -621,6 +654,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     $("viewPlan").classList.remove("active");
     $("viewProduct").classList.add("active");
     resetTrend();
+    resetStatus();
     renderNew();
     renderProducts();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1113,6 +1147,8 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
         $("viewLink").classList.remove("active");
         $("viewPlan").classList.remove("active");
         $("viewProduct").classList.add("active");
+        resetTrend();
+        resetStatus();
         renderNew();
         renderProducts();
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1255,6 +1291,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     listLimit = STEP;
     newFilter = null;
     resetTrend();
+    resetStatus();
     renderNew();
     renderProducts();
   });
@@ -1270,6 +1307,26 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       document.querySelectorAll("#trendChips button").forEach(function (x) { x.classList.remove("active"); });
       b.classList.add("active");
       trendFilter = b.getAttribute("data-trend");
+      listLimit = STEP;
+      if ($("viewProduct").classList.contains("active")) {
+        renderProducts();
+      } else {
+        renderList();
+      }
+    });
+  });
+
+  /* ── 状态筛选 ── */
+  function resetStatus() {
+    statusFilter = "all";
+    document.querySelectorAll("#statusChips button").forEach(function (x) { x.classList.remove("active"); });
+    document.querySelector("#statusChips button[data-status='all']").classList.add("active");
+  }
+  document.querySelectorAll("#statusChips button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll("#statusChips button").forEach(function (x) { x.classList.remove("active"); });
+      b.classList.add("active");
+      statusFilter = b.getAttribute("data-status");
       listLimit = STEP;
       if ($("viewProduct").classList.contains("active")) {
         renderProducts();
@@ -1297,6 +1354,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       $("viewPlan").classList.remove("active");
       $("viewProduct").classList.add("active");
       resetTrend();
+      resetStatus();
       newFilter = null;
       renderNew();
       renderHot();
@@ -1314,6 +1372,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     hotFilter = null; newFilter = null; trendFilter = 'all'; listLimit = STEP;
     document.querySelectorAll("#tabs button").forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-plat') === plat); });
     resetTrend();
+    resetStatus();
 
     function focusListBanner(label, n, target) {
       setTimeout(function () {

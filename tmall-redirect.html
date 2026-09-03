@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>天猫专项分析 · 导航</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f1f5f9; color: #0f172a; min-height: 100vh;
+  }
+  .nav {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 14px;
+    background: #fff; border-bottom: 1px solid #e2e8f0;
+    padding: 12px 20px; box-shadow: 0 1px 3px rgba(15,23,42,.04);
+  }
+  .back {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 14px; font-weight: 600; color: #64748b;
+    text-decoration: none; cursor: pointer; white-space: nowrap;
+    padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;
+    transition: .15s;
+  }
+  .back:hover { border-color: #7c3aed; color: #7c3aed; }
+  .nav .title { font-size: 15px; font-weight: 800; }
+  .nav .tag { font-size: 11px; color: #94a3b8; margin-left: 6px; }
+  .body { max-width: 760px; margin: 0 auto; padding: 28px 20px 60px; }
+  .card {
+    background: #fff; border: 1px solid #eef2f7; border-radius: 16px;
+    padding: 22px 24px; box-shadow: 0 1px 3px rgba(15,23,42,.04);
+  }
+  .card h2 { font-size: 16px; margin-bottom: 8px; }
+  .card p { font-size: 13px; color: #64748b; line-height: 1.7; margin-bottom: 16px; }
+  .open-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, #ff7a18, #ff4d4f);
+    padding: 11px 22px; border: none; border-radius: 10px; cursor: pointer;
+    text-decoration: none; transition: .15s;
+  }
+  .open-btn:hover { filter: brightness(1.05); box-shadow: 0 4px 14px rgba(255,77,79,.32); }
+  .hint { font-size: 12px; color: #94a3b8; margin-top: 14px; line-height: 1.6; }
+  .hint b { color: #475569; }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="back" href="index.html" onclick="if(history.length>1){history.back();return false;}">← 返回工作台</a>
+    <span class="title">天猫专项分析</span>
+    <span class="tag">飞书在线看板 · 新标签页打开</span>
+  </nav>
+
+  <div class="body">
+    <div class="card">
+      <h2>天猫专项分析 · 飞书在线看板</h2>
+      <p>该看板托管在飞书云端。点击下方按钮在新标签页打开，原工作台标签页保持在此，<b>关闭飞书标签页或点左上角「返回工作台」即可回到首页</b>。</p>
+      <a class="open-btn" id="openBtn" href="https://bqluelb46ag.feishu.cn/page/W2tcmTp0tdqloLabNnrcnKWenHg" target="_blank" rel="noopener">🚀 在新标签页打开天猫专项分析</a>
+      <div class="hint">
+        · 若按钮无反应，请手动复制链接在浏览器打开：<br>
+        <code>https://bqluelb46ag.feishu.cn/page/W2tcmTp0tdqloLabNnrcnKWenHg</code>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

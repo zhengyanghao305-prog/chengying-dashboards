@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609032156"></script>
-<script src="js/xlsx.full.min.js?v=202609032156"></script>
+<script src="js/echarts.min.js?v=202609032208"></script>
+<script src="js/xlsx.full.min.js?v=202609032208"></script>
 <title>BI 承接 · 亏损处理中心（合并预览 v5）</title>
 <style>
   :root{
@@ -125,6 +125,10 @@
   .chip-del{background:#fee2e2;color:#b91c1c;} .chip-stop{background:#ffedd5;color:#c2410c;}
   .chip-fix{background:#fef9c3;color:#a16207;} .chip-price{background:#ede9fe;color:#6d28d9;}
   .chip-struct{background:#cffafe;color:#0e7490;} .chip-watch{background:#dcfce7;color:#15803d;}
+  .chip-scale{background:#dcfce7;color:#15803d;} .chip-prio{background:#ede9fe;color:#6d28d9;}
+  .chip-roi2{background:#fef9c3;color:#a16207;} .chip-care{background:#ffe4e6;color:#be123c;}
+  .chip-keep{background:#f3f4f6;color:#6b7280;}
+  .lrec .why{font-size:10.5px;color:var(--text-tertiary);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px;}
   .chip-all{background:#f3f4f6;color:#374151;}
   .why{font-size:11px;color:var(--text-tertiary);line-height:1.45;}
   .roi-neg{color:var(--accent-red);font-weight:600;} .roi-ok{color:var(--accent-green);}
@@ -139,7 +143,7 @@
   .ostate.stopped{background:#fee2e2;color:#b91c1c;} .ostate.skipped{background:#f3f4f6;color:#6b7280;}
 
   /* ── 分档卡片 ── */
-  .bucket-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .bucket-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
   @media(max-width:1100px){.bucket-grid{grid-template-columns:1fr;}}
   .bucket-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;}
   .bucket-card .bhead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;}
@@ -211,14 +215,11 @@
 
   <div class="ov" id="ovHost"></div>
 
-  <div class="section-title"><span class="dot"></span>① 亏损处理中心<span class="hint">动作类型 × 金额档位 双重筛选合一；勾选 → 批量复制 / 批量标状态；点行看趋势</span></div>
-  <div id="actionHost"></div>
-
-  <div class="section-title"><span class="dot"></span>② 盈利 / 销售额 · 机会分层<span class="hint" id="bucketHint">盈利=可扩量 · 销售额=看结构；亏损请在①按档位/动作处理</span></div>
+  <div class="section-title"><span class="dot"></span>BI 分档卡片 · 点击档位 → 该档全部链接 + 每条的动作建议<span class="hint" id="bucketHint"></span></div>
   <div class="bucket-grid" id="bucketHost"></div>
   <div id="drillHost"></div>
 
-  <div class="section-title"><span class="dot"></span>③ 产品 → 链接<span class="hint">看亏损集中在哪些产品，展开定位</span></div>
+  <div class="section-title"><span class="dot"></span>按产品回看<span class="hint">看亏损/盈利集中在哪些产品，展开定位链接与建议</span></div>
   <div id="prodHost"></div>
 
 <script>
@@ -295,6 +296,38 @@ function classifyAction(r){
     if(gm<0)return{k:'C_price',act:'提价/去优惠',why:'毛利率 '+fmtPct(r.gmTxt)+' 倒挂，毛利负'};
     return{k:'D_struct',act:'查成本/退款/费用',why:'ROI '+roi.toFixed(2)+'>1 仍亏，查货品/运费/退款'}; }
   return{k:'F_keep',act:'观察',why:'窗口未亏'};
+}
+
+/* ============ 统一动作建议引擎（亏/盈/销售档通用）============
+   目标：利润额 × 利润率 最大化 —— 亏损链接止损动作；盈利链接判断可放大/先提毛利/提投产 */
+const REC_META={
+  A_del:{cls:'chip-del'}, A_stop:{cls:'chip-stop'}, B_fix:{cls:'chip-fix'},
+  C_price:{cls:'chip-price'}, D_struct:{cls:'chip-struct'}, E_watch:{cls:'chip-watch'},
+  G_scale:{cls:'chip-scale'}, G_prio:{cls:'chip-prio'}, G_roi:{cls:'chip-roi2'},
+  G_care:{cls:'chip-care'}, G_keep:{cls:'chip-keep'}
+};
+function classifyRec(r){
+  const {noSale,roiBad,roiBreakEven,worsen,improving}=CONFIG.dec;
+  const p=r.p,s=r.s,roi=r.roiV,gm=r.gmV,d=trendDelta(r.link_id);
+  const gmt=fmtPct(r.gmTxt);
+  if(p<0){  // 亏损：先止损/止血
+    if(s<noSale) return {k:'A_del',act:'停推广并下架',why:'近7天净成交≈0(净销'+Math.round(s)+')仍亏'+Math.round(p)+'元 → 纯空烧/退款倒挂，先停推广并评估下架'};
+    if(roi<roiBad){
+      if(d<worsen) return {k:'A_stop',act:'停推广',why:'ROI '+roi.toFixed(2)+'<0.6 且亏损扩大('+d+'元/窗) → 直接停，止损'};
+      return {k:'B_fix',act:'砍花费/提投产',why:'ROI '+roi.toFixed(2)+'<0.6 投放效率差 → 先压花费控损再提投产'};
+    }
+    if(d>improving) return {k:'E_watch',act:'观察(亏损收窄)',why:'亏损收窄(+'+d+'元/窗) → 暂缓动作，下周复查'};
+    if(roi<roiBreakEven) return {k:'B_fix',act:'提投产',why:'ROI '+roi.toFixed(2)+' 接近保本线、毛利率 '+gmt+' → 调词/压单价把ROI拉过保本即转正'};
+    if(gm<0) return {k:'C_price',act:'提价/去优惠',why:'毛利率 '+gmt+' 倒挂(ROI '+roi.toFixed(2)+') → 提价/去掉过度优惠，先止血'};
+    return {k:'D_struct',act:'查成本/退款',why:'ROI '+roi.toFixed(2)+'>1 仍亏、毛利率 '+gmt+' → 问题在货品成本/运费/退款率'};
+  }
+  if(p===0) return {k:'G_keep',act:'观察',why:'近7天无利润贡献，先观察'};
+  // 盈利：以利润额×利润率最大化给动作
+  if(d<-10) return {k:'G_care',act:'利润下滑·排查',why:'利润由 +'+Math.round(p-d)+' 跌到 +'+Math.round(p)+'('+d+'元/窗) → 查退款/价格竞争/流量下滑'};
+  if(roi>=1.8&&gm>=8&&d>-15) return {k:'G_scale',act:'放大扩量',why:'ROI '+roi.toFixed(2)+'、毛利率 '+gmt+' 健康，窗口利润 +'+Math.round(p)+'元 → 可加预算/小幅提价放大利润额'};
+  if(roi>=1.8&&gm<8) return {k:'G_prio',act:'先提毛利再放大',why:'ROI '+roi.toFixed(2)+' 好但毛利率仅 '+gmt+' → 先提价/去低价SKU拉毛利，再放量利润额才最大化'};
+  if(roi>=1.2) return {k:'G_roi',act:'提投产放利润',why:'ROI '+roi.toFixed(2)+' 盈利但一般、毛利率 '+gmt+' → 优化词/转化把利润额做大，可小幅加预算试'};
+  return {k:'G_keep',act:'保持',why:'ROI '+roi.toFixed(2)+' 偏低但尚盈利、毛利率 '+gmt+' → 控费观察，预算优先给高ROI链接'};
 }
 
 /* ---------- 渲染窗口(下拉) ---------- */
@@ -569,15 +602,16 @@ function renderBuckets(){
       +'<span class="bcnt">共 '+total+' 条</span>'+compChip(total,prevTotal,goodWhenUp)+'</div><div class="buckets">'+inner+'</div></div>';
   };
   document.getElementById('bucketHost').innerHTML=
-    block('profit','🟢',true,B.profit,rows.filter(r=>r.p>0).length)
+    block('loss','🔴',false,B.loss,rows.filter(r=>r.p<0).length)
+    +block('profit','🟢',true,B.profit,rows.filter(r=>r.p>0).length)
     +block('sales','🔵',true,B.sales,rows.length);
   const hint=document.getElementById('bucketHint');
-  if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'点档位下钻；▲=较上期上升 ▼=下降';
+  if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'点击任意档位 → 该档全部链接，每条含「动作建议+依据」：亏损=停/下架/提投产/提价/查成本；盈利=可放大/先提毛利/提投产；以利润额×利润率最大化定建议';
   document.querySelectorAll('#bucketHost .bcell').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
 }
 function drillRowHTML(r){
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
-  const ac=classifyAction(r), meta=ACT_META[ac.k];
+  const rec=classifyRec(r), meta=REC_META[rec.k];
   return '<div class="lrow" data-id="'+r.link_id+'">'
     +chkHTML(r.link_id)
     +'<div class="lname">'+shortTitle(r.title)+'<span class="prod">'+r.product+'</span></div>'
@@ -585,7 +619,7 @@ function drillRowHTML(r){
     +'<div class="lnum '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</div>'
     +'<div class="lnum">'+fmtMoney(r.s)+'</div>'
     +'<div class="lnum"><span class="'+(r.roiV<1?'roi-neg':'roi-ok')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
-    +'<div><span class="ltrend '+dCls+'">'+dArw+'</span> <span class="act-chip '+meta.cls+'">'+ac.act+'</span></div>'
+    +'<div class="lrec"><span class="act-chip '+meta.cls+'">'+rec.act+'</span><div class="why" title="'+esc(rec.why)+'">'+esc(rec.why)+'</div></div>'
     +stateChipHTML(r.link_id)
     +'</div><div class="trendbox"><div class="tlab">'+r.link_id+' · 滚动窗口利润走势</div><div class="chart"></div></div>';
 }
@@ -601,7 +635,7 @@ function renderDrill(){
   let html='<div class="listcard" id="drillCard">'+batchBarHTML('drill',total)
     +'<div class="listhead">▾ '+gName+'档「'+cell.name+'」· '+total+' 条<span class="lsub">同样可勾选批量复制/处理</span></div>'
     +'<div class="ltable">'
-    +'<div class="lrow head"><input type="checkbox" class="chk-head" data-b="headAll"><div>商品标题</div><div>链接id</div><div>平台</div><div style="text-align:right">利润</div><div style="text-align:right">净销售</div><div style="text-align:right">ROI</div><div>建议</div><div style="text-align:right">处理</div></div>'
+    +'<div class="lrow head"><input type="checkbox" class="chk-head" data-b="headAll"><div>商品标题</div><div>链接id</div><div>平台</div><div style="text-align:right">利润(近7天)</div><div style="text-align:right">净销售</div><div style="text-align:right">ROI</div><div>动作建议 · 依据</div><div style="text-align:right">处理</div></div>'
     +slice.map(r=>drillRowHTML(r)).join('')+'</div>';
   if(pages>1) html+='<div class="pager"><button data-pg="prev">‹ 上一页</button><span>'+(DRILL_PAGE+1)+'/'+pages+' 页</span><button data-pg="next">下一页 ›</button></div>';
   html+='</div>';
@@ -625,7 +659,7 @@ function renderProducts(){
     html+='<div class="pgroup"><div class="ghead"><span class="arrow">▶</span><span>'+g.name+'</span><span class="gcnt">'+g.links.length+' 条</span><span class="gsum">'
       +(lossN?'<span style="color:var(--accent-red)">亏损 '+lossN+' · '+fmtMoney(lossAmt)+'</span>':'')+(proN?'<span style="color:var(--accent-green)">盈利 '+proN+'</span>':'')
       +'</span></div><div class="pbody"><div class="ltable">'
-      +'<div class="lrow head"><div></div><div>商品标题</div><div>链接id</div><div>平台</div><div style="text-align:right">利润</div><div style="text-align:right">净销售</div><div style="text-align:right">ROI</div><div>建议</div><div style="text-align:right">处理</div></div>'
+      +'<div class="lrow head"><div></div><div>商品标题</div><div>链接id</div><div>平台</div><div style="text-align:right">利润(近7天)</div><div style="text-align:right">净销售</div><div style="text-align:right">ROI</div><div>动作建议 · 依据</div><div style="text-align:right">处理</div></div>'
       +body+'</div></div></div>';
   });
   const host=document.getElementById('prodHost');
@@ -647,7 +681,7 @@ function drawTrend(canvas,id){
 }
 
 function renderAll(){
-  renderWinBar(); renderOverview(); renderActionSummary(actionCounts()); renderBuckets(); renderDrill(); renderProducts();
+  renderWinBar(); renderOverview(); renderBuckets(); renderDrill(); renderProducts();
 }
 async function main(){
   loadPlan();

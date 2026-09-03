@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>竞争分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609031629"></script>
-<script src="js/diagnosis.js?v=202609031629"></script>
-<script src="js/deep-link.js?v=202609031629"></script>
+<script src="js/diagnostics-config.js?v=202609031834"></script>
+<script src="js/diagnosis.js?v=202609031834"></script>
+<script src="js/deep-link.js?v=202609031834"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -119,6 +119,15 @@
   .vs-vs-tag { display:block; font-size:10px; color:#9ca3af; font-weight:400; margin-top:2px; }
   .vs-vs-tag.vs-strong { color:#dc2626; }
   .vs-vs-tag.vs-weak { color:#16a34a; }
+  .vs-spec { margin-top:10px; }
+  .vs-spec summary { cursor:pointer; font-size:12px; font-weight:700; color:#6b7280; user-select:none; outline:none; }
+  .vs-spec summary:hover { color:#f97316; }
+  .vs-spec-bd { margin-top:8px; background:#f8fafc; border:1px solid #eef0f3; border-radius:10px; padding:10px 14px; font-size:12px; line-height:1.8; color:#4b5563; }
+  .vs-spec-bd p { margin:4px 0; }
+  .vs-spec-bd ul { margin:2px 0 6px; padding-left:18px; }
+  .vs-spec-bd li { margin:1px 0; }
+  .vs-spec-bd b { color:#374151; }
+  .vs-spec-tip { color:#9ca3af; font-size:11px; margin-top:4px; }
   /* vs 分区：日销图 / 雷达+结论 */
   .vs-sec { margin-top: 14px; }
   .vs-sec-hd { display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; color:#374151; margin-bottom:8px; }
@@ -155,7 +164,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609031629"></script>
+<script src="js/freshness-alert.js?v=202609031834"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -232,6 +241,29 @@
           </div>
           <div class="vs-panel" id="vsAdvice"></div>
         </div>
+
+        <details class="vs-spec" open>
+          <summary>ⓘ 指标口径 · 每列逻辑 + 可换算派生指标</summary>
+          <div class="vs-spec-bd">
+            <p><b>原始列逻辑</b>（表内行=日期，每组列=一个链接：我方 or 竞品）：</p>
+            <ul class="cols">
+              <li><b>访客</b> = 当日进店人数；<b>支付单量</b> = 当日成交订单数</li>
+              <li><b>付费点击量 / 付费支付单量</b> = 付费推广带来的点击数 / 成交数（表内暂缺，明日补全）</li>
+              <li><b>点击率</b> = 点击÷曝光 · <b>加购率</b> = 加购人数÷访客 · <b>转化率</b> = 支付单量÷访客（三者均为生意参谋口径，表内直接给出）</li>
+              <li><b>点击单价</b> = 付费花费÷付费点击 · <b>ROI</b> = 成交金额÷付费花费</li>
+              <li><b>免费搜索 / 免费推荐 / 免费其他占比</b> = 免费流量三个来源各占总访客的比例，<b>三项之和 = 免费流量占比</b>，余下即为付费流量占比</li>
+              <li><b>-区间 列</b> = 运营登记的区间源数据（如 100~250 / 5%~7.5%），脚本取区间中值作估算快照</li>
+            </ul>
+            <p><b>可换算 / 派生指标</b>：</p>
+            <ul class="conv">
+              <li><b>免费流量占比</b> = 免费搜索+免费推荐+免费其他（我方≈54%，头部竞品≈98% → 我方明显更依赖付费）</li>
+              <li><b>付费成交占比</b> = 付费支付单量÷支付单量 ⏳　·　<b>付费点击转化率</b> = 付费支付单量÷付费点击量 ⏳</li>
+              <li><b>客单价 AOV</b> ≈ ROI×点击单价×付费点击量÷支付单量 ⏳　·　<b>UV价值</b> = 支付单量×客单价÷访客 ⏳</li>
+              <li><b>市占率</b> = 我方单量÷(我方+全部竞品单量)　·　强弱雷达每维按 0~100 相对归一，可直接横比</li>
+            </ul>
+            <p class="vs-spec-tip">⏳ 依赖「付费点击量 / 付费支付单量」，明日补全后页面会自动纳入对比，无需再改。</p>
+          </div>
+        </details>
       </div>
 
       <!-- 竞品监控 -->
@@ -699,6 +731,10 @@ function renderVsBlock() {
       if (t.o != null && t.cv != null && t.cv > 0) return Math.round(t.o / t.cv);
       return null;
     }
+    if (k === "free_pct") {
+      var fp = (t["免费搜索占比"] || 0) + (t["免费推荐占比"] || 0) + (t["免费其他占比"] || 0);
+      return fp > 0 ? fp : null;
+    }
     return null;
   }
   // 竞品值：点击成本/ROI 若为"比本品高/低"相对标记 → 已反推为估算值（cpc_est/roi_est）
@@ -711,6 +747,10 @@ function renderVsBlock() {
     if (k === "cpc") return m.cpc_est != null ? m.cpc_est : (m.cpc != null ? m.cpc : null);
     if (k === "roi") return m.roi_est != null ? m.roi_est : (c.roi_num != null ? c.roi_num : null);
     if (k === "visitors") return c.visitors != null ? c.visitors : null;
+    if (k === "free_pct") {
+      var fp = (m.search_pct || 0) + (m.rec_pct || 0) + (m.other_pct || 0);
+      return fp > 0 ? fp : null;
+    }
     return null;
   }
   // 链接ID（url/link 里的 id=xxx）
@@ -740,6 +780,7 @@ function renderVsBlock() {
     { k: "cart_rate", label: "加购率", dir: "+", fmt: function (v) { return (v * 100).toFixed(1) + "%"; } },
     { k: "cpc", label: "点击成本", dir: "-", fmt: function (v) { return "¥" + v.toFixed(2); } },
     { k: "roi", label: "ROI", dir: "+", fmt: function (v) { return v.toFixed(2); } },
+    { k: "free_pct", label: "免费占比", dir: "+", fmt: function (v) { return (v * 100).toFixed(0) + "%"; } },
     { k: "visitors", label: "访客", dir: "+", fmt: function (v) { return fmt(Math.round(v)); } }
   ];
   var headers = ["#", "产品/店铺"].concat(vsCols.map(function (c) { return c.label; }), ["走势", "链接ID", "链接"]);
@@ -853,7 +894,8 @@ function renderVsBlock() {
       { k: "conv_rate", name: "转化率", dir: "+" },
       { k: "cart_rate", name: "加购率", dir: "+" },
       { k: "cpc", name: "点击成本", dir: "-" },
-      { k: "roi", name: "ROI", dir: "+" }
+      { k: "roi", name: "ROI", dir: "+" },
+      { k: "free_pct", name: "免费占比", dir: "+" }
     ];
     var radarItems = [];
     var myItem = { name: (op.name || "我方").slice(0, 8), vals: {} };

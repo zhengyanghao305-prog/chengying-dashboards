@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609032136"></script>
-<script src="js/xlsx.full.min.js?v=202609032136"></script>
+<script src="js/echarts.min.js?v=202609032148"></script>
+<script src="js/xlsx.full.min.js?v=202609032148"></script>
 <title>BI 承接 · 亏损链接动作决策</title>
 <style>
   :root{
@@ -137,14 +137,21 @@
   .bucket-card .bhead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;}
   .bucket-card .bhead .bcnt{margin-left:auto;font-size:12px;color:var(--text-tertiary);font-weight:400;}
   .buckets{padding:7px;}
-  .bcell{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--radius-sm);cursor:pointer;transition:background .12s;border:1px solid transparent;}
+  .bcell{display:flex;flex-direction:column;gap:3px;padding:7px 9px;border-radius:var(--radius-sm);cursor:pointer;transition:background .12s;border:1px solid transparent;}
   .bcell:hover{background:var(--bg-tag);}
   .bcell.sel{background:#f5f3ff;border-color:#ddd6fe;}
+  .brow{display:flex;align-items:center;gap:8px;width:100%;}
   .bcell .bname{font-size:12px;color:var(--text-secondary);}
   .bcell .bval{font-size:14px;font-weight:700;margin-left:auto;font-variant-numeric:tabular-nums;}
   .bcell .bamt{font-size:10.5px;color:var(--text-tertiary);min-width:58px;text-align:right;font-variant-numeric:tabular-nums;}
+  .bdelta{font-size:10.5px;display:inline-flex;align-items:center;gap:2px;}
+  .bdelta .sep{color:var(--text-tertiary);}
+  .bdelta.good{color:#15803d;} .bdelta.bad{color:#b91c1c;} .bdelta.zero{color:var(--text-tertiary);}
+  .bdelta .lab{color:var(--text-tertiary);font-size:9.5px;}
   .bzero .bval{color:var(--text-tertiary);} .bzero{cursor:default;} .bzero:hover{background:transparent;}
   .loss-b .bval{color:var(--accent-red);} .pro-b .bval{color:var(--accent-green);} .sale-b .bval{color:var(--accent-blue);}
+  .bcomp{font-size:10.5px;font-weight:600;margin-left:auto;padding:2px 8px;border-radius:9px;background:var(--bg-tag);}
+  .bcomp.up{color:#15803d;background:#dcfce7;} .bcomp.down{color:#b91c1c;background:#fee2e2;} .bcomp.flat{color:#9ca3af;background:#f3f4f6;}
 
   /* ── 产品折叠 ── */
   .pgroup{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;overflow:hidden;}
@@ -199,7 +206,7 @@
   <div class="section-title"><span class="dot"></span>🎯 动作决策 · 亏损链接<span class="hint">勾选 → 批量复制 / 批量标状态；点行看趋势</span></div>
   <div id="actionHost"></div>
 
-  <div class="section-title"><span class="dot"></span>BI 分档卡片<span class="hint">点档位下钻 → 同样可勾选批量处理</span></div>
+  <div class="section-title"><span class="dot"></span>BI 分档卡片 · 与上一期对比<span class="hint" id="bucketHint"></span></div>
   <div class="bucket-grid" id="bucketHost"></div>
   <div id="drillHost"></div>
 
@@ -502,14 +509,48 @@ function bucketOf(rows){
   const groupSales=(b)=>{ const res=b.map(x=>({name:x[2],lo:x[0],hi:x[1],list:[],amt:0})); rows.forEach(r=>{for(const c of res){if(r.s>=c.lo&&r.s<c.hi){c.list.push(r);c.amt+=r.s;break;}}}); return res; };
   return {loss:group(loss,CONFIG.loss),profit:group(profit,CONFIG.profit),sales:groupSales(CONFIG.sales)};
 }
+function prevWindow(){ const i=DATA.windows.indexOf(WIN); return i>0?DATA.windows[i-1]:null; }
+function diffBadge(diff,goodWhenUp){
+  if(diff===0) return '<span class="bdelta zero"><span class="lab">较上期</span> → 持平</span>';
+  const up=diff>0, good=goodWhenUp?up:!up;
+  return '<span class="bdelta '+(good?'good':'bad')+'"><span class="lab">较上期</span>'+(up?'▲ +':'▼ ')+Math.abs(diff)+'</span>';
+}
+function compChip(cur,prev,goodWhenUp){
+  if(prev===null) return '';
+  const diff=cur-prev;
+  if(diff===0) return '<span class="bcomp flat">较上期 →</span>';
+  const up=diff>0, good=goodWhenUp?up:!up;
+  return '<span class="bcomp '+(good?'up':'down')+'">较上期 '+(up?'▲ +':'▼ ')+Math.abs(diff)+'</span>';
+}
 function renderBuckets(){
   const rows=platRows(), B=bucketOf(rows);
-  const block=(key,dot,total,cells)=>{ let inner=''; cells.forEach((c,i)=>{ const sel=BUCKET&&BUCKET.g===key&&BUCKET.i===i; const cls=c.list.length?('bcell '+(sel?'sel ':'')+(key==='loss'?'loss-b':key==='profit'?'pro-b':'sale-b')):'bcell bzero'; const amt=key==='sales'?'':(key==='loss'?'亏 '+fmtMoney(c.amt):'盈 +'+fmtMoney(c.amt)); inner+='<div class="'+cls+'" data-g="'+key+'" data-i="'+i+'" data-cnt="'+c.list.length+'"><span class="bname">'+c.name+'</span><span class="bval">'+c.list.length+'</span>'+(c.list.length?'<span class="bamt">'+amt+'</span>':'')+'</div>'; });
-    return '<div class="bucket-card"><div class="bhead">'+dot+(key==='loss'?'亏损档位':key==='profit'?'盈利档位':'销售额档位')+'<span class="bcnt">共 '+total+' 条</span></div><div class="buckets">'+inner+'</div></div>'; };
+  // 上一期 = 所选窗口的上一张快照（同平台口径），保证动态随 平台+窗口 变化
+  const wi=DATA.windows.indexOf(WIN);
+  const pw=wi>0?DATA.windows[wi-1]:null;
+  let PB=null;
+  if(pw){ const pr=(DATA.winRowsMap[pw]||[]).filter(r=>PLAT==='all'||r.platform===PLAT); PB=bucketOf(pr); }
+  const block=(key,dot,goodWhenUp,cells,total)=>{
+    const prevTotal=PB?PB[key].reduce((a,b)=>a+b.list.length,0):null;
+    let inner='';
+    cells.forEach((c,i)=>{
+      const sel=BUCKET&&BUCKET.g===key&&BUCKET.i===i;
+      const cls=c.list.length?('bcell '+(sel?'sel ':'')+(key==='loss'?'loss-b':key==='profit'?'pro-b':'sale-b')):'bcell bzero';
+      const amt=key==='sales'?'':(key==='loss'?'亏 '+fmtMoney(c.amt):'盈 +'+fmtMoney(c.amt));
+      const pc=PB?PB[key][i]:null, diff=(pc!==null)?c.list.length-pc.list.length:null;
+      inner+='<div class="'+cls+'" data-g="'+key+'" data-i="'+i+'" data-cnt="'+c.list.length+'">'
+        +'<div class="brow"><span class="bname">'+c.name+'</span><span class="bval">'+c.list.length+'</span>'+(c.list.length?'<span class="bamt">'+amt+'</span>':'')+'</div>'
+        +(c.list.length&&diff!==null?diffBadge(diff,goodWhenUp):'')
+        +'</div>';
+    });
+    return '<div class="bucket-card"><div class="bhead">'+dot+(key==='loss'?'亏损档位':key==='profit'?'盈利档位':'销售额档位')
+      +'<span class="bcnt">共 '+total+' 条</span>'+compChip(total,prevTotal,goodWhenUp)+'</div><div class="buckets">'+inner+'</div></div>';
+  };
   document.getElementById('bucketHost').innerHTML=
-    block('loss','🔴',rows.filter(r=>r.p<0).length,B.loss)
-    +block('profit','🟢',rows.filter(r=>r.p>0).length,B.profit)
-    +block('sales','🔵',rows.length,B.sales);
+    block('loss','🔴',false,B.loss,rows.filter(r=>r.p<0).length)
+    +block('profit','🟢',true,B.profit,rows.filter(r=>r.p>0).length)
+    +block('sales','🔵',true,B.sales,rows.length);
+  const hint=document.getElementById('bucketHint');
+  if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'点档位下钻链接（同平台口径）；▲=较上期上升 ▼=下降';
   document.querySelectorAll('#bucketHost .bcell').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
 }
 function drillRowHTML(r){
@@ -529,7 +570,7 @@ function drillRowHTML(r){
 function renderDrill(){
   const host=document.getElementById('drillHost');
   if(!BUCKET){ host.innerHTML=''; return; }
-  const B=bucketOfplatRows(), cell=B[BUCKET.g][BUCKET.i];
+  const B=bucketOf(platRows()), cell=B[BUCKET.g][BUCKET.i];
   const list=cell.list.slice().sort((a,b)=>BUCKET.g==='loss'?a.p-b.p:(BUCKET.g==='profit'?b.p-a.p:b.s-a.s));
   if(!list.length){ host.innerHTML=''; return; }
   const total=list.length, pages=Math.max(1,Math.ceil(total/60)); if(DRILL_PAGE>=pages)DRILL_PAGE=0;

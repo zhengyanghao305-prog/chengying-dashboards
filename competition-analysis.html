@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>竞争分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609031834"></script>
-<script src="js/diagnosis.js?v=202609031834"></script>
-<script src="js/deep-link.js?v=202609031834"></script>
+<script src="js/diagnostics-config.js?v=202609031853"></script>
+<script src="js/diagnosis.js?v=202609031853"></script>
+<script src="js/deep-link.js?v=202609031853"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -164,7 +164,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609031834"></script>
+<script src="js/freshness-alert.js?v=202609031853"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -224,7 +224,7 @@
         <div class="card-hd">
           <div>
             <div class="t">主推品 vs 头部竞品 <span class="tbl-count" id="vsCount"></span></div>
-            <div class="hint">我方主推品 vs 按日销排序 Top 5 头部竞品 · 逐指标对比单量/点击率/转化率/加购率/点击成本/ROI · ≈ 为按我方每日值跨天反推的估算值</div>
+            <div class="hint">我方主推品 vs 按日销排序 Top 5 头部竞品 · 对比 单量/点击率/转化率/加购率/点击成本/ROI/免费流量占比/访客，另有由「支付单量+付费支付单量」换算的 免费/付费订单占比（付费列补全后自动出数）· ≈ 为按我方每日值跨天反推的估算值</div>
           </div>
         </div>
         <div id="vsTable"></div>
@@ -249,19 +249,19 @@
             <ul class="cols">
               <li><b>访客</b> = 当日进店人数；<b>支付单量</b> = 当日成交订单数</li>
               <li><b>付费点击量 / 付费支付单量</b> = 付费推广带来的点击数 / 成交数（表内暂缺，明日补全）</li>
-              <li><b>点击率</b> = 点击÷曝光 · <b>加购率</b> = 加购人数÷访客 · <b>转化率</b> = 支付单量÷访客（三者均为生意参谋口径，表内直接给出）</li>
+              <li><b>点击率</b> = 点击÷曝光 · <b>加购率 / 转化率</b> = 加购人数 / 支付买家数 ÷ 访客（生意参谋口径：转化率×访客 ≈ 支付<b>买家数</b>，与支付单量不同量纲——一人可多单，勿拿 单量÷访客 反推转化率）</li>
               <li><b>点击单价</b> = 付费花费÷付费点击 · <b>ROI</b> = 成交金额÷付费花费</li>
               <li><b>免费搜索 / 免费推荐 / 免费其他占比</b> = 免费流量三个来源各占总访客的比例，<b>三项之和 = 免费流量占比</b>，余下即为付费流量占比</li>
               <li><b>-区间 列</b> = 运营登记的区间源数据（如 100~250 / 5%~7.5%），脚本取区间中值作估算快照</li>
             </ul>
             <p><b>可换算 / 派生指标</b>：</p>
             <ul class="conv">
-              <li><b>免费流量占比</b> = 免费搜索+免费推荐+免费其他（我方≈54%，头部竞品≈98% → 我方明显更依赖付费）</li>
-              <li><b>付费成交占比</b> = 付费支付单量÷支付单量 ⏳　·　<b>付费点击转化率</b> = 付费支付单量÷付费点击量 ⏳</li>
-              <li><b>客单价 AOV</b> ≈ ROI×点击单价×付费点击量÷支付单量 ⏳　·　<b>UV价值</b> = 支付单量×客单价÷访客 ⏳</li>
+              <li><b>免费流量占比</b> = 免费搜索+免费推荐+免费其他；<b>付费流量占比</b> = 1−免费流量占比（我方≈46%，头部竞品≈2%）</li>
+              <li><b>免费订单占比</b> = 1−付费支付单量÷支付单量 ⏳　·　<b>付费订单占比</b> = 付费支付单量÷支付单量 ⏳（表格两列已就位，付费列补全后自动出数，与竞品同口径横比）</li>
+              <li><b>付费点击转化率</b> = 付费支付单量÷付费点击量 ⏳　·　<b>客单价 AOV</b> ≈ ROI×点击单价×付费点击量÷支付单量 ⏳　·　<b>UV价值</b> = 支付单量×客单价÷访客 ⏳</li>
               <li><b>市占率</b> = 我方单量÷(我方+全部竞品单量)　·　强弱雷达每维按 0~100 相对归一，可直接横比</li>
             </ul>
-            <p class="vs-spec-tip">⏳ 依赖「付费点击量 / 付费支付单量」，明日补全后页面会自动纳入对比，无需再改。</p>
+            <p class="vs-spec-tip">⏳ 依赖「付费点击量 / 付费支付单量」，明日补全后「免费/付费订单占比」两列会自动出数并参与强弱对比，无需再改。</p>
           </div>
         </details>
       </div>
@@ -735,6 +735,14 @@ function renderVsBlock() {
       var fp = (t["免费搜索占比"] || 0) + (t["免费推荐占比"] || 0) + (t["免费其他占比"] || 0);
       return fp > 0 ? fp : null;
     }
+    if (k === "paid_order_pct") {
+      if (t.o != null && t.paid_orders != null && t.o > 0) return t.paid_orders / t.o;
+      return null;
+    }
+    if (k === "free_order_pct") {
+      if (t.o != null && t.paid_orders != null && t.o > 0) return 1 - t.paid_orders / t.o;
+      return null;
+    }
     return null;
   }
   // 竞品值：点击成本/ROI 若为"比本品高/低"相对标记 → 已反推为估算值（cpc_est/roi_est）
@@ -750,6 +758,16 @@ function renderVsBlock() {
     if (k === "free_pct") {
       var fp = (m.search_pct || 0) + (m.rec_pct || 0) + (m.other_pct || 0);
       return fp > 0 ? fp : null;
+    }
+    if (k === "paid_order_pct") {
+      var tot = c.latest_sales != null ? c.latest_sales : (m.orders != null ? m.orders : null);
+      if (tot != null && m.paid_orders != null && tot > 0) return m.paid_orders / tot;
+      return null;
+    }
+    if (k === "free_order_pct") {
+      var tot2 = c.latest_sales != null ? c.latest_sales : (m.orders != null ? m.orders : null);
+      if (tot2 != null && m.paid_orders != null && tot2 > 0) return 1 - m.paid_orders / tot2;
+      return null;
     }
     return null;
   }
@@ -780,7 +798,9 @@ function renderVsBlock() {
     { k: "cart_rate", label: "加购率", dir: "+", fmt: function (v) { return (v * 100).toFixed(1) + "%"; } },
     { k: "cpc", label: "点击成本", dir: "-", fmt: function (v) { return "¥" + v.toFixed(2); } },
     { k: "roi", label: "ROI", dir: "+", fmt: function (v) { return v.toFixed(2); } },
-    { k: "free_pct", label: "免费占比", dir: "+", fmt: function (v) { return (v * 100).toFixed(0) + "%"; } },
+    { k: "free_pct", label: "免费流量占比", dir: "+", fmt: function (v) { return (v * 100).toFixed(0) + "%"; } },
+    { k: "free_order_pct", label: "免费订单占比", dir: "+", fmt: function (v) { return (v * 100).toFixed(0) + "%"; } },
+    { k: "paid_order_pct", label: "付费订单占比", dir: "-", fmt: function (v) { return (v * 100).toFixed(0) + "%"; } },
     { k: "visitors", label: "访客", dir: "+", fmt: function (v) { return fmt(Math.round(v)); } }
   ];
   var headers = ["#", "产品/店铺"].concat(vsCols.map(function (c) { return c.label; }), ["走势", "链接ID", "链接"]);

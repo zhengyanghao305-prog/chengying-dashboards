@@ -473,9 +473,8 @@
           var missing_ours = false;  // 标记：本平台我方产品未接数据源
           cats.forEach(function (c) {
             var ours = c.ours_products || [];
-            // 兜底：若 product-links.json 未接/为空，用 series 最后一行作为「我方」
-            //   否则全 0 误判全品类偏弱，给用户造成"看板没用"的假象。
             var lastSeries = (c.series && c.series.length) ? c.series[c.series.length - 1] : null;
+            var prevSeries = (c.series && c.series.length > 1) ? c.series[c.series.length - 2] : null;
             var og, oroi, hasReliableRoi = false;
             if (ours.length) {
               og = ours.reduce(function (s, x) { var t = parseKV(x.t); return s + num(t.g); }, 0);
@@ -483,7 +482,8 @@
               hasReliableRoi = true;
             } else {
               missing_ours = true;
-              og = 0; oroi = 0;
+              og = num(lastSeries && lastSeries.ours);
+              oroi = 0;
             }
             var compLatest = 0;
             (c.competitors || []).forEach(function (cp) {
@@ -493,10 +493,14 @@
             // 份额优先用 series.ours_pct（Excel/飞书权威值），其次用我方/合计
             var share = num(lastSeries && lastSeries.ours_pct);
             if (!share && og + compLatest) share = og / (og + compLatest);
-            // 只有「有可靠ROI + 双确认（ROI<1 且 份额<20%）」时才报 P0/P1 偏弱，
-            // 否则降为 P2（关注/补录中），避免 product-links 没接通时大规模误报
-            var sev, label, action;
+            // 趋势：最近一天 vs 前一天，判断是否在失守
+            var shareChg = 0;
+            if (lastSeries && prevSeries && isF(prevSeries.ours_pct) && num(prevSeries.ours_pct) > 0) {
+              shareChg = (num(lastSeries.ours_pct) - num(prevSeries.ours_pct)) / num(prevSeries.ours_pct);
+            }
+            var sev, label, action, metric, detail;
             if (hasReliableRoi && oroi < 1 && share && share < 0.2) {
+              // 形态 A-1：有产品级 ROI，双确认偏弱
               sev = oroi < 0.7 ? 'danger' : 'warning';
               weak++;
               label = pf + ' ·『' + c.name + '』我方偏弱';
@@ -508,14 +512,31 @@
                 'comp_weak'
               ));
               subNodes.push({ label: c.name + '·' + pf, severity: sev, detail: 'ROI ' + oroi.toFixed(2) + ' · 份额 ' + fmtPct(share), metric: oroi.toFixed(2) });
+            } else if (share && share < 0.2) {
+              // 形态 A-2：无产品级 ROI，但 series 显示份额已失守 <20%
+              sev = shareChg < -0.1 ? 'danger' : 'warning';
+              weak++;
+              metric = fmtPct(share);
+              label = pf + ' ·『' + c.name + '』份额失守（' + metric + '）';
+              detail = '最新一天我方份额仅 ' + metric + '，低于 20% 警戒线' +
+                (shareChg ? '，较前一日' + (shareChg < 0 ? '下滑 ' : '上升 ') + fmtPct(Math.abs(shareChg)) : '') +
+                (compLatest ? '；头部竞品最新日销 ' + fmtMoney(compLatest) : '') + '。';
+              action = '执行：研究' + pf + '『' + c.name + '』竞品主推款与价格策略，加大投流或调整活动；目标 7 日内份额回升到 25% 以上。责任人：运营。';
+              findings.push(F(sev, label, detail, action, metric, [{ name: c.name, sub: pf }],
+                { board: 'competition-analysis', platform: pf, category: c.name }, 'comp_weak'));
+              subNodes.push({ label: c.name + '·' + pf, severity: sev, detail: '份额 ' + metric, metric: metric });
             } else if (hasReliableRoi && (oroi < 1.5 || (share && share < 0.3))) {
               findings.push(F('info', pf + ' ·『' + c.name + '』需关注',
                 '我方 GMV ' + fmtMoney(og) + '、平均 ROI ' + oroi.toFixed(2) + '、估算份额 ' + fmtPct(share) + '。',
                 '执行：跟踪' + pf + '『' + c.name + '』趋势，若持续下滑 7 天则升级为偏弱。'));
+            } else if (share && share < 0.3) {
+              findings.push(F('info', pf + ' ·『' + c.name + '』份额偏低',
+                '最新一天我方份额 ' + fmtPct(share) + '，低于 30%，建议关注。',
+                '执行：跟踪' + pf + '『' + c.name + '』趋势，若份额持续下滑则考虑加投流。'));
             }
           });
           platCounts.push(dimSeg(pf, cats.length, weak > cats.length * 0.3, '偏弱 ' + weak));
-          if (missing_ours) {
+          if (missing_ours && !cats.length) {
             findings.push(F('info', pf + '·我方产品对照未接数据', 'product-links.json 未含' + pf +'我方产品，导致无法按' + pf +'产品级 ROI 计算「偏弱」判断；当前按 series 兜底判定，整体看起来"全 0"是预期内。', '执行：跑 python gen_product_links.py 生成 product-links.json（或维护 data/product-links.json → products 字段，给每个产品补上 t:{c,g,o,r,...}）。责任人：数据运维。'));
           }
         });

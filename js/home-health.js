@@ -29,7 +29,7 @@
     'product-pipeline': 'data/product-pipeline.json',
     'ecom-workflow': null,         // ⚠️ 未接数据源（电商工作流尚未接入飞书 Base，回本周期测算器独立可用）
     'competition-analysis': 'data/competition.json',
-    'category-analysis': null,
+    'category-analysis': 'data/category-analysis.json',
     'automation-log': 'data/automation-log.json',
     'automation-projects': 'data/automation-projects.json',
     'data-sync': 'data/connector_status.json',
@@ -128,6 +128,10 @@
         return [];
       }
       if (id === 'competition-analysis') return data; // 对象，analyze 内部处理
+      if (id === 'category-analysis') {
+        // category-analysis.json 为 { updated, items } 包装，诊断引擎只需要 items 数组
+        return Array.isArray(data) ? data : (Array.isArray(data && data.items) ? data.items : []);
+      }
       return Array.isArray(data) ? data : [];
     } catch (e) { return null; }
   }

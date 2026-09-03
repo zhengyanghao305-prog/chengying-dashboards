@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609032116"></script>
-<script src="js/xlsx.full.min.js?v=202609032116"></script>
+<script src="js/echarts.min.js?v=202609032136"></script>
+<script src="js/xlsx.full.min.js?v=202609032136"></script>
 <title>BI 承接 · 亏损链接动作决策</title>
 <style>
   :root{
@@ -176,12 +176,12 @@
   </div>
 
   <div class="controlbar">
-    <span class="lab">数据窗口</span>
-    <select class="win-select" id="winSel" title="近7天快照窗口，最新=当前数据，切旧窗口可对比历史"></select>
-    <span class="lab" style="margin-left:10px">平台</span>
+    <span class="lab">平台</span>
     <div class="platbox" id="platBox">
       <button data-plat="all">全平台</button><button data-plat="天猫">天猫</button><button data-plat="拼多多">拼多多</button>
     </div>
+    <span class="lab" style="margin-left:14px">数据窗口</span>
+    <select class="win-select" id="winSel" title="所选平台下各近7天快照窗口的链接数，最新=当前数据"></select>
     <span class="win-scope" id="winScope"></span>
     <span class="sp">
       <button class="dlbtn" id="dlBtn">⬇ 下载运营执行清单 Excel</button>
@@ -285,14 +285,19 @@ function classifyAction(r){
 /* ---------- 渲染窗口(下拉) ---------- */
 function renderWinBar(){
   const sel=document.getElementById('winSel');
+  // 平台在前：若当前窗口在该平台无记录，自动跳到该平台有数据的最新窗口
+  if(platRowCount(WIN)===0){
+    const avail=DATA.windows.map(w=>[w,platRowCount(w)]).filter(x=>x[1]>0);
+    if(avail.length) WIN=avail[avail.length-1][0];
+  }
   sel.innerHTML=DATA.windows.map(w=>{
-    const cnt=DATA.winRowsMap[w]?DATA.winRowsMap[w].length:0;
+    const cnt=platRowCount(w);
     const isLast=w===DATA.windows[DATA.windows.length-1];
     return '<option value="'+w+'" '+(w===WIN?'selected':'')+'>'+(isLast?'最新 · ':'')+w.replace(/\//g,'-')+'（'+cnt+' 链接）</option>';
   }).join('');
   const end=toDate((DATA.rows.find(r=>r.window===WIN)||{}).window_end)||'';
   const start=DATA.windows[0]?DATA.windows[0].slice(0,10):'';
-  document.getElementById('winScope').innerHTML='滚动近7天快照 · 覆盖 '+start.replace(/\//g,'-')+' → '+(end||'')+' · 共 '+DATA.windows.length+' 张';
+  document.getElementById('winScope').innerHTML='<b>'+platName()+'</b> · 滚动近7天快照 · 覆盖 '+start.replace(/\//g,'-')+' → '+(end||'')+' · 共 '+DATA.windows.length+' 张，窗口链接数按所选平台统计';
   document.getElementById('winTag').textContent=WIN.replace(/\//g,'-')+' 已选中';
   sel.onchange=()=>{ WIN=sel.value; ACT='all'; PAGE=0; SELECTED.clear(); renderAll(); };
   // 平台切换 + 下载按钮
@@ -300,6 +305,7 @@ function renderWinBar(){
   document.getElementById('platBox').onclick=(e)=>{ const b=e.target.closest('button'); if(b&&b.dataset.plat!==PLAT){ PLAT=b.dataset.plat; ACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); } };
   document.getElementById('dlBtn').onclick=downloadExcel;
 }
+function platRowCount(w){ const rows=DATA.winRowsMap[w]||[]; return PLAT==='all'?rows.length:rows.filter(r=>r.platform===PLAT).length; }
 
 /* ---------- 下载运营执行清单 Excel ---------- */
 function dlPrio(p){ return p===0?'P0':(p===1?'P1':(p===2?'P2':'P3')); }

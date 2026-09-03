@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>产品 · 链接钻取分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609031521"></script>
-<script src="js/diagnosis.js?v=202609031521"></script>
-<script src="js/deep-link.js?v=202609031521"></script>
+<script src="js/diagnostics-config.js?v=202609031627"></script>
+<script src="js/diagnosis.js?v=202609031627"></script>
+<script src="js/deep-link.js?v=202609031627"></script>
 <script>window.__DIAG_LINKS = [];</script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -262,7 +262,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609031521"></script>
+<script src="js/freshness-alert.js?v=202609031627"></script>
 <div class="wrap">
   <header>
     <div>
@@ -388,6 +388,17 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     if (r >= 1.5) return "roi-good";
     if (r >= 1.0) return "roi-mid";
     return "roi-bad";
+  }
+  // 当前聚合口径：拼多多优先用净成交额/净ROI，天猫保持原始；gg>0 且与 g 不同表示有净口径
+  function hasNet(t) {
+    return t && t.gg > 0 && Math.abs(t.g - t.gg) > 0.01;
+  }
+  function labelNet(base, t) {
+    return hasNet(t) ? "净" + base : base;
+  }
+  function grossTip(t) {
+    if (!hasNet(t)) return "";
+    return ' title="原始口径：成交 ' + fmtMoney(t.gg) + " · ROI " + fmtRoi(t.gross_r) + ' · 订单 "' + fmtNum(t.go) + '"';
   }
   function trendTag(t) {
     if (t === "up") return '<span class="trend-badge trend-badge-up">📈 上升</span>';
@@ -602,8 +613,8 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
         '<div><span class="plans-cnt">📎 ' + prod.links.length + " 个链接 · " + planCnt + " 个推广计划 · " + t.days + " 天数据</span></div>" +
         '<div class="metrics">' +
           '<div class="m"><div class="l">花费</div><div class="v">' + fmtMoney(t.c) + "</div></div>" +
-          '<div class="m"><div class="l">成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
-          '<div class="m"><div class="l">ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
+          '<div class="m"><div class="l">净成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
+          '<div class="m"><div class="l">净ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
           '<div class="m"><div class="l">订单</div><div class="v">' + fmtNum(t.o) + "</div></div>" +
           '<div class="m"><div class="l">点击</div><div class="v">' + fmtNum(t.k) + "</div></div>" +
           '<div class="m"><div class="l">点击率</div><div class="v">' + fmtPct(t.ct) + "</div></div>" +
@@ -690,8 +701,8 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
         '<div class="chans">' + chans.slice(0, 5).map(function (c) { return '<span class="ch">' + escHtml(c) + "</span>"; }).join("") + "</div>" +
         '<div class="metrics">' +
           '<div class="m"><div class="l">花费</div><div class="v">' + fmtMoney(t.c) + "</div></div>" +
-          '<div class="m"><div class="l">成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
-          '<div class="m"><div class="l">ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
+          '<div class="m"><div class="l">净成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
+          '<div class="m"><div class="l">净ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
           '<div class="m"><div class="l">订单</div><div class="v">' + fmtNum(t.o) + "</div></div>" +
         "</div>" +
       "</div>";
@@ -724,8 +735,8 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
 
     var kpiHtml = '<div class="kpi-grid">' +
       '<div class="kpi"><div class="l">总花费</div><div class="v">' + fmtMoney(t.c) + "</div></div>" +
-      '<div class="kpi"><div class="l">总成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
-      '<div class="kpi"><div class="l">ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
+      '<div class="kpi"><div class="l">净成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
+      '<div class="kpi"><div class="l">净ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
       '<div class="kpi"><div class="l">订单</div><div class="v">' + fmtNum(t.o) + "</div></div>" +
       '<div class="kpi"><div class="l">点击</div><div class="v">' + fmtNum(t.k) + "</div></div>" +
       '<div class="kpi"><div class="l">点击率</div><div class="v">' + fmtPct(t.ct) + "</div></div>" +
@@ -778,7 +789,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       '<div class="diag-box" id="linkDiag"></div>' +
       '<div class="sec">📎 该链接下的所有推广计划（已按行动建议排序：需优化 > 关注 > 可放大 > 正常）</div>' +
       '<div class="table-wrap"><table class="data-table"><thead><tr>' +
-        '<th class="status-cell">状态</th><th>推广计划</th><th class="num">花费</th><th class="num">成交</th><th class="num">ROI</th><th class="num">订单</th>' +
+        '<th class="status-cell">状态</th><th>推广计划</th><th class="num">花费</th><th class="num">净成交</th><th class="num">净ROI</th><th class="num">订单</th>' +
         "<th class=\"num\">点击率</th><th class=\"num\">转化率</th><th class=\"num\">成交成本</th><th class=\"num\">加购率</th><th class=\"num\">加购成本</th><th class=\"num\">天数</th><th>操作</th>" +
       "</tr></thead><tbody>" + (plansRows || '<tr><td colspan="13" style="text-align:center;color:#94a3b8;padding:24px">无推广计划</td></tr>') + "</tbody></table></div>";
 
@@ -808,8 +819,8 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
 
     var kpiHtml = '<div class="kpi-grid">' +
       '<div class="kpi"><div class="l">总花费</div><div class="v">' + fmtMoney(t.c) + "</div></div>" +
-      '<div class="kpi"><div class="l">总成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
-      '<div class="kpi"><div class="l">ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
+      '<div class="kpi"><div class="l">净成交</div><div class="v">' + fmtMoney(t.g) + "</div></div>" +
+      '<div class="kpi"><div class="l">净ROI</div><div class="v ' + roiCls(t.r) + '">' + fmtRoi(t.r) + "</div></div>" +
       '<div class="kpi"><div class="l">订单</div><div class="v">' + fmtNum(t.o) + "</div></div>" +
       '<div class="kpi"><div class="l">点击</div><div class="v">' + fmtNum(t.k) + "</div></div>" +
       '<div class="kpi"><div class="l">点击率</div><div class="v">' + fmtPct(t.ct) + "</div></div>" +
@@ -844,13 +855,13 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       kpiHtml +
       '<div class="sec">🧭 分析诊断</div>' +
       '<div class="diag-box" id="planDiag"></div>' +
-      '<div class="sec">📈 花费 / 成交额 / ROI 趋势</div>' +
+      '<div class="sec">📈 花费 / 净成交额 / 净ROI 趋势</div>' +
       '<div class="chart-wrap"><div class="chart" id="planChart"></div></div>' +
       '<div class="sec">🔀 渠道分布</div>' +
       '<div class="table-wrap"><div class="chan-bars" id="planChans" style="padding:12px 16px"></div></div>' +
       '<div class="sec">📦 所属商品明细</div>' +
       '<div class="table-wrap"><table class="data-table"><thead><tr>' +
-        "<th>商品</th><th class=\"num\">花费</th><th class=\"num\">成交</th><th class=\"num\">ROI</th>" +
+        "<th>商品</th><th class=\"num\">花费</th><th class=\"num\">净成交</th><th class=\"num\">净ROI</th>" +
       "</tr></thead><tbody>" + (itemsHtml || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:24px">无商品数据</td></tr>') + "</tbody></table></div>" +
       '<div class="sec">📋 每日明细</div>' +
       '<div class="table-wrap daily-scroll" id="planDaily"></div>';
@@ -895,7 +906,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       yAxis: [
         { type: "value", gridIndex: 0, name: "花费(¥)", nameTextStyle: { color: "#6366f1", fontWeight: 700 }, splitLine: { lineStyle: { type: "dashed", opacity: .5 } },
           axisLabel: { formatter: function (v) { return v >= 10000 ? (v / 10000) + "万" : v; }, fontSize: 11 } },
-        { type: "value", gridIndex: 1, name: "成交额(¥)", nameTextStyle: { color: "#22c55e", fontWeight: 700 }, splitLine: { lineStyle: { type: "dashed", opacity: .5 } },
+        { type: "value", gridIndex: 1, name: "净成交额(¥)", nameTextStyle: { color: "#22c55e", fontWeight: 700 }, splitLine: { lineStyle: { type: "dashed", opacity: .5 } },
           axisLabel: { formatter: function (v) { return v >= 10000 ? (v / 10000) + "万" : v; }, fontSize: 11 } },
         { type: "value", gridIndex: 2, name: "ROI", nameTextStyle: { color: "#f59e0b", fontWeight: 700 }, min: 0, splitLine: { lineStyle: { type: "dashed", opacity: .5 } },
           axisLabel: { fontSize: 11 } }
@@ -904,7 +915,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
         { name: "花费", type: "line", xAxisIndex: 0, yAxisIndex: 0, data: costs, smooth: true,
           symbol: "circle", symbolSize: 6, lineStyle: { color: "#6366f1", width: 2.5 }, itemStyle: { color: "#6366f1" },
           areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(99,102,241,.35)" }, { offset: 1, color: "rgba(99,102,241,.03)" }] } } },
-        { name: "成交额", type: "line", xAxisIndex: 1, yAxisIndex: 1, data: gmvs, smooth: true,
+        { name: "净成交额", type: "line", xAxisIndex: 1, yAxisIndex: 1, data: gmvs, smooth: true,
           symbol: "circle", symbolSize: 6, lineStyle: { color: "#22c55e", width: 2.5 }, itemStyle: { color: "#22c55e" },
           areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(34,197,94,.35)" }, { offset: 1, color: "rgba(34,197,94,.03)" }] } } },
         { name: "ROI", type: "line", xAxisIndex: 2, yAxisIndex: 2, data: rois, smooth: true,
@@ -934,7 +945,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     if (!daily.length) { $("planDaily").innerHTML = '<div class="empty-state" style="padding:16px">暂无逐日数据</div>'; return; }
     var rev = daily.slice().reverse();
     var html = "<table class=\"daily\"><thead><tr>" +
-      "<th>日期</th><th>花费</th><th>成交额</th><th>ROI</th><th>订单</th><th>曝光</th><th>点击</th><th>点击率</th><th>转化率</th>" +
+      "<th>日期</th><th>花费</th><th>净成交额</th><th>净ROI</th><th>订单</th><th>曝光</th><th>点击</th><th>点击率</th><th>转化率</th>" +
       "</tr></thead><tbody>";
     rev.forEach(function (d) {
       html += "<tr><td>" + d.d + "</td><td>" + fmtMoney(d.c) + "</td><td>" + fmtMoney(d.g) + "</td>" +

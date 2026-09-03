@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>竞争分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609031857"></script>
-<script src="js/diagnosis.js?v=202609031857"></script>
-<script src="js/deep-link.js?v=202609031857"></script>
+<script src="js/diagnostics-config.js?v=202609031933"></script>
+<script src="js/diagnosis.js?v=202609031933"></script>
+<script src="js/deep-link.js?v=202609031933"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -136,6 +136,20 @@
   .vs-panel { background:#fafafa; border:1px solid #f0f1f3; border-radius:12px; padding:12px 14px; min-width:0; }
   #vsTable { overflow-x:auto; }
   #vsTable table { min-width: 960px; }
+  /* 转置布局（指标为行、主体为列）：不横向滚动 */
+  .vs-tbl-v { min-width: 0 !important; table-layout: fixed; }
+  .vs-tbl-v th { white-space: normal; vertical-align: top; line-height: 1.45; overflow: hidden; }
+  .vs-tbl-v col:nth-child(2) { background: #f7fdf9; }
+  .vs-tbl-v th.vs-col-my { background: #f7fdf9; }
+  .vs-tbl-v .v-lab { text-align: left; color: #6b7280; font-weight: 600; background: #fafafa; }
+  .vs-tbl-v tr.vs-trend-row td { background: #fafafa; }
+  .vs-tbl-v td { text-overflow: ellipsis; }
+  .vs-hd-shop { font-size: 12px; color: #374151; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .vs-hd-sub { font-size: 10px; color: #9ca3af; margin: 3px 0; line-height: 1.55; }
+  .vs-hd-sub .vs-vs-tag { margin-top: 2px; }
+  .vs-hd-lk { font-size: 10px; }
+  .vs-rank { color: #f97316; font-weight: 700; }
+  .vs-await { font-size: 10px; color: #f59e0b; }
   #vsAdvice { display:flex; flex-direction:column; justify-content:center; }
   #vsAdvice .adv-card { background:#fff; border:1px solid #eef0f3; border-radius:12px; padding:14px 16px; font-size:13px; line-height:1.9; box-shadow:0 1px 3px rgba(0,0,0,.04); }
   #vsAdvice .adv-title { font-weight:800; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
@@ -164,7 +178,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609031857"></script>
+<script src="js/freshness-alert.js?v=202609031933"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -803,9 +817,7 @@ function renderVsBlock() {
     { k: "paid_order_pct", label: "付费订单占比", dir: "-", fmt: function (v) { return (v * 100).toFixed(0) + "%"; } },
     { k: "visitors", label: "访客", dir: "+", fmt: function (v) { return fmt(Math.round(v)); } }
   ];
-  var headers = ["#", "产品/店铺"].concat(vsCols.map(function (c) { return c.label; }), ["走势", "链接ID", "链接"]);
-
-  // 头部摘要
+  // 转置布局：指标为行、主体（我方 + 头部竞品 Top5）为列 → 无需左右拖动；走势行放指标下方
   var headRow = "";
   if (market) {
     var pctTxt = oursPct != null ? fmtPct(oursPct) : "—";
@@ -813,25 +825,38 @@ function renderVsBlock() {
       (top.length ? ' · 头部 <b>' + escapeHtml(top[0].shop) + '</b> ' + fmt(top[0].latest_sales) + ' 单' : '') +
       (top.length && oursPct != null ? ' · 我方/头部 = <b>' + (oursPct / (top[0].latest_sales / market)).toFixed(2) + 'x</b>' : '') + '</div>';
   }
-
-  var html = headRow + '<table><thead><tr>' + headers.map(function (h) { return "<th>" + h + "</th>"; }).join("") + "</tr></thead><tbody>";
-
-  // 我方主推品行（精确值）
-  if (oursList.length) {
-    html += '<tr class="vs-ours">' +
-      '<td class="num"><span class="vs-ours-badge">我方</span></td>' +
-      '<td class="nm" style="text-align:left"><b>' + escapeHtml(op.name || "我方主推品") + '</b> <span class="vs-my-tag">' + escapeHtml(currentCat.name) + '</span></td>';
-    vsCols.forEach(function (c) {
-      var v = myVal(c.k);
-      html += '<td class="num vs-my">' + (v != null ? '<b>' + c.fmt(v) + '</b>' : "—") + "</td>";
-    });
-    html += '<td><span class="vs-ours-tag">我方产品</span></td>' +
-      '<td class="num">' + linkId(t.url) + '</td>' +
-      "<td>" + (t.url ? '<a class="lk" href="' + escapeHtml(t.url) + '" target="_blank" rel="noopener">查看 →</a>' : "—") + "</td></tr>";
+  var entities = [];
+  if (oursList.length && ours != null) entities.push({ isOurs: true, shop: (op.name || "我方主推品"), sub: escapeHtml(currentCat.name), link: t.url });
+  top.forEach(function (c, i) {
+    entities.push({ isOurs: false, c: c, shop: c.shop, link: c.link, idx: i });
+  });
+  function shopShort(s) {
+    s = String(s || "");
+    return s.length > 10 ? s.slice(0, 10) + "…" : s;
   }
-
-  // 竞品行（含与主推品的差距徽章 + 相对强弱标签）
-  function vsTag(c) {
+  // 竞品单元格：数值 + ≈估算前缀 + 相对我方 ↑↓ 徽章
+  function compCell(c, col) {
+    var mv = myVal(col.k);
+    var cv = compVal(c, col.k);
+    var needPaid = (col.k === "free_order_pct" || col.k === "paid_order_pct");
+    if (cv == null) return '<td class="num">' + (needPaid ? '<span class="vs-await" title="付费支付单量补全后自动出数">⏳</span>' : "—") + "</td>";
+    var est = compIsEst(c, col.k);
+    var range = compRange(c, col.k);
+    var valTxt = col.fmt(cv);
+    var estTxt = est ? '<span class="vs-est" title="' + escapeHtml(range || "按我方每日值跨天反推") + '">≈' + valTxt + "</span>" : valTxt;
+    var badge = "";
+    if (mv != null && mv > 0) {
+      var ratio = cv / mv;
+      var worse = (col.dir === "+") ? (cv > mv) : (cv < mv);
+      var cls = worse ? "vs-gap-bad" : (Math.abs(ratio - 1) < 0.05 ? "vs-gap-ok" : "vs-gap-good");
+      var ratioTxt = (ratio >= 1 ? "×" + ratio.toFixed(1) : "×" + ratio.toFixed(2));
+      badge = '<span class="vs-gap ' + cls + '" title="我方 ' + col.fmt(mv) + "，" + escapeHtml(c.shop) + " " + valTxt + '">' + (worse ? "↑" : "↓") + ratioTxt + "</span>";
+    }
+    var tip = range ? ' title="' + escapeHtml(range) + '"' : "";
+    return '<td class="num"' + tip + ">" + estTxt + badge + "</td>";
+  }
+  // 竞品相对强弱标签（列头用）
+  function vsTagOf(c) {
     var strongCnt = 0, weakCnt = 0;
     vsCols.forEach(function (col) {
       var cv = compVal(c, col.k);
@@ -840,41 +865,51 @@ function renderVsBlock() {
       if (col.dir === "+") { if (cv > mv * 1.05) strongCnt++; else if (cv < mv * 0.95) weakCnt++; }
       else { if (cv < mv * 0.95) strongCnt++; else if (cv > mv * 1.05) weakCnt++; }
     });
-    if (strongCnt > weakCnt) return '<span class="vs-vs-tag vs-strong">对我方更强 · ' + strongCnt + '项占优/' + weakCnt + '项落后</span>';
-    if (weakCnt > strongCnt) return '<span class="vs-vs-tag vs-weak">对我方较弱 · ' + weakCnt + '项落后/' + strongCnt + '项占优</span>';
+    if (strongCnt > weakCnt) return '<span class="vs-vs-tag vs-strong">更强 ' + strongCnt + '占优/' + weakCnt + '落后</span>';
+    if (weakCnt > strongCnt) return '<span class="vs-vs-tag vs-weak">较弱 ' + weakCnt + '落后/' + strongCnt + '占优</span>';
     return '<span class="vs-vs-tag">与我方接近</span>';
   }
-  top.forEach(function (c, i) {
-    html += "<tr" + (i === 0 ? ' class="vs-top"' : "") + ">" +
-      '<td class="num">' + (i + 1) + "</td>" +
-      '<td class="nm" style="text-align:left">' + escapeHtml(c.shop) + (i === 0 ? ' <span class="vs-gap vs-base">头部</span>' : "") + vsTag(c) + "</td>";
-    vsCols.forEach(function (col) {
-      var mv = myVal(col.k);
-      var cv = compVal(c, col.k);
-      if (cv == null) { html += '<td class="num">—</td>'; return; }
-      var est = compIsEst(c, col.k);
-      var range = compRange(c, col.k);
-      var valTxt = col.fmt(cv);
-      var estTxt = est ? '<span class="vs-est" title="' + escapeHtml(range || "按我方每日值跨天反推") + '">≈' + valTxt + '</span>' : valTxt;
-      var badge = "";
-      if (mv != null && mv > 0) {
-        var ratio = cv / mv;
-        var worse = (col.dir === "+") ? (cv > mv) : (cv < mv);
-        var cls = worse ? "vs-gap-bad" : (Math.abs(ratio - 1) < 0.05 ? "vs-gap-ok" : "vs-gap-good");
-        var ratioTxt = (ratio >= 1 ? "×" + ratio.toFixed(1) : "×" + ratio.toFixed(2));
-        var gapTitle = "我方" + col.fmt(mv) + "，" + escapeHtml(c.shop) + " " + valTxt;
-        badge = '<span class="vs-gap ' + cls + '" title="' + gapTitle + '">' + (worse ? "↑" : "↓") + ratioTxt + "</span>";
-      }
-      var tip = range ? ' title="' + escapeHtml(range) + '"' : "";
-      html += '<td class="num"' + tip + ">" + estTxt + badge + "</td>";
-    });
-    var dates = Object.keys(c.daily || {}).sort().slice(-30);
-    var vals = dates.map(function (d) { return c.daily[d]; });
-    html += "<td>" + sparkline(vals) + "</td>" +
-      '<td class="num">' + linkId(c.link) + '</td>' +
-      "<td>" + (c.link ? '<a class="lk" href="' + escapeHtml(c.link) + '" target="_blank" rel="noopener">查看 →</a>' : "—") + "</td></tr>";
+
+  var html = headRow + '<div class="vs-wrap"><table class="vs-tbl-v"><colgroup><col style="width:118px">' +
+    entities.map(function () { return "<col>"; }).join("") + '</colgroup><thead><tr>' +
+    '<th class="v-lab">指标</th>';
+  entities.forEach(function (en) {
+    html += '<th class="' + (en.isOurs ? "vs-col-my" : "") + '">' +
+      '<div class="vs-hd-shop">' + (en.isOurs ? '<span class="vs-ours-badge">我方</span> ' : "") + escapeHtml(shopShort(en.shop)) + "</div>" +
+      (en.isOurs
+        ? '<div class="vs-hd-sub">' + en.sub + "</div>"
+        : '<div class="vs-hd-sub">' + (en.idx === 0 ? '<span class="vs-gap vs-base">头部</span>' : '<span class="vs-rank">#' + (en.idx + 1) + "</span> ") + vsTagOf(en.c) + "</div>") +
+      '<div class="vs-hd-lk">' + (en.link ? '<a class="lk" href="' + escapeHtml(en.link) + '" target="_blank" rel="noopener" title="' + escapeHtml(en.shop) + '">' + linkId(en.link) + " ↗</a>" : "—") + "</div></th>";
   });
-  html += "</tbody></table>";
+  html += "</tr></thead><tbody>";
+  vsCols.forEach(function (col) {
+    var needPaid = (col.k === "free_order_pct" || col.k === "paid_order_pct");
+    html += '<tr><td class="v-lab" title="' + (needPaid ? "由「支付单量 + 付费支付单量」换算，付费列补全后自动出数" : col.label) + '">' + col.label + (needPaid ? ' <span class="vs-await" title="付费列补全后自动出数">⏳</span>' : "") + "</td>";
+    entities.forEach(function (en) {
+      if (en.isOurs) {
+        var mv = myVal(col.k);
+        html += '<td class="num vs-my">' + (mv != null ? "<b>" + col.fmt(mv) + "</b>" : (needPaid ? '<span class="vs-await" title="付费列补全后自动出数">⏳</span>' : "—")) + "</td>";
+      } else {
+        html += compCell(en.c, col);
+      }
+    });
+    html += "</tr>";
+  });
+  // 走势行：放在所有指标下方（各主体近30天单量迷你走势），不用横向铺列
+  html += '<tr class="vs-trend-row"><td class="v-lab">近30天单量走势</td>';
+  entities.forEach(function (en) {
+    var vals = [];
+    if (en.isOurs) {
+      var os = t.orders_series || {};
+      var ds = Object.keys(os).sort().slice(-30);
+      vals = ds.map(function (d) { return os[d]; });
+    } else {
+      var dates = Object.keys(en.c.daily || {}).sort().slice(-30);
+      vals = dates.map(function (d) { return en.c.daily[d]; });
+    }
+    html += "<td>" + sparkline(vals) + "</td>";
+  });
+  html += "</tr></tbody></table></div>";
   box.innerHTML = html;
 
   // 横向条形图：我方 vs 头部竞品（日销/订单）

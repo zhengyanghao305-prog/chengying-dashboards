@@ -1,117 +1,117 @@
 {
-  "checked_at": "2026-09-02 17:00:02",
-  "today": "2026-09-02",
-  "ok": 11,
-  "warn": 1,
-  "error": 0,
+  "checked_at": "2026-09-03 11:00:02",
+  "today": "2026-09-03",
+  "ok": 2,
+  "warn": 0,
+  "error": 10,
   "items": [
     {
       "file": "daily-pulse.json",
       "label": "店铺日报",
       "max_lag": 2,
-      "max_date": "2026-09-01",
-      "lag_days": 1,
-      "status": "ok",
-      "msg": "最新 2026-09-01（滞后 1 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "取不到日期字段（按 list_date 方式）"
     },
     {
       "file": "sales-alert.json",
       "label": "销售预警",
       "max_lag": 2,
-      "max_date": "2026-09-01",
-      "lag_days": 1,
-      "status": "ok",
-      "msg": "最新 2026-09-01（滞后 1 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "取不到日期字段（按 list_date 方式）"
     },
     {
       "file": "ad-roi.json",
       "label": "广告ROI",
       "max_lag": 2,
-      "max_date": "2026-09-01",
-      "lag_days": 1,
-      "status": "ok",
-      "msg": "最新 2026-09-01（滞后 1 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "取不到日期字段（按 list_date 方式）"
     },
     {
       "file": "ad-roi-pdd-plans.json",
       "label": "拼多多推广计划",
       "max_lag": 2,
-      "max_date": "2026-09-01",
-      "lag_days": 1,
-      "status": "ok",
-      "msg": "最新 2026-09-01（滞后 1 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "文件不存在"
     },
     {
       "file": "sales-alert-ship-detail.json",
       "label": "发货明细",
       "max_lag": 2,
-      "max_date": "2026-09-01",
-      "lag_days": 1,
-      "status": "ok",
-      "msg": "最新 2026-09-01（滞后 1 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "文件不存在"
     },
     {
       "file": "inventory-alert.json",
       "label": "库存预警",
       "max_lag": 3,
-      "max_date": "2026-07-29",
-      "lag_days": 35,
-      "status": "warn",
-      "msg": "数据停在 2026-07-29，已滞后 35 天（上限 3 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "文件不存在"
     },
     {
       "file": "platform-trend.json",
       "label": "平台趋势",
       "max_lag": 8,
-      "max_date": "2026-09-02",
-      "lag_days": 0,
-      "status": "ok",
-      "msg": "最新 2026-09-02（滞后 0 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "文件不存在"
     },
     {
       "file": "trend-analysis.json",
       "label": "品类趋势",
       "max_lag": 8,
-      "max_date": "2026-09-02",
-      "lag_days": 0,
-      "status": "ok",
-      "msg": "最新 2026-09-02（滞后 0 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "文件不存在"
     },
     {
       "file": "product-index.json",
       "label": "商品索引",
       "max_lag": 8,
-      "max_date": "2026-09-02",
+      "max_date": "2026-09-03",
       "lag_days": 0,
       "status": "ok",
-      "msg": "最新 2026-09-02（滞后 0 天）"
+      "msg": "最新 2026-09-03（滞后 0 天）"
     },
     {
       "file": "product-links.json",
       "label": "商品链接",
       "max_lag": 8,
-      "max_date": "2026-09-01",
-      "lag_days": 1,
+      "max_date": "2026-09-03",
+      "lag_days": 0,
       "status": "ok",
-      "msg": "最新 2026-09-01（滞后 1 天）"
+      "msg": "最新 2026-09-03（滞后 0 天）"
     },
     {
       "file": "_fb_sales.json",
       "label": "飞书销售数据",
       "max_lag": 3,
-      "max_date": "2026-09-01",
-      "lag_days": 1,
-      "status": "ok",
-      "msg": "最新 2026-09-01（滞后 1 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "文件不存在"
     },
     {
       "file": "_fb_retail_sales.json",
       "label": "飞书零售数据",
       "max_lag": 3,
-      "max_date": "2026-09-01",
-      "lag_days": 1,
-      "status": "ok",
-      "msg": "最新 2026-09-01（滞后 1 天）"
+      "max_date": null,
+      "lag_days": null,
+      "status": "error",
+      "msg": "文件不存在"
     }
   ]
 }

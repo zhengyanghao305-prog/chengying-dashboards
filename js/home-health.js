@@ -310,7 +310,23 @@
     }
 
     // ── 异常速览 banner ──
-    var topAnoms = allFindings.slice(0, 10);
+    // 每个有异常的板块至少保留 1 张卡（新增板块显示了，也不会把其他板块的卡片挤出前 10）
+    var byBoard = {};
+    allFindings.forEach(function (x) { (byBoard[x.board.id] = byBoard[x.board.id] || []).push(x); });
+    var topAnoms = [];
+    Object.keys(byBoard).forEach(function (bid) {
+      byBoard[bid].sort(function (a, b) { return sevOrder(a.finding.severity) - sevOrder(b.finding.severity); });
+      topAnoms.push(byBoard[bid][0]);   // 每板块首条（最严重）
+    });
+    topAnoms.sort(function (a, b) { return sevOrder(a.finding.severity) - sevOrder(b.finding.severity); });
+    // 还有空位则按严重度补入其余条目（同一板块最多补到其全部条数）
+    var taken = {}; topAnoms.forEach(function (x) { taken[x.board.id] = (taken[x.board.id] || 0) + 1; });
+    allFindings.forEach(function (x) {
+      if (topAnoms.length >= 10) return;
+      if ((taken[x.board.id] || 0) >= byBoard[x.board.id].length) return;
+      topAnoms.push(x); taken[x.board.id] = (taken[x.board.id] || 0) + 1;
+    });
+    topAnoms.sort(function (a, b) { return sevOrder(a.finding.severity) - sevOrder(b.finding.severity); });
     var anomalyHtml;
     if (!topAnoms.length) {
       anomalyHtml = '<div style="padding:22px;text-align:center;color:#16a34a;font-size:14px;font-weight:700;background:#f0fdf4;border:1px dashed #bbf7d0;border-radius:12px;">✅ 各板块运行正常，暂无需要优化的问题</div>';

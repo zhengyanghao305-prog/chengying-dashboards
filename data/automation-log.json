@@ -1,5 +1,1248 @@
 [
   {
+    "id": "8591ab2e",
+    "ts": "2026-09-03 11:03:35",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "f38eccff",
+    "ts": "2026-09-03 11:03:34",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "aa98d4f7",
+    "ts": "2026-09-03 11:03:34",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "282aa33c",
+    "ts": "2026-09-03 11:03:34",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "1e6503d6",
+    "ts": "2026-09-03 11:01:29",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "d914732f",
+    "ts": "2026-09-03 11:01:29",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "58b03e99",
+    "ts": "2026-09-03 11:01:29",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "a8e95460",
+    "ts": "2026-09-03 11:01:29",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "896d778c",
+    "ts": "2026-09-03 10:59:24",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "0d5ca742",
+    "ts": "2026-09-03 10:59:24",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "ef4e882a",
+    "ts": "2026-09-03 10:59:24",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "aa9240cd",
+    "ts": "2026-09-03 10:59:24",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "ed0f5c7d",
+    "ts": "2026-09-03 10:57:19",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "17e83043",
+    "ts": "2026-09-03 10:57:19",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "e9dad351",
+    "ts": "2026-09-03 10:57:18",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "22cc3f49",
+    "ts": "2026-09-03 10:57:18",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "e72c00b5",
+    "ts": "2026-09-03 10:55:14",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "31f533cb",
+    "ts": "2026-09-03 10:55:14",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "14ec0f45",
+    "ts": "2026-09-03 10:55:14",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "89a88b8e",
+    "ts": "2026-09-03 10:55:14",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "a9a23317",
+    "ts": "2026-09-03 10:53:09",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "75c07759",
+    "ts": "2026-09-03 10:53:09",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "b5f424d5",
+    "ts": "2026-09-03 10:53:09",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "cb0e5992",
+    "ts": "2026-09-03 10:53:09",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "4439a316",
+    "ts": "2026-09-03 10:51:04",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "162a23b8",
+    "ts": "2026-09-03 10:51:04",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "20562232",
+    "ts": "2026-09-03 10:51:04",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "fc4a3b86",
+    "ts": "2026-09-03 10:51:04",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "9314f0bf",
+    "ts": "2026-09-03 10:48:59",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "b404699d",
+    "ts": "2026-09-03 10:48:59",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "6ce9e1cd",
+    "ts": "2026-09-03 10:48:59",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "85469366",
+    "ts": "2026-09-03 10:48:59",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "c6e6bc84",
+    "ts": "2026-09-03 10:46:54",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "63dc5769",
+    "ts": "2026-09-03 10:46:54",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "b84149cb",
+    "ts": "2026-09-03 10:46:53",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "5cde0853",
+    "ts": "2026-09-03 10:46:53",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "124defd5",
+    "ts": "2026-09-03 10:44:49",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "a4fcb7d2",
+    "ts": "2026-09-03 10:44:49",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "d428ccce",
+    "ts": "2026-09-03 10:44:48",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "c4d183b9",
+    "ts": "2026-09-03 10:44:48",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "aee8b0e8",
+    "ts": "2026-09-03 10:42:44",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "c8f3235c",
+    "ts": "2026-09-03 10:42:44",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "写入 0 条主数据",
+    "details": "· 天猫推广：[error] 拉取失败或无数据\n· 拼多多推广：[error] 拉取失败或无数据\n· 推广ROI：[warn] 无有效数据\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "61fc87a8",
+    "ts": "2026-09-03 10:42:44",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "skip",
+    "status_label": "无新数据",
+    "summary": "写入 0 条主数据",
+    "details": "· BI销售分析与预警：[skip] daily-pulse 近60天无数据",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "skip",
+        "msg": "daily-pulse 近60天无数据",
+        "count": 0
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "fcfaf2ff",
+    "ts": "2026-09-03 10:42:44",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 0 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n\n⚠️ 昨日(2026-09-02)与前日(2026-09-01)数据均缺失，请检查飞书推送链路",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
     "id": "7be3f284",
     "ts": "2026-09-03 10:40:39",
     "task": "同步 店铺日报",

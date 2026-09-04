@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609040944"></script>
-<script src="js/xlsx.full.min.js?v=202609040944"></script>
+<script src="js/echarts.min.js?v=202609041146"></script>
+<script src="js/xlsx.full.min.js?v=202609041146"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -128,6 +128,7 @@
   .lname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .lid{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
   .neg{color:var(--accent-red);} .pos{color:var(--accent-green);}
+  .metric .v.mut{color:var(--text-tertiary);} .metric .v.warn{color:#d97706;} .metric .v.neg{color:var(--accent-red);} .metric .v.pos{color:var(--accent-green);}
   .act-chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;white-space:nowrap;text-align:center;flex-shrink:0;}
   .chip-del{background:#fee2e2;color:#b91c1c;} .chip-stop{background:#ffedd5;color:#c2410c;}
   .chip-fix{background:#fef9c3;color:#a16207;} .chip-price{background:#ede9fe;color:#6d28d9;}
@@ -642,6 +643,13 @@ function drillRowHTML(r){
   const rec=classifyRec(r), meta=REC_META[rec.k];
   const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?r.gmTxt:'—';
   const prTxt=(r.prTxt&&r.prTxt!=='0.00%'&&r.prTxt!=='0%')?r.prTxt:'—';
+  // 成本费比：推广费比=1/ROI；货品成本费比=1-毛利率；自定义费比=1-利润率-推广费比-货品成本费比（即扣除推广+货品后剩余费用比）
+  const promoRatio=(r.roiV>0)?(1/r.roiV):null;
+  const prodRatio=(typeof r.gmV==='number'&&r.gmV!==0)?(1-r.gmV/100):null;
+  const prRatio=(typeof r.prV==='number'&&r.prV!==0)?r.prV/100:null;
+  const customRatio=(promoRatio!==null&&prodRatio!==null&&prRatio!==null)?Math.max(0,1-prRatio-promoRatio-prodRatio):null;
+  const pctCls=v=>v===null?'mut':v>0.5?'neg':v>0.3?'warn':'pos';
+  const pctTxt=v=>v===null?'—':(v*100).toFixed(1)+'%';
   return '<div class="lrow" data-id="'+r.link_id+'">'
     +'<div class="r-top">'
     +chkHTML(r.link_id)
@@ -655,6 +663,9 @@ function drillRowHTML(r){
       +'<div class="metric"><span class="k">ROI</span><span class="v '+(r.roiV<1?'neg':'pos')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
       +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'
       +'<div class="metric"><span class="k">利润率</span><span class="v">'+prTxt+'</span></div>'
+      +'<div class="metric"><span class="k" title="=1/ROI，推广费占销售额比">推广费比</span><span class="v '+pctCls(promoRatio)+'">'+pctTxt(promoRatio)+'</span></div>'
+      +'<div class="metric"><span class="k" title="=1-毛利率，货品成本占销售额比">货品成本费比</span><span class="v '+pctCls(prodRatio)+'">'+pctTxt(prodRatio)+'</span></div>'
+      +'<div class="metric"><span class="k" title="=1-利润率-推广费比-货品成本费比，其余费用（自定义费/平台费/退款）占销售额比">自定义费比</span><span class="v '+pctCls(customRatio)+'">'+pctTxt(customRatio)+'</span></div>'
       +'<div class="metric"><span class="k">趋势</span><span class="v '+dCls+'">'+dArw+'</span></div>'
       +'</div>'
     +'<div class="r-side"><span class="act-chip '+meta.cls+'">'+rec.act+'</span>'+stateChipHTML(r.link_id)+'</div>'

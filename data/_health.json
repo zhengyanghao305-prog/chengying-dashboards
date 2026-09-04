@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-09-03 17:00:07",
-  "today": "2026-09-03",
+  "checked_at": "2026-09-04 11:00:02",
+  "today": "2026-09-04",
   "ok": 9,
   "warn": 0,
   "error": 3,
@@ -10,45 +10,45 @@
       "label": "店铺日报",
       "max_lag": 2,
       "max_date": "2026-09-02",
-      "lag_days": 1,
+      "lag_days": 2,
       "status": "ok",
-      "msg": "最新 2026-09-02（滞后 1 天）"
+      "msg": "最新 2026-09-02（滞后 2 天）"
     },
     {
       "file": "sales-alert.json",
       "label": "销售预警",
       "max_lag": 2,
       "max_date": "2026-09-02",
-      "lag_days": 1,
+      "lag_days": 2,
       "status": "ok",
-      "msg": "最新 2026-09-02（滞后 1 天）"
+      "msg": "最新 2026-09-02（滞后 2 天）"
     },
     {
       "file": "ad-roi.json",
       "label": "广告ROI",
       "max_lag": 2,
       "max_date": "2026-09-02",
-      "lag_days": 1,
+      "lag_days": 2,
       "status": "ok",
-      "msg": "最新 2026-09-02（滞后 1 天）"
+      "msg": "最新 2026-09-02（滞后 2 天）"
     },
     {
       "file": "ad-roi-pdd-plans.json",
       "label": "拼多多推广计划",
       "max_lag": 2,
       "max_date": "2026-09-02",
-      "lag_days": 1,
+      "lag_days": 2,
       "status": "ok",
-      "msg": "最新 2026-09-02（滞后 1 天）"
+      "msg": "最新 2026-09-02（滞后 2 天）"
     },
     {
       "file": "sales-alert-ship-detail.json",
       "label": "发货明细",
       "max_lag": 2,
       "max_date": "2026-09-02",
-      "lag_days": 1,
+      "lag_days": 2,
       "status": "ok",
-      "msg": "最新 2026-09-02（滞后 1 天）"
+      "msg": "最新 2026-09-02（滞后 2 天）"
     },
     {
       "file": "inventory-alert.json",
@@ -63,37 +63,37 @@
       "file": "platform-trend.json",
       "label": "平台趋势",
       "max_lag": 8,
-      "max_date": "2026-09-03",
+      "max_date": "2026-09-04",
       "lag_days": 0,
       "status": "ok",
-      "msg": "最新 2026-09-03（滞后 0 天）"
+      "msg": "最新 2026-09-04（滞后 0 天）"
     },
     {
       "file": "trend-analysis.json",
       "label": "品类趋势",
       "max_lag": 8,
-      "max_date": "2026-09-03",
+      "max_date": "2026-09-04",
       "lag_days": 0,
       "status": "ok",
-      "msg": "最新 2026-09-03（滞后 0 天）"
+      "msg": "最新 2026-09-04（滞后 0 天）"
     },
     {
       "file": "product-index.json",
       "label": "商品索引",
       "max_lag": 8,
-      "max_date": "2026-09-03",
+      "max_date": "2026-09-04",
       "lag_days": 0,
       "status": "ok",
-      "msg": "最新 2026-09-03（滞后 0 天）"
+      "msg": "最新 2026-09-04（滞后 0 天）"
     },
     {
       "file": "product-links.json",
       "label": "商品链接",
       "max_lag": 8,
       "max_date": "2026-09-02",
-      "lag_days": 1,
+      "lag_days": 2,
       "status": "ok",
-      "msg": "最新 2026-09-02（滞后 1 天）"
+      "msg": "最新 2026-09-02（滞后 2 天）"
     },
     {
       "file": "_fb_sales.json",

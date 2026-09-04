@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609041559"></script>
-<script src="js/xlsx.full.min.js?v=202609041559"></script>
+<script src="js/echarts.min.js?v=202609041406"></script>
+<script src="js/xlsx.full.min.js?v=202609041406"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -679,7 +679,7 @@ function bindBatch(host,pool){
         const ok=downloadTxt('BI勾选清单_'+pool+'_'+WIN.replace(/\//g,'-')+'.txt',lines.join('\n'));
         toast(pool,ok?('已下载 '+rows.length+' 条'):'下载失败');
       }
-      else if(b==='copyId'){ const rows=platRows().filter(r=>SELECTED.has(r.link_id)); if(!rows.length){toast(pool,'请先勾选');return;} const txt=rows.map(r=>r.link_id).join('\n'); copyText(txt).then(ok=>toast(pool,ok?'已复制 '+rows.length+' 个链接ID':'复制失败')); }
+      else if(b==='copyId'){ const rows=platRows().filter(r=>SELECTED.has(r.link_id)); if(!rows.length){toast(pool,'请先勾选');return;} const txt=rows.map(r=>r.link_id+'\t'+r.title).join('\n'); copyText(txt).then(ok=>toast(pool,ok?'已复制 '+rows.length+' 个ID':'复制失败')); }
     });
   });
   const applyBtn=host.querySelector('[data-b="applyState"]');

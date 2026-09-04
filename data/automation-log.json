@@ -1,5 +1,25 @@
 [
   {
+    "id": "df5b0f8d",
+    "ts": "2026-09-04 16:10:29",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 207 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 180 条 / 周维度 27 条",
+        "count": 207
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
     "id": "68198626",
     "ts": "2026-09-04 16:08:05",
     "task": "同步 店铺日报",

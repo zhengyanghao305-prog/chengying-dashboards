@@ -7,9 +7,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609040944"></script>
-<script src="js/xlsx.full.min.js?v=202609040944"></script>
-<title>BI 承接 · 亏损处理中心（合并预览 v5）</title>
+<script src="js/echarts.min.js?v=202609041041"></script>
+<script src="js/xlsx.full.min.js?v=202609041041"></script>
+<title>BI指标归档处理中心</title>
 <style>
   :root{
     --bg-page:#f5f6f7; --bg-card:#ffffff; --bg-tag:#f0f2f5;
@@ -154,7 +154,7 @@
   .ostate.stopped{background:#fee2e2;color:#b91c1c;} .ostate.skipped{background:#f3f4f6;color:#6b7280;}
 
   /* ── 分档卡片 ── */
-  .bucket-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .bucket-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-items:start;}
   @media(max-width:1100px){.bucket-grid{grid-template-columns:1fr;}}
   .bucket-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;}
   .bucket-card .bhead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;}
@@ -172,7 +172,7 @@
   .bdelta.good{color:#15803d;} .bdelta.bad{color:#b91c1c;} .bdelta.zero{color:var(--text-tertiary);}
   .bdelta .lab{color:var(--text-tertiary);font-size:9.5px;}
   .bzero .bval{color:var(--text-tertiary);} .bzero{cursor:default;} .bzero:hover{background:transparent;}
-  .loss-b .bval{color:var(--accent-red);} .pro-b .bval{color:var(--accent-green);} .sale-b .bval{color:var(--accent-blue);}
+  .loss-b .bval{color:var(--accent-red);} .pro-b .bval{color:var(--accent-green);} .sale-b .bval{color:var(--accent-blue);} .rate-b .bval{color:#d97706;}
   .bcomp{font-size:10.5px;font-weight:600;margin-left:auto;padding:2px 8px;border-radius:9px;background:var(--bg-tag);}
   .bcomp.up{color:#15803d;background:#dcfce7;} .bcomp.down{color:#b91c1c;background:#fee2e2;} .bcomp.flat{color:#9ca3af;background:#f3f4f6;}
 
@@ -199,10 +199,10 @@
   <div class="head">
     <div class="head-icon">🎯</div>
     <div>
-      <div class="head-title">BI 承接 · 亏损处理中心 <span style="font-size:12px;color:#6d28d9;background:#ede9fe;padding:2px 8px;border-radius:8px">合并版·预览</span></div>
+      <div class="head-title">BI指标归档处理中心</div>
       <div class="head-sub">按「利润/销售/ROI/毛利/趋势」自动归类：停推广下架 / 停推广 / 提投产 / 提价 / 查成本</div>
     </div>
-    <span class="head-badge">v5 合并预览 · 亏损动作×档位 / 盈利销售额分层</span>
+    <span class="head-badge">亏损 / 盈利 / 销售额 / 利润率 · 四维档位下钻，每条带动作建议</span>
   </div>
 
   <div class="controlbar">
@@ -238,6 +238,7 @@ const CONFIG = {
   loss:[[0,100,'≤100元'],[100,200,'100-200'],[200,500,'200-500'],[500,1000,'500-1000'],[1000,Infinity,'>1000']],
   profit:[[0,100,'≤100元'],[100,200,'100-200'],[200,500,'200-500'],[500,1000,'500-1000'],[1000,Infinity,'>1000']],
   sales:[[0,1000,'<1k'],[1000,3000,'1-3k'],[3000,9000,'3-9k'],[9000,30000,'9-30k'],[30000,Infinity,'>30k']],
+  rate:[[-Infinity,0,'<0%'],[0,10,'0-10%'],[10,20,'10-20%'],[20,30,'20-30%'],[30,Infinity,'≥30%']],
   dec:{ noSale:5, roiBad:0.6, roiBreakEven:1.1, worsen:-5, improving:15,
         scaleGm:30, scalePr:20 }   // 可放大机会：毛利率>30% 或 利润率>20%
 };
@@ -584,7 +585,8 @@ function bucketOf(rows){
   rows.forEach(r=>{ if(r.p<0)loss.push(r); else if(r.p>0)profit.push(r); });
   const group=(arr,b)=>{ const res=b.map(x=>({name:x[2],lo:x[0],hi:x[1],list:[],amt:0})); arr.forEach(r=>{const v=Math.abs(r.p); for(const c of res){if(v>=c.lo&&v<c.hi){c.list.push(r);c.amt+=r.p;break;}}}); return res; };
   const groupSales=(b)=>{ const res=b.map(x=>({name:x[2],lo:x[0],hi:x[1],list:[],amt:0})); rows.forEach(r=>{for(const c of res){if(r.s>=c.lo&&r.s<c.hi){c.list.push(r);c.amt+=r.s;break;}}}); return res; };
-  return {loss:group(loss,CONFIG.loss),profit:group(profit,CONFIG.profit),sales:groupSales(CONFIG.sales)};
+  const groupRate=(b)=>{ const res=b.map(x=>({name:x[2],lo:x[0],hi:x[1],list:[],amt:0})); rows.forEach(r=>{const v=(r.prV===undefined||r.prV===null||isNaN(r.prV))?0:r.prV; for(const c of res){if(v>=c.lo&&v<c.hi){c.list.push(r);c.amt+=r.p;break;}}}); return res; };
+  return {loss:group(loss,CONFIG.loss),profit:group(profit,CONFIG.profit),sales:groupSales(CONFIG.sales),rate:groupRate(CONFIG.rate)};
 }
 function prevWindow(){ const i=DATA.windows.indexOf(WIN); return i>0?DATA.windows[i-1]:null; }
 function diffBadge(diff,goodWhenUp){
@@ -611,15 +613,16 @@ function renderBuckets(){
     let inner=extra||'';
     cells.forEach((c,i)=>{
       const sel=BUCKET&&BUCKET.g===key&&BUCKET.i===i;
-      const cls=c.list.length?('bcell '+(sel?'sel ':'')+(key==='loss'?'loss-b':key==='profit'?'pro-b':'sale-b')):'bcell bzero';
-      const amt=key==='sales'?'':(key==='loss'?'亏 '+fmtMoney(c.amt):'盈 +'+fmtMoney(c.amt));
+      const cls=c.list.length?('bcell '+(sel?'sel ':'')+(key==='loss'?'loss-b':key==='profit'?'pro-b':key==='rate'?'rate-b':'sale-b')):'bcell bzero';
+      let amt=key==='sales'?'':(key==='loss'?'亏 '+fmtMoney(c.amt):'盈 +'+fmtMoney(c.amt));
+      if(key==='rate'&&c.list.length) amt=(c.amt<0?'亏 ':'盈 +')+fmtMoney(Math.abs(c.amt));
       const pc=PB?PB[key][i]:null, diff=(pc!==null)?c.list.length-pc.list.length:null;
       inner+='<div class="'+cls+'" data-g="'+key+'" data-i="'+i+'" data-cnt="'+c.list.length+'">'
         +'<div class="brow"><span class="bname">'+c.name+'</span><span class="bval">'+c.list.length+'</span>'+(c.list.length?'<span class="bamt">'+amt+'</span>':'')+'</div>'
         +(c.list.length&&diff!==null?diffBadge(diff,goodWhenUp):'')
         +'</div>';
     });
-    return '<div class="bucket-card"><div class="bhead">'+dot+(key==='loss'?'亏损档位':key==='profit'?'盈利档位':'销售额档位')
+    return '<div class="bucket-card"><div class="bhead">'+dot+(key==='loss'?'亏损档位':key==='profit'?'盈利档位':key==='rate'?'利润率档位':'销售额档位')
       +'<span class="bcnt">共 '+total+' 条</span>'+compChip(total,prevTotal,goodWhenUp)+'</div><div class="buckets">'+inner+'</div></div>';
   };
   document.getElementById('bucketHost').innerHTML=
@@ -627,9 +630,10 @@ function renderBuckets(){
       '<div class="bcell special" data-bucket="loss_all"><div class="brow"><span class="bname" style="font-weight:700">查看全部亏损 →</span><span class="bval">'+rows.filter(r=>r.p<0).length+'</span></div></div>')
     +block('profit','🟢',true,B.profit,rows.filter(r=>r.p>0).length,
       '<div class="bcell special scale-s" data-bucket="profit_all"><div class="brow"><span class="bname" style="font-weight:700">查看全部盈利 →</span><span class="bval">'+rows.filter(r=>r.p>0).length+'</span></div><div class="bdelta good"><span class="lab">按进发货利润额分档（赚100以下 / 100-200 / …），每行再给放大或提毛利建议</span></div></div>')
-    +block('sales','🔵',true,B.sales,rows.length,'');
+    +block('sales','🔵',true,B.sales,rows.length,'')
+    +block('rate','🟣',true,B.rate,rows.length,'<div class="bcell special rate-s" data-bucket="rate_all"><div class="brow"><span class="bname" style="font-weight:700">全部利润率 →</span><span class="bval">'+rows.length+'</span></div><div class="bdelta good"><span class="lab">≥20% 为可放大高利区 · 0-20% 先提毛利 · &lt;0% 亏毛利止损</span></div></div>');
   const hint=document.getElementById('bucketHint');
-  if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'点击任意档位 → 该档全部链接，每条含「动作建议+依据」：亏损=停/下架/提投产/提价/查成本；盈利=可放大/先提毛利/提投产；以利润额×利润率最大化定建议';
+  if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'点任意档位下钻，每条含「动作建议+依据」：亏损=停/下架/提投产/提价/查成本；盈利=可放大/先提毛利/提投产；利润率档=按利润率看分布（≥20% 可放大区 / 0-20% 提毛利 / <0% 止损）；以利润额×利润率最大化定建议';
   document.querySelectorAll('#bucketHost .bcell').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DACT='all'; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
   document.querySelectorAll('#bucketHost .bcell[data-bucket]').forEach(el=>{ el.addEventListener('click',()=>{ BUCKET={g:el.dataset.bucket,i:0}; DACT='all'; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
 }
@@ -667,7 +671,8 @@ function renderDrill(){
   if(g==='loss_all'){ list=rows.filter(r=>r.p<0).sort((a,b)=>a.p-b.p); cellName='亏损 · 全部'; actFilter=true; }
   else if(g==='profit_all'){ list=rows.filter(r=>r.p>0).sort((a,b)=>b.p-a.p); cellName='盈利 · 全部（按进发货利润额从高到低）'; actFilter=true; }
   else if(g==='sales'){ const c=bucketOf(rows).sales[BUCKET.i]; list=c.list.slice().sort((a,b)=>b.s-a.s); cellName='销售额档「'+c.name+'」'; }
-  else { const B=bucketOf(rows), c=B[g][BUCKET.i]; list=c.list.slice().sort((a,b)=>g==='loss'?a.p-b.p:b.p-a.p); cellName=(g==='loss'?'亏损':'盈利')+'档「'+c.name+'」（按进发货利润额）'; actFilter=(g==='loss'||g==='profit'); }
+  else if(g==='rate_all'){ list=rows.slice().sort((a,b)=>(b.prV||0)-(a.prV||0)); cellName='全部链接 · 按利润率从高到低'; }
+  else { const B=bucketOf(rows), c=B[g][BUCKET.i]; list=c.list.slice().sort((a,b)=>g==='loss'?a.p-b.p:b.p-a.p); cellName=(g==='loss'?'亏损档':g==='profit'?'盈利档':'利润率档')+'「'+c.name+'」（按'+(g==='rate'?'利润率':'进发货利润额')+'）'; actFilter=(g==='loss'||g==='profit'); }
   let actCnt=null;
   if(actFilter){ actCnt={all:list.length}; list.forEach(r=>{const k=classifyRec(r).k; actCnt[k]=(actCnt[k]||0)+1;}); if(DACT!=='all') list=list.filter(r=>classifyRec(r).k===DACT); }
   if(!list.length){ host.innerHTML=''; return; }

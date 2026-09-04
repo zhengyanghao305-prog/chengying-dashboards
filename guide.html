@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>板块使用说明 · 橙萤零售工作台</title>
+<style>
+:root{
+  --bg:#f5f6f8;--bg-card:#fff;--border:#e5e7eb;--border-light:#f0f0f2;
+  --text-primary:#111827;--text-secondary:#52525b;--text-tertiary:#8e8e99;--text-muted:#a1a1aa;
+  --accent:#6366f1;--accent-blue:#3b82f6;--accent-green:#10b981;--accent-amber:#f59e0b;
+  --accent-purple:#8b5cf6;--accent-cyan:#06b6d4;--accent-orange:#f97316;--accent-red:#ef4444;
+  --radius-md:14px;--radius-sm:9px;--shadow-sm:0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 14px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.6;}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 18px 60px;}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);text-decoration:none;background:#fff;border:1px solid var(--border);padding:6px 14px;border-radius:20px;transition:all .15s;}
+.back:hover{border-color:var(--accent);color:var(--accent);}
+.page-head{margin:18px 0 6px;}
+.page-head h1{font-size:24px;font-weight:800;letter-spacing:-.01em;}
+.page-head p{color:var(--text-secondary);font-size:13.5px;margin-top:6px;max-width:760px;}
+.stat-strip{display:flex;gap:10px;margin:14px 0 6px;flex-wrap:wrap;}
+.stat{padding:8px 16px;background:#fff;border:1px solid var(--border);border-radius:11px;font-size:12.5px;color:var(--text-secondary);box-shadow:var(--shadow-sm);}
+.stat b{color:var(--text-primary);font-size:14px;}
+.group{margin-top:26px;}
+.group-head{display:flex;align-items:center;gap:10px;padding:4px 2px 10px;}
+.group-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.group-head h2{font-size:17px;font-weight:800;}
+.group-head span.sub{font-size:12px;color:var(--text-tertiary);margin-left:2px;}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;}
+@media(max-width:720px){.cards{grid-template-columns:1fr;}}
+.gcard{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:15px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow-sm);transition:transform .12s,box-shadow .12s;position:relative;overflow:hidden;}
+.gcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc,#6366f1);}
+.gcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.gc-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.gc-title{font-size:14.5px;font-weight:700;}
+.gc-sub{font-size:11px;color:var(--text-tertiary);}
+.gc-tag{font-size:10.5px;padding:1px 8px;border-radius:9px;background:var(--tag-bg,#eef2ff);color:var(--tag-fg,#4338ca);}
+.gc-desc{font-size:12.5px;color:var(--text-secondary);}
+.gc-how{font-size:12.5px;background:#faf9ff;border:1px solid #ede9fe;border-radius:10px;padding:8px 11px;color:#444;margin-top:2px;}
+.gc-how b{color:#6d28d9;font-size:11.5px;}
+.gc-how .step{color:#3730a3;}
+.gc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px;border-top:1px dashed var(--border);font-size:11.5px;color:var(--text-tertiary);}
+.gc-open{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:#fff;background:var(--acc,#6366f1);padding:5px 14px;border-radius:18px;text-decoration:none;transition:opacity .15s;}
+.gc-open:hover{opacity:.86;}
+.note{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 15px;font-size:12.5px;color:#78350f;margin-top:22px;line-height:1.9;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← 返回工作台</a>
+  <div class="page-head">
+    <h1>📘 板块使用说明中心</h1>
+    <p>把工作台每个板块讲清楚「它是干嘛的、什么时候打开、打开后怎么用」。每个板块都有 ①是什么 → ②什么情况用 → ③进去先看哪、怎么操作。点击「打开板块」直接跳转。</p>
+  </div>
+  <div class="stat-strip">
+    <span class="stat">📦 板块 <b id="stBoard">–</b> 个</span>
+    <span class="stat">🗂 分类 <b id="stGroup">–</b> 组</span>
+    <span class="stat">💡 原则：看数据先选「时间+平台」，再按板块提示操作</span>
+  </div>
+  <div id="groups"></div>
+  <div class="note"><b>通用小技巧</b>：
+    · 右上角「强制刷新」= 重新拉取并显示最新数据，数据没更新先点它；
+    · 大部分列表支持点击行查看明细/趋势，表格右上角通常有「下载/导出」；
+    · 各板块数据每天/每周自动更新，看到明显滞后先刷新，仍不行点下方「⬇ 下载运营执行清单」类按钮确认或联系管理员。</div>
+</div>
+
+<script>
+const GROUPS=[
+ {name:'经营分析',ico:'📊',color:'rgba(59,130,246,.14)',accent:'#3b82f6',boards:[
+   {title:'店铺日报',sub:'Daily Pulse',href:'board.html?id=daily-pulse',tag:'每天自动',desc:'每天早9点自动推送，一眼看全店铺数据',
+    how:[['看什么','拼多多+天猫的销售额/订单量/UV/客单价/转化/推广花费，按日看全貌与环比'],['什么时候用','每天早晨/晚上扫一眼经营大盘'],['怎么用','进入即看当日数据；切换平台/日期对比；异常数值可点行看细节']]},
+   {title:'BI销售分析与预警',sub:'Sales & Alert',href:'board.html?id=sales-alert',tag:'每天自动 · 预警',desc:'趋势看得懂、异常第一时间知道',
+    how:[['看什么','日/周/月销售趋势、按产品+平台拆解、连续增长/下滑预警（严重≥30%/明显≥15%）'],['什么时候用','每天关注销售走势与预警消息'],['怎么用','先看顶部预警卡有没有红/橙提示；再按产品对比趋势定位异常']]},
+   {title:'品类分析',sub:'Category Analytics',href:'category-analysis.html',tag:'每日更新',desc:'哪个品类在涨、哪个在掉，一眼看清',
+    how:[['看什么','品类排行（绿涨红跌）、一句话结论：下滑最猛/上升最快/连跌预警'],['什么时候用','每周复盘或想知道品类方向时'],['怎么用','切换 全平台/天猫/拼多多 三视图，先读顶部结论再看明细']]},
+   {title:'竞争分析',sub:'Competition Analytics',href:'competition-analysis.html',tag:'每日更新 · 竞品',desc:'同行 vs 我方，每个产品单独打一场',
+    how:[['看什么','市占率+状态标签、同行vs我方日销市占趋势、竞品链接毛利/投产/日销'],['什么时候用','看竞品动向、定价格/投放策略前'],['怎么用','选目标产品→对比我方与同行市占/日销→关注竞品动作']]},
+ ]},
+ {name:'增长营销',ico:'🚀',color:'rgba(239,68,68,.12)',accent:'#ef4444',boards:[
+   {title:'推广投放分析',sub:'Ad ROI',href:'ad-roi-analysis.html',tag:'按需 · 预警',desc:'钱花哪了、值不值，一眼看清',
+    how:[['看什么','花费/成交/综合ROI总览、花费TOP15计划效率（亏钱红标）、ROI<1红行预警'],['什么时候用','每天看推广效率、排查亏钱计划时'],['怎么用','先看总览ROI是否达标；点开花费TOP计划逐条看，红标计划优先处理']]},
+   {title:'天猫专项分析',sub:'TMall Focus',href:'tmall-redirect.html',tag:'按场景',desc:'按工作场景选模板，27个分析模板一站式入口',
+    how:[['看什么','日常盯盘/销售增长/产品供应链/客户/流量/诊断等模板导航'],['什么时候用','按当天要做的事选对应场景'],['怎么用','选「工作场景」→ 点「运行中」卡片直达对应分析页']]},
+   {title:'电商自动化工作流',sub:'E-com Workflow',href:'board.html?id=ecom-workflow',tag:'按需 · 每周',desc:'从市场到回本的全链路自动化管理',
+    how:[['看什么','市场→客户→打品计划→回本测算→自动流转 五段式看板'],['什么时候用','立项/选品/打品阶段推进'],['怎么用','按流程从上游往下游走，看当前卡在哪一环、下一步该做什么']]},
+   {title:'产品链接钻取分析',sub:'Product Links',href:'product-links.html',tag:'按需 · 每日',desc:'输入产品名→直达该产品全部推广链接→看逐日趋势',
+    how:[['看什么','产品维度聚合的计划（花费/成交/ROI/转化）+ 链接级逐日趋势'],['什么时候用','运营要查某产品/某链接表现时'],['怎么用','输入或点选产品→看计划聚合→点具体链接展开逐日趋势']]},
+   {title:'BI档位承接·优化',sub:'BI Digest',href:'bi-digest.html',tag:'按需 · 每日',desc:'BI三张档位卡片：亏损/盈利/销售额档位下钻 + 每链接动作建议 + 防重复观察跟进',
+    how:[['看什么','亏损/盈利/销售额/利润率 四维档位卡 + 每条链接的ROI/毛利率/趋势与处理建议'],['什么时候用','每天处理待办亏损、复盘优化时'],['怎么用','①看顶部待办亏损数 ②点亏损档下钻 ③处理完点行右侧「状态」标掉→自动进观察区等回弹']]},
+ ]},
+ {name:'产品供应链',ico:'📦',color:'rgba(16,185,129,.12)',accent:'#10b981',boards:[
+   {title:'新品项目追踪',sub:'Product Pipeline',href:'board.html?id=product-pipeline',tag:'每周更新',desc:'新品从立项到上架的全项目管控',
+    how:[['看什么','打样→定样→上架全链路、里程碑/甘特节点、责任人+截止日+风险'],['什么时候用','新品项目推进与例会上'],['怎么用','进入后先看红色/临期节点→按里程碑推进→更新状态']]},
+   {title:'数据抓取中心',sub:'Data Connectors',href:'connectors.html',tag:'第三方接入',desc:'卧龙进销存/十速ERP/旺店通 统一抓取归一化',
+    how:[['看什么','各数据源连接状态与最近抓取时间'],['什么时候用','配置新数据源或发现某数据没更新时'],['怎么用','确认账号授权→点「抓取」→自动进入工作台BI']]},
+ ]},
+ {name:'系统与数据',ico:'⚙️',color:'rgba(245,158,11,.12)',accent:'#f59e0b',boards:[
+   {title:'自动化运行日志',sub:'Automation Log',href:'board.html?id=automation-log',tag:'每天自动',desc:'每次自动运行都记一笔，问题一眼可见',
+    how:[['看什么','✅正常 / 🟡需补数据重跑 / 🔴错误失败 / 🟠警告 四色状态'],['什么时候用','怀疑某个自动任务没跑/报错时'],['怎么用','筛🔴/🟠看最近失败记录→读错误信息→补数据或重跑']]},
+   {title:'自动化项目管理',sub:'Automation Projects',href:'board.html?id=automation-projects',tag:'每天同步',desc:'自动化项目的版本与输出质量总览',
+    how:[['看什么','各自动化项目运行状态与输出质量'],['什么时候用','每周检查项目健康度、管理员配置时'],['怎么用','看状态颜色分布→对🟡/🔴项目处理']]},
+ ]},
+ {name:'智能 Agent 工作台',ico:'🤖',color:'rgba(139,92,246,.12)',accent:'#8b5cf6',boards:[
+   {title:'智能 Agent 工作台',sub:'Agent Workbench',href:'agent-workbench.html',tag:'随时对话',desc:'多个智能 Agent 协同的自动化控制台',
+    how:[['看什么','Agent管理/分类/测试对话、工作流N1-N7闭环、数据源/任务/定时/知识库'],['什么时候用','需要智能体协助分析或搭自动化流程时'],['怎么用','选一个Agent对话，或在工作流页编排任务']]},
+ ]},
+];
+
+const acc={'blue':'#3b82f6','red':'#ef4444','green':'#10b981','amber':'#f59e0b','purple':'#8b5cf6'};
+const groupsEl=document.getElementById('groups');
+let boardCount=0;
+GROUPS.forEach(g=>{
+  boardCount+=g.boards.length;
+  const wrap=document.createElement('div');wrap.className='group';
+  const head=document.createElement('div');head.className='group-head';
+  head.innerHTML='<div class="group-ico" style="background:'+g.color+';color:'+g.accent+'">'+g.ico+'</div><h2>'+g.name+'</h2><span class="sub">'+g.boards.length+' 个板块</span>';
+  wrap.appendChild(head);
+  const cards=document.createElement('div');cards.className='cards';
+  g.boards.forEach(b=>{
+    const ac=b.acc||g.accent;
+    const card=document.createElement('div');card.className='gcard';card.style.setProperty('--acc',ac);
+    const howTxt=b.how.map(h=>'<div style="margin-top:4px"><b style="color:#6d28d9">['+h[0]+']</b> <span>'+h[1]+'</span></div>').join('');
+    card.innerHTML='<div class="gc-head"><span class="gc-title">'+b.title+'</span><span class="gc-sub">'+b.sub+'</span><span class="gc-tag" style="--tag-bg:'+ac+'18;--tag-fg:'+ac+'">'+b.tag+'</span></div>'
+      +'<div class="gc-desc">'+b.desc+'</div>'
+      +'<div class="gc-how">'+howTxt+'</div>'
+      +'<div class="gc-foot"><span>『"+b.title+"』用法速览</span><a class="gc-open" href="'+b.href+'" style="background:'+ac+'">打开板块 →</a></div>';
+    cards.appendChild(card);
+  });
+  wrap.appendChild(cards);
+  groupsEl.appendChild(wrap);
+});
+document.getElementById('stBoard').textContent=boardCount;
+document.getElementById('stGroup').textContent=GROUPS.length;
+</script>
+</body>
+</html>

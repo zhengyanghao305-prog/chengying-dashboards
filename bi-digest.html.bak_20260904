@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609041559"></script>
-<script src="js/xlsx.full.min.js?v=202609041559"></script>
+<script src="js/echarts.min.js?v=202609041406"></script>
+<script src="js/xlsx.full.min.js?v=202609041406"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -59,7 +59,6 @@
   .ov-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 15px;}
   .ov-card .v{font-size:22px;font-weight:800;line-height:1.1;}
   .ov-card .k{font-size:11.5px;color:var(--text-tertiary);margin-top:4px;}
-  .ov-card .k .ov-mini{display:inline-block;margin-left:6px;font-size:10px;color:#b45309;background:#fef3c7;border-radius:8px;padding:0 6px;line-height:1.7;vertical-align:1px;}
   .ov-card .d{font-size:11px;margin-top:3px;}
   .ov-loss .v{color:var(--accent-red);} .ov-pro .v{color:var(--accent-green);}
   .ov-scale .v{color:#0ea5e9;} .ov-plan .v{color:var(--accent-blue);}
@@ -155,31 +154,6 @@
   .ostate.todo{background:#fef3c7;color:#b45309;} .ostate.doing{background:#dbeafe;color:#1d4ed8;} .ostate.done{background:#dcfce7;color:#15803d;}
   .ostate.stopped{background:#fee2e2;color:#b91c1c;} .ostate.skipped{background:#f3f4f6;color:#6b7280;}
 
-  /* ── 批量ID搜索（新） ── */
-  .searchbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin:4px 0 8px;flex-wrap:wrap;}
-  .searchbar input{flex:1 1 260px;min-width:200px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;font-family:inherit;}
-  .searchbar input:focus{outline:none;border-color:var(--accent-purple);box-shadow:0 0 0 2px rgba(124,58,237,.12);}
-  .idsearch-msg{font-size:11.5px;color:var(--text-tertiary);}
-  #idSearchSel{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-
-  /* ── 已处理·观察跟进（新） ── */
-  .follow-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 8px;}
-  .follow-sum{display:flex;gap:10px;flex-wrap:wrap;}
-  .fcard{display:flex;flex-direction:column;gap:2px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:7px 14px;cursor:pointer;min-width:120px;transition:all .12s;}
-  .fcard:hover{box-shadow:0 2px 8px rgba(0,0,0,.05);}
-  .fcard.sel{border-color:#7c3aed;background:#f5f3ff;}
-  .fcard .fv{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;}
-  .fcard .fk{font-size:10.5px;color:var(--text-tertiary);margin-top:1px;}
-  .fcard .fv.c-watch{color:#d97706;} .fcard .fv.c-exp{color:#b91c1c;} .fcard .fv.c-ok{color:#15803d;} .fcard .fv.c-all{color:#374151;}
-  .f-tag{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:8px;white-space:nowrap;}
-  .f-tag.t-new{background:#dcfce7;color:#15803d;border:1px solid #86efac;}
-  .f-tag.t-cold{background:#fef3c7;color:#b45309;border:1px solid #fcd34d;}
-  .f-tag.t-exp{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;}
-  .f-tag.t-off{background:#f3f4f6;color:#6b7280;border:1px solid #d1d5db;}
-  .lrow.fhandled{background:#fffbeb;}
-  .lrow.fhandled:hover{background:#fef9e7;}
-  .lrow.fhandled.expanded{background:#fef3c7;}
-
   /* ── 分档卡片 ── */
   .bucket-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;align-items:start;}
   @media(max-width:1100px){.bucket-grid{grid-template-columns:1fr;}}
@@ -229,7 +203,7 @@
       <div class="head-title">BI指标归档处理中心</div>
       <div class="head-sub">按「利润/销售/ROI/毛利/趋势」自动归类：停推广下架 / 停推广 / 提投产 / 提价 / 查成本</div>
     </div>
-    <span class="head-badge">预览 v7 · 批量ID/下载/全选 · 归档卡片 · 真实成本字段 · 防重复观察跟进</span>
+    <span class="head-badge">亏损 / 盈利 / 销售额 / 利润率 · 四维档位下钻，每条带动作建议</span>
   </div>
 
   <div class="controlbar">
@@ -248,25 +222,10 @@
 
   <div class="note">
     上方窗口是<b>「近7天滚动快照」</b>：平台每天拍一张，最新一张即当前要处理的数据（默认已选中）。
-    回看更早快照可对比趋势；单个链接点行展开也能直接看走势。勾选行后可<b>⬇下载勾选清单、批量标记优化动作状态</b>。
-    <b style="color:#b45309">已处理过的链接（标过 停推广/下架/提价 等）会自动从亏损待办移出</b>，
-    转到下方「已处理 · 观察跟进」，跟踪数据是否回弹、是否需二次处理。可用上方<b>🔎 批量ID</b>一次粘贴多个ID快速定位并批量调整。
+    回看更早快照可对比趋势；单个链接点行展开也能直接看走势。勾选行后可<b>批量复制链接、批量标记处理状态</b>。
   </div>
-
-  <div class="searchbar" id="idSearchBar">
-    <span class="lab">🔎 批量ID</span>
-    <input id="idSearchInput" placeholder="粘贴多个 链接ID / 商品ID，用 逗号/空格/换行 分隔（≤200 个）" spellcheck="false">
-    <button class="bbtn primary" id="idSearchBtn">搜索定位</button>
-    <button class="bbtn" id="idSearchClear">清空</button>
-    <span class="idsearch-msg" id="idSearchMsg"></span>
-    <span class="sp" id="idSearchSel"></span>
-  </div>
-  <div id="idSearchHost"></div>
 
   <div class="ov" id="ovHost"></div>
-
-  <div class="section-title"><span class="dot" style="background:#d97706"></span>已处理 · 观察跟进<span class="hint" id="followHint"></span></div>
-  <div id="followHost"></div>
 
   <div class="section-title"><span class="dot"></span>BI 分档卡片 · 点击档位 → 该档全部链接 + 每条的动作建议<span class="hint" id="bucketHint"></span></div>
   <div class="bucket-grid" id="bucketHost"></div>
@@ -284,22 +243,16 @@ const CONFIG = {
   dec:{ noSale:5, roiBad:0.6, roiBreakEven:1.1, worsen:-5, improving:15,
         scaleGm:30, scalePr:20 }   // 可放大机会：毛利率>30% 或 利润率>20%
 };
-const PLAN_KEY='bi_digest_plan_v6follow';   // 预览版独立 key，不污染正式版 v4
+const PLAN_KEY='bi_digest_plan_v4';
 const STATE_OPTS=['待处理','已停推广','已下架','已提投产','已提价','已完成','不处理'];
-// 已处理动作识别：只要不是 待处理/未操作 都算运营已接手
-const HANDLED_TERM={'已下架':1,'已停推广':1,'已完成':1,'不处理':1};   // 收尾型：数据应随后回弹/消失
-const HANDLED_ADJ={'已提投产':1,'已提价':1,'处理中':1};               // 调整型：等回弹观察
 let PLAN={};
 let DATA={rows:[],windows:[],winRowsMap:{}};
 let WIN='', PLAT='all', ACT='all', AMT='all', DACT='all', SELECTED=new Set(), SEL_POOL='action';
-let PAGE=0, DRILL_PAGE=0, BUCKET=null, FVIEW='all', FLOOK_DAYS=7;   // FLOOK_DAYS=观察回弹期(默认7天≈1窗口)
+let PAGE=0, DRILL_PAGE=0, BUCKET=null;
 
 function toNum(v){ if(v===null||v===undefined||v==='')return 0; if(typeof v==='number')return v; return parseFloat(String(v).replace(/[%,¥\s]/g,''))||0; }
 function toDate(s){ return s?String(s).slice(0,10):''; }
-// 数值统一最多保留两位小数（展示层约束）；pctTxt 同
-function f2(v){ if(v===null||v===undefined||isNaN(v))return null; return Math.round(v*100)/100; }
-function pctStr(v){ if(v===null||v===undefined||v==='')return null; if(typeof v==='number'){ const r=Math.round(v*100)/100; return r+'%'; } const s=String(v); if(!s.includes('%')){ const n=parseFloat(s); return isNaN(n)?s:(Math.round(n*100)/100)+'%'; } const m=s.match(/^(-?\d+(\.\d+)?)%/); if(!m)return s; const n=parseFloat(m[1]); return (Math.round(n*100)/100)+'%'; }
-function fmtMoney(v){ if(v===null||v===undefined||isNaN(v))return '—'; const a=Math.abs(v); if(a>=10000)return (Math.round(v/100)/100)+'万'; return v.toLocaleString('zh-CN',{maximumFractionDigits:2}); }
+function fmtMoney(v){ if(v===null||v===undefined||isNaN(v))return '—'; const a=Math.abs(v); if(a>=10000)return (v/10000).toFixed(1)+'万'; return v.toLocaleString('zh-CN',{maximumFractionDigits:0}); }
 function fmtPct(v){ if(v===null||v===undefined||v==='')return '—'; const s=String(v); if(s.includes('%'))return s; const n=parseFloat(s); return isNaN(n)?s:(Math.round(n*100)/100)+'%'; }
 function shortTitle(t){ if(!t)return''; return t.length>15?t.slice(0,15)+'…':t; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -311,46 +264,24 @@ function stateCls(s){
 }
 function actLabelByKey(key){ const m=Object.values(ACT_META).find(x=>x.key===key); return m?m.label:'全部亏损'; }
 
-// ── 处理状态 v2：{st:'已下架', ts:'2026-09-03'}，兼容旧版纯字符串 ──
-function normPlanVal(v){ if(v&&typeof v==='object')return {st:stateLabel(v.st||'todo'), ts:v.ts||''}; return {st:stateLabel(v), ts:''}; }
-function loadPlan(){ try{PLAN=JSON.parse(localStorage.getItem(PLAN_KEY)||'{}');}catch(e){PLAN={};} for(const k in PLAN){ if(typeof PLAN[k]!=='object') PLAN[k]=normPlanVal(PLAN[k]); } }
+function loadPlan(){ try{PLAN=JSON.parse(localStorage.getItem(PLAN_KEY)||'{}');}catch(e){PLAN={};} }
 function savePlan(){ try{localStorage.setItem(PLAN_KEY,JSON.stringify(PLAN));}catch(e){} }
-function planState(id){ const v=PLAN[id]; return v?(v.st||'todo'):'todo'; }
-function planTs(id){ const v=PLAN[id]; return v&&v.ts?v.ts:''; }
-function setPlan(id,s){ const cur=planState(id); PLAN[id]={st:stateLabel(s), ts:cur!=='todo'&&stateLabel(s)===cur?PLAN[id].ts:todayISO()}; savePlan(); }
-function isHandled(id){ const s=planState(id); return !(s==='todo'||s==='待处理'); }
-function isHandledAdj(id){ const s=planState(id); return !!(HANDLED_ADJ[s]||s==='doing'); }
-function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function daysSince(ts){ if(!ts)return null; const a=new Date(ts.replace(/-/g,'/')), b=new Date(); return Math.max(0,Math.round((b-a)/86400000)); }
+function planState(id){ return PLAN[id]||'todo'; }
+function setPlan(id,s){ PLAN[id]=s; savePlan(); }
 function planProgress(){
-  // 累计口径：凡在页面标记过状态的链接都计入 t；其中"收尾型"(已下架/已停推广/已完成/不处理)计入 d（落地）。
-  // 0/0 即"还没给任何链接点过处理状态"。
   let t=0,d=0;
-  Object.keys(PLAN).forEach(id=>{ t++; if(HANDLED_TERM[planState(id)]) d++; });
+  Object.values(PLAN).forEach(s=>{ t++; if(!(s==='todo'||s==='doing'||s==='待处理'||s==='处理中'||s==='不处理')) d++; });
   return {t,d};
 }
-// 观察状态：link 已处理；todayP=当前窗口利润。返回 {tag:'new|cold|exp|off', days}
-function followTag(id,todayP){
-  if(!isHandled(id)) return null;
-  const days=daysSince(planTs(id));
-  if(todayP>0) return {tag:'off',days};            // 已回弹：不用再管
-  if(days===null) return {tag:'new',days:0};        // 旧数据无时间戳，当作新处理
-  if(days<FLOOK_DAYS) return {tag:'new',days};      // 观察期：回弹需要时间
-  if(todayP<=0) return {tag:'exp',days};            // 超观察期仍亏：建议复查/二次动作
-  return {tag:'new',days};
-}
-// 已处理 → 从"待办提醒"里排除
-function pendingOnly(rows){ return rows.filter(r=>!isHandled(r.link_id)); }
 
 function buildDedup(rows){
   const map=new Map();
   rows.forEach(r=>{
     const k=r.link_id+'|'+r.window, p=toNum(r.profit_pay), s=toNum(r.net_pay);
     const roi=toNum(r.roi), gm=toNum(r.gm);
-    const gcRaw=r.goods_cost_pay, cfRaw=r.custom_fee_pay, pfRaw=r.promo_fee_pay_ship||r.promo_fee_ship;
     let a=map.get(k);
-    if(!a){ a={link_id:r.link_id,window:r.window,window_end:r.window_end,product:r.product||'',title:r.title||'',platform:r.platform||'',shop:r.shop||'',owner:r.owner||'',gmTxt:r.gm,prTxt:r.profit_rate,p,s,roiV:(roi>0&&roi<10)?roi:0,gmV:gm,prV:toNum(r.profit_rate),gcRaw:gcRaw||'',cfRaw:cfRaw||'',pfRaw:pfRaw||'',n:1}; map.set(k,a); }
-    else { a.p+=p; a.s+=s; a.n++; if(!(a.roiV>0)&&roi>0&&roi<10)a.roiV=roi; if(!a.gmV&&gm!==0)a.gmV=gm; if(!a.prV)a.prV=toNum(r.profit_rate); if(!a.prTxt)a.prTxt=r.profit_rate; if(!a.gcRaw&&gcRaw)a.gcRaw=gcRaw; if(!a.cfRaw&&cfRaw)a.cfRaw=cfRaw; if(!a.pfRaw&&pfRaw)a.pfRaw=pfRaw; }
+    if(!a){ a={link_id:r.link_id,window:r.window,window_end:r.window_end,product:r.product||'',title:r.title||'',platform:r.platform||'',shop:r.shop||'',owner:r.owner||'',gmTxt:r.gm,prTxt:r.profit_rate,p,s,roiV:(roi>0&&roi<10)?roi:0,gmV:gm,prV:toNum(r.profit_rate),n:1}; map.set(k,a); }
+    else { a.p+=p; a.s+=s; a.n++; if(!(a.roiV>0)&&roi>0&&roi<10)a.roiV=roi; if(!a.gmV&&gm!==0)a.gmV=gm; if(!a.prV)a.prV=toNum(r.profit_rate); if(!a.prTxt)a.prTxt=r.profit_rate; }
   });
   return [...map.values()];
 }
@@ -442,8 +373,8 @@ function platRowCount(w){ const rows=DATA.winRowsMap[w]||[]; return PLAT==='all'
 /* ---------- 下载运营执行清单 Excel ---------- */
 function dlPrio(p){ return p===0?'P0':(p===1?'P1':(p===2?'P2':'P3')); }
 function downloadExcel(){
-  const rows=pendingOnly(platRows()).filter(r=>r.p<0);   // 只导出待办亏损，已处理的在观察区
-  if(!rows.length){ alert('当前'+platName()+'视图没有待办亏损链接（已处理的已移入观察区）'); return; }
+  const rows=platRows().filter(r=>r.p<0);
+  if(!rows.length){ alert('当前'+platName()+'视图没有亏损链接'); return; }
   const order={A_del:0,A_stop:1,B_fix:2,C_price:3,D_struct:4,E_watch:5,F_keep:6};
   const actRows=rows.map(r=>({r,ac:classifyAction(r)})).sort((a,b)=>(order[a.ac.k]-order[b.ac.k])||(a.r.p-b.r.p));
   const headers=['优先级','建议动作','产品','商品标题','链接id','平台','店铺','负责人',
@@ -480,119 +411,20 @@ function prevWin(){ const i=DATA.windows.indexOf(WIN); return i>0?DATA.windows[i
 function countDelta(cur,prev){ if(prev===null)return null; return cur-prev; }
 function ovDeltaHTML(diff,goodWhenUp){ if(diff===null)return''; if(diff===0)return '<span style="color:var(--text-tertiary)">→持平</span>'; const up=diff>0,good=goodWhenUp?up:!up; return '<span style="'+(good?'color:#15803d':'color:#b91c1c')+'">'+(up?'▲ +':'▼ ')+Math.abs(diff)+' 较上期</span>'; }
 function renderOverview(){
-  const rows=platRows(), pend=pendingOnly(rows);
-  let lossN=0,lossAmt=0,proN=0,proAmt=0,saleAmt=0,topN=0,topAmt=0, hLossN=0,hLossAmt=0;
+  const rows=platRows();
+  let lossN=0,lossAmt=0,proN=0,proAmt=0,saleAmt=0,topN=0,topAmt=0;
   const topLine=CONFIG.profit[CONFIG.profit.length-1][0];   // 利润额最高档起点（>1000元）
-  // 待办口径：亏损/盈利/高利 = 未处理（已处理的只留在观察区）；销售额=全量大盘
-  rows.forEach(r=>{ saleAmt+=r.s; });
-  pend.forEach(r=>{ if(r.p<0){lossN++;lossAmt+=r.p;} else if(r.p>0){ proN++;proAmt+=r.p; if(r.p>=topLine){topN++;topAmt+=r.p;} } });
-  // 已处理但仍在观察（当前窗口仍异常/未回弹）
-  rows.forEach(r=>{ if(isHandled(r.link_id)&&r.p<0){ hLossN++; hLossAmt+=r.p; } });
+  rows.forEach(r=>{ saleAmt+=r.s; if(r.p<0){lossN++;lossAmt+=r.p;} else if(r.p>0){ proN++;proAmt+=r.p; if(r.p>=topLine){topN++;topAmt+=r.p;} } });
   const pr=planProgress();
-  const fw=followWatchCounts(rows);
-  const handledN=rows.filter(r=>isHandled(r.link_id)).length;   // 当前窗口已处理行（已移观察区）
-  const saleTxt='销售额 '+fmtMoney(saleAmt);
-  const prV=handledN+' / '+lossN;
-  const prK='已处理 / 待办亏损（本窗口）';
-  const prD=saleTxt+(fw.watch?(' · <b>'+fw.watch+' 观察中</b>'):'')+(fw.exp?(' · <b style="color:#b91c1c">'+fw.exp+' 超期未回弹</b>'):'');
-  // 上期同口径：统一用待办
+  // 上期同口径
   const pw=prevWin(); let pLossN=null,pProN=null,pTopN=null;
-  if(pw){ const pr2=pendingOnly((DATA.winRowsMap[pw]||[]).filter(r=>PLAT==='all'||r.platform===PLAT)); let ln=0,pn=0,tn=0; pr2.forEach(r=>{ if(r.p<0)ln++; else if(r.p>0){ pn++; if(r.p>=topLine)tn++; } }); pLossN=ln;pProN=pn;pTopN=tn; }
+  if(pw){ const pr2=(DATA.winRowsMap[pw]||[]).filter(r=>PLAT==='all'||r.platform===PLAT); let ln=0,pn=0,tn=0; pr2.forEach(r=>{ if(r.p<0)ln++; else if(r.p>0){ pn++; if(r.p>=topLine)tn++; } }); pLossN=ln;pProN=pn;pTopN=tn; }
+  const saleTxt='销售额 '+fmtMoney(saleAmt);
   document.getElementById('ovHost').innerHTML=
-    '<div class="ov-card ov-loss"><div class="v">'+lossN+' 条</div><div class="k">待办亏损 · '+fmtMoney(lossAmt)+' 元'+(hLossN?'<span class="ov-mini" title="已处理的正在观察区跟进">已处理 '+hLossN+' 移观察区</span>':'')+'</div><div class="d">'+ovDeltaHTML(countDelta(lossN,pLossN),false)+'</div></div>'
+    '<div class="ov-card ov-loss"><div class="v">'+lossN+' 条</div><div class="k">亏损链接 · '+fmtMoney(lossAmt)+' 元</div><div class="d">'+ovDeltaHTML(countDelta(lossN,pLossN),false)+'</div></div>'
     +'<div class="ov-card ov-pro"><div class="v">'+proN+' 条</div><div class="k">盈利链接 · +'+fmtMoney(proAmt)+' 元</div><div class="d">'+ovDeltaHTML(countDelta(proN,pProN),true)+'</div></div>'
     +'<div class="ov-card ov-scale"><div class="v">'+topN+' 条</div><div class="k">高利润链接 · 利润额 >'+topLine+' 元（按进发货利润额）</div><div class="d">贡献利润 +'+fmtMoney(topAmt)+' · '+ovDeltaHTML(countDelta(topN,pTopN),true)+'</div></div>'
-    +'<div class="ov-card ov-plan"><div class="v">'+prV+'</div><div class="k">'+prK+'</div><div class="d">'+prD+'</div></div>';
-}
-function followWatchCounts(rows){
-  const w={watch:0,exp:0,ok:0,total:0};
-  rows.forEach(r=>{ if(!isHandled(r.link_id))return; w.total++; const t=followTag(r.link_id,r.p); if(!t)return; if(t.tag==='exp')w.exp++; else if(t.tag==='off')w.ok++; else w.watch++; });
-  return w;
-}
-
-/* ---------- 已处理 · 观察跟进（防重复核心） ---------- */
-function followRowHTML(r){
-  const t=followTag(r.link_id,r.p)||{tag:'new',days:0};
-  const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
-  const ts=planTs(r.link_id), days=t.days;
-  let tCls='t-new',tTxt='观察中',tTip='刚处理/数据回弹需要时间，观察期(≤'+FLOOK_DAYS+'天)内暂不重复提醒';
-  if(t.tag==='off'){ tCls='t-off'; tTxt='✅ 已回弹'; tTip='当前窗口已转正，处理生效，无需再跟进'; }
-  else if(t.tag==='exp'){ tCls='t-exp'; tTxt='⚠ 超期未回弹 '+days+' 天'; tTip='处理已超过观察期仍未回弹，建议复查是否到位 / 二次动作（下架·提价·停推）'; }
-  else if(days>3){ tCls='t-cold'; tTxt='观察中 '+days+' 天'; }
-  const st=stateLabel(planState(r.link_id));
-  const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?pctStr(r.gmTxt):'—';
-  const prTxt=(r.prTxt&&r.prTxt!=='0.00%'&&r.prTxt!=='0%')?pctStr(r.prTxt):'—';
-  return '<div class="lrow fhandled" data-id="'+r.link_id+'">'
-    +'<div class="r-top">'
-    +chkHTML(r.link_id)
-    +'<div class="r-title" style="flex:1 1 22%">'
-      +'<div class="r-name"><span class="f-tag '+tCls+'" title="'+esc(tTip)+'">'+tTxt+'</span> '+esc(r.title||r.product)+'</div>'
-      +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+' · 链接 '+esc(r.link_id)+' · 处理于 '+(ts||'—')+(days!==null&&ts?'（'+days+' 天前）':'')+' · 当前状态：'+st+'</div>'
-      +'</div>'
-    +'<div class="r-metrics">'
-      +'<div class="metric"><span class="k">当前利润</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
-      +'<div class="metric"><span class="k">净销售额</span><span class="v">'+fmtMoney(r.s)+'</span></div>'
-      +'<div class="metric"><span class="k">ROI</span><span class="v '+(r.roiV<1?'neg':'pos')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
-      +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'
-      +'<div class="metric"><span class="k">利润率</span><span class="v">'+prTxt+'</span></div>'
-      +'<div class="metric"><span class="k">趋势</span><span class="v '+dCls+'">'+dArw+'</span></div>'
-      +'</div>'
-    +'<div class="r-side">'+stateChipHTML(r.link_id)+'</div>'
-    +'</div>'
-    +(t.tag==='exp'?'<div class="follow-warn">⚠ '+tTip+'。若已确实停推/下架但窗口数据仍未出清，可点右侧状态标回「待处理」以重新纳入待办；否则可改「已完成」归档。</div>':'')
-    +'<div class="trendbox"><div class="tlab">'+r.link_id+' · 滚动窗口利润走势（元/近7天）· '+esc(r.title)+'</div><div class="chart"></div></div>'
-    +'</div>';
-}
-function renderFollow(){
-  const host=document.getElementById('followHost');
-  if(!host) return;
-  const all=platRows(), hs=all.filter(r=>isHandled(r.link_id));
-  const w=followWatchCounts(all);
-  const hint=document.getElementById('followHint');
-  if(hint) hint.textContent='按「处理动作状态」归档卡片：点击某状态卡 → 下方仅显示该状态链接（含处理天数/回弹标签）。观察期≤'+FLOOK_DAYS+'天不重复提醒，超期未回弹亮红提示二次处理。';
-  if(!w.total){ host.innerHTML='<div class="empty-follow">还没有已处理记录 —— 给任意亏损/盈利链接点右侧「状态」标签（如 已停推广 / 已下架 / 已提投产…）后，它会自动从上方待办移出、出现在这里，防止"处理过的链接第二天又来提醒"。<br>状态目前存在本机浏览器(localStorage)，预览版用独立记录，不影响正式版。<br><button class="bbtn primary" id="demoFill" style="margin-top:10px">🎬 一键载入演示（模拟"昨天/上周已处理"的状态）</button></div>'; 
-    const db=document.getElementById('demoFill');
-    if(db) db.addEventListener('click',demoFillPlans);
-    return; }
-  // 按处理状态分组计数（归档卡）
-  const stCounts={}; hs.forEach(r=>{ const s=stateLabel(planState(r.link_id)); stCounts[s]=(stCounts[s]||0)+1; });
-  const stColor={'已停推广':'c-exp','已下架':'c-exp','已提投产':'c-watch','已提价':'c-watch','已完成':'c-ok','不处理':'c-all'};
-  const cards=[['all','全部已处理',w.total,'c-all']].concat(
-    STATE_OPTS.filter(s=>s!=='待处理').map(s=>[s,s,(stCounts[s]||0),stColor[s]||'c-all']).filter(c=>c[2]>0)
-  );
-  let list=hs.slice().sort((a,b)=>{
-    const ta=followTag(a.link_id,a.p), tb=followTag(b.link_id,b.p);
-    const rank=t=> t&&t.tag==='exp'?0:(t&&t.tag==='new'?1:2);
-    return (rank(ta)-rank(tb))||(a.p-b.p);
-  });
-  const fv=FVIEW;
-  if(fv!=='all') list=list.filter(r=>stateLabel(planState(r.link_id))===fv);
-  const tagCounts={new:0,exp:0,off:0};
-  list.forEach(r=>{ const tg=followTag(r.link_id,r.p); if(tg&&tg.tag!=='new')tagCounts[tg.tag]++; else if(tg)tagCounts.new++; });
-  const html='<div class="follow-head"><div class="follow-sum">'
-    +cards.map(c=>'<div class="fcard '+(fv===c[0]?'sel':'')+'" data-fv="'+c[0]+'"><div class="fv '+c[3]+'">'+c[2]+'</div><div class="fk">'+c[1]+'</div></div>').join('')
-    +'</div><span class="idsearch-msg">当前列表 '+list.length+' 条'+(tagCounts.exp?' · ⚠超期未回弹 '+tagCounts.exp:(''))+(tagCounts.new?' · 观察中 '+tagCounts.new:'')+(tagCounts.off?' · 已回弹 '+tagCounts.off:'')+'</span></div>'
-    +'<div class="listcard" id="followCard" data-allids="'+esc(JSON.stringify(list.map(r=>r.link_id)))+'">'
-    +batchBarHTML('follow',list.length)
-    +'<div class="listhead">▾ 已处理 · '+(fv==='all'?'全部':fv)+' 归档 '+list.length+' 条<span class="lsub">点行看趋势 · 点右侧状态可改标（转「待处理」即回到待办）</span></div>'
-    +'<div class="ltable">'+list.slice(0,200).map(r=>followRowHTML(r)).join('')+'</div>'
-    +(list.length>200?'<div class="pager"><span>仅展示前 200 条，切换上方卡片查看其余</span></div>':'')
-    +'</div>';
-  host.innerHTML=html;
-  host.querySelectorAll('.fcard[data-fv]').forEach(ch=>{ ch.addEventListener('click',()=>{ FVIEW=ch.dataset.fv; renderFollow(); }); });
-  const fcard=document.getElementById('followCard');
-  if(fcard) bindBatch(fcard,'follow');
-}
-
-// 仅预览版：模拟运营"昨天/上周已处理"，便于直接体验观察跟进效果（演示完点状态转回「待处理」即可还原）
-function demoFillPlans(){
-  const all=platRows(), loss=all.filter(r=>r.p<0).sort((a,b)=>a.p-b.p);
-  if(!loss.length){ return; }
-  const ds=d=>{ const d2=new Date(Date.now()-d*86400000); return d2.getFullYear()+'-'+String(d2.getMonth()+1).padStart(2,'0')+'-'+String(d2.getDate()).padStart(2,'0'); };
-  const acts=[['已停推广',1],['已下架',1],['已提投产',3],['已提价',5],['已完成',8],['不处理',9]];
-  acts.forEach(([st,ago],i)=>{ const r=loss[i%loss.length]; if(!r)return; PLAN[r.link_id]={st,ts:ds(ago)}; });
-  savePlan();
-  renderOverview(); renderBuckets(); renderDrill(); renderProducts(); renderFollow();
+    +'<div class="ov-card ov-plan"><div class="v">'+pr.d+'/'+pr.t+'</div><div class="k">优化处理进度 · '+saleTxt+'</div><div class="d">'+Math.round(pr.t?pr.d/pr.t*100:0)+'% 完成</div></div>';
 }
 
 /* ---------- 动作清单（含批量工具条） ---------- */
@@ -618,10 +450,9 @@ function batchBarHTML(pool,total){
   return '<div class="batchbar">'
     +'<span>已选 <span class="cnt" id="selCnt_'+pool+'">'+n+'</span> 条</span>'
     +'<button class="bbtn" data-b="all">全选本页</button>'
-    +'<button class="bbtn" data-b="allSel">全选所有</button>'
     +'<button class="bbtn" data-b="clear">清空</button>'
     +'<span style="width:1px;height:18px;background:#ddd6fe"></span>'
-    +'<button class="bbtn primary" data-b="download" '+(n?'':'disabled')+'>⬇ 下载勾选清单</button>'
+    +'<button class="bbtn primary" data-b="copyUrl" '+(n?'':'disabled')+'>📋 复制链接URL</button>'
     +'<button class="bbtn primary" data-b="copyId" '+(n?'':'disabled')+'>复制链接ID</button>'
     +'<span style="width:1px;height:18px;background:#ddd6fe"></span>'
     +'<span style="color:var(--text-secondary)">批量标记为</span>'
@@ -634,15 +465,6 @@ function batchBarHTML(pool,total){
 function copyText(txt){
   if(navigator.clipboard&&window.isSecureContext){ return navigator.clipboard.writeText(txt).then(()=>true).catch(()=>false); }
   try{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); return Promise.resolve(true); }catch(e){ return Promise.resolve(false); }
-}
-function downloadTxt(name, content){
-  try{
-    const blob=new Blob(['\ufeff'+content],{type:'text/plain;charset=utf-8'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
-    document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
-    return true;
-  }catch(e){ return false; }
 }
 function toast(pool,msg){ const el=document.getElementById('toast_'+pool); if(el){ el.textContent=msg; setTimeout(()=>{ if(el)el.textContent=''; },2500); } }
 
@@ -658,28 +480,14 @@ function bindBatch(host,pool){
     });
   });
   host.querySelectorAll('.ostate[data-pid]').forEach(el=>{
-    el.addEventListener('click',e=>{ e.stopPropagation(); const id=el.dataset.pid; const opts=STATE_OPTS.slice(); const cur=stateLabel(planState(id)); let curI=opts.indexOf(cur); if(curI<0)curI=0; const next=opts[(curI+1)%opts.length]; setPlan(id,next); refreshAllAfterState(); });
+    el.addEventListener('click',e=>{ e.stopPropagation(); const id=el.dataset.pid; const opts=['todo','doing','done','已停推广','已下架','已提投产','已提价','已完成','不处理']; const cur=planState(id); const curI=opts.indexOf(stateLabel(cur)); const next=opts[(curI+1)%opts.length]; setPlan(id,next); refreshAllAfterState(); });
   });
   host.querySelectorAll('[data-b]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const b=btn.dataset.b;
+      const b=btn.dataset.b, id='#actionHost';
       if(b==='all'){ host.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=true;SELECTED.add(cb.dataset.chk);}); refreshSelUI(host,pool); }
-      else if(b==='allSel'){ // 全选所有：选中当前筛选池全部(跨分页)
-        let allIds=[];
-        const card=host.closest('.listcard')||host;
-        if(card&&card.dataset.allids){ try{ allIds=JSON.parse(card.dataset.allids); }catch(e){ allIds=[]; } }
-        if(allIds.length){ allIds.forEach(id=>SELECTED.add(id)); host.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=SELECTED.has(cb.dataset.chk);}); toast(pool,'已全选 '+allIds.length+' 条'); refreshSelUI(host,pool); }
-        else toast(pool,'无可全选行');
-      }
       else if(b==='clear'){ SELECTED.clear(); host.querySelectorAll('.chk[data-chk]').forEach(cb=>cb.checked=false); refreshSelUI(host,pool); }
-      else if(b==='download'){ // 下载勾选清单（URL+ID+标题）
-        const rows=platRows().filter(r=>SELECTED.has(r.link_id));
-        if(!rows.length){ toast(pool,'请先勾选'); return; }
-        const lines=rows.map(r=>platUrl(r.platform,r.link_id)+'\t'+r.product+'\t'+r.title+'\t'+r.link_id);
-        const ok=downloadTxt('BI勾选清单_'+pool+'_'+WIN.replace(/\//g,'-')+'.txt',lines.join('\n'));
-        toast(pool,ok?('已下载 '+rows.length+' 条'):'下载失败');
-      }
-      else if(b==='copyId'){ const rows=platRows().filter(r=>SELECTED.has(r.link_id)); if(!rows.length){toast(pool,'请先勾选');return;} const txt=rows.map(r=>r.link_id).join('\n'); copyText(txt).then(ok=>toast(pool,ok?'已复制 '+rows.length+' 个链接ID':'复制失败')); }
+      else if(b==='copyUrl'||b==='copyId'){ const rows=platRows().filter(r=>SELECTED.has(r.link_id)); const txt=rows.map(r=> b==='copyUrl'? platUrl(r.platform,r.link_id)+'\t'+r.product+'\t'+r.title : r.link_id+'\t'+r.title).join('\n'); copyText(txt).then(ok=>toast(pool,ok?'已复制 '+rows.length+' 条':'复制失败')); }
     });
   });
   const applyBtn=host.querySelector('[data-b="applyState"]');
@@ -692,12 +500,12 @@ function bindBatch(host,pool){
 }
 function refreshSelUI(host,pool){
   const cntEl=document.getElementById('selCnt_'+pool); if(cntEl)cntEl.textContent=SELECTED.size;
-  host.querySelectorAll('[data-b="download"],[data-b="copyId"]').forEach(b=>{ b.disabled=!SELECTED.size; });
+  host.querySelectorAll('[data-b="copyUrl"],[data-b="copyId"]').forEach(b=>{ b.disabled=!SELECTED.size; });
   host.querySelectorAll('.arow[data-id],.lrow[data-id]').forEach(row=>{
     const cb=row.querySelector('.chk'); if(cb) row.classList.toggle('sel',cb.checked);
   });
 }
-function refreshAllAfterState(){ renderOverview(); renderBuckets(); renderDrill(); renderProducts(); renderFollow(); }
+function refreshAllAfterState(){ renderOverview(); renderActionList(); renderDrill(); renderProducts(); }
 function toggleTrend(row){
   const box=row.nextElementSibling;
   const isOpen=box&&box.classList.contains('trendbox')&&box.classList.contains('open');
@@ -795,24 +603,21 @@ function compChip(cur,prev,goodWhenUp){
   return '<span class="bcomp '+(good?'up':'down')+'">较上期 '+(up?'▲ +':'▼ ')+Math.abs(diff)+'</span>';
 }
 function renderBuckets(){
-  const all=platRows(), rows=pendingOnly(all);          // rows=待办视角（已处理移出，统一）
-  const B=bucketOf(rows);
-  const handledN=all.length-rows.length;                  // 已处理且当前窗口仍在的条数（已移观察区）
-  // 上一期 = 所选窗口的上一张快照（同平台、同待办口径）
+  const rows=platRows(), B=bucketOf(rows);
+  // 上一期 = 所选窗口的上一张快照（同平台口径），保证动态随 平台+窗口 变化
   const wi=DATA.windows.indexOf(WIN);
   const pw=wi>0?DATA.windows[wi-1]:null;
   let PB=null;
-  if(pw){ const pr=(DATA.winRowsMap[pw]||[]).filter(r=>PLAT==='all'||r.platform===PLAT); PB=bucketOf(pendingOnly(pr)); }
-  const block=(key,dot,goodWhenUp,cells,total,extra,prevObj)=>{
-    const prevArr=prevObj?(prevObj[key]||[]):null;
-    const prevTotal=prevArr?prevArr.reduce((a,b)=>a+b.list.length,0):null;
+  if(pw){ const pr=(DATA.winRowsMap[pw]||[]).filter(r=>PLAT==='all'||r.platform===PLAT); PB=bucketOf(pr); }
+  const block=(key,dot,goodWhenUp,cells,total,extra)=>{
+    const prevTotal=PB?PB[key].reduce((a,b)=>a+b.list.length,0):null;
     let inner=extra||'';
     cells.forEach((c,i)=>{
       const sel=BUCKET&&BUCKET.g===key&&BUCKET.i===i;
       const cls=c.list.length?('bcell '+(sel?'sel ':'')+(key==='loss'?'loss-b':key==='profit'?'pro-b':key==='rate'?'rate-b':'sale-b')):'bcell bzero';
       let amt=key==='sales'?'':(key==='loss'?'亏 '+fmtMoney(c.amt):'盈 +'+fmtMoney(c.amt));
       if(key==='rate'&&c.list.length) amt=(c.amt<0?'亏 ':'盈 +')+fmtMoney(Math.abs(c.amt));
-      const pc=(prevArr&&prevArr[i])?prevArr[i]:null, diff=(pc!==null)?c.list.length-pc.list.length:null;
+      const pc=PB?PB[key][i]:null, diff=(pc!==null)?c.list.length-pc.list.length:null;
       inner+='<div class="'+cls+'" data-g="'+key+'" data-i="'+i+'" data-cnt="'+c.list.length+'">'
         +'<div class="brow"><span class="bname">'+c.name+'</span><span class="bval">'+c.list.length+'</span>'+(c.list.length?'<span class="bamt">'+amt+'</span>':'')+'</div>'
         +(c.list.length&&diff!==null?diffBadge(diff,goodWhenUp):'')
@@ -821,37 +626,30 @@ function renderBuckets(){
     return '<div class="bucket-card"><div class="bhead">'+dot+(key==='loss'?'亏损档位':key==='profit'?'盈利档位':key==='rate'?'利润率档位':'销售额档位')
       +'<span class="bcnt">共 '+total+' 条</span>'+compChip(total,prevTotal,goodWhenUp)+'</div><div class="buckets">'+inner+'</div></div>';
   };
-  const lossTotal=rows.filter(r=>r.p<0).length;
   document.getElementById('bucketHost').innerHTML=
-    block('loss','🔴',false,B.loss,lossTotal,
-      '<div class="bcell special" data-bucket="loss_all"><div class="brow"><span class="bname" style="font-weight:700">查看全部待办亏损 →</span><span class="bval">'+lossTotal+'</span></div></div>'
-      +(handledN?'<div class="bcell special follow-go" data-jump="follow"><div class="brow"><span class="bname" style="cursor:pointer">已处理 '+handledN+' 条已移入下方观察区 →</span></div></div>':'')
-      ,PB)
+    block('loss','🔴',false,B.loss,rows.filter(r=>r.p<0).length,
+      '<div class="bcell special" data-bucket="loss_all"><div class="brow"><span class="bname" style="font-weight:700">查看全部亏损 →</span><span class="bval">'+rows.filter(r=>r.p<0).length+'</span></div></div>')
     +block('profit','🟢',true,B.profit,rows.filter(r=>r.p>0).length,
-      '<div class="bcell special scale-s" data-bucket="profit_all"><div class="brow"><span class="bname" style="font-weight:700">查看全部盈利 →</span><span class="bval">'+rows.filter(r=>r.p>0).length+'</span></div><div class="bdelta good"><span class="lab">按进发货利润额分档（赚100以下 / 100-200 / …），每行再给放大或提毛利建议</span></div></div>'
-      ,PB)
-    +block('sales','🔵',true,B.sales,rows.length,'',PB)
-    +block('rate','🟣',true,B.rate,rows.length,'<div class="bcell special rate-s" data-bucket="rate_all"><div class="brow"><span class="bname" style="font-weight:700">全部利润率 →</span><span class="bval">'+rows.length+'</span></div><div class="bdelta good"><span class="lab">≥20% 为可放大高利区 · 0-20% 先提毛利 · &lt;0% 亏毛利止损</span></div></div>',PB);
+      '<div class="bcell special scale-s" data-bucket="profit_all"><div class="brow"><span class="bname" style="font-weight:700">查看全部盈利 →</span><span class="bval">'+rows.filter(r=>r.p>0).length+'</span></div><div class="bdelta good"><span class="lab">按进发货利润额分档（赚100以下 / 100-200 / …），每行再给放大或提毛利建议</span></div></div>')
+    +block('sales','🔵',true,B.sales,rows.length,'')
+    +block('rate','🟣',true,B.rate,rows.length,'<div class="bcell special rate-s" data-bucket="rate_all"><div class="brow"><span class="bname" style="font-weight:700">全部利润率 →</span><span class="bval">'+rows.length+'</span></div><div class="bdelta good"><span class="lab">≥20% 为可放大高利区 · 0-20% 先提毛利 · &lt;0% 亏毛利止损</span></div></div>');
   const hint=document.getElementById('bucketHint');
-  if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'上方卡片 = 待办(未处理)视角，已处理的自动移入「已处理·观察跟进」防重复提醒；点任意档位下钻，每条含「动作建议+依据」；以利润额×利润率最大化定建议';
-  document.querySelectorAll('#bucketHost .bcell[data-g]').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DACT='all'; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
+  if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'点任意档位下钻，每条含「动作建议+依据」：亏损=停/下架/提投产/提价/查成本；盈利=可放大/先提毛利/提投产；利润率档=按利润率看分布（≥20% 可放大区 / 0-20% 提毛利 / <0% 止损）；以利润额×利润率最大化定建议';
+  document.querySelectorAll('#bucketHost .bcell').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DACT='all'; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
   document.querySelectorAll('#bucketHost .bcell[data-bucket]').forEach(el=>{ el.addEventListener('click',()=>{ BUCKET={g:el.dataset.bucket,i:0}; DACT='all'; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
-  document.querySelectorAll('#bucketHost .follow-go').forEach(el=>{ el.addEventListener('click',()=>{ const fb=document.getElementById('followHost'); if(fb){ fb.scrollIntoView({behavior:'smooth',block:'start'}); } }); });
 }
 function drillRowHTML(r){
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
   const rec=classifyRec(r), meta=REC_META[rec.k];
-  const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?pctStr(r.gmTxt):'—';
-  const prTxt=(r.prTxt&&r.prTxt!=='0.00%'&&r.prTxt!=='0%')?pctStr(r.prTxt):'—';
-  // 成本费比 —— 优先用飞书表真实字段：货品成本占比(支付)/自定义费用占比/推广花费占比；缺失时按公式回退
-  const pctVal=x=>{ if(x===null||x===undefined||x===''||x==='0%'||x==='0.00%')return null; if(typeof x==='number')return x; const n=parseFloat(String(x).replace(/[%\s]/g,'')); return isNaN(n)?null:n; };
-  const gcPct=pctVal(r.gcRaw), cfPct=pctVal(r.cfRaw), pfPct=pctVal(r.pfRaw);
-  const promoRatio=(pfPct!==null)?(pfPct/100):((r.roiV>0)?(1/r.roiV):null);
-  const prodRatio=(gcPct!==null)?(gcPct/100):((typeof r.gmV==='number'&&r.gmV!==0)?(1-r.gmV/100):null);
+  const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?r.gmTxt:'—';
+  const prTxt=(r.prTxt&&r.prTxt!=='0.00%'&&r.prTxt!=='0%')?r.prTxt:'—';
+  // 成本费比：推广费比=1/ROI；货品成本费比=1-毛利率；自定义费比=1-利润率-推广费比-货品成本费比（即扣除推广+货品后剩余费用比）
+  const promoRatio=(r.roiV>0)?(1/r.roiV):null;
+  const prodRatio=(typeof r.gmV==='number'&&r.gmV!==0)?(1-r.gmV/100):null;
   const prRatio=(typeof r.prV==='number'&&r.prV!==0)?r.prV/100:null;
-  const customRatio=(cfPct!==null)?(cfPct/100):((promoRatio!==null&&prodRatio!==null&&prRatio!==null)?Math.max(0,1-prRatio-promoRatio-prodRatio):null);
+  const customRatio=(promoRatio!==null&&prodRatio!==null&&prRatio!==null)?Math.max(0,1-prRatio-promoRatio-prodRatio):null;
   const pctCls=v=>v===null?'mut':v>0.5?'neg':v>0.3?'warn':'pos';
-  const pctTxt=v=>v===null?'—':(Math.round(v*10000)/100)+'%';
+  const pctTxt=v=>v===null?'—':(v*100).toFixed(1)+'%';
   return '<div class="lrow" data-id="'+r.link_id+'">'
     +'<div class="r-top">'
     +chkHTML(r.link_id)
@@ -865,9 +663,9 @@ function drillRowHTML(r){
       +'<div class="metric"><span class="k">ROI</span><span class="v '+(r.roiV<1?'neg':'pos')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
       +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'
       +'<div class="metric"><span class="k">利润率</span><span class="v">'+prTxt+'</span></div>'
-      +'<div class="metric"><span class="k" title="推广花费占销售额比（表字段或 1/ROI 回退）">推广费比</span><span class="v '+pctCls(promoRatio)+'">'+pctTxt(promoRatio)+'</span></div>'
-      +'<div class="metric"><span class="k" title="货品成本占比(支付)（表字段，缺失按 1-毛利率 回退）">货品成本费比</span><span class="v '+pctCls(prodRatio)+'">'+pctTxt(prodRatio)+'</span></div>'
-      +'<div class="metric"><span class="k" title="自定义费用占比（表字段，缺失按 1-利润率-推广-货品 回退）">自定义费比</span><span class="v '+pctCls(customRatio)+'">'+pctTxt(customRatio)+'</span></div>'
+      +'<div class="metric"><span class="k" title="=1/ROI，推广费占销售额比">推广费比</span><span class="v '+pctCls(promoRatio)+'">'+pctTxt(promoRatio)+'</span></div>'
+      +'<div class="metric"><span class="k" title="=1-毛利率，货品成本占销售额比">货品成本费比</span><span class="v '+pctCls(prodRatio)+'">'+pctTxt(prodRatio)+'</span></div>'
+      +'<div class="metric"><span class="k" title="=1-利润率-推广费比-货品成本费比，其余费用（自定义费/平台费/退款）占销售额比">自定义费比</span><span class="v '+pctCls(customRatio)+'">'+pctTxt(customRatio)+'</span></div>'
       +'<div class="metric"><span class="k">趋势</span><span class="v '+dCls+'">'+dArw+'</span></div>'
       +'</div>'
     +'<div class="r-side"><span class="act-chip '+meta.cls+'">'+rec.act+'</span>'+stateChipHTML(r.link_id)+'</div>'
@@ -879,18 +677,16 @@ function drillRowHTML(r){
 function renderDrill(){
   const host=document.getElementById('drillHost');
   if(!BUCKET){ host.innerHTML=''; return; }
-  const g=BUCKET.g, all=platRows();
-  const isLossView=(g==='loss'||g==='loss_all');
-  const rows=pendingOnly(all);                          // 全下钻都按待办口径（与分档卡一致，已处理在观察区）
+  const g=BUCKET.g, rows=platRows();
   let list=[], cellName='', actFilter=false;
-  if(g==='loss_all'){ list=rows.filter(r=>r.p<0).sort((a,b)=>a.p-b.p); cellName='亏损(待办) · 全部'; actFilter=true; }
-  else if(g==='profit_all'){ list=rows.filter(r=>r.p>0).sort((a,b)=>b.p-a.p); cellName='盈利(待办) · 全部（按进发货利润额从高到低）'; actFilter=true; }
-  else if(g==='sales'){ const c=bucketOf(rows).sales[BUCKET.i]; list=c.list.slice().sort((a,b)=>b.s-a.s); cellName='销售额档(待办)「'+c.name+'」'; }
-  else if(g==='rate_all'){ list=rows.slice().sort((a,b)=>(b.prV||0)-(a.prV||0)); cellName='全部(待办)链接 · 按利润率从高到低'; }
-  else { const B=bucketOf(rows), c=B[g][BUCKET.i]; list=c.list.slice().sort((a,b)=>g==='loss'?a.p-b.p:b.p-a.p); cellName=(g==='loss'?'亏损档(待办)':g==='profit'?'盈利档(待办)':'利润率档(待办)')+'「'+c.name+'」（按'+(g==='rate'?'利润率':'进发货利润额')+'）'; actFilter=(g==='loss'||g==='profit'); }
+  if(g==='loss_all'){ list=rows.filter(r=>r.p<0).sort((a,b)=>a.p-b.p); cellName='亏损 · 全部'; actFilter=true; }
+  else if(g==='profit_all'){ list=rows.filter(r=>r.p>0).sort((a,b)=>b.p-a.p); cellName='盈利 · 全部（按进发货利润额从高到低）'; actFilter=true; }
+  else if(g==='sales'){ const c=bucketOf(rows).sales[BUCKET.i]; list=c.list.slice().sort((a,b)=>b.s-a.s); cellName='销售额档「'+c.name+'」'; }
+  else if(g==='rate_all'){ list=rows.slice().sort((a,b)=>(b.prV||0)-(a.prV||0)); cellName='全部链接 · 按利润率从高到低'; }
+  else { const B=bucketOf(rows), c=B[g][BUCKET.i]; list=c.list.slice().sort((a,b)=>g==='loss'?a.p-b.p:b.p-a.p); cellName=(g==='loss'?'亏损档':g==='profit'?'盈利档':'利润率档')+'「'+c.name+'」（按'+(g==='rate'?'利润率':'进发货利润额')+'）'; actFilter=(g==='loss'||g==='profit'); }
   let actCnt=null;
   if(actFilter){ actCnt={all:list.length}; list.forEach(r=>{const k=classifyRec(r).k; actCnt[k]=(actCnt[k]||0)+1;}); if(DACT!=='all') list=list.filter(r=>classifyRec(r).k===DACT); }
-  if(!list.length){ host.innerHTML='<div class="empty-follow">该档位暂无数据'+(isLossView?'（已处理的亏损链接已移入上方「已处理 · 观察跟进」，数据回弹后不再重复提醒）':'')+'。</div>'; return; }
+  if(!list.length){ host.innerHTML=''; return; }
   const total=list.length, pages=Math.max(1,Math.ceil(total/60)); if(DRILL_PAGE>=pages)DRILL_PAGE=0;
   const slice=list.slice(DRILL_PAGE*60,(DRILL_PAGE+1)*60);
   let af='';
@@ -901,8 +697,8 @@ function renderDrill(){
       : [['all','全部'],['A_del','停推广下架'],['A_stop','停推广'],['B_fix','提投产'],['C_price','提价去优惠'],['D_struct','查成本退款'],['E_watch','观察收窄']];
     af='<div class="amtbar"><span class="lab">动作类型</span>'+order.map(([k,lab])=>'<span class="amt-chip '+(DACT===k?'active':'')+(actCnt[k]?'':' disable')+'" data-dact="'+k+'">'+lab+'<span class="n">'+(actCnt[k]||0)+'</span></span>').join('')+'</div>';
   }
-  let html='<div class="listcard" id="drillCard" data-allids="'+esc(JSON.stringify(list.map(r=>r.link_id)))+'">'+af+batchBarHTML('drill',total)
-    +'<div class="listhead">▾ '+cellName+' · '+total+' 条<span class="lsub">点行看趋势 · 勾选下载 / 批量标状态</span></div>'
+  let html='<div class="listcard" id="drillCard">'+af+batchBarHTML('drill',total)
+    +'<div class="listhead">▾ '+cellName+' · '+total+' 条<span class="lsub">点行看趋势 · 勾选批量复制 / 批量标状态</span></div>'
     +'<div class="ltable">'+slice.map(r=>drillRowHTML(r)).join('')+'</div>';
   if(pages>1) html+='<div class="pager"><button data-pg="prev">‹ 上一页</button><span>'+(DRILL_PAGE+1)+'/'+pages+' 页</span><button data-pg="next">下一页 ›</button></div>';
   html+='</div>';
@@ -914,9 +710,8 @@ function renderDrill(){
 }
 
 function renderProducts(){
-  const all=platRows(), rows=pendingOnly(all);   // 待办视角，已处理的进观察区
   const groups=new Map();
-  rows.forEach(r=>{ if(!groups.has(r.product))groups.set(r.product,{name:r.product,links:[]}); groups.get(r.product).links.push(r); });
+  platRows().forEach(r=>{ if(!groups.has(r.product))groups.set(r.product,{name:r.product,links:[]}); groups.get(r.product).links.push(r); });
   let html='';
   groups.forEach(g=>{
     g.links.sort((a,b)=>a.p-b.p);
@@ -929,7 +724,7 @@ function renderProducts(){
       +body+'</div></div></div>';
   });
   const host=document.getElementById('prodHost');
-  host.innerHTML=html||'<div class="empty">当前视图没有待办链接</div>';
+  host.innerHTML=html;
   host.querySelectorAll('.pgroup').forEach(g=>{
     g.querySelector('.ghead').addEventListener('click',()=>{
       const open=!g.classList.contains('open');
@@ -951,81 +746,10 @@ function drawTrend(canvas,id){
 }
 
 function renderAll(){
-  renderWinBar(); renderOverview(); renderBuckets(); renderDrill(); renderProducts(); renderFollow(); renderIdSearch();
-}
-
-/* ---------- 批量ID搜索（可搜索后批量调整优化动作状态） ---------- */
-let SEARCH_IDS=[];            // 当前搜索的 link_id 列表
-function parseIds(str){
-  const out=new Set();
-  (str||'').split(/[\s,，;；\n\r\t]+/).forEach(t=>{ t=t.trim(); if(!t)return; out.add(t); });
-  return [...out];
-}
-function matchedSearchRows(){
-  const rows=platRows();                        // 仅当前窗口+平台
-  if(!SEARCH_IDS.length) return [];
-  const set=new Set(SEARCH_IDS);
-  return rows.filter(r=>set.has(r.link_id));
-}
-function actTagOf(r){
-  const rec=classifyRec(r), meta=REC_META[rec.k];
-  return {cls:meta.cls, act:rec.act, why:rec.why};
-}
-function renderIdSearch(){
-  const host=document.getElementById('idSearchHost');
-  const msg=document.getElementById('idSearchMsg');
-  if(!SEARCH_IDS.length){ host.innerHTML=''; if(msg)msg.textContent=''; return; }
-  const list=matchedSearchRows();
-  const miss=SEARCH_IDS.filter(id=>!list.find(r=>r.link_id===id));
-  if(msg)msg.textContent='匹配 '+list.length+' 条'+(miss.length?(' · 未在当前窗口命中 '+miss.length+' 个ID: '+miss.slice(0,5).join(',')):'')+'（当前平台：'+platName()+'）';
-  if(!list.length){ host.innerHTML='<div class="empty-follow">当前'+platName()+'窗口未找到这些 ID —— 换平台/窗口后重新搜索，或用「批量ID标记」在任意历史窗口直接登记。</div>'; return; }
-  let html='<div class="listcard" data-allids="'+esc(JSON.stringify(list.map(r=>r.link_id)))+'"><div class="listhead">▾ 批量ID · 命中 '+list.length+' 条<span class="lsub">勾选后批量调整「优化动作状态」或下载清单</span></div>';
-  html+='<div class="batchbar"><span>已选 <span class="cnt" id="selCnt_search">0</span> 条</span>'
-    +'<button class="bbtn" data-b="all">全选本页</button><button class="bbtn" data-b="allSel">全选所有</button><button class="bbtn" data-b="clear">清空</button>'
-    +'<span style="width:1px;height:18px;background:#ddd6fe"></span>'
-    +'<button class="bbtn primary" data-b="download" disabled>⬇ 下载勾选清单</button>'
-    +'<button class="bbtn primary" data-b="copyId" disabled>复制链接ID</button>'
-    +'<span style="width:1px;height:18px;background:#ddd6fe"></span>'
-    +'<span style="color:var(--text-secondary)">批量标记为</span>'
-    +'<select class="bselect" data-b="stSel">'+STATE_OPTS.map(s=>'<option>'+s+'</option>').join('')+'</select>'
-    +'<button class="bbtn" data-b="applyState">应用</button>'
-    +'<span class="toast-msg" id="toast_search"></span></div>';
-  html+='<div class="ltable">'+list.map(r=>{
-    const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
-    const tg=actTagOf(r), gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?pctStr(r.gmTxt):'—';
-    return '<div class="lrow" data-id="'+r.link_id+'"><div class="r-top">'
-      +'<input type="checkbox" class="chk" data-chk="'+r.link_id+'">'
-      +'<div class="r-title" style="flex:1 1 26%;min-width:0"><div class="r-name">'+esc(r.title||r.product)+'</div>'
-      +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+' · 链接 '+esc(r.link_id)+' · '+(isHandled(r.link_id)?('已处理：'+stateLabel(planState(r.link_id))):'待办')+'</div></div>'
-      +'<div class="r-metrics">'
-      +'<div class="metric"><span class="k">利润</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
-      +'<div class="metric"><span class="k">净销售</span><span class="v">'+fmtMoney(r.s)+'</span></div>'
-      +'<div class="metric"><span class="k">ROI</span><span class="v">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
-      +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'
-      +'<div class="metric"><span class="k">趋势</span><span class="v '+dCls+'">'+dArw+'</span></div></div>'
-      +'<div class="r-side">'+stateChipHTML(r.link_id)+'</div>'
-      +'</div><div class="trendbox"><div class="tlab">'+r.link_id+' · 滚动窗口利润走势（元/近7天）</div><div class="chart"></div></div></div>';
-  }).join('')+'</div></div>';
-  host.innerHTML=html;
-  const scard=host.querySelector('.listcard');
-  if(scard) bindBatch(scard,'search');
-  host.querySelectorAll('.lrow[data-id]').forEach(row=>{
-    if(row.dataset.b)return; row.dataset.b=1;
-    row.addEventListener('click',(e)=>{ if(e.target.closest('.chk')||e.target.closest('.ostate'))return; toggleTrend(row); });
-  });
-}
-function bindIdSearch(){
-  const input=document.getElementById('idSearchInput');
-  const btn=document.getElementById('idSearchBtn');
-  const clr=document.getElementById('idSearchClear');
-  const run=()=>{ const ids=parseIds(input.value); SEARCH_IDS=ids; SELECTED.clear(); renderIdSearch(); if(ids.length) renderAll(); };
-  btn.addEventListener('click',run);
-  input.addEventListener('keydown',e=>{ if(e.key==='Enter')run(); });
-  clr.addEventListener('click',()=>{ input.value=''; SEARCH_IDS=[]; SELECTED.clear(); renderIdSearch(); renderAll(); });
+  renderWinBar(); renderOverview(); renderBuckets(); renderDrill(); renderProducts();
 }
 async function main(){
   loadPlan();
-  bindIdSearch();
   try{
     const res=await fetch('data/feishu_bi.json'); if(!res.ok)throw new Error('HTTP '+res.status);
     const raw=await res.json();

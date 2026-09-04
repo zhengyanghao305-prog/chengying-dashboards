@@ -409,6 +409,15 @@
      ============================================================ */
   .board-groups { }
 
+/* ── 使用说明中心入口横幅 ── */
+.guide-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,#eef2ff,#faf5ff);border:1px solid #d8d3ff;border-radius:14px;padding:13px 18px;cursor:pointer;margin:2px 0 18px;transition:box-shadow .15s,transform .12s;box-shadow:var(--shadow-sm);}
+.guide-banner:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.guide-banner-ico{font-size:22px;}
+.guide-banner-txt{font-size:13.5px;color:#312e81;flex:1;}
+.guide-banner-txt b{font-size:15px;}
+.guide-banner-btn{font-size:12.5px;font-weight:700;color:#fff;background:#6366f1;padding:6px 15px;border-radius:18px;white-space:nowrap;}
+.guide-banner-btn:hover{opacity:.9;}
+
   .group {
     margin-bottom: 36px;
     opacity: 0;
@@ -1130,6 +1139,12 @@ body{
 <div class="main-wrapper"><div class="main-content">
 <!-- 经营健康总览（体检报告） -->
 <div id="homeHealth" style="margin-bottom:18px;"></div>
+<!-- 使用说明中心入口（全局常驻，不随筛选变化） -->
+<div class="guide-banner" onclick="location.href='guide.html'" title="每个板块怎么用，点这里看极简说明">
+  <span class="guide-banner-ico">📘</span>
+  <span class="guide-banner-txt"><b>板块使用说明中心</b> · 每个板块「是什么 / 什么时候用 / 怎么操作」一页速览</span>
+  <span class="guide-banner-btn">查看说明 →</span>
+</div>
 <div id="leaderCockpit" class="cockpit-panel" style="display:block">
 
   <!-- Filter Bar -->
@@ -1990,15 +2005,15 @@ initSync();
 </script>
 
 
-<script src="js/store.js?v=202609041406"></script>
-<script src="js/boards-config.js?v=202609041406"></script>
-<script src="js/diagnostics-config.js?v=202609041406"></script>
-<script src="js/diagnosis.js?v=202609041406"></script>
-<script src="js/deep-link.js?v=202609041406"></script>
-<script src="js/home-health.js?v=202609041406"></script>
-<script src="js/web-sync.js?v=202609041406"></script>
-<script src="js/auth.js?v=202609041406"></script>
-<script src="js/chat-widget.js?v=202609041406"></script>
+<script src="js/store.js?v=202609041559"></script>
+<script src="js/boards-config.js?v=202609041559"></script>
+<script src="js/diagnostics-config.js?v=202609041559"></script>
+<script src="js/diagnosis.js?v=202609041559"></script>
+<script src="js/deep-link.js?v=202609041559"></script>
+<script src="js/home-health.js?v=202609041559"></script>
+<script src="js/web-sync.js?v=202609041559"></script>
+<script src="js/auth.js?v=202609041559"></script>
+<script src="js/chat-widget.js?v=202609041559"></script>
 <script>
 /* ============================================================
  * 本地数据引导（仅浏览器 http / 预览静态模式）

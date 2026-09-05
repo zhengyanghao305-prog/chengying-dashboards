@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609041614"></script>
-<script src="js/xlsx.full.min.js?v=202609041614"></script>
+<script src="js/echarts.min.js?v=202609050936"></script>
+<script src="js/xlsx.full.min.js?v=202609050936"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -314,7 +314,7 @@ function actLabelByKey(key){ const m=Object.values(ACT_META).find(x=>x.key===key
 // ── 处理状态 v2：{st:'已下架', ts:'2026-09-03'}，兼容旧版纯字符串 ──
 function normPlanVal(v){ if(v&&typeof v==='object')return {st:stateLabel(v.st||'todo'), ts:v.ts||''}; return {st:stateLabel(v), ts:''}; }
 function loadPlan(){ try{PLAN=JSON.parse(localStorage.getItem(PLAN_KEY)||'{}');}catch(e){PLAN={};} for(const k in PLAN){ if(typeof PLAN[k]!=='object') PLAN[k]=normPlanVal(PLAN[k]); } }
-function savePlan(){ try{localStorage.setItem(PLAN_KEY,JSON.stringify(PLAN));}catch(e){} }
+function savePlan(){ try{localStorage.setItem(PLAN_KEY,JSON.stringify(PLAN));}catch(e){} syncHash(); }
 function planState(id){ const v=PLAN[id]; return v?(v.st||'todo'):'todo'; }
 function planTs(id){ const v=PLAN[id]; return v&&v.ts?v.ts:''; }
 function setPlan(id,s){ const cur=planState(id); PLAN[id]={st:stateLabel(s), ts:cur!=='todo'&&stateLabel(s)===cur?PLAN[id].ts:todayISO()}; savePlan(); }
@@ -322,6 +322,45 @@ function isHandled(id){ const s=planState(id); return !(s==='todo'||s==='待处�
 function isHandledAdj(id){ const s=planState(id); return !!(HANDLED_ADJ[s]||s==='doing'); }
 function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function daysSince(ts){ if(!ts)return null; const a=new Date(ts.replace(/-/g,'/')), b=new Date(); return Math.max(0,Math.round((b-a)/86400000)); }
+
+// ── 状态写入链接(URL hash)：让"已处理/优化动作状态"随链接保存，跨设备/可分享 ──
+// 编码：仅记录非默认的(非 待处理)条目，紧凑数组 [link_id, 状态序号, 时间戳] → base64 写入 #p=
+const HASH_PREFIX='#p=';
+function encodePlanToHash(){
+  const arr=[];
+  for(const id in PLAN){ const s=planState(id); if(s==='todo'||s==='待处理')continue; arr.push([id, STATE_OPTS.indexOf(s), planTs(id)||'']); }
+  if(!arr.length)return '';
+  try{ return btoa(JSON.stringify(arr)); }catch(e){ return ''; }
+}
+function decodePlanFromHash(b64){
+  const out={};
+  try{
+    const arr=JSON.parse(atob(b64));
+    if(Array.isArray(arr)) arr.forEach(it=>{ const id=it[0], si=it[1], ts=it[2]||''; if(typeof id!=='string')return; const s=STATE_OPTS[si]||'待处理'; out[id]={st:stateLabel(s),ts:ts}; });
+  }catch(e){}
+  return out;
+}
+function parseHashPlan(){
+  const h=location.hash||'';
+  if(h.indexOf(HASH_PREFIX)!==0)return {};
+  return decodePlanFromHash(h.slice(HASH_PREFIX.length));
+}
+// 合并：localStorage(本地) 与 URL(分享) 取每个 link_id 的最新状态为准；平手取链接方(分享优先)
+function mergePlanToLocal(localP,urlP){
+  const out=Object.assign({},localP);
+  for(const id in urlP){
+    const u=urlP[id], l=out[id];
+    if(!l) out[id]=u;
+    else if(!l.ts&&u.ts) out[id]=u;
+    else if(l.ts&&u.ts&&u.ts>=l.ts) out[id]=u; // 最新为准；同时间戳以分享链接为准
+  }
+  return out;
+}
+function syncHash(){
+  const b64=encodePlanToHash();
+  const base=location.pathname+(location.search||'');
+  try{ history.replaceState(null,'',base+(b64?HASH_PREFIX+b64:'')); }catch(e){}
+}
 function planProgress(){
   // 累计口径：凡在页面标记过状态的链接都计入 t；其中"收尾型"(已下架/已停推广/已完成/不处理)计入 d（落地）。
   // 0/0 即"还没给任何链接点过处理状态"。
@@ -550,7 +589,7 @@ function renderFollow(){
   const w=followWatchCounts(all);
   const hint=document.getElementById('followHint');
   if(hint) hint.textContent='按「处理动作状态」归档卡片：点击某状态卡 → 下方仅显示该状态链接（含处理天数/回弹标签）。观察期≤'+FLOOK_DAYS+'天不重复提醒，超期未回弹亮红提示二次处理。';
-  if(!w.total){ host.innerHTML='<div class="empty-follow">还没有已处理记录 —— 给任意亏损/盈利链接点右侧「状态」标签（如 已停推广 / 已下架 / 已提投产…）后，它会自动从上方待办移出、出现在这里，防止"处理过的链接第二天又来提醒"。<br>状态保存在本机浏览器(localStorage)。</div>'; 
+  if(!w.total){ host.innerHTML='<div class="empty-follow">还没有已处理记录 —— 给任意亏损/盈利链接点右侧「状态」标签（如 已停推广 / 已下架 / 已提投产…）后，它会自动从上方待办移出、出现在这里，防止"处理过的链接第二天又来提醒"。<br>处理状态已自动保存到当前链接(地址栏 #p=)，把网址发给同事/换设备打开即可同步，无需依赖本机浏览器。</div>'; 
     return; }
   // 按处理状态分组计数（归档卡）
   const stCounts={}; hs.forEach(r=>{ const s=stateLabel(planState(r.link_id)); stCounts[s]=(stCounts[s]||0)+1; });
@@ -610,6 +649,7 @@ function batchBarHTML(pool,total){
     +'<span style="width:1px;height:18px;background:#ddd6fe"></span>'
     +'<button class="bbtn primary" data-b="download" '+(n?'':'disabled')+'>⬇ 下载勾选清单</button>'
     +'<button class="bbtn primary" data-b="copyId" '+(n?'':'disabled')+'>复制链接ID</button>'
+    +'<button class="bbtn" data-b="copyLink">🔗 复制状态链接</button>'
     +'<span style="width:1px;height:18px;background:#ddd6fe"></span>'
     +'<span style="color:var(--text-secondary)">批量标记为</span>'
     +'<select class="bselect" data-b="stSel"><option>已停推广</option><option>已下架</option><option>已提投产</option><option>已提价</option><option>已完成</option><option>不处理</option></select>'
@@ -667,6 +707,7 @@ function bindBatch(host,pool){
         toast(pool,ok?('已下载 '+rows.length+' 条'):'下载失败');
       }
       else if(b==='copyId'){ const rows=platRows().filter(r=>SELECTED.has(r.link_id)); if(!rows.length){toast(pool,'请先勾选');return;} const txt=rows.map(r=>r.link_id).join('\n'); copyText(txt).then(ok=>toast(pool,ok?'已复制 '+rows.length+' 个链接ID':'复制失败')); }
+      else if(b==='copyLink'){ syncHash(); copyText(location.href).then(ok=>toast(pool,ok?'已复制带状态链接，可发给同事/换设备打开':'复制失败')); }
     });
   });
   const applyBtn=host.querySelector('[data-b="applyState"]');
@@ -1012,6 +1053,10 @@ function bindIdSearch(){
 }
 async function main(){
   loadPlan();
+  // 链接携带的分享状态 → 与本地合并(以最新为准)，再写回，保证地址栏始终是完整可分享状态
+  const urlPlan=parseHashPlan();
+  if(urlPlan && Object.keys(urlPlan).length){ PLAN=mergePlanToLocal(PLAN,urlPlan); savePlan(); }
+  else syncHash();
   bindIdSearch();
   try{
     const res=await fetch('data/feishu_bi.json'); if(!res.ok)throw new Error('HTTP '+res.status);

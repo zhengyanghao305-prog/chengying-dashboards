@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>window.__EDITION = 'cloud'; window.__SYNC_BASE = location.protocol + '//' + location.host;</script>
+<script>window.__EDITION = 'mgmt';</script>
 <title>橙萤零售工作台</title>
 <style>
   /* ============================================================
@@ -1427,6 +1427,29 @@ body{
           <div class="card-footer">📡 数据源 → product-index.json（与 BI 同源）<span class="card-arrow">→</span></div>
         </div>
 
+        <!-- 09 — BI 归档结果看板 -->
+        <div class="card" onclick="location.href='bi-result-board.html'" data-accent="purple" data-tags="daily,demand" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#09</span>
+              <span class="card-title">BI 归档结果看板</span>
+              <span class="card-subtitle">Weekly Result Board</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每周自动</span>
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 按需触发</span>
+          </div>
+          <div class="card-desc">按自然周看「优化动作 → 结果变化」：亏损档位降没降、盈利额涨没涨、谁优化得好谁没在动</div>
+          <ul class="card-list">
+            <li>总看板：亏损/盈利/销售额各档位周环比（条数 + 金额）</li>
+            <li>优化结合：覆盖率、改善率、已处理仍亏损、改善好案例</li>
+            <li>负责人看板：每人亏损额Δ / 盈利额Δ / 销售额Δ + 评级排序</li>
+          </ul>
+          <div class="card-footer">📡 数据源 → feishu_bi.json + 优化动作状态<span class="card-arrow">→</span></div>
+        </div>
+
       </div>
     </div>
 
@@ -2005,15 +2028,15 @@ initSync();
 </script>
 
 
-<script src="js/store.js?v=202609041614"></script>
-<script src="js/boards-config.js?v=202609041614"></script>
-<script src="js/diagnostics-config.js?v=202609041614"></script>
-<script src="js/diagnosis.js?v=202609041614"></script>
-<script src="js/deep-link.js?v=202609041614"></script>
-<script src="js/home-health.js?v=202609041614"></script>
-<script src="js/web-sync.js?v=202609041614"></script>
-<script src="js/auth.js?v=202609041614"></script>
-<script src="js/chat-widget.js?v=202609041614"></script>
+<script src="js/store.js?v=202609051041"></script>
+<script src="js/boards-config.js?v=202609051041"></script>
+<script src="js/diagnostics-config.js?v=202609051041"></script>
+<script src="js/diagnosis.js?v=202609051041"></script>
+<script src="js/deep-link.js?v=202609051041"></script>
+<script src="js/home-health.js?v=202609051041"></script>
+<script src="js/web-sync.js?v=202609051041"></script>
+<script src="js/auth.js?v=202609051041"></script>
+<script src="js/chat-widget.js?v=202609051041"></script>
 <script>
 /* ============================================================
  * 本地数据引导（仅浏览器 http / 预览静态模式）

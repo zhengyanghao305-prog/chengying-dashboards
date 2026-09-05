@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609050936"></script>
-<script src="js/xlsx.full.min.js?v=202609050936"></script>
+<script src="js/echarts.min.js?v=202609051041"></script>
+<script src="js/xlsx.full.min.js?v=202609051041"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -237,6 +237,8 @@
     <div class="platbox" id="platBox">
       <button data-plat="all">全平台</button><button data-plat="天猫">天猫</button><button data-plat="拼多多">拼多多</button>
     </div>
+    <span class="lab" style="margin-left:14px">负责人</span>
+    <select class="win-select" id="ownerSel" title="按运营负责人筛选，括号内为该平台该窗口下的链接数"></select>
     <span class="lab" style="margin-left:14px">数据窗口</span>
     <select class="win-select" id="winSel" title="所选平台下各近7天快照窗口的链接数，最新=当前数据"></select>
     <span class="win-scope" id="winScope"></span>
@@ -291,7 +293,7 @@ const HANDLED_TERM={'已下架':1,'已停推广':1,'已完成':1,'不处理':1};
 const HANDLED_ADJ={'已提投产':1,'已提价':1,'处理中':1};               // 调整型：等回弹观察
 let PLAN={};
 let DATA={rows:[],windows:[],winRowsMap:{}};
-let WIN='', PLAT='all', ACT='all', AMT='all', DACT='all', SELECTED=new Set(), SEL_POOL='action';
+let WIN='', PLAT='all', OWNER='all', ACT='all', AMT='all', DACT='all', SELECTED=new Set(), SEL_POOL='action';
 let PAGE=0, DRILL_PAGE=0, BUCKET=null, FVIEW='all', FLOOK_DAYS=7;   // FLOOK_DAYS=观察回弹期(默认7天≈1窗口)
 
 function toNum(v){ if(v===null||v===undefined||v==='')return 0; if(typeof v==='number')return v; return parseFloat(String(v).replace(/[%,¥\s]/g,''))||0; }
@@ -396,8 +398,12 @@ function buildDedup(rows){
 function linkSeries(id){ const arr=DATA.rows.filter(r=>r.link_id===id); if(!arr.length)return[]; const m=new Map(); arr.forEach(r=>{const d=toDate(r.window_end); m.set(d,(m.get(d)||0)+r.p);}); return [...m.entries()].sort((a,b)=>a[0].localeCompare(b[0])); }
 function trendDelta(id){ const s=linkSeries(id); if(s.length<2)return 0; const n=s.length; const ea=s.slice(0,Math.min(3,n)).reduce((a,x)=>a+x[1],0)/Math.min(3,n); const la=s.slice(Math.max(0,n-3)).reduce((a,x)=>a+x[1],0)/Math.min(3,n); return Math.round((la-ea)*10)/10; }
 function platUrl(platform,id){ return platform==='拼多多'?'https://mobile.yangkeduo.com/goods.html?goods_id='+id:'https://item.taobao.com/item.htm?id='+id; }
-function platRows(){ const rows=DATA.winRowsMap[WIN]||[]; if(PLAT==='all')return rows; return rows.filter(r=>r.platform===PLAT); }
-function platName(){ return PLAT==='all'?'全平台':PLAT; }
+/* 作用域筛选：平台 × 负责人（(未标注) 表示数据表里负责人为空） */
+function ownKey(r){ return (r.owner||'').trim()||'(未标注)'; }
+function ownShort(o){ return o.replace(/[（(]运营[)）]\s*$/,''); }
+function matchScope(r){ return (PLAT==='all'||r.platform===PLAT) && (OWNER==='all'||ownKey(r)===OWNER); }
+function platRows(){ const rows=DATA.winRowsMap[WIN]||[]; return rows.filter(matchScope); }
+function platName(){ const p=PLAT==='all'?'全平台':PLAT; return OWNER==='all'?p:(p+' · '+ownShort(OWNER)); }
 
 const ACT_META={
   A_del:{key:'del',label:'停推广并下架',color:'#ef4444',cls:'chip-del',prio:0},
@@ -466,9 +472,22 @@ function renderWinBar(){
     const isLast=w===DATA.windows[DATA.windows.length-1];
     return '<option value="'+w+'" '+(w===WIN?'selected':'')+'>'+(isLast?'最新 · ':'')+w.replace(/\//g,'-')+'（'+cnt+' 链接）</option>';
   }).join('');
+  // 负责人下拉：按「当前平台 + 当前窗口」统计各负责人链接数
+  const oSel=document.getElementById('ownerSel');
+  if(oSel){
+    const wsel=document.getElementById('winSel');
+    const base=(DATA.winRowsMap[WIN]||[]).filter(r=>PLAT==='all'||r.platform===PLAT);
+    const cnt=new Map(); base.forEach(r=>cnt.set(ownKey(r),(cnt.get(ownKey(r))||0)+1));
+    const list=[...cnt.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'zh'));
+    if(OWNER!=='all'&&!cnt.has(OWNER)) OWNER='all';
+    oSel.innerHTML='<option value="all"'+(OWNER==='all'?' selected':'')+'>全部负责人（'+base.length+' 条）</option>'
+      + list.map(([o,n])=>'<option value="'+String(o).replace(/"/g,'')+'"'+(o===OWNER?' selected':'')+'>'+ownShort(o)+'（'+n+' 条）</option>').join('');
+    oSel.onchange=()=>{ OWNER=oSel.value; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); };
+    if(wsel) wsel.value=WIN;
+  }
   const end=toDate((DATA.rows.find(r=>r.window===WIN)||{}).window_end)||'';
   const start=DATA.windows[0]?DATA.windows[0].slice(0,10):'';
-  document.getElementById('winScope').innerHTML='<b>'+platName()+'</b> · 滚动近7天快照 · 覆盖 '+start.replace(/\//g,'-')+' → '+(end||'')+' · 共 '+DATA.windows.length+' 张，窗口链接数按所选平台统计';
+  document.getElementById('winScope').innerHTML='<b>'+platName()+'</b> · 滚动近7天快照 · 覆盖 '+start.replace(/\//g,'-')+' → '+(end||'')+' · 共 '+DATA.windows.length+' 张，窗口链接数按所选平台/负责人统计';
   document.getElementById('winTag').textContent=WIN.replace(/\//g,'-')+' 已选中';
   sel.onchange=()=>{ WIN=sel.value; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); };
   // 平台切换 + 下载按钮
@@ -476,7 +495,7 @@ function renderWinBar(){
   document.getElementById('platBox').onclick=(e)=>{ const b=e.target.closest('button'); if(b&&b.dataset.plat!==PLAT){ PLAT=b.dataset.plat; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); } };
   document.getElementById('dlBtn').onclick=downloadExcel;
 }
-function platRowCount(w){ const rows=DATA.winRowsMap[w]||[]; return PLAT==='all'?rows.length:rows.filter(r=>r.platform===PLAT).length; }
+function platRowCount(w){ const rows=DATA.winRowsMap[w]||[]; return rows.filter(matchScope).length; }
 
 /* ---------- 下载运营执行清单 Excel ---------- */
 function dlPrio(p){ return p===0?'P0':(p===1?'P1':(p===2?'P2':'P3')); }
@@ -536,7 +555,7 @@ function renderOverview(){
   const prD=saleTxt+(fw.watch?(' · <b>'+fw.watch+' 观察中</b>'):'')+(fw.exp?(' · <b style="color:#b91c1c">'+fw.exp+' 超期未回弹</b>'):'');
   // 上期同口径：统一用待办
   const pw=prevWin(); let pLossN=null,pProN=null,pTopN=null;
-  if(pw){ const pr2=pendingOnly((DATA.winRowsMap[pw]||[]).filter(r=>PLAT==='all'||r.platform===PLAT)); let ln=0,pn=0,tn=0; pr2.forEach(r=>{ if(r.p<0)ln++; else if(r.p>0){ pn++; if(r.p>=topLine)tn++; } }); pLossN=ln;pProN=pn;pTopN=tn; }
+  if(pw){ const pr2=pendingOnly((DATA.winRowsMap[pw]||[]).filter(matchScope)); let ln=0,pn=0,tn=0; pr2.forEach(r=>{ if(r.p<0)ln++; else if(r.p>0){ pn++; if(r.p>=topLine)tn++; } }); pLossN=ln;pProN=pn;pTopN=tn; }
   document.getElementById('ovHost').innerHTML=
     '<div class="ov-card ov-loss"><div class="v">'+lossN+' 条</div><div class="k">待办亏损 · '+fmtMoney(lossAmt)+' 元'+(hLossN?'<span class="ov-mini" title="已处理的正在观察区跟进">已处理 '+hLossN+' 移观察区</span>':'')+'</div><div class="d">'+ovDeltaHTML(countDelta(lossN,pLossN),false)+'</div></div>'
     +'<div class="ov-card ov-pro"><div class="v">'+proN+' 条</div><div class="k">盈利链接 · +'+fmtMoney(proAmt)+' 元</div><div class="d">'+ovDeltaHTML(countDelta(proN,pProN),true)+'</div></div>'
@@ -830,7 +849,7 @@ function renderBuckets(){
   const wi=DATA.windows.indexOf(WIN);
   const pw=wi>0?DATA.windows[wi-1]:null;
   let PB=null;
-  if(pw){ const pr=(DATA.winRowsMap[pw]||[]).filter(r=>PLAT==='all'||r.platform===PLAT); PB=bucketOf(pendingOnly(pr)); }
+  if(pw){ const pr=(DATA.winRowsMap[pw]||[]).filter(matchScope); PB=bucketOf(pendingOnly(pr)); }
   const block=(key,dot,goodWhenUp,cells,total,extra,prevObj)=>{
     const prevArr=prevObj?(prevObj[key]||[]):null;
     const prevTotal=prevArr?prevArr.reduce((a,b)=>a+b.list.length,0):null;

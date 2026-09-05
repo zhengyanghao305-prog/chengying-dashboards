@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BI 归档结果看板 · 周环比 & 优化结果</title>
+<style>
+:root{
+  --bg:#0f1115; --bg-card:#171a21; --bg-card2:#1d212b; --border:#272c38;
+  --text:#e8eaf0; --text-secondary:#a6adbd; --text-tertiary:#717889;
+  --accent-purple:#8b5cf6; --accent-indigo:#6366f1; --accent-green:#10b981;
+  --accent-red:#ef4444; --accent-amber:#f59e0b; --accent-blue:#3b82f6;
+  --good:#10b981; --bad:#ef4444; --flat:#94a3b8;
+  --radius:14px; --radius-sm:9px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5}
+a{color:var(--accent-indigo)}
+.wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
+.head{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.head h1{font-size:22px;margin:0;font-weight:800;letter-spacing:.3px}
+.head .sub{color:var(--text-tertiary);font-size:12.5px}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;background:rgba(139,92,246,.16);color:#c4b5fd;border:1px solid rgba(139,92,246,.3)}
+.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin:14px 0 18px}
+.controls label{font-size:12px;color:var(--text-secondary)}
+.controls select{background:var(--bg-card2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:13px}
+.controls .sep{width:1px;height:22px;background:var(--border)}
+.tabs{display:flex;gap:6px;margin-left:auto}
+.tab{padding:7px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-secondary)}
+.tab.active{background:linear-gradient(135deg,var(--accent-purple),var(--accent-indigo));color:#fff;border-color:transparent}
+.section-title{font-size:14px;font-weight:700;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.section-title .bar{width:4px;height:15px;border-radius:3px;background:var(--accent-purple)}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+@media(max-width:1080px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px}
+.kpi .lab{font-size:11.5px;color:var(--text-tertiary);margin-bottom:6px}
+.kpi .val{font-size:20px;font-weight:800}
+.kpi .delta{font-size:11.5px;margin-top:4px;font-weight:600}
+.kpi .delta.good{color:var(--good)} .kpi .delta.bad{color:var(--bad)} .kpi .delta.flat{color:var(--flat)}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:16px}
+.card h3{margin:0 0 12px;font-size:14.5px;font-weight:700}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th,.tbl td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl thead th{color:var(--text-tertiary);font-weight:600;font-size:11.5px;background:var(--bg-card2)}
+.tbl tbody tr:hover{background:rgba(139,92,246,.06)}
+.tier{font-weight:600}
+.tier.loss{color:#fca5a5}.tier.profit{color:#86efac}.tier.sales{color:#93c5fd}.tier.rate{color:#d8b4fe}
+.up{color:var(--good)}.down{color:var(--bad)}.zero{color:var(--flat)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.follow{font-size:13px}
+.follow .row{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--bg-card2)}
+.follow .row.bad{border-left:3px solid var(--bad)}
+.follow .row.good{border-left:3px solid var(--good)}
+.follow .linkid{font-family:monospace;font-size:11px;color:var(--text-tertiary)}
+.follow .meta{flex:1;min-width:0}
+.follow .meta .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.follow .num{font-variant-numeric:tabular-nums;font-weight:700;text-align:right}
+.follow .num.cur{color:#fca5a5}.follow .num.prev{color:var(--text-tertiary);font-size:11px}
+.tag{font-size:10.5px;padding:1px 7px;border-radius:10px;font-weight:600}
+.tag.bad{background:rgba(239,68,68,.16);color:#fca5a5}
+.tag.good{background:rgba(16,185,129,.16);color:#86efac}
+.tag.mid{background:rgba(245,158,11,.16);color:#fcd34d}
+.rank{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.rank.top{background:rgba(16,185,129,.18);color:#86efac}
+.rank.mid{background:rgba(245,158,11,.18);color:#fcd34d}
+.rank.low{background:rgba(239,68,68,.18);color:#fca5a5}
+.owner{font-weight:600}
+.note{font-size:12px;color:var(--text-tertiary);margin-top:6px}
+.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:14px;border-radius:10px}
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:9px;font-size:13px;opacity:0;transition:.2s;pointer-events:none;z-index:50}
+#toast.show{opacity:1}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>BI 归档结果看板</h1>
+    <span class="pill">周环比 · 优化结果</span>
+    <span class="sub">看每周变化 + 谁在优化 / 优化有没有用（承接「BI 档位承接·优化」的已处理动作）</span>
+  </div>
+
+  <div class="controls">
+    <label>本期</label><select id="selCur"></select>
+    <label>对比上期</label><select id="selPrev"></select>
+    <span class="sep"></span>
+    <span class="sub" id="covHint"></span>
+    <div class="tabs">
+      <div class="tab active" data-tab="total">总看板</div>
+      <div class="tab" data-tab="owner">负责人看板</div>
+    </div>
+  </div>
+
+  <div id="errBox"></div>
+  <div id="totalView">
+    <div class="kpis" id="kpis"></div>
+
+    <div class="section-title"><span class="bar"></span>档位周环比（亏损 / 盈利 / 销售额 / 利润率）</div>
+    <div id="bucketWrap"></div>
+
+    <div class="section-title"><span class="bar"></span>优化结合分析 & 后续动作</div>
+    <div class="grid2">
+      <div class="card">
+        <h3>🟢 优化有效 · 可复制的好案例</h3>
+        <div class="follow" id="goodList"></div>
+      </div>
+      <div class="card">
+        <h3>🔴 已标记但仍亏损未改善 · 需二次动作</h3>
+        <div class="follow" id="badList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ownerView" class="hidden">
+    <div class="section-title"><span class="bar"></span>负责人周环比排行（按亏损改善排序）</div>
+    <div class="card"><div id="ownerTblWrap"></div></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const PLAN_KEY='bi_digest_plan_v4';
+const CONFIG={
+  loss:[[0,100,'≤100元'],[100,200,'100-200'],[200,500,'200-500'],[500,1000,'500-1000'],[1000,Infinity,'>1000']],
+  profit:[[0,100,'≤100元'],[100,200,'100-200'],[200,500,'200-500'],[500,1000,'500-1000'],[1000,Infinity,'>1000']],
+  sales:[[0,1000,'<1k'],[1000,3000,'1-3k'],[3000,9000,'3-9k'],[9000,30000,'9-30k'],[30000,Infinity,'>30k']],
+  rate:[[-Infinity,0,'<0%'],[0,10,'0-10%'],[10,20,'10-20%'],[20,30,'20-30%'],[30,Infinity,'≥30%']]
+};
+function toNum(v){ if(v===null||v===undefined||v==='')return 0; if(typeof v==='number')return v; return parseFloat(String(v).replace(/[%,¥\s]/g,''))||0; }
+function fmtMoney(v){ if(v===null||v===undefined||isNaN(v))return '—'; const a=Math.abs(v); let s; if(a>=10000)s=(Math.round(v/100)/100)+'万'; else s=v.toLocaleString('zh-CN',{maximumFractionDigits:0}); return s; }
+function fmtPct(v){ if(v===null||v===undefined||v==='')return '—'; if(typeof v==='number'){return Math.round(v*100)/100+'%';} const n=parseFloat(String(v).replace('%','')); return isNaN(n)?v:(Math.round(n*100)/100)+'%'; }
+function natWeek(s){ const dt=new Date(s.slice(0,10)); const dow=dt.getDay(); const mon=new Date(dt); mon.setDate(dt.getDate()-((dow+6)%7)); const sun=new Date(mon); sun.setDate(mon.getDate()+6); const f=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); return f(mon)+'~'+f(sun); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function deltaSpan(cur,prev,goodWhenUp,fmt){
+  fmt=fmt||((x)=>x);
+  if(prev===null||prev===undefined||isNaN(prev)) return '<span class="zero">—</span>';
+  const d=cur-prev;
+  if(Math.abs(d)<1e-9) return '<span class="zero">→ 持平</span>';
+  const up=d>0, good=goodWhenUp?up:!up;
+  return '<span class="'+(good?'up':'down')+'">'+(up?'▲ +':'▼ ')+fmt(Math.abs(d))+'</span>';
+}
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
+
+// ── 读取同源「已处理/优化动作」状态（与 bi-digest.html 共享 localStorage）──
+function loadPlan(){
+  let P={};
+  try{ P=JSON.parse(localStorage.getItem(PLAN_KEY)||'{}')||{}; }catch(e){ P={}; }
+  const out={};
+  for(const k in P){ const v=P[k]; if(typeof v==='object'&&v) out[k]={st:v.st||'待处理',ts:v.ts||''}; else out[k]={st:String(v||'待处理'),ts:''}; }
+  // 也允许从本页 URL #p= 携带（粘贴分享链接时）
+  try{ const h=location.hash||''; if(h.indexOf('#p=')===0){ const arr=JSON.parse(atob(h.slice(3))); arr.forEach(it=>{ if(typeof it[0]==='string') out[it[0]]={st:(['待处理','已停推广','已下架','已提投产','已提价','已完成','不处理'][it[1]]||'待处理'),ts:it[2]||''}; }); } }catch(e){}
+  return out;
+}
+function planStatus(P,id){ return (P[id]&&P[id].st)||'待处理'; }
+function isHandled(st){ return st!=='待处理'&&st!=='todo'; }
+
+// ── 档位聚合（与 bi-digest 一致：亏损/盈利按 |profit_pay| 分档，销售额按 net_pay）──
+function bucketOf(recs){
+  const loss=[],profit=[],sales=recs.slice();
+  recs.forEach(r=>{ if(r.p<0)loss.push(r); else if(r.p>0)profit.push(r); });
+  const mk=(arr,b,useP)=>{ const res=b.map(x=>({name:x[2],lo:x[0],hi:x[1],n:0,amt:0})); arr.forEach(r=>{const v=useP?Math.abs(r.p):r.s; for(const c of res){if(v>=c.lo&&v<c.hi){c.n++;c.amt+=useP?r.p:r.s;break;}}}); return res; };
+  const mkRate=(b)=>{ const res=b.map(x=>({name:x[2],lo:x[0],hi:x[1],n:0,amt:0})); recs.forEach(r=>{const v=(r.prV==null||isNaN(r.prV))?0:r.prV; for(const c of res){if(v>=c.lo&&v<c.hi){c.n++;c.amt+=r.p;break;}}}); return res; };
+  return {loss:mk(loss,CONFIG.loss,true),profit:mk(profit,CONFIG.profit,true),sales:mk(sales,CONFIG.sales,false),rate:mkRate(CONFIG.rate)};
+}
+
+let WEEK={}, WEEKS=[], PLAN={}, LINKP={};
+async function main(){
+  let raw;
+  try{ const res=await fetch('data/feishu_bi.json'); if(!res.ok)throw new Error('HTTP '+res.status); raw=await res.json(); }
+  catch(e){ document.getElementById('errBox').innerHTML='<div class="err">加载 data/feishu_bi.json 失败：'+e.message+'<br>请用本地服务器地址打开本页（与 bi-digest.html 同源）。</div>'; return; }
+  PLAN=loadPlan();
+  // 归一化
+  const rows=raw.rows.map(r=>({
+    link_id:r.link_id, owner:r.owner||'未分配', product:r.product||'', title:r.title||'', platform:r.platform||'', shop:r.shop||'',
+    p:toNum(r.profit_pay), s:toNum(r.net_pay), prV:toNum(r.profit_rate), roi:(r.roi==null?null:toNum(r.roi)), pay:toNum(r.pay_amt),
+    window:r.window, we:r.window_end
+  }));
+  // 每个链接每周取最新快照
+  const byLW={};
+  rows.forEach(r=>{ const w=natWeek(r.we); const weN=Date.parse(r.we); if(!byLW[r.link_id])byLW[r.link_id]={}; const m=byLW[r.link_id]; if(!m[w]||weN>m[w].weN)m[w]={rec:r,weN}; });
+  WEEK={};
+  for(const lid in byLW){ for(const w in byLW[lid]){ (WEEK[w]=WEEK[w]||[]).push(byLW[lid][w].rec); } }
+  WEEKS=Object.keys(WEEK).sort();
+  // 每个链接的周->p（用于改善判断）
+  LINKP={};
+  for(const lid in byLW){ LINKP[lid]={}; for(const w in byLW[lid]) LINKP[lid][w]=byLW[lid][w].rec.p; }
+  // 给本期/上期记录打优化状态与前期 p
+  WEEKS.forEach(w=>{ WEEK[w].forEach(r=>{ r.st=planStatus(PLAN,r.link_id); r.handled=isHandled(r.st); r.prevP=(LINKP[r.link_id]&&LINKP[r.link_id][prevWeekOf(w)]!=null)?LINKP[r.link_id][prevWeekOf(w)]:null; }); });
+  initSelectors();
+  bindUI();
+  render();
+}
+function prevWeekOf(w){ const i=WEEKS.indexOf(w); return i>0?WEEKS[i-1]:null; }
+
+function initSelectors(){
+  const sc=document.getElementById('selCur'), sp=document.getElementById('selPrev');
+  sc.innerHTML=WEEKS.map(w=>'<option value="'+w+'">'+w+'</option>').join('');
+  sp.innerHTML=WEEKS.map(w=>'<option value="'+w+'">'+w+'</option>').join('');
+  sc.value=WEEKS[WEEKS.length-1];
+  sp.value=WEEKS.length>1?WEEKS[WEEKS.length-2]:WEEKS[WEEKS.length-1];
+  document.getElementById('covHint').textContent='自然周共 '+WEEKS.length+' 个（数据每日更新，周数会随抓取增长）';
+}
+function bindUI(){
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+    const isO=t.dataset.tab==='owner';
+    document.getElementById('ownerView').classList.toggle('hidden',!isO);
+    document.getElementById('totalView').classList.toggle('hidden',isO);
+  }));
+  document.getElementById('selCur').addEventListener('change',render);
+  document.getElementById('selPrev').addEventListener('change',render);
+}
+function render(){
+  const cur=document.getElementById('selCur').value, prev=document.getElementById('selPrev').value;
+  const curR=WEEK[cur]||[], prevR=WEEK[prev]||[];
+  renderKPIs(curR,prevR);
+  renderBuckets(curR,prevR);
+  renderFollow(curR);
+  renderOwners(curR,prevR);
+}
+function agg(recs){ let lossN=0,lossAmt=0,proN=0,proAmt=0,sales=0; recs.forEach(r=>{ if(r.p<0){lossN++;lossAmt+=r.p;} else if(r.p>0){proN++;proAmt+=r.p;} sales+=r.pay; }); return {lossN,lossAmt,proN,proAmt,sales,total:recs.length}; }
+function renderKPIs(cur,prev){
+  const a=agg(cur), b=agg(prev);
+  const handled=cur.filter(r=>r.handled).length;
+  const lossHandled=cur.filter(r=>r.p<0&&r.handled).length;
+  const cov=a.lossN?Math.round(lossHandled/a.lossN*100):0;
+  const impr=cur.filter(r=>r.p<0&&r.handled&&((r.prevP!=null&&r.p>r.prevP)||r.p>=0)).length;
+  const imprRate=lossHandled?Math.round(impr/lossHandled*100):0;
+  const cards=[
+    {lab:'亏损链接数',val:a.lossN,delta:deltaSpan(a.lossN,b.lossN,false),good:false},
+    {lab:'亏损总额(进发货利润)',val:fmtMoney(a.lossAmt),delta:deltaSpan(a.lossAmt,b.lossAmt,true,fmtMoney),good:true},
+    {lab:'盈利链接数',val:a.proN,delta:deltaSpan(a.proN,b.proN,true),good:true},
+    {lab:'盈利总额',val:fmtMoney(a.proAmt),delta:deltaSpan(a.proAmt,b.proAmt,true,fmtMoney),good:true},
+    {lab:'销售额(净成交)',val:fmtMoney(a.sales),delta:deltaSpan(a.sales,b.sales,true,fmtMoney),good:true},
+    {lab:'亏损优化覆盖 / 改善率',val:cov+'% / '+imprRate+'%',delta:'<span class="zero">占亏损链接</span>',good:true}
+  ];
+  document.getElementById('kpis').innerHTML=cards.map(c=>
+    '<div class="kpi"><div class="lab">'+c.lab+'</div><div class="val">'+c.val+'</div><div class="delta '+(c.delta.includes('up')?'good':c.delta.includes('down')?'bad':'flat')+'">'+c.delta+'</div></div>'
+  ).join('');
+}
+function renderBuckets(cur,prev){
+  const B=bucketOf(cur), PB=bucketOf(prev);
+  const groups=[['loss','🔴 亏损档位（|进发货利润额|，负为亏）'],['profit','🟢 盈利档位（|进发货利润额|）'],['sales','🔵 销售额档位（净成交）'],['rate','🟣 利润率档位']];
+  let html='';
+  groups.forEach(([g,title])=>{
+    html+='<div class="card"><h3>'+title+'</h3><table class="tbl"><thead><tr><th>档位</th><th>本期条数</th><th>上期条数</th><th>条数变化</th><th>本期金额</th><th>上期金额</th><th>金额变化</th></tr></thead><tbody>';
+    B[g].forEach((c,i)=>{
+      const pc=PB[g][i];
+      const amtFmt=(g==='rate')?fmtPct:fmtMoney;
+      const curAmt=(g==='rate')?c.amt:fmtMoney(c.amt);
+      const prevAmt=(g==='rate')?pc.amt:fmtMoney(pc.amt);
+      html+='<tr><td class="tier '+g+'">'+c.name+'</td>'
+      +'<td>'+c.n+'</td><td>'+pc.n+'</td><td>'+deltaSpan(c.n,pc.n,g!=='loss')+'</td>'
+      +'<td>'+curAmt+'</td><td>'+prevAmt+'</td><td>'+deltaSpan(c.amt,pc.amt,true,amtFmt)+'</td></tr>';
+    });
+    html+='</tbody></table></div>';
+  });
+  html+='<div class="note">读法：<b>亏损档位</b>看「条数 ↓ + 金额 ▲（亏损收窄）」为好；<b>盈利/销售额档位</b>看「条数 ↑ + 金额 ▲」为好。金额列带负号表示亏损，Δ 为「本期 − 上期」。</div>';
+  document.getElementById('bucketWrap').innerHTML=html;
+}
+function renderFollow(cur){
+  const bad=[], good=[];
+  cur.forEach(r=>{
+    if(!r.handled) return;
+    const lossNow=r.p<0;
+    const improved=(r.prevP!=null&&r.p>r.prevP)||r.p>=0;
+    if(lossNow&&!improved) bad.push(r);
+    if(improved||r.p>=0) good.push(r);
+  });
+  const rowHtml=(r,kind)=>{
+    const prevTxt=(r.prevP==null)?'—':fmtMoney(r.prevP);
+    return '<div class="row '+kind+'"><div class="meta"><div class="t">'+esc(r.product||r.title||r.link_id)+'</div>'
+      +'<div class="linkid">'+esc(r.link_id)+' · '+esc(r.owner)+' · '+esc(r.st)+'</div></div>'
+      +'<div style="text-align:right"><div class="num cur">'+fmtMoney(r.p)+'</div><div class="num prev">上期 '+prevTxt+'</div></div></div>';
+  };
+  const sortFn=(a,b)=>a.p-b.p;
+  bad.sort(sortFn); good.sort((a,b)=>b.p-a.p);
+  const badBox=document.getElementById('badList'), goodBox=document.getElementById('goodList');
+  badBox.innerHTML = bad.length? bad.map(r=>rowHtml(r,'bad')).join('') : '<div class="note">✅ 本期没有"已标记但仍亏损未改善"的链接。</div>';
+  goodBox.innerHTML = good.length? good.map(r=>rowHtml(r,'good')).join('') : '<div class="note">本期标记优化的链接都还在亏损，暂无转正/改善案例。</div>';
+}
+function renderOwners(cur,prev){
+  const owners=new Set([...cur.map(r=>r.owner),...prev.map(r=>r.owner)]);
+  const rows=[];
+  owners.forEach(own=>{
+    const c=cur.filter(r=>r.owner===own), p=prev.filter(r=>r.owner===own);
+    const a=agg(c), b=agg(p);
+    const handled=c.filter(r=>r.handled).length;
+    const lossHandled=c.filter(r=>r.p<0&&r.handled).length;
+    const impr=c.filter(r=>r.p<0&&r.handled&&((r.prevP!=null&&r.p>r.prevP)||r.p>=0)).length;
+    // 覆盖率按「该负责人的亏损链接」为分母（需要优化的才是分母）
+    const cov=a.lossN?Math.round(lossHandled/a.lossN*100):0;
+    const imprRate=lossHandled?Math.round(impr/lossHandled*100):0;
+    // 亏损额Δ：亏损额是负数，Δ为正 = 亏损变小 = 改善
+    const lossDelta=a.lossAmt-b.lossAmt, proDelta=a.proAmt-b.proAmt;
+    let grade,cls;
+    if(lossDelta>0 && proDelta>0){grade='优';cls='top';}
+    else if(lossDelta>=0 || proDelta>=0){grade='良';cls='mid';}
+    else {grade='差';cls='low';}
+    rows.push({own,a,b,cov,imprRate,grade,cls,lossDelta,proDelta,salesDelta:a.sales-b.sales});
+  });
+  rows.sort((x,y)=>y.lossDelta-x.lossDelta); // 亏损额Δ 由大到小：亏损收窄最多 = 改善最好
+  let html='<table class="tbl"><thead><tr><th>#</th><th>负责人</th><th>亏损链接Δ</th><th>亏损额Δ</th><th>盈利额Δ</th><th>销售额Δ</th><th>优化覆盖</th><th>改善率</th><th>评级</th></tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    html+='<tr><td><span class="rank '+r.cls+'">'+(i+1)+'</span></td>'
+      +'<td class="owner">'+esc(r.own)+'</td>'
+      +'<td>'+deltaSpan(r.a.lossN,r.b.lossN,false)+'</td>'
+      +'<td>'+deltaSpan(r.lossDelta,0,false,fmtMoney)+'</td>'
+      +'<td>'+deltaSpan(r.proDelta,0,true,fmtMoney)+'</td>'
+      +'<td>'+deltaSpan(r.salesDelta,0,true,fmtMoney)+'</td>'
+      +'<td>'+(r.cov?r.cov+'%':'—')+'</td>'
+      +'<td>'+(r.imprRate?r.imprRate+'%':'—')+'</td>'
+      +'<td><span class="tag '+(r.cls==='top'?'good':r.cls==='mid'?'mid':'bad')+'">'+r.grade+'</span></td></tr>';
+  });
+  html+='</tbody></table>';
+  html+='<div class="note">评级：<b>优</b>=亏损额收窄且盈利额上升；<b>良</b>=其中一项改善；<b>差</b>=亏损扩大且盈利下降。按「亏损额Δ」从大到小排序（Δ为正=亏损变小，排最前=改善最好）。Δ 均为「本期 − 上期」。优化覆盖率 = 已标记动作数 ÷ 该负责人亏损链接数；改善率 = 已标记中亏损变小或转正的比例。</div>';
+  document.getElementById('ownerTblWrap').innerHTML=html;
+}
+main();
+</script>
+</body>
+</html>

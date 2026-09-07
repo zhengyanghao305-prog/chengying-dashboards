@@ -37,10 +37,7 @@ body{background:var(--bg);color:var(--tx);
   font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.12s}
 .pill:hover{border-color:var(--tx4);color:var(--tx)}
 .pill.on{background:var(--tx);border-color:var(--tx);color:#fff;font-weight:600}
-.pill.week{border-color:#b7c0ce;color:#374151}
-.pill.week.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
 .pill .n{font-size:11px;opacity:.6;margin-left:3px}
-.vsep{width:1px;height:20px;background:var(--bd);margin:0 2px}
 select{background:#fff;color:var(--tx);border:1px solid var(--bd2);border-radius:7px;padding:5px 8px;
   font-size:12.5px;outline:none;font-family:inherit}
 .chk{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px;color:var(--tx2);user-select:none}
@@ -140,14 +137,10 @@ tbody tr:hover td{background:#fafbfc}
       <span class="lb">平台</span>
       <div class="pills" id="plats"></div>
       <span class="sp" style="flex:1"></span>
-      <span class="hint" id="wkHint" style="display:none"></span>
-      <span class="vsep"></span>
       <span class="lb">周期</span>
       <select id="selCur"></select>
       <span class="hint">对比</span>
       <select id="selPrev"></select>
-      <button class="pill week" id="btnWeek">自然周 · 本周 ↔ 上周</button>
-      <label class="chk"><input type="checkbox" id="ckSame" checked>同口径</label>
     </div>
     <div class="row">
       <span class="lb">运营</span>
@@ -159,35 +152,66 @@ tbody tr:hover td{background:#fafbfc}
   <div id="loading" class="load"><div class="spin"></div>正在加载 BI 归档数据…</div>
 
   <div id="app" class="hide">
-    <div class="concl" id="concl"></div>
-    <div class="kpis" id="kpis"></div>
+    <!-- 视图切换 -->
+    <div class="pills" id="viewSw" style="margin-bottom:14px">
+      <button class="pill on" data-v="data">📊 数据周报</button>
+      <button class="pill" data-v="learn">🗣 会议复盘</button>
+    </div>
 
-    <div class="blk" style="margin-top:15px">
-      <h3>多期走势 <span class="hint" id="trHint"></span><span class="sp"></span>
-        <div class="pills" id="metrics">
-          <button class="pill" data-m="net">净利</button>
-          <button class="pill" data-m="lossAmt">亏损额</button>
-          <button class="pill" data-m="lossN">亏损链接数</button>
-          <button class="pill" data-m="sales">销售额</button>
+    <div id="vData">
+      <div class="concl" id="concl"></div>
+      <div class="kpis" id="kpis"></div>
+
+      <div class="blk" style="margin-top:15px">
+        <h3>多期走势 <span class="hint" id="trHint"></span><span class="sp"></span>
+          <div class="pills" id="metrics">
+            <button class="pill" data-m="net">净利</button>
+            <button class="pill" data-m="lossAmt">亏损额</button>
+            <button class="pill" data-m="lossN">亏损链接数</button>
+            <button class="pill" data-m="sales">销售额</button>
+          </div>
+        </h3>
+        <div id="chart"></div>
+      </div>
+
+      <div class="g2">
+        <div class="blk">
+          <div class="subt"><i style="background:var(--red)"></i>最该处理的（利润下滑最多）</div>
+          <div class="tb" id="badTbl"></div>
         </div>
-      </h3>
-      <div id="chart"></div>
-    </div>
-
-    <div class="g2">
-      <div class="blk">
-        <div class="subt"><i style="background:var(--red)"></i>最该处理的（利润下滑最多）</div>
-        <div class="tb" id="badTbl"></div>
+        <div class="blk">
+          <div class="subt"><i style="background:var(--green)"></i>做得好的（利润提升最多）</div>
+          <div class="tb" id="goodTbl"></div>
+        </div>
       </div>
-      <div class="blk">
-        <div class="subt"><i style="background:var(--green)"></i>做得好的（利润提升最多）</div>
-        <div class="tb" id="goodTbl"></div>
+
+      <div class="blk" id="actBlk">
+        <h3>优化动作效果 <span class="hint">以标记动作那一期为基线，看本期有没有变好</span></h3>
+        <div id="actBody"></div>
       </div>
     </div>
 
-    <div class="blk" id="actBlk">
-      <h3>优化动作效果 <span class="hint">以标记动作那一期为基线，看本期有没有变好</span></h3>
-      <div id="actBody"></div>
+    <!-- 会议复盘视图 -->
+    <div id="vLearn" class="hide">
+      <div class="concl" id="learnTop"></div>
+      <div class="g2">
+        <div class="blk">
+          <div class="subt"><i style="background:var(--green)"></i>亮点案例 · 可以拿来当范本</div>
+          <div class="tb" id="learnGood"></div>
+        </div>
+        <div class="blk">
+          <div class="subt"><i style="background:var(--red)"></i>问题案例 · 会上要点名跟进的</div>
+          <div class="tb" id="learnBad"></div>
+        </div>
+      </div>
+      <div class="blk">
+        <h3>动作方法论 <span class="hint">哪种优化真的有效，哪种要谨慎</span></h3>
+        <div id="learnAct"></div>
+      </div>
+      <div class="blk">
+        <h3>每人一页 <span class="hint">评语 + 下周建议，逐人过</span></h3>
+        <div class="tb" id="learnOwn"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -275,50 +299,11 @@ function chart(labels,vals,fmt,bands){
   }
   return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">'+g+'</svg>';
 }
-/* 自然周工具 */
-function weekInfo(dateStr){
-  const d=new Date(String(dateStr).slice(0,10)+'T00:00:00');
-  const dow=d.getDay(), off=(dow+6)%7;
-  const mon=new Date(d); mon.setDate(d.getDate()-off);
-  const sun=new Date(mon); sun.setDate(mon.getDate()+6);
-  const f=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
-  const iso=()=>{ const t=new Date(mon); t.setDate(t.getDate()+3-((t.getDay()+6)%7));
-    const w1=new Date(t.getFullYear(),0,4);
-    return 1+Math.round(((t-w1)/864e5-3+((w1.getDay()+6)%7))/7); };
-  return {mon:f(mon),sun:f(sun),no:iso()};
-}
-function shortRng(s){ return s.slice(5).replace('-','/'); }
-function weekGroups(){                       // 把窗口按「结束日所在自然周」分组
-  const m={};
-  WIN.forEach(w=>{
-    const wi=weekInfo(wEnd(w));
-    if(!m[wi.mon]) m[wi.mon]={mon:wi.mon,no:wi.no,wins:[]};
-    m[wi.mon].wins.push(w);
-  });
-  return Object.keys(m).sort().map(k=>{
-    const wi=weekInfo(k);
-    return {mon:k,no:m[k].no,wins:m[k].wins,sun:wi.sun,
-      label:'第'+m[k].no+'周 '+shortRng(k)+'~'+shortRng(wi.sun)};
-  });
-}
-function groupOf(win){ const wi=weekInfo(wEnd(win)); return weekGroups().find(g=>g.mon===wi.mon); }
-function bandsOf(){                        // 合并相邻同周窗口为一个分块
-  const gs=weekGroups();
-  const idx=WIN.map(w=>gs.findIndex(g=>g.mon===weekInfo(wEnd(w)).mon));
-  const out=[]; let st=0;
-  for(let i=1;i<=idx.length;i++){
-    if(i===idx.length||idx[i]!==idx[st]){
-      if(idx[st]>=0) out.push({i0:st,i1:i-1,label:gs[idx[st]].no+'周'});
-      st=i;
-    }
-  }
-  return out;
-}
 
 /* ════════ 状态 ════════ */
 let WIN=[], LINK={}, ACTIONS={}, OWNERS=[], PLATS=[];
 let CUR='', PREV='';
-let S={plat:'', owner:'', same:true, metric:'net', week:false};   // week=自然周对比模式
+let S={plat:'', owner:'', metric:'net', view:'data'};   // view: data=数据周报 | learn=会议复盘
 
 function wEnd(w){ const p=String(w||'').split('-'); return (p[1]||p[0]||'').replace(/\//g,'-'); }
 function wStart(w){ const p=String(w||'').split('-'); return (p[0]||'').replace(/\//g,'-'); }
@@ -332,15 +317,6 @@ function autoPair(){
   CUR=WIN[WIN.length-1];
   const non=WIN.filter(w=>w!==CUR&&overlapDays(CUR,w)===0);
   PREV = non.length ? non[non.length-1] : (WIN[WIN.length-2]||WIN[0]);
-}
-/* 自然周对比：本期=最近自然周内最晚快照，对比期=上一自然周内最晚快照 */
-function applyWeekMode(){
-  const gs=weekGroups();
-  if(gs.length<2) return false;
-  const cur=gs[gs.length-1], prev=gs[gs.length-2];
-  CUR=cur.wins[cur.wins.length-1];
-  PREV=prev.wins[prev.wins.length-1];
-  return true;
 }
 
 /* 动作 */
@@ -425,12 +401,11 @@ function scope(){
     if(c) out.cur.push(c);
     if(p) out.prev.push(p);
   }
-  if(S.same){                       // 同口径：只保留两期都在的
-    const ids=new Set(out.cur.map(r=>r.id));
-    out.prev=out.prev.filter(r=>ids.has(r.id));
-    const pid=new Set(out.prev.map(r=>r.id));
-    out.cur=out.cur.filter(r=>pid.has(r.id));
-  }
+  // 固定同口径：只对比「本期与对比期都出现」的链接
+  const ids=new Set(out.cur.map(r=>r.id));
+  out.prev=out.prev.filter(r=>ids.has(r.id));
+  const pid=new Set(out.prev.map(r=>r.id));
+  out.cur=out.cur.filter(r=>pid.has(r.id));
   return out;
 }
 function seriesOf(){
@@ -501,6 +476,7 @@ const JC={'转正':'g','有效':'g','观察':'a','无效':'r','消失':'n'};
 /* ════════ 渲染 ════════ */
 function render(){
   renderBar();
+  if(S.view==='learn'){ renderLearn(); return; }
   const sc=scope(), a=aggList(sc.cur), b=aggList(sc.prev);
   renderConcl(a,b,sc);
   renderKpis(a,b);
@@ -519,27 +495,18 @@ function renderBar(){
     +OWNERS.filter(o=>!S.plat||cnt[o]).map(o=>
       '<button class="pill'+(S.owner===o?' on':'')+'" data-o="'+esc(o)+'">'+esc(o)
       +(cnt[o]?'<span class="n">'+cnt[o]+'</span>':'')+'</button>').join('');
-  const opt=WIN.map(w=>'<option value="'+w+'">'+w+'（'+(groupOf(w)?groupOf(w).no+'周':'')+'）</option>').join('');
+  const opt=WIN.map(w=>'<option value="'+w+'">'+w+'</option>').join('');
   if($('#selCur').dataset.n!==String(WIN.length)){
-    // 下拉按自然周分组（optgroup），方便对齐周几
-    const wg=weekGroups();
-    const makeOpts=()=>wg.map(g=>'<optgroup label="第'+g.no+'周 '+shortRng(g.mon)+' ~ '+shortRng(weekInfo(g.mon).sun)+'">'
-      +g.wins.map(w=>'<option value="'+w+'">'+w+'（'+(groupOf(w)&&groupOf(w).no)+'周）</option>').join('')+'</optgroup>').join('');
-    $('#selCur').innerHTML=makeOpts(); $('#selPrev').innerHTML=makeOpts();
-    $('#selCur').dataset.n=String(WIN.length); }
+    $('#selCur').innerHTML=opt; $('#selPrev').innerHTML=opt; $('#selCur').dataset.n=String(WIN.length); }
   $('#selCur').value=CUR; $('#selPrev').value=PREV;
-  $('#ckSame').checked=S.same;
-  $('#btnWeek').classList.toggle('on',S.week);
   $$('#metrics .pill').forEach(x=>x.classList.toggle('on',x.dataset.m===S.metric));
-  const g=groupOf(CUR);
-  const gstr=(S.week&&groupOf(PREV))?('自然周对比：本期=第'+g.no+'周('+shortRng(g.mon)+'~'+shortRng(g.sun)+') 代表快照 '+CUR
-    +'，上期=第'+groupOf(PREV).no+'周 '+PREV)
-    :null;
-  $('#wkHint').style.display=S.week?'inline':'none';
-  $('#wkHint').textContent='📅 '+gstr;
   const ov=overlapDays(CUR,PREV);
-  $('#trHint').textContent=(S.owner||'全部运营')+' · '+(S.plat||'全部平台')+' · '+CUR+' 起 '+WIN.length+' 期'
-    +(S.week?'（自然周分块见下方色带）':'');
+  const curN=(()=>{let n=0;for(const id in LINK){const m=LINK[id].meta;
+    if(S.plat&&m.platform!==S.plat)continue; if(S.owner&&m.owner!==S.owner)continue;
+    if(LINK[id].W[CUR]&&LINK[id].W[PREV])n++;}return n;})();
+  $('#trHint').textContent=(S.owner||'全部运营')+' · '+(S.plat||'全部平台')+' · '
+    +'两期都出现的 '+curN+' 条同口径对比'
+    +(ov>0?'（注意：两期窗口重叠 '+ov+' 天）':'');
 }
 function renderKpis(a,b){
   const KS=[
@@ -557,8 +524,7 @@ function renderChart(){
   const base=seriesOf(), key=S.metric;
   const M={net:['净利',money],lossAmt:['亏损额',money],lossN:['亏损链接数',money0],sales:['销售额',money]};
   const fmt=M[key][1];
-  const bands=weekGroups().length>1?bandsOf():null;    // 单周时不分块
-  $('#chart').innerHTML=chart(WIN.map(w=>wEnd(w).slice(5)), base.map(x=>x[key]), fmt, bands);
+  $('#chart').innerHTML=chart(WIN.map(w=>wEnd(w).slice(5)), base.map(x=>x[key]), fmt, null);
 }
 function renderConcl(a,b,sc){
   const li=[];
@@ -566,8 +532,7 @@ function renderConcl(a,b,sc){
   li.push((S.owner?('<b>'+esc(S.owner)+'</b>'):'全部运营')+'（'+(S.plat||'全部平台')+'）本期净利 <b class="num">'+money(a.net)+'</b>，'
     +'环比 <span class="'+(nd>=0?'hl':'hl2')+'">'+(nd>=0?'+':'')+money(nd)+'</span>；'
     +'亏损 <b>'+a.lossN+'</b> 条（上期 '+b.lossN+'，<span class="'+(a.lossN<=b.lossN?'hl':'hl2')+'">'
-    +(a.lossN-b.lossN>=0?'+':'')+(a.lossN-b.lossN)+'</span>）'
-    +(S.same?'，同口径 <b>'+a.n+'</b> 条。':'。'));
+    +(a.lossN-b.lossN>=0?'+':'')+(a.lossN-b.lossN)+'</span>）；两期都出现的 <b>'+a.n+'</b> 条做同口径对比。');
   const chg=linkChanges();
   const worse=chg.filter(x=>x.d<0), better=chg.filter(x=>x.d>0);
   li.push('利润下滑 <b class="hl2">'+worse.length+'</b> 条（合计 '+money(worse.reduce((s,x)=>s+x.d,0))+'），'
@@ -644,6 +609,144 @@ function renderActs(a,b){
   window.__list=list;
 }
 
+/* ═══════════════════ 会议复盘视图（提炼成开会能讲的内容） ═══════════════════ */
+function learnScope(){   // 当前筛选下「两期都在」的链接及每位运营聚合
+  const recs={cur:[],prev:[]}; const byOwn={};
+  for(const id in LINK){
+    const L=LINK[id], m=L.meta;
+    if(S.plat&&m.platform!==S.plat) continue;
+    if(S.owner&&m.owner!==S.owner) continue;
+    const c=L.W[CUR], p=L.W[PREV];
+    if(!c||!p) continue;
+    recs.cur.push(c); recs.prev.push(p);
+    const o=m.owner||'未分配'; (byOwn[o]=byOwn[o]||{cur:[],prev:[]}).cur.push(c); byOwn[o].prev.push(p);
+  }
+  return {recs,byOwn};
+}
+function renderLearn(){
+  const {recs,byOwn}=learnScope();
+  const a=aggList(recs.cur), b=aggList(recs.prev);
+  const acts=judgeAll();
+  const va=acts.filter(x=>!x.pending);
+  const eff=va.filter(x=>x.j==='有效'||x.j==='转正').length;
+  const bad=va.filter(x=>x.j==='无效').length;
+  const rate=va.length?Math.round(eff/va.length*100):0;
+  const chg=linkChanges();
+  const worse=chg.filter(x=>x.d<0), better=chg.filter(x=>x.d>0);
+  const dNet=a.net-b.net;
+  // 各运营评语（按 dNet 相对排名）
+  const owns=Object.keys(byOwn).map(o=>{
+    const ca=aggList(byOwn[o].cur), cb=aggList(byOwn[o].prev);
+    const oa=acts.filter(x=>x.m.owner===o);
+    const ova=oa.filter(x=>!x.pending);
+    const oe=ova.filter(x=>x.j==='有效'||x.j==='转正').length;
+    const un=byOwn[o].cur.filter(r=>r.p<0&&(!ACTIONS[r.id]||ACTIONS[r.id].st==='待处理')).length;
+    return {own:o,a:ca,b:cb,dNet:ca.net-cb.net,dLossAmt:ca.lossAmt-cb.lossAmt,dSales:ca.sales-cb.sales,
+      acts:oa.length,valid:ova.length,eff:oe,rate:ova.length?Math.round(oe/ova.length*100):null,
+      lossN:ca.lossN,un,grade:'C'};
+  });
+  const sorted=[...owns].sort((x,y)=>y.dNet-x.dNet);
+  sorted.forEach((r,i)=>{ const q=sorted.length>1?i/(sorted.length-1):0;
+    if(r.dNet<=0&&q>0.4) r.grade='D';
+    else if(q<0.25) r.grade='A'; else if(q<0.5) r.grade='B';
+    else if(q<0.75) r.grade='C'; else r.grade='D'; });
+  // ── 顶部结论
+  const top=[];
+  top.push('本期（'+CUR+'）对比（'+PREV+'）：净利 <b class="num">'+money(a.net)+'</b>，'
+    +'环比 <span class="'+(dNet>=0?'hl':'hl2')+'">'+(dNet>=0?'+':'')+money(dNet)+'</span>。'
+    +'亏损 <b>'+a.lossN+'</b> 条（上期 '+b.lossN+' 条）。');
+  const best2=sorted[0], worst2=sorted[sorted.length-1];
+  if(best2!==worst2) top.push('做得最好：<b>'+esc(best2.own)+'</b>（净利 +'+money(best2.dNet)+'）；'
+    +'最需要盯：<b>'+esc(worst2.own)+'</b>（净利 '+money(worst2.dNet)+'）。');
+  else top.push('当前只看 <b>'+esc(best2.own)+'</b> 一人，净利变化 <b class="num">'+money(best2.dNet)+'</b>。');
+  if(acts.length) top.push('动作复盘：处理 <b>'+acts.length+'</b> 条，已过观察期 <b>'+va.length+'</b> 条 → '
+    +'<span class="hl">有效 '+eff+'</span> / <span class="hl2">无效 '+bad+'</span>，'
+    +'有效率 <b>'+(va.length?rate+'%':'—')+'</b>。');
+  else top.push('动作复盘：本周还没有标记优化动作，建议先建立习惯（在「BI指标归档处理中心」里点状态）。');
+  top.push('变化盘点：利润提升 <b class="hl">'+better.length+'</b> 条，下滑 <b class="hl2">'+worse.length+'</b> 条。');
+  $('#learnTop').innerHTML='<div class="t">📌 会议开场 · 照着念</div><ul>'
+    +top.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+  // ── 亮点 / 问题案例
+  const actMap={}; acts.forEach(x=>actMap[x.id]=x);
+  const caseRow=(o,kind)=>{
+    const ax=actMap[o.id];
+    const note = ax ? (ax.pending?'处理中·待验证':ax.j) : '无动作';
+    return '<tr><td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;font-weight:600">'
+      +esc(o.m.product||o.m.title||o.id)+'</div>'
+      +'<div style="font-size:10.5px;color:var(--tx4)">'+esc(o.id)+' · '+esc(o.m.owner)+'</div></td>'
+      +'<td><span class="pl '+(o.m.platform==='天猫'?'tm':'pdd')+'">'+esc((o.m.platform||'').slice(0,2))+'</span></td>'
+      +'<td class="num '+(o.c.p>=0?'pos':'neg')+'"><b>'+money(o.c.p)+'</b></td>'
+      +'<td class="num" style="color:var(--tx3)">'+money(o.p.p)+'</td>'
+      +'<td>'+dltT(o.d,0,true)+'</td>'
+      +'<td>'+(ax?'<span class="tag '+(JC[ax.j]||'n')+'">'+esc(ax.st)+'·'+(ax.pending?'待验证':ax.j)+'</span>'
+             :'<span class="tag n">未标动作</span>')+'</td></tr>';
+  };
+  const th='<thead><tr><th>链接</th><th>平台</th><th>本期利润</th><th>上期</th><th>Δ</th><th>动作状态</th></tr></thead><tbody>';
+  const goodTop=better.filter(x=>x.d>=50).sort((a,b)=>b.d-a.d).slice(0,5);
+  const badTop=worse.filter(x=>x.d<=-50).slice(0,5);
+  $('#learnGood').innerHTML=goodTop.length?'<table>'+th+goodTop.map(x=>caseRow(x,1)).join('')+'</tbody></table>'
+    +'<div class="note">说明：这几条是本期利润提升最大的，若标了动作代表处理有效，可让对应运营在会上讲做法。</div>'
+    :'<div class="empty">本期没有明显的利润提升案例</div>';
+  $('#learnBad').innerHTML=badTop.length?'<table>'+th+badTop.map(x=>caseRow(x,0)).join('')+'</tbody></table>'
+    +'<div class="note">说明：下滑最多的这几条，先问运营「是什么原因、打算怎么办」，会上当场定处理动作。</div>'
+    :'<div class="empty">本期没有明显恶化的链接</div>';
+  // ── 动作方法论
+  const bySt={};
+  acts.forEach(x=>{ (bySt[x.st]=bySt[x.st]||[]).push(x); });
+  let mh='';
+  if(acts.length){
+    const stRows=Object.keys(bySt).map(st=>{
+      const g=bySt[st], gv=g.filter(x=>!x.pending), ge=gv.filter(x=>x.j==='有效'||x.j==='转正').length;
+      return {st,n:g.length,v:gv.length,e:ge,rate:gv.length?ge/gv.length*100:null,
+        d:gv.reduce((s,x)=>s+(x.deltaAmt||0),0)};
+    }).sort((a,b)=>(b.rate||-1)-(a.rate||-1));
+    mh='<div class="tb"><table><thead><tr><th>动作</th><th>条数</th><th>已验证</th><th>有效</th><th>有效率</th>'
+      +'<th>累计利润变化</th></tr></thead><tbody>';
+    stRows.forEach(r=>{ mh+='<tr><td style="font-weight:600">'+esc(r.st)+'</td><td class="num">'+r.n+'</td>'
+      +'<td class="num">'+r.v+'</td><td class="num pos">'+r.e+'</td>'
+      +'<td class="num"><b style="color:'+(r.rate==null?'var(--tx3)':r.rate>=60?'#16a34a':r.rate>=35?'#d97706':'#dc2626')+'">'
+      +(r.rate==null?'—':r.rate.toFixed(0)+'%')+'</b></td>'
+      +'<td class="num '+(r.d>=0?'pos':'neg')+'">'+money(r.d)+'</td></tr>'; });
+    mh+='</tbody></table></div>';
+    if(stRows[0]&&stRows[0].v>=2) mh+='<div class="note">经验：<b>「'+esc(stRows[0].st)+'」</b>本周有效率最高'
+      +(stRows[0].rate>=60?'，处理亏损优先考虑用这个动作':'，但仍要结合链接本身情况');
+    if(stRows[stRows.length-1]&&stRows[stRows.length-1].v>=2&&stRows[0]!==stRows[stRows.length-1])
+      mh+='；<b>「'+esc(stRows[stRows.length-1].st)+'」</b>效果最差，复盘是不是用错了场景';
+    mh+='。</div>';
+  } else mh='<div class="empty">还没有动作数据。方法论的结论要等动作标记起来才有意义——<b>先让亏损链接的处置状态都标上</b>。</div>';
+  $('#learnAct').innerHTML=mh;
+  // ── 每人一页
+  const gmap={'A':['#e9f7ef','#15803d'],'B':['#eaf1fd','#1d4ed8'],'C':['#fdf3e3','#b45309'],'D':['#fdecec','#c0332f']};
+  const cmt={'A':'整体向好，净利在涨、亏损在收，方法可复制','B':'有进步，挑几个亮点案例在会上讲','C':'数据没明显变化，需要主动找增量','D':'净利下滑/亏损没控住，本周重点跟'};
+  let oh='<table><thead><tr><th>负责人</th><th>净利Δ</th><th>亏损条数</th><th>处理/有效</th><th>有效率</th><th>未处理亏损</th><th>评语</th><th>下周建议</th></tr></thead><tbody>';
+  sorted.forEach(r=>{
+    const rec=[]; const g=gmap[r.grade],c=g[1];
+    // 建议按评级排序：差→先清亏损；中→标记/找增量；好→保持并提炼方法
+    if(r.grade==='D'&&r.un>0) rec.push('先清 <b>'+r.un+'</b> 条未处理亏损');
+    if(r.acts===0) rec.push('先把亏损链接的动作状态标上');
+    else if(r.rate!=null&&r.rate<50&&r.valid>=3) rec.push('动作有效性偏低，复盘是否做对');
+    if(r.dSales<0&&r.grade!=='A') rec.push('盯销售额回升');
+    if(!rec.length){
+      if(r.grade==='A') rec.push('本周做得好，会上请他讲方法，大家照做');
+      else if(r.grade==='B') rec.push('有进步，挑亮点讲，同时把未处理亏损也清一清');
+      else if(r.un>0) rec.push('先清 <b>'+r.un+'</b> 条未处理亏损');
+      else rec.push('找增量突破口');
+    }
+    oh+='<tr><td style="font-weight:600">'+esc(r.own)+'</td>'
+      +'<td class="num '+(r.dNet>=0?'pos':'neg')+'"><b>'+money(r.dNet)+'</b></td>'
+      +'<td class="num">'+r.lossN+'</td>'
+      +'<td class="num">'+(r.acts?r.acts+' 条 / '+r.eff+' 有效':'<span style="color:var(--tx4)">—</span>')+'</td>'
+      +'<td class="num"><b style="color:'+(r.rate==null?'var(--tx3)':r.rate>=60?'#16a34a':r.rate>=35?'#d97706':'#dc2626')+'">'
+      +(r.rate==null?'—':r.rate+'%')+'</b></td>'
+      +'<td class="num">'+(r.un?'<span style="color:var(--red);font-weight:700">'+r.un+'</span>':'<span style="color:var(--tx4)">0</span>')+'</td>'
+      +'<td><span class="tag" style="background:'+g[0]+';color:'+g[1]+'">'+r.grade+' '+cmt[r.grade]+'</span></td>'
+      +'<td style="text-align:left;color:var(--tx2)">'+rec.join('；')+'</td></tr>';
+  });
+  oh+='</tbody></table>';
+  if(!sorted.length) oh='<div class="empty">当前筛选下没有两期都出现的链接</div>';
+  $('#learnOwn').innerHTML=oh;
+}
+
 /* 导出 */
 function dl(name,text){
   const b=new Blob(['\ufeff'+text],{type:'text/csv;charset=utf-8'});
@@ -652,7 +755,7 @@ function dl(name,text){
 }
 function exportCsv(){
   const sc=scope(), a=aggList(sc.cur), b=aggList(sc.prev);
-  let c='平台,'+(S.plat||'全部')+'\n运营,'+(S.owner||'全部')+'\n本期,'+CUR+'\n对比期,'+PREV+'\n口径,'+(S.same?'同口径':'全量')+'\n\n';
+  let c='平台,'+(S.plat||'全部')+'\n运营,'+(S.owner||'全部')+'\n本期,'+CUR+'\n对比期,'+PREV+'\n口径,同口径(两期都在)\n\n';
   c+='指标,本期,对比期,变化\n';
   [['净利',a.net,b.net],['亏损链接数',a.lossN,b.lossN],['亏损额',a.lossAmt.toFixed(2),b.lossAmt.toFixed(2)],
    ['销售额',a.sales.toFixed(2),b.sales.toFixed(2)],['亏损率',a.lossRate.toFixed(2),b.lossRate.toFixed(2)]]
@@ -666,6 +769,13 @@ function exportCsv(){
 
 /* 交互 */
 function bindUI(){
+  $('#viewSw').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
+    S.view=b.dataset.v;
+    $$('#viewSw .pill').forEach(x=>x.classList.toggle('on',x.dataset.v===S.view));
+    $('#vData').classList.toggle('hide',S.view!=='data');
+    $('#vLearn').classList.toggle('hide',S.view!=='learn');
+    render();
+  };
   $('#plats').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
     S.plat=b.dataset.p;
     // 当前运营在该平台下没有链接时，自动回到「全部」
@@ -677,16 +787,8 @@ function bindUI(){
     S.owner=b.dataset.o; render(); };
   $('#metrics').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
     S.metric=b.dataset.m; render(); };
-  $('#selCur').onchange=e=>{ CUR=e.target.value; S.week=false; render(); };
-  $('#selPrev').onchange=e=>{ PREV=e.target.value; S.week=false; render(); };
-  $('#btnWeek').onclick=()=>{
-    const ok=applyWeekMode();
-    S.week=ok;
-    if(!ok){ toast('数据不足两个自然周，无法对比'); S.week=false; return; }
-    render();
-    toast('已切到自然周：本期=第'+groupOf(CUR).no+'周，对比=第'+groupOf(PREV).no+'周');
-  };
-  $('#ckSame').onchange=e=>{ S.same=e.target.checked; render(); };
+  $('#selCur').onchange=e=>{ CUR=e.target.value; render(); };
+  $('#selPrev').onchange=e=>{ PREV=e.target.value; render(); };
   $('#btnExp').onclick=exportCsv;
 }
 boot();

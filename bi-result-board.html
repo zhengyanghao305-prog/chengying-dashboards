@@ -3,323 +3,693 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BI 归档结果看板 · 周环比 & 优化结果</title>
+<title>运营周报看板 · 平台 × 负责人</title>
 <style>
 :root{
-  --bg:#0f1115; --bg-card:#171a21; --bg-card2:#1d212b; --border:#272c38;
-  --text:#e8eaf0; --text-secondary:#a6adbd; --text-tertiary:#717889;
-  --accent-purple:#8b5cf6; --accent-indigo:#6366f1; --accent-green:#10b981;
-  --accent-red:#ef4444; --accent-amber:#f59e0b; --accent-blue:#3b82f6;
-  --good:#10b981; --bad:#ef4444; --flat:#94a3b8;
-  --radius:14px; --radius-sm:9px;
+  --bg:#f6f7f9; --card:#fff; --bd:#e5e8ec; --bd2:#d5d9e0;
+  --tx:#1a1d23; --tx2:#5b6472; --tx3:#8b95a5; --tx4:#b3bac6;
+  --green:#16a34a; --red:#dc2626; --amber:#d97706; --blue:#2563eb; --violet:#7c3aed;
+  --r:12px; --r2:9px;
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5}
-a{color:var(--accent-indigo)}
-.wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
-.head{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:6px}
-.head h1{font-size:22px;margin:0;font-weight:800;letter-spacing:.3px}
-.head .sub{color:var(--text-tertiary);font-size:12.5px}
-.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;background:rgba(139,92,246,.16);color:#c4b5fd;border:1px solid rgba(139,92,246,.3)}
-.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin:14px 0 18px}
-.controls label{font-size:12px;color:var(--text-secondary)}
-.controls select{background:var(--bg-card2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:13px}
-.controls .sep{width:1px;height:22px;background:var(--border)}
-.tabs{display:flex;gap:6px;margin-left:auto}
-.tab{padding:7px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-secondary)}
-.tab.active{background:linear-gradient(135deg,var(--accent-purple),var(--accent-indigo));color:#fff;border-color:transparent}
-.section-title{font-size:14px;font-weight:700;margin:22px 0 10px;display:flex;align-items:center;gap:8px}
-.section-title .bar{width:4px;height:15px;border-radius:3px;background:var(--accent-purple)}
-.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:13.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.wrap{max-width:1280px;margin:0 auto;padding:26px 24px 70px}
+
+/* 头部 */
+.hdr{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.hdr h1{font-size:21px;font-weight:700;letter-spacing:.2px}
+.hdr .sub{color:var(--tx3);font-size:12.5px}
+.hdr .sp{flex:1}
+.hdr .btnx{border:1px solid var(--bd2);background:#fff;color:var(--tx2);border-radius:8px;
+  padding:5px 11px;font-size:12px;cursor:pointer;font-family:inherit}
+.hdr .btnx:hover{border-color:var(--tx3);color:var(--tx)}
+
+/* 筛选条 */
+.bar{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px;margin-bottom:18px}
+.bar .row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.bar .row+.row{margin-top:11px;padding-top:11px;border-top:1px solid var(--bd)}
+.bar .lb{font-size:12px;color:var(--tx3);min-width:44px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:1px solid var(--bd2);background:#fff;color:var(--tx2);border-radius:18px;padding:5px 13px;
+  font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.12s}
+.pill:hover{border-color:var(--tx4);color:var(--tx)}
+.pill.on{background:var(--tx);border-color:var(--tx);color:#fff;font-weight:600}
+.pill.week{border-color:#b7c0ce;color:#374151}
+.pill.week.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.pill .n{font-size:11px;opacity:.6;margin-left:3px}
+.vsep{width:1px;height:20px;background:var(--bd);margin:0 2px}
+select{background:#fff;color:var(--tx);border:1px solid var(--bd2);border-radius:7px;padding:5px 8px;
+  font-size:12.5px;outline:none;font-family:inherit}
+.chk{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px;color:var(--tx2);user-select:none}
+.chk input{width:14px;height:14px;accent-color:var(--tx);cursor:pointer}
+.hint{font-size:11.5px;color:var(--tx4)}
+
+/* 区块 */
+.blk{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px;margin-bottom:15px}
+.blk>h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.blk>h3 .hint{font-weight:400;font-size:11.5px;color:var(--tx4)}
+.blk>h3 .sp{flex:1}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
 @media(max-width:1080px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
-.kpi{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px}
-.kpi .lab{font-size:11.5px;color:var(--text-tertiary);margin-bottom:6px}
-.kpi .val{font-size:20px;font-weight:800}
-.kpi .delta{font-size:11.5px;margin-top:4px;font-weight:600}
-.kpi .delta.good{color:var(--good)} .kpi .delta.bad{color:var(--bad)} .kpi .delta.flat{color:var(--flat)}
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:16px}
-.card h3{margin:0 0 12px;font-size:14.5px;font-weight:700}
-.tbl{width:100%;border-collapse:collapse;font-size:13px}
-.tbl th,.tbl td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
-.tbl th:first-child,.tbl td:first-child{text-align:left}
-.tbl thead th{color:var(--text-tertiary);font-weight:600;font-size:11.5px;background:var(--bg-card2)}
-.tbl tbody tr:hover{background:rgba(139,92,246,.06)}
-.tier{font-weight:600}
-.tier.loss{color:#fca5a5}.tier.profit{color:#86efac}.tier.sales{color:#93c5fd}.tier.rate{color:#d8b4fe}
-.up{color:var(--good)}.down{color:var(--bad)}.zero{color:var(--flat)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:900px){.grid2{grid-template-columns:1fr}}
-.follow{font-size:13px}
-.follow .row{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--bg-card2)}
-.follow .row.bad{border-left:3px solid var(--bad)}
-.follow .row.good{border-left:3px solid var(--good)}
-.follow .linkid{font-family:monospace;font-size:11px;color:var(--text-tertiary)}
-.follow .meta{flex:1;min-width:0}
-.follow .meta .t{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.follow .num{font-variant-numeric:tabular-nums;font-weight:700;text-align:right}
-.follow .num.cur{color:#fca5a5}.follow .num.prev{color:var(--text-tertiary);font-size:11px}
-.tag{font-size:10.5px;padding:1px 7px;border-radius:10px;font-weight:600}
-.tag.bad{background:rgba(239,68,68,.16);color:#fca5a5}
-.tag.good{background:rgba(16,185,129,.16);color:#86efac}
-.tag.mid{background:rgba(245,158,11,.16);color:#fcd34d}
-.rank{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;font-weight:800;font-size:12px}
-.rank.top{background:rgba(16,185,129,.18);color:#86efac}
-.rank.mid{background:rgba(245,158,11,.18);color:#fcd34d}
-.rank.low{background:rgba(239,68,68,.18);color:#fca5a5}
-.owner{font-weight:600}
-.note{font-size:12px;color:var(--text-tertiary);margin-top:6px}
-.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:14px;border-radius:10px}
-#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:9px;font-size:13px;opacity:0;transition:.2s;pointer-events:none;z-index:50}
-#toast.show{opacity:1}
-.hidden{display:none!important}
+.kpi{border:1px solid var(--bd);border-radius:var(--r2);padding:12px 13px;background:#fff}
+.kpi .lab{font-size:11.5px;color:var(--tx3);margin-bottom:5px}
+.kpi .val{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.2}
+.kpi .val small{font-size:12px;font-weight:500;color:var(--tx4);margin-left:2px}
+.kpi .cmp{font-size:11.5px;color:var(--tx4);margin-top:4px}
+.kpi .cmp b{color:var(--tx2);font-weight:600}
+
+/* 涨跌 */
+.d{font-weight:600;font-size:11.5px;white-space:nowrap}
+.d.up{color:var(--green)}.d.down{color:var(--red)}.d.flat{color:var(--tx4)}
+.up-t{color:var(--green)}.down-t{color:var(--red)}.flat-t{color:var(--tx4)}
+.pos{color:var(--green)}.neg{color:var(--red)}
+
+/* 表 */
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
+thead th{text-align:right;padding:7px 9px;font-weight:600;font-size:11px;color:var(--tx3);
+  border-bottom:1px solid var(--bd);white-space:nowrap}
+thead th:first-child{text-align:left}
+tbody td{padding:7px 9px;text-align:right;border-bottom:1px solid #f0f2f5;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+tbody td:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafbfc}
+.tb{max-height:330px;overflow:auto}
+.tb::-webkit-scrollbar{width:7px}.tb::-webkit-scrollbar-thumb{background:#dfe3e8;border-radius:7px}
+
+/* 两列 */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+@media(max-width:980px){.g2{grid-template-columns:1fr}}
+.subt{font-size:12.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.subt i{width:3px;height:12px;border-radius:2px;display:inline-block}
+
+/* 标签 */
+.tag{font-size:10.5px;padding:1.5px 7px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-block}
+.tag.g{background:#e9f7ef;color:#15803d}.tag.r{background:#fdecec;color:#c0332f}
+.tag.a{background:#fdf3e3;color:#b45309}.tag.b{background:#eaf1fd;color:#1d4ed8}
+.tag.n{background:#f1f3f6;color:#6b7280}
+.pl{font-size:10.5px;padding:1px 6px;border-radius:5px;font-weight:600}
+.pl.tm{background:#fff2ea;color:#c2410c}.pl.pdd{background:#fdeeef;color:#c0332f}
+.mb{height:4px;border-radius:4px;background:#eef0f3;overflow:hidden;display:inline-block;min-width:40px;vertical-align:middle}
+.mb i{display:block;height:100%;border-radius:4px}
+.barc{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+
+/* 结论 */
+.concl{border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;margin-bottom:15px;background:#fff}
+.concl .t{font-size:12.5px;font-weight:700;margin-bottom:7px}
+.concl ul{list-style:none;display:grid;gap:5px}
+.concl li{font-size:12.5px;color:var(--tx2);padding-left:14px;position:relative;line-height:1.65}
+.concl li::before{content:'';position:absolute;left:2px;top:8px;width:4px;height:4px;border-radius:50%;background:var(--tx4)}
+.concl li b{color:var(--tx)}
+.concl li .hl{color:var(--green);font-weight:700}.concl li .hl2{color:var(--red);font-weight:700}
+
+.empty{padding:24px;text-align:center;color:var(--tx4);font-size:12.5px}
+.err{background:#fdecec;border:1px solid #f5c6c6;color:#c0332f;padding:13px 15px;border-radius:var(--r2);font-size:12.5px;line-height:1.7}
+.note{font-size:11.5px;color:var(--tx4);margin-top:8px;line-height:1.7}
+.note b{color:var(--tx2)}
+.load{display:flex;align-items:center;justify-content:center;gap:9px;padding:70px 0;color:var(--tx3)}
+.spin{width:14px;height:14px;border:2px solid var(--bd2);border-top-color:var(--tx);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);background:#1a1d23;color:#fff;
+  padding:8px 16px;border-radius:8px;font-size:12.5px;opacity:0;transition:.2s;pointer-events:none;z-index:99}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hide{display:none!important}
+@media print{.bar,.hdr .btnx{display:none}body{background:#fff}.blk{break-inside:avoid}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="head">
-    <h1>BI 归档结果看板</h1>
-    <span class="pill">周环比 · 优化结果</span>
-    <span class="sub">看每周变化 + 谁在优化 / 优化有没有用（承接「BI 档位承接·优化」的已处理动作）</span>
+
+  <div class="hdr">
+    <h1>运营周报看板</h1>
+    <span class="sub" id="hdrSub">加载中…</span>
+    <span class="sp"></span>
+    <button class="btnx" id="btnExp">⬇ 导出 CSV</button>
+    <a class="btnx" href="./index.html" id="btnHome">← 返回工作台</a>
   </div>
 
-  <div class="controls">
-    <label>本期</label><select id="selCur"></select>
-    <label>对比上期</label><select id="selPrev"></select>
-    <span class="sep"></span>
-    <span class="sub" id="covHint"></span>
-    <div class="tabs">
-      <div class="tab active" data-tab="total">总看板</div>
-      <div class="tab" data-tab="owner">负责人看板</div>
+  <!-- 筛选条 -->
+  <div class="bar">
+    <div class="row">
+      <span class="lb">平台</span>
+      <div class="pills" id="plats"></div>
+      <span class="sp" style="flex:1"></span>
+      <span class="hint" id="wkHint" style="display:none"></span>
+      <span class="vsep"></span>
+      <span class="lb">周期</span>
+      <select id="selCur"></select>
+      <span class="hint">对比</span>
+      <select id="selPrev"></select>
+      <button class="pill week" id="btnWeek">自然周 · 本周 ↔ 上周</button>
+      <label class="chk"><input type="checkbox" id="ckSame" checked>同口径</label>
+    </div>
+    <div class="row">
+      <span class="lb">运营</span>
+      <div class="pills" id="owners"></div>
     </div>
   </div>
 
   <div id="errBox"></div>
-  <div id="totalView">
+  <div id="loading" class="load"><div class="spin"></div>正在加载 BI 归档数据…</div>
+
+  <div id="app" class="hide">
+    <div class="concl" id="concl"></div>
     <div class="kpis" id="kpis"></div>
 
-    <div class="section-title"><span class="bar"></span>档位周环比（亏损 / 盈利 / 销售额 / 利润率）</div>
-    <div id="bucketWrap"></div>
+    <div class="blk" style="margin-top:15px">
+      <h3>多期走势 <span class="hint" id="trHint"></span><span class="sp"></span>
+        <div class="pills" id="metrics">
+          <button class="pill" data-m="net">净利</button>
+          <button class="pill" data-m="lossAmt">亏损额</button>
+          <button class="pill" data-m="lossN">亏损链接数</button>
+          <button class="pill" data-m="sales">销售额</button>
+        </div>
+      </h3>
+      <div id="chart"></div>
+    </div>
 
-    <div class="section-title"><span class="bar"></span>优化结合分析 & 后续动作</div>
-    <div class="grid2">
-      <div class="card">
-        <h3>🟢 优化有效 · 可复制的好案例</h3>
-        <div class="follow" id="goodList"></div>
+    <div class="g2">
+      <div class="blk">
+        <div class="subt"><i style="background:var(--red)"></i>最该处理的（利润下滑最多）</div>
+        <div class="tb" id="badTbl"></div>
       </div>
-      <div class="card">
-        <h3>🔴 已标记但仍亏损未改善 · 需二次动作</h3>
-        <div class="follow" id="badList"></div>
+      <div class="blk">
+        <div class="subt"><i style="background:var(--green)"></i>做得好的（利润提升最多）</div>
+        <div class="tb" id="goodTbl"></div>
       </div>
     </div>
-  </div>
 
-  <div id="ownerView" class="hidden">
-    <div class="section-title"><span class="bar"></span>负责人周环比排行（按亏损改善排序）</div>
-    <div class="card"><div id="ownerTblWrap"></div></div>
+    <div class="blk" id="actBlk">
+      <h3>优化动作效果 <span class="hint">以标记动作那一期为基线，看本期有没有变好</span></h3>
+      <div id="actBody"></div>
+    </div>
   </div>
 </div>
 <div id="toast"></div>
 
 <script>
-const PLAN_KEY='bi_digest_plan_v4';
-const CONFIG={
-  loss:[[0,100,'≤100元'],[100,200,'100-200'],[200,500,'200-500'],[500,1000,'500-1000'],[1000,Infinity,'>1000']],
-  profit:[[0,100,'≤100元'],[100,200,'100-200'],[200,500,'200-500'],[500,1000,'500-1000'],[1000,Infinity,'>1000']],
-  sales:[[0,1000,'<1k'],[1000,3000,'1-3k'],[3000,9000,'3-9k'],[9000,30000,'9-30k'],[30000,Infinity,'>30k']],
-  rate:[[-Infinity,0,'<0%'],[0,10,'0-10%'],[10,20,'10-20%'],[20,30,'20-30%'],[30,Infinity,'≥30%']]
-};
-function toNum(v){ if(v===null||v===undefined||v==='')return 0; if(typeof v==='number')return v; return parseFloat(String(v).replace(/[%,¥\s]/g,''))||0; }
-function fmtMoney(v){ if(v===null||v===undefined||isNaN(v))return '—'; const a=Math.abs(v); let s; if(a>=10000)s=(Math.round(v/100)/100)+'万'; else s=v.toLocaleString('zh-CN',{maximumFractionDigits:0}); return s; }
-function fmtPct(v){ if(v===null||v===undefined||v==='')return '—'; if(typeof v==='number'){return Math.round(v*100)/100+'%';} const n=parseFloat(String(v).replace('%','')); return isNaN(n)?v:(Math.round(n*100)/100)+'%'; }
-function natWeek(s){ const dt=new Date(s.slice(0,10)); const dow=dt.getDay(); const mon=new Date(dt); mon.setDate(dt.getDate()-((dow+6)%7)); const sun=new Date(mon); sun.setDate(mon.getDate()+6); const f=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); return f(mon)+'~'+f(sun); }
-function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function deltaSpan(cur,prev,goodWhenUp,fmt){
-  fmt=fmt||((x)=>x);
-  if(prev===null||prev===undefined||isNaN(prev)) return '<span class="zero">—</span>';
-  const d=cur-prev;
-  if(Math.abs(d)<1e-9) return '<span class="zero">→ 持平</span>';
-  const up=d>0, good=goodWhenUp?up:!up;
-  return '<span class="'+(good?'up':'down')+'">'+(up?'▲ +':'▼ ')+fmt(Math.abs(d))+'</span>';
-}
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
+/* ════════ 运营周报看板（简约白 · 平台 × 负责人） ════════ */
+const API='/api/files/bi-actions', API_KEY='chengying2026', LS_KEY='bi_digest_plan_v4';
 
-// ── 读取同源「已处理/优化动作」状态（与 bi-digest.html 共享 localStorage）──
-function loadPlan(){
-  let P={};
-  try{ P=JSON.parse(localStorage.getItem(PLAN_KEY)||'{}')||{}; }catch(e){ P={}; }
-  const out={};
-  for(const k in P){ const v=P[k]; if(typeof v==='object'&&v) out[k]={st:v.st||'待处理',ts:v.ts||''}; else out[k]={st:String(v||'待处理'),ts:''}; }
-  // 也允许从本页 URL #p= 携带（粘贴分享链接时）
-  try{ const h=location.hash||''; if(h.indexOf('#p=')===0){ const arr=JSON.parse(atob(h.slice(3))); arr.forEach(it=>{ if(typeof it[0]==='string') out[it[0]]={st:(['待处理','已停推广','已下架','已提投产','已提价','已完成','不处理'][it[1]]||'待处理'),ts:it[2]||''}; }); } }catch(e){}
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+function num(v){ if(v==null)return 0; if(typeof v==='number')return isFinite(v)?v:0;
+  const n=parseFloat(String(v).replace(/[%,¥,\s]/g,'')); return isNaN(n)?0:n; }
+function money(v){ if(v==null||isNaN(v))return '—'; const s=v<0?'-':''; const a=Math.abs(v);
+  if(a>=10000)return s+(a/10000).toFixed(a>=100000?0:2)+'万';
+  if(a>=1000)return s+Math.round(a).toLocaleString('zh-CN');
+  return s+(a<10?a.toFixed(1):Math.round(a)); }
+function money0(v){ if(v==null||isNaN(v))return '—'; return Math.round(v).toLocaleString('zh-CN'); }
+function pct(v,d){ d=d==null?1:d; return v==null||isNaN(v)?'—':v.toFixed(d)+'%'; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function cleanOwner(s){ s=(s==null||s==='')?'未分配':String(s); return s.replace(/\((?:运营|推广|客服|美工|专员)\)$/,''); }
+function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
+
+function dltT(cur,prev,hb,fmt){
+  fmt=fmt||money0;
+  if(prev==null||!isFinite(prev)) return '<span class="flat-t">—</span>';
+  const d=cur-prev;
+  if(Math.abs(d)<1e-9) return '<span class="flat-t">0</span>';
+  const up=d>0, good=hb?up:!up;
+  return '<span class="'+(good?'up-t':'down-t')+'">'+(up?'+':'-')+fmt(Math.abs(d))+'</span>';
+}
+function dlt(cur,prev,hb,fmt){
+  fmt=fmt||money0;
+  if(prev==null||!isFinite(prev)) return '<span class="d flat">—</span>';
+  const d=cur-prev, rel=prev!==0?d/Math.abs(prev)*100:null;
+  if(Math.abs(d)<1e-9) return '<span class="d flat">持平</span>';
+  const up=d>0, good=hb?up:!up;
+  const rc=(rel!=null&&Math.abs(rel)>=1)?' '+(up?'+':'')+rel.toFixed(0)+'%':'';
+  return '<span class="d '+(good?'up':'down')+'">'+(up?'▲':'▼')+fmt(Math.abs(d))+rc+'</span>';
+}
+
+/* 简约折线图（bands：自然周底部分块，如 [{i0:0,i1:0,label:'36周'},{i0:1,i1:5,label:'37周'}]）*/
+function chart(labels,vals,fmt,bands){
+  const W=940,H=216,PL=58,PR=14,PT=24,PB=52;
+  const iw=W-PL-PR, ih=H-PT-PB;
+  let mn=Math.min(0,...vals), mx=Math.max(0,...vals); if(mn===mx)mx=mn+1;
+  const rng=mx-mn;
+  const X=i=>PL+(vals.length===1?iw/2:(i/(vals.length-1))*iw);
+  const Y=v=>PT+ih-((v-mn)/rng)*ih;
+  let g='';
+  // 自然周底部分块（高亮显示周界）
+  if(bands&&bands.length>1){
+    bands.forEach((b,bi)=>{
+      const x0=PL-6+ (b.i0/(vals.length-1))*iw, x1=PL-6+ ((b.i1)/(vals.length-1))*iw;
+      const midX=(x0+x1)/2;
+      g+='<rect x="'+x0.toFixed(1)+'" y="'+(H-30)+'" width="'+Math.max(8,(x1-x0)).toFixed(1)+'" height="17" rx="3" fill="'+(bi%2?'#e8edf5':'#eef2f8')+'" stroke="#dfe4ee"/>';
+      g+='<text x="'+midX.toFixed(1)+'" y="'+(H-18)+'" text-anchor="middle" fill="#5b6472" font-size="10.5" font-weight="600">'+esc(b.label)+'</text>';
+      g+='<line x1="'+x1.toFixed(1)+'" y1="'+PT+'" x2="'+x1.toFixed(1)+'" y2="'+(H-31)+'" stroke="#c9d1dd" stroke-width="1" stroke-dasharray="2 2" opacity=".8"/>';
+    });
+  }
+  // 日期标签（色带之上）
+  vals.forEach((v,i)=>{
+    g+='<text x="'+X(i).toFixed(1)+'" y="'+(H-36)+'" text-anchor="middle" fill="#8b95a5" font-size="9.5">'+esc(labels[i])+'</text>';
+  });
+  for(let i=0;i<=3;i++){
+    const y=PT+ih/3*i, v=mx-rng/3*i;
+    g+='<line x1="'+PL+'" y1="'+y.toFixed(1)+'" x2="'+(W-PR)+'" y2="'+y.toFixed(1)+'" stroke="#eef0f3"/>'
+     +'<text x="'+(PL-7)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" fill="#8b95a5" font-size="10.5">'+fmt(v)+'</text>';
+  }
+  const zy=Y(0);
+  g+='<line x1="'+PL+'" y1="'+zy.toFixed(1)+'" x2="'+(W-PR)+'" y2="'+zy.toFixed(1)+'" stroke="#d5d9e0" stroke-dasharray="3 3"/>';
+  const pts=vals.map((v,i)=>X(i).toFixed(1)+','+Y(v).toFixed(1)).join(' ');
+  const area='M'+PL+','+zy.toFixed(1)+' L'+vals.map((v,i)=>X(i).toFixed(1)+','+Y(v).toFixed(1)).join(' L')+' L'+X(vals.length-1).toFixed(1)+','+zy.toFixed(1)+' Z';
+  g+='<path d="'+area+'" fill="#1a1d23" opacity=".05"/>';
+  g+='<polyline points="'+pts+'" fill="none" stroke="#1a1d23" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  vals.forEach((v,i)=>{
+    g+='<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(v).toFixed(1)+'" r="3.4" fill="#fff" stroke="#1a1d23" stroke-width="2"/>';
+    g+='<text x="'+X(i).toFixed(1)+'" y="'+(Y(v)-9).toFixed(1)+'" text-anchor="middle" fill="#1a1d23" font-size="11" font-weight="700">'+fmt(v)+'</text>';
+  });
+  for(let i=1;i<vals.length;i++){
+    const d=vals[i]-vals[i-1]; if(Math.abs(d)<1e-9)continue;
+    g+='<text x="'+((X(i-1)+X(i))/2).toFixed(1)+'" y="'+Math.max(15,Math.min(Y(vals[i-1]),Y(vals[i]))-22).toFixed(1)
+      +'" text-anchor="middle" font-size="9.5" font-weight="700" fill="'+(d>0?'#16a34a':'#dc2626')+'">'
+      +(d>0?'+':'-')+fmt(Math.abs(d))+'</text>';
+  }
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">'+g+'</svg>';
+}
+/* 自然周工具 */
+function weekInfo(dateStr){
+  const d=new Date(String(dateStr).slice(0,10)+'T00:00:00');
+  const dow=d.getDay(), off=(dow+6)%7;
+  const mon=new Date(d); mon.setDate(d.getDate()-off);
+  const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+  const f=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
+  const iso=()=>{ const t=new Date(mon); t.setDate(t.getDate()+3-((t.getDay()+6)%7));
+    const w1=new Date(t.getFullYear(),0,4);
+    return 1+Math.round(((t-w1)/864e5-3+((w1.getDay()+6)%7))/7); };
+  return {mon:f(mon),sun:f(sun),no:iso()};
+}
+function shortRng(s){ return s.slice(5).replace('-','/'); }
+function weekGroups(){                       // 把窗口按「结束日所在自然周」分组
+  const m={};
+  WIN.forEach(w=>{
+    const wi=weekInfo(wEnd(w));
+    if(!m[wi.mon]) m[wi.mon]={mon:wi.mon,no:wi.no,wins:[]};
+    m[wi.mon].wins.push(w);
+  });
+  return Object.keys(m).sort().map(k=>{
+    const wi=weekInfo(k);
+    return {mon:k,no:m[k].no,wins:m[k].wins,sun:wi.sun,
+      label:'第'+m[k].no+'周 '+shortRng(k)+'~'+shortRng(wi.sun)};
+  });
+}
+function groupOf(win){ const wi=weekInfo(wEnd(win)); return weekGroups().find(g=>g.mon===wi.mon); }
+function bandsOf(){                        // 合并相邻同周窗口为一个分块
+  const gs=weekGroups();
+  const idx=WIN.map(w=>gs.findIndex(g=>g.mon===weekInfo(wEnd(w)).mon));
+  const out=[]; let st=0;
+  for(let i=1;i<=idx.length;i++){
+    if(i===idx.length||idx[i]!==idx[st]){
+      if(idx[st]>=0) out.push({i0:st,i1:i-1,label:gs[idx[st]].no+'周'});
+      st=i;
+    }
+  }
   return out;
 }
-function planStatus(P,id){ return (P[id]&&P[id].st)||'待处理'; }
-function isHandled(st){ return st!=='待处理'&&st!=='todo'; }
 
-// ── 档位聚合（与 bi-digest 一致：亏损/盈利按 |profit_pay| 分档，销售额按 net_pay）──
-function bucketOf(recs){
-  const loss=[],profit=[],sales=recs.slice();
-  recs.forEach(r=>{ if(r.p<0)loss.push(r); else if(r.p>0)profit.push(r); });
-  const mk=(arr,b,useP)=>{ const res=b.map(x=>({name:x[2],lo:x[0],hi:x[1],n:0,amt:0})); arr.forEach(r=>{const v=useP?Math.abs(r.p):r.s; for(const c of res){if(v>=c.lo&&v<c.hi){c.n++;c.amt+=useP?r.p:r.s;break;}}}); return res; };
-  const mkRate=(b)=>{ const res=b.map(x=>({name:x[2],lo:x[0],hi:x[1],n:0,amt:0})); recs.forEach(r=>{const v=(r.prV==null||isNaN(r.prV))?0:r.prV; for(const c of res){if(v>=c.lo&&v<c.hi){c.n++;c.amt+=r.p;break;}}}); return res; };
-  return {loss:mk(loss,CONFIG.loss,true),profit:mk(profit,CONFIG.profit,true),sales:mk(sales,CONFIG.sales,false),rate:mkRate(CONFIG.rate)};
+/* ════════ 状态 ════════ */
+let WIN=[], LINK={}, ACTIONS={}, OWNERS=[], PLATS=[];
+let CUR='', PREV='';
+let S={plat:'', owner:'', same:true, metric:'net', week:false};   // week=自然周对比模式
+
+function wEnd(w){ const p=String(w||'').split('-'); return (p[1]||p[0]||'').replace(/\//g,'-'); }
+function wStart(w){ const p=String(w||'').split('-'); return (p[0]||'').replace(/\//g,'-'); }
+function dDiff(a,b){ return Math.round((Date.parse(a)-Date.parse(b))/86400000); }
+function gapDays(a,b){ return Math.abs(dDiff(wEnd(a),wEnd(b))); }
+function overlapDays(a,b){
+  const s1=Date.parse(wStart(a)),e1=Date.parse(wEnd(a)),s2=Date.parse(wStart(b)),e2=Date.parse(wEnd(b));
+  return Math.max(0,Math.round((Math.min(e1,e2)-Math.max(s1,s2))/86400000)+1);
+}
+function autoPair(){
+  CUR=WIN[WIN.length-1];
+  const non=WIN.filter(w=>w!==CUR&&overlapDays(CUR,w)===0);
+  PREV = non.length ? non[non.length-1] : (WIN[WIN.length-2]||WIN[0]);
+}
+/* 自然周对比：本期=最近自然周内最晚快照，对比期=上一自然周内最晚快照 */
+function applyWeekMode(){
+  const gs=weekGroups();
+  if(gs.length<2) return false;
+  const cur=gs[gs.length-1], prev=gs[gs.length-2];
+  CUR=cur.wins[cur.wins.length-1];
+  PREV=prev.wins[prev.wins.length-1];
+  return true;
 }
 
-let WEEK={}, WEEKS=[], PLAN={}, LINKP={};
-async function main(){
+/* 动作 */
+async function loadActions(){
+  let srv={}, delMap={};
+  try{ const r=await fetch(API,{headers:{'X-API-Key':API_KEY}});
+    if(r.ok){ const j=await r.json();
+      // 服务器结构可能是 {v:{},del:{}}（新）或 扁平 map（旧）；统一取 v + 墓碑
+      const wrap=(j&&j.data&&typeof j.data==='object')?j.data:j;
+      if(wrap&&wrap.v&&typeof wrap.v==='object'){ srv=wrap.v; delMap=wrap.del&&typeof wrap.del==='object'?wrap.del:{}; }
+      else if(wrap&&typeof wrap==='object'&&!Array.isArray(wrap)&&wrap.st===undefined&&wrap.v===undefined){ srv=wrap; }
+    } }catch(e){}
+  let ls={}; try{ ls=JSON.parse(localStorage.getItem(LS_KEY)||'{}')||{}; }catch(e){}
+  const norm=v=>(v&&typeof v==='object')?{st:v.st||'待处理',ts:v.ts||'',by:v.by||'',win:v.win||''}
+                                       :{st:String(v||'待处理'),ts:'',by:'',win:''};
+  const out={}; let mig=0; const deled=new Set(Object.keys(delMap));
+  for(const k in srv){ if(k.indexOf('__')!==0) out[k]=norm(srv[k]); }
+  for(const k in ls){ if(deled.has(k))continue; if(!out[k]){ out[k]=norm(ls[k]); mig++; } }
+  ACTIONS=out; if(mig||deled.size) saveActions(true);
+  return mig;
+}
+async function saveActions(silent){
+  try{ await fetch(API,{method:'POST',headers:{'X-API-Key':API_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({data:{v:ACTIONS, del:{}}})}); }catch(e){}
+}
+
+/* 载入 */
+async function boot(){
   let raw;
-  try{ const res=await fetch('data/feishu_bi.json'); if(!res.ok)throw new Error('HTTP '+res.status); raw=await res.json(); }
-  catch(e){ document.getElementById('errBox').innerHTML='<div class="err">加载 data/feishu_bi.json 失败：'+e.message+'<br>请用本地服务器地址打开本页（与 bi-digest.html 同源）。</div>'; return; }
-  PLAN=loadPlan();
-  // 归一化
-  const rows=raw.rows.map(r=>({
-    link_id:r.link_id, owner:r.owner||'未分配', product:r.product||'', title:r.title||'', platform:r.platform||'', shop:r.shop||'',
-    p:toNum(r.profit_pay), s:toNum(r.net_pay), prV:toNum(r.profit_rate), roi:(r.roi==null?null:toNum(r.roi)), pay:toNum(r.pay_amt),
-    window:r.window, we:r.window_end
-  }));
-  // 每个链接每周取最新快照
-  const byLW={};
-  rows.forEach(r=>{ const w=natWeek(r.we); const weN=Date.parse(r.we); if(!byLW[r.link_id])byLW[r.link_id]={}; const m=byLW[r.link_id]; if(!m[w]||weN>m[w].weN)m[w]={rec:r,weN}; });
-  WEEK={};
-  for(const lid in byLW){ for(const w in byLW[lid]){ (WEEK[w]=WEEK[w]||[]).push(byLW[lid][w].rec); } }
-  WEEKS=Object.keys(WEEK).sort();
-  // 每个链接的周->p（用于改善判断）
-  LINKP={};
-  for(const lid in byLW){ LINKP[lid]={}; for(const w in byLW[lid]) LINKP[lid][w]=byLW[lid][w].rec.p; }
-  // 给本期/上期记录打优化状态与前期 p
-  WEEKS.forEach(w=>{ WEEK[w].forEach(r=>{ r.st=planStatus(PLAN,r.link_id); r.handled=isHandled(r.st); r.prevP=(LINKP[r.link_id]&&LINKP[r.link_id][prevWeekOf(w)]!=null)?LINKP[r.link_id][prevWeekOf(w)]:null; }); });
-  initSelectors();
-  bindUI();
-  render();
-}
-function prevWeekOf(w){ const i=WEEKS.indexOf(w); return i>0?WEEKS[i-1]:null; }
+  try{ const r=await fetch('data/feishu_bi.json'); if(!r.ok)throw new Error('HTTP '+r.status); raw=await r.json(); }
+  catch(e){ $('#loading').classList.add('hide');
+    $('#errBox').innerHTML='<div class="err"><b>加载 data/feishu_bi.json 失败：'+esc(e.message)+'</b><br>'
+      +'请用本地服务器地址打开（如 http://localhost:3588/bi-result-board.html），不要直接双击文件。</div>'; return; }
+  const rows=raw.rows||[];
+  const cnt={}; rows.forEach(r=>{ if(r.window) cnt[r.window]=(cnt[r.window]||0)+1; });
+  WIN=Object.keys(cnt).filter(w=>cnt[w]>=200).sort((a,b)=>a.split('-')[1].localeCompare(b.split('-')[1]));
+  if(!WIN.length){ $('#loading').classList.add('hide');
+    $('#errBox').innerHTML='<div class="err">没有样本量充足的窗口快照。</div>'; return; }
+  const winSet=new Set(WIN), tmp={};
+  for(const r of rows){
+    const w=r.window; if(!winSet.has(w))continue;
+    const id=String(r.link_id==null?'':r.link_id); if(!id)continue;
+    const k=id+'|'+w; let a=tmp[k];
+    if(!a) a=tmp[k]={id,win:w,p:0,s:0,pay:0,roi:0,gm:0,pr:0,
+      product:r.product||'',title:r.title||'',platform:r.platform||'',shop:r.shop||'',owner:cleanOwner(r.owner)};
+    a.p+=num(r.profit_pay); a.s+=num(r.net_pay); a.pay+=num(r.pay_amt);
+    const roi=num(r.roi); if(roi>0&&roi<50) a.roi=Math.max(a.roi,roi);
+    const gm=num(r.gm); if(!a.gm&&gm!==0&&Math.abs(gm)<500) a.gm=gm;
+    const pr=num(r.profit_rate); if(!a.pr&&pr!==0) a.pr=pr;
+    if(r.product) a.product=r.product;
+    if(r.owner) a.owner=cleanOwner(r.owner);
+  }
+  LINK={};
+  for(const k in tmp){ const a=tmp[k]; (LINK[a.id]=LINK[a.id]||{id:a.id,W:{},meta:a}).W[a.win]=a; }
+  for(const id in LINK){ const ws=WIN.filter(w=>LINK[id].W[w]); if(ws.length) LINK[id].meta=LINK[id].W[ws[ws.length-1]]; }
+  PLATS=[...new Set(Object.values(LINK).map(l=>l.meta.platform))].filter(Boolean).sort();
+  OWNERS=[...new Set(Object.values(LINK).map(l=>l.meta.owner))].sort((a,b)=>a.localeCompare(b,'zh'));
+  const mig=await loadActions();
 
-function initSelectors(){
-  const sc=document.getElementById('selCur'), sp=document.getElementById('selPrev');
-  sc.innerHTML=WEEKS.map(w=>'<option value="'+w+'">'+w+'</option>').join('');
-  sp.innerHTML=WEEKS.map(w=>'<option value="'+w+'">'+w+'</option>').join('');
-  sc.value=WEEKS[WEEKS.length-1];
-  sp.value=WEEKS.length>1?WEEKS[WEEKS.length-2]:WEEKS[WEEKS.length-1];
-  document.getElementById('covHint').textContent='自然周共 '+WEEKS.length+' 个（数据每日更新，周数会随抓取增长）';
+  $('#loading').classList.add('hide'); $('#app').classList.remove('hide');
+  $('#hdrSub').textContent=WIN.length+' 期快照 · '+Object.keys(LINK).length+' 链接 · '+OWNERS.length+' 运营'
+    +(mig?' · 已迁移 '+mig+' 条本机动作':'');
+  autoPair(); bindUI(); render();
 }
-function bindUI(){
-  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
-    const isO=t.dataset.tab==='owner';
-    document.getElementById('ownerView').classList.toggle('hidden',!isO);
-    document.getElementById('totalView').classList.toggle('hidden',isO);
-  }));
-  document.getElementById('selCur').addEventListener('change',render);
-  document.getElementById('selPrev').addEventListener('change',render);
+
+/* 聚合 */
+function aggList(recs){
+  let n=0,lossN=0,lossAmt=0,proN=0,proAmt=0,net=0,sales=0;
+  for(const r of recs){ n++; const p=r.p;
+    if(p<0){lossN++;lossAmt+=p;} else if(p>0){proN++;proAmt+=p;}
+    net+=p; sales+=r.s; }
+  return {n,lossN,lossAmt,proN,proAmt,net,sales,lossRate:n?lossN/n*100:0};
 }
+/* 当前口径下的链接集合 */
+function scope(){
+  const out={cur:[],prev:[]};
+  for(const id in LINK){
+    const L=LINK[id], m=L.meta;
+    if(S.plat&&m.platform!==S.plat) continue;
+    if(S.owner&&m.owner!==S.owner) continue;
+    const c=L.W[CUR], p=L.W[PREV];
+    if(c) out.cur.push(c);
+    if(p) out.prev.push(p);
+  }
+  if(S.same){                       // 同口径：只保留两期都在的
+    const ids=new Set(out.cur.map(r=>r.id));
+    out.prev=out.prev.filter(r=>ids.has(r.id));
+    const pid=new Set(out.prev.map(r=>r.id));
+    out.cur=out.cur.filter(r=>pid.has(r.id));
+  }
+  return out;
+}
+function seriesOf(){
+  return WIN.map(w=>{
+    const recs=[];
+    for(const id in LINK){
+      const L=LINK[id], m=L.meta;
+      if(S.plat&&m.platform!==S.plat) continue;
+      if(S.owner&&m.owner!==S.owner) continue;
+      const x=L.W[w]; if(x) recs.push(x);
+    }
+    return aggList(recs);
+  });
+}
+/* 链接级变化 */
+function linkChanges(){
+  const out=[];
+  for(const id in LINK){
+    const L=LINK[id], m=L.meta;
+    if(S.plat&&m.platform!==S.plat) continue;
+    if(S.owner&&m.owner!==S.owner) continue;
+    const c=L.W[CUR], p=L.W[PREV];
+    if(!c||!p) continue;
+    out.push({id,m,c,p,d:c.p-p.p});
+  }
+  out.sort((a,b)=>a.d-b.d);
+  return out;
+}
+/* 动作判定 */
+const OB=7;
+function baseWinOf(id,act){
+  if(act.win && WIN.indexOf(act.win)>=0) return act.win;
+  if(act.ts){ const t=Date.parse(String(act.ts).slice(0,10));
+    if(!isNaN(t)){ let best=null;
+      WIN.forEach(w=>{ const e=Date.parse(wEnd(w)); if(e<=t&&(!best||e>Date.parse(wEnd(best)))) best=w; });
+      if(best) return best; } }
+  return WIN[0];
+}
+function judgeAll(){
+  const out=[];
+  for(const id in ACTIONS){
+    if(id.indexOf('__')===0) continue;
+    const L=LINK[id]; if(!L) continue;
+    const act=ACTIONS[id], st=act.st||'待处理';
+    if(st==='待处理'||st==='不处理') continue;
+    const m=L.meta;
+    if(S.plat&&m.platform!==S.plat) continue;
+    if(S.owner&&m.owner!==S.owner) continue;
+    const bw=baseWinOf(id,act), b=L.W[bw], c=L.W[CUR];
+    if(!b) continue;
+    const bp=b.p, cp=c?c.p:null;
+    const days=act.ts?Math.max(0,dDiff(wEnd(CUR),String(act.ts).slice(0,10))):null;
+    let j='观察', rate=null, deltaAmt=null;
+    if(cp==null) j='消失';
+    else{ deltaAmt=cp-bp;
+      if(bp<0&&cp>=0){ j='转正'; rate=100; }
+      else if(bp<0&&cp<0){ rate=Math.abs(bp)>=50?deltaAmt/Math.abs(bp)*100:null;
+        j=(rate!=null&&rate>=30)?'有效':((rate!=null&&rate<=-10)?'无效':'观察'); }
+      else if(bp>=0&&cp<0) j='无效';
+      else j=deltaAmt>=0?'有效':'无效'; }
+    out.push({id,st,ts:act.ts||'',bw,bp,cp,deltaAmt,rate,j,days,m,
+      pending:(days!=null&&days<OB)});
+  }
+  return out;
+}
+const JC={'转正':'g','有效':'g','观察':'a','无效':'r','消失':'n'};
+
+/* ════════ 渲染 ════════ */
 function render(){
-  const cur=document.getElementById('selCur').value, prev=document.getElementById('selPrev').value;
-  const curR=WEEK[cur]||[], prevR=WEEK[prev]||[];
-  renderKPIs(curR,prevR);
-  renderBuckets(curR,prevR);
-  renderFollow(curR);
-  renderOwners(curR,prevR);
+  renderBar();
+  const sc=scope(), a=aggList(sc.cur), b=aggList(sc.prev);
+  renderConcl(a,b,sc);
+  renderKpis(a,b);
+  renderChart();
+  renderChanges();
+  renderActs(a,b);
 }
-function agg(recs){ let lossN=0,lossAmt=0,proN=0,proAmt=0,sales=0; recs.forEach(r=>{ if(r.p<0){lossN++;lossAmt+=r.p;} else if(r.p>0){proN++;proAmt+=r.p;} sales+=r.pay; }); return {lossN,lossAmt,proN,proAmt,sales,total:recs.length}; }
-function renderKPIs(cur,prev){
-  const a=agg(cur), b=agg(prev);
-  const handled=cur.filter(r=>r.handled).length;
-  const lossHandled=cur.filter(r=>r.p<0&&r.handled).length;
-  const cov=a.lossN?Math.round(lossHandled/a.lossN*100):0;
-  const impr=cur.filter(r=>r.p<0&&r.handled&&((r.prevP!=null&&r.p>r.prevP)||r.p>=0)).length;
-  const imprRate=lossHandled?Math.round(impr/lossHandled*100):0;
-  const cards=[
-    {lab:'亏损链接数',val:a.lossN,delta:deltaSpan(a.lossN,b.lossN,false),good:false},
-    {lab:'亏损总额(进发货利润)',val:fmtMoney(a.lossAmt),delta:deltaSpan(a.lossAmt,b.lossAmt,true,fmtMoney),good:true},
-    {lab:'盈利链接数',val:a.proN,delta:deltaSpan(a.proN,b.proN,true),good:true},
-    {lab:'盈利总额',val:fmtMoney(a.proAmt),delta:deltaSpan(a.proAmt,b.proAmt,true,fmtMoney),good:true},
-    {lab:'销售额(净成交)',val:fmtMoney(a.sales),delta:deltaSpan(a.sales,b.sales,true,fmtMoney),good:true},
-    {lab:'亏损优化覆盖 / 改善率',val:cov+'% / '+imprRate+'%',delta:'<span class="zero">占亏损链接</span>',good:true}
+function renderBar(){
+  $('#plats').innerHTML='<button class="pill'+(S.plat?'':' on')+'" data-p="">全部</button>'
+    +PLATS.map(p=>'<button class="pill'+(S.plat===p?' on':'')+'" data-p="'+esc(p)+'">'+esc(p)+'</button>').join('');
+  const cnt={};
+  for(const id in LINK){ const m=LINK[id].meta;
+    if(S.plat&&m.platform!==S.plat) continue;
+    if(LINK[id].W[CUR]) cnt[m.owner]=(cnt[m.owner]||0)+1; }
+  $('#owners').innerHTML='<button class="pill'+(S.owner?'':' on')+'" data-o="">全部</button>'
+    +OWNERS.filter(o=>!S.plat||cnt[o]).map(o=>
+      '<button class="pill'+(S.owner===o?' on':'')+'" data-o="'+esc(o)+'">'+esc(o)
+      +(cnt[o]?'<span class="n">'+cnt[o]+'</span>':'')+'</button>').join('');
+  const opt=WIN.map(w=>'<option value="'+w+'">'+w+'（'+(groupOf(w)?groupOf(w).no+'周':'')+'）</option>').join('');
+  if($('#selCur').dataset.n!==String(WIN.length)){
+    // 下拉按自然周分组（optgroup），方便对齐周几
+    const wg=weekGroups();
+    const makeOpts=()=>wg.map(g=>'<optgroup label="第'+g.no+'周 '+shortRng(g.mon)+' ~ '+shortRng(weekInfo(g.mon).sun)+'">'
+      +g.wins.map(w=>'<option value="'+w+'">'+w+'（'+(groupOf(w)&&groupOf(w).no)+'周）</option>').join('')+'</optgroup>').join('');
+    $('#selCur').innerHTML=makeOpts(); $('#selPrev').innerHTML=makeOpts();
+    $('#selCur').dataset.n=String(WIN.length); }
+  $('#selCur').value=CUR; $('#selPrev').value=PREV;
+  $('#ckSame').checked=S.same;
+  $('#btnWeek').classList.toggle('on',S.week);
+  $$('#metrics .pill').forEach(x=>x.classList.toggle('on',x.dataset.m===S.metric));
+  const g=groupOf(CUR);
+  const gstr=(S.week&&groupOf(PREV))?('自然周对比：本期=第'+g.no+'周('+shortRng(g.mon)+'~'+shortRng(g.sun)+') 代表快照 '+CUR
+    +'，上期=第'+groupOf(PREV).no+'周 '+PREV)
+    :null;
+  $('#wkHint').style.display=S.week?'inline':'none';
+  $('#wkHint').textContent='📅 '+gstr;
+  const ov=overlapDays(CUR,PREV);
+  $('#trHint').textContent=(S.owner||'全部运营')+' · '+(S.plat||'全部平台')+' · '+CUR+' 起 '+WIN.length+' 期'
+    +(S.week?'（自然周分块见下方色带）':'');
+}
+function renderKpis(a,b){
+  const KS=[
+    {l:'净利',v:money(a.net),cur:a.net,prev:b.net,hb:1,f:money},
+    {l:'亏损链接',v:a.lossN+' <small>/'+a.n+'</small>',cur:a.lossN,prev:b.lossN,hb:0,f:money0},
+    {l:'亏损额',v:money(a.lossAmt),cur:a.lossAmt,prev:b.lossAmt,hb:1,f:money},
+    {l:'销售额',v:money(a.sales),cur:a.sales,prev:b.sales,hb:1,f:money},
+    {l:'亏损率',v:pct(a.lossRate),cur:a.lossRate,prev:b.lossRate,hb:0,f:x=>pct(x,1)},
   ];
-  document.getElementById('kpis').innerHTML=cards.map(c=>
-    '<div class="kpi"><div class="lab">'+c.lab+'</div><div class="val">'+c.val+'</div><div class="delta '+(c.delta.includes('up')?'good':c.delta.includes('down')?'bad':'flat')+'">'+c.delta+'</div></div>'
-  ).join('');
+  $('#kpis').innerHTML=KS.map(k=>'<div class="kpi"><div class="lab">'+k.l+'</div>'
+    +'<div class="val num">'+k.v+'</div>'
+    +'<div class="cmp">上期 <b class="num">'+k.f(k.prev)+'</b> '+dlt(k.cur,k.prev,k.hb,k.f)+'</div></div>').join('');
 }
-function renderBuckets(cur,prev){
-  const B=bucketOf(cur), PB=bucketOf(prev);
-  const groups=[['loss','🔴 亏损档位（|进发货利润额|，负为亏）'],['profit','🟢 盈利档位（|进发货利润额|）'],['sales','🔵 销售额档位（净成交）'],['rate','🟣 利润率档位']];
-  let html='';
-  groups.forEach(([g,title])=>{
-    html+='<div class="card"><h3>'+title+'</h3><table class="tbl"><thead><tr><th>档位</th><th>本期条数</th><th>上期条数</th><th>条数变化</th><th>本期金额</th><th>上期金额</th><th>金额变化</th></tr></thead><tbody>';
-    B[g].forEach((c,i)=>{
-      const pc=PB[g][i];
-      const amtFmt=(g==='rate')?fmtPct:fmtMoney;
-      const curAmt=(g==='rate')?c.amt:fmtMoney(c.amt);
-      const prevAmt=(g==='rate')?pc.amt:fmtMoney(pc.amt);
-      html+='<tr><td class="tier '+g+'">'+c.name+'</td>'
-      +'<td>'+c.n+'</td><td>'+pc.n+'</td><td>'+deltaSpan(c.n,pc.n,g!=='loss')+'</td>'
-      +'<td>'+curAmt+'</td><td>'+prevAmt+'</td><td>'+deltaSpan(c.amt,pc.amt,true,amtFmt)+'</td></tr>';
-    });
-    html+='</tbody></table></div>';
-  });
-  html+='<div class="note">读法：<b>亏损档位</b>看「条数 ↓ + 金额 ▲（亏损收窄）」为好；<b>盈利/销售额档位</b>看「条数 ↑ + 金额 ▲」为好。金额列带负号表示亏损，Δ 为「本期 − 上期」。</div>';
-  document.getElementById('bucketWrap').innerHTML=html;
+function renderChart(){
+  const base=seriesOf(), key=S.metric;
+  const M={net:['净利',money],lossAmt:['亏损额',money],lossN:['亏损链接数',money0],sales:['销售额',money]};
+  const fmt=M[key][1];
+  const bands=weekGroups().length>1?bandsOf():null;    // 单周时不分块
+  $('#chart').innerHTML=chart(WIN.map(w=>wEnd(w).slice(5)), base.map(x=>x[key]), fmt, bands);
 }
-function renderFollow(cur){
-  const bad=[], good=[];
-  cur.forEach(r=>{
-    if(!r.handled) return;
-    const lossNow=r.p<0;
-    const improved=(r.prevP!=null&&r.p>r.prevP)||r.p>=0;
-    if(lossNow&&!improved) bad.push(r);
-    if(improved||r.p>=0) good.push(r);
+function renderConcl(a,b,sc){
+  const li=[];
+  const nd=a.net-b.net;
+  li.push((S.owner?('<b>'+esc(S.owner)+'</b>'):'全部运营')+'（'+(S.plat||'全部平台')+'）本期净利 <b class="num">'+money(a.net)+'</b>，'
+    +'环比 <span class="'+(nd>=0?'hl':'hl2')+'">'+(nd>=0?'+':'')+money(nd)+'</span>；'
+    +'亏损 <b>'+a.lossN+'</b> 条（上期 '+b.lossN+'，<span class="'+(a.lossN<=b.lossN?'hl':'hl2')+'">'
+    +(a.lossN-b.lossN>=0?'+':'')+(a.lossN-b.lossN)+'</span>）'
+    +(S.same?'，同口径 <b>'+a.n+'</b> 条。':'。'));
+  const chg=linkChanges();
+  const worse=chg.filter(x=>x.d<0), better=chg.filter(x=>x.d>0);
+  li.push('利润下滑 <b class="hl2">'+worse.length+'</b> 条（合计 '+money(worse.reduce((s,x)=>s+x.d,0))+'），'
+    +'提升 <b class="hl">'+better.length+'</b> 条（合计 +'+money(better.reduce((s,x)=>s+x.d,0))+'）。');
+  const acts=judgeAll(), va=acts.filter(x=>!x.pending);
+  const eff=va.filter(x=>x.j==='有效'||x.j==='转正').length;
+  if(acts.length) li.push('优化动作 <b>'+acts.length+'</b> 条，已过观察期 <b>'+va.length+'</b> 条中'
+    +'<span class="hl">有效 '+eff+'</span> 条、<span class="hl2">无效 '+va.filter(x=>x.j==='无效').length+'</span> 条'
+    +(va.length?'，有效率 <b>'+Math.round(eff/va.length*100)+'%</b>':'')+'。');
+  else li.push('本期还没有标记任何优化动作。');
+  const un=sc.cur.filter(r=>r.p<0&&(!ACTIONS[r.id]||ACTIONS[r.id].st==='待处理')).length;
+  li.push('待办：还有 <b class="hl2">'+un+'</b> 条亏损链接没标记动作。');
+  $('#concl').innerHTML='<div class="t">本周结论</div><ul>'+li.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+}
+function renderChanges(){
+  const chg=linkChanges(), N=12;
+  const row=(o)=>'<tr><td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis">'
+    +esc(o.m.product||o.m.title||o.id)+'</div>'
+    +'<div style="font-size:10px;color:var(--tx4)">'+esc(o.id)+'</div></td>'
+    +'<td><span class="pl '+(o.m.platform==='天猫'?'tm':'pdd')+'">'+esc((o.m.platform||'').slice(0,2))+'</span></td>'
+    +(S.owner?'':'<td>'+esc(o.m.owner)+'</td>')
+    +'<td class="num '+(o.c.p>=0?'pos':'neg')+'"><b>'+money(o.c.p)+'</b></td>'
+    +'<td class="num" style="color:var(--tx3)">'+money(o.p.p)+'</td>'
+    +'<td>'+dltT(o.d,0,true)+'</td>'
+    +'<td>'+(ACTIONS[o.id]?'<span class="tag n">'+esc(ACTIONS[o.id].st)+'</span>':'<span style="color:var(--tx4)">—</span>')+'</td></tr>';
+  const th='<thead><tr><th>链接</th><th>平台</th>'+(S.owner?'':'<th>运营</th>')
+    +'<th>本期</th><th>上期</th><th>Δ</th><th>动作</th></tr></thead><tbody>';
+  const bad=chg.slice(0,N), good=chg.slice(-N).reverse();
+  $('#badTbl').innerHTML = bad.length?'<table>'+th+bad.map(row).join('')+'</tbody></table>'
+    :'<div class="empty">没有利润下滑的链接</div>';
+  $('#goodTbl').innerHTML= good.length?'<table>'+th+good.filter(x=>x.d>0).map(row).join('')+'</tbody></table>'
+    :'<div class="empty">没有利润提升的链接</div>';
+}
+function renderActs(a,b){
+  const all=judgeAll();
+  if(!all.length){ $('#actBody').innerHTML='<div class="empty">还没有优化动作记录。'
+    +'去「BI指标归档处理中心」标记状态后，这里会自动复盘效果。</div>'; return; }
+  const va=all.filter(x=>!x.pending);
+  const eff=va.filter(x=>x.j==='有效'||x.j==='转正').length;
+  const no=va.filter(x=>x.j==='无效').length;
+  const rate=va.length?Math.round(eff/va.length*100):0;
+  let h='<div style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:12px;font-size:12.5px;color:var(--tx2)">'
+    +'<span>共 <b style="color:var(--tx)">'+all.length+'</b> 条动作</span>'
+    +'<span>已过观察期 <b style="color:var(--tx)">'+va.length+'</b> 条</span>'
+    +'<span style="color:var(--green);font-weight:700">有效 '+eff+'</span>'
+    +'<span style="color:var(--amber);font-weight:700">观察 '+va.filter(x=>x.j==='观察').length+'</span>'
+    +'<span style="color:var(--red);font-weight:700">无效 '+no+'</span>'
+    +'<span>有效率 <b style="color:var(--tx)">'+(va.length?rate+'%':'—')+'</b></span>'
+    +'<span>累计利润变化 <b class="'+(va.reduce((s,x)=>s+(x.deltaAmt||0),0)>=0?'pos':'neg')+'">'
+    +money(va.reduce((s,x)=>s+(x.deltaAmt||0),0))+'</b></span>'
+    +(all.filter(x=>x.pending).length?'<span class="hint">待验证 '+all.filter(x=>x.pending).length+' 条（不满7天）</span>':'')
+    +'</div>';
+  const ord={'无效':0,'观察':1,'有效':2,'转正':3,'消失':4};
+  const list=all.slice().sort((x,y)=>{
+    const pa=x.pending?1:0, pb=y.pending?1:0; if(pa!==pb)return pa-pb;
+    return (ord[x.j]||9)-(ord[y.j]||9); });
+  h+='<div class="tb"><table><thead><tr><th>链接</th><th>平台</th>'+(S.owner?'':'<th>运营</th>')
+    +'<th>动作</th><th>处理日</th><th>基线利润</th><th>本期利润</th><th>Δ</th><th>观察天数</th><th>判定</th></tr></thead><tbody>';
+  list.slice(0,60).forEach(x=>{
+    h+='<tr><td><div style="max-width:190px;overflow:hidden;text-overflow:ellipsis">'+esc(x.m.product||x.m.title||x.id)+'</div>'
+      +'<div style="font-size:10px;color:var(--tx4)">'+esc(x.id)+'</div></td>'
+      +'<td><span class="pl '+(x.m.platform==='天猫'?'tm':'pdd')+'">'+esc((x.m.platform||'').slice(0,2))+'</span></td>'
+      +(S.owner?'':'<td>'+esc(x.m.owner)+'</td>')
+      +'<td><span class="tag n">'+esc(x.st)+'</span></td>'
+      +'<td style="font-size:11px;color:var(--tx3)">'+esc(x.ts?String(x.ts).slice(0,10):'—')+'</td>'
+      +'<td class="num" style="color:var(--tx3)">'+money(x.bp)+'</td>'
+      +'<td class="num '+(x.cp==null?'':x.cp>=0?'pos':'neg')+'"><b>'+(x.cp==null?'<span style="color:var(--tx4)">已消失</span>':money(x.cp))+'</b></td>'
+      +'<td>'+(x.deltaAmt==null?'—':dltT(x.deltaAmt,0,true))+'</td>'
+      +'<td class="num">'+(x.days==null?'—':x.days+'d')+'</td>'
+      +'<td><span class="tag '+(JC[x.j]||'n')+'">'+(x.pending?'待验证':x.j)+'</span></td></tr>';
   });
-  const rowHtml=(r,kind)=>{
-    const prevTxt=(r.prevP==null)?'—':fmtMoney(r.prevP);
-    return '<div class="row '+kind+'"><div class="meta"><div class="t">'+esc(r.product||r.title||r.link_id)+'</div>'
-      +'<div class="linkid">'+esc(r.link_id)+' · '+esc(r.owner)+' · '+esc(r.st)+'</div></div>'
-      +'<div style="text-align:right"><div class="num cur">'+fmtMoney(r.p)+'</div><div class="num prev">上期 '+prevTxt+'</div></div></div>';
+  h+='</tbody></table></div>';
+  $('#actBody').innerHTML=h;
+  window.__list=list;
+}
+
+/* 导出 */
+function dl(name,text){
+  const b=new Blob(['\ufeff'+text],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function exportCsv(){
+  const sc=scope(), a=aggList(sc.cur), b=aggList(sc.prev);
+  let c='平台,'+(S.plat||'全部')+'\n运营,'+(S.owner||'全部')+'\n本期,'+CUR+'\n对比期,'+PREV+'\n口径,'+(S.same?'同口径':'全量')+'\n\n';
+  c+='指标,本期,对比期,变化\n';
+  [['净利',a.net,b.net],['亏损链接数',a.lossN,b.lossN],['亏损额',a.lossAmt.toFixed(2),b.lossAmt.toFixed(2)],
+   ['销售额',a.sales.toFixed(2),b.sales.toFixed(2)],['亏损率',a.lossRate.toFixed(2),b.lossRate.toFixed(2)]]
+   .forEach(r=>c+=r[0]+','+r[1]+','+r[2]+','+((+r[1])-(+r[2])).toFixed(2)+'\n');
+  c+='\n链接级变化（按Δ升序）\n链接ID,产品,平台,运营,本期利润,上期利润,Δ,动作\n';
+  linkChanges().forEach(o=>c+=[o.id,(o.m.product||'').replace(/,/g,'，'),o.m.platform,o.m.owner,
+    o.c.p.toFixed(2),o.p.p.toFixed(2),o.d.toFixed(2),ACTIONS[o.id]?ACTIONS[o.id].st:''].join(',')+'\n');
+  dl('运营周报_'+(S.owner||'全部')+'_'+CUR.replace(/\//g,'')+'.csv',c);
+  toast('已导出 CSV');
+}
+
+/* 交互 */
+function bindUI(){
+  $('#plats').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
+    S.plat=b.dataset.p;
+    // 当前运营在该平台下没有链接时，自动回到「全部」
+    if(S.owner){ let has=false;
+      for(const id in LINK){ if(LINK[id].meta.owner===S.owner&&(!S.plat||LINK[id].meta.platform===S.plat)){has=true;break;} }
+      if(!has){ S.owner=''; toast('该平台下没有此运营的链接，已切回全部'); } }
+    render(); };
+  $('#owners').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
+    S.owner=b.dataset.o; render(); };
+  $('#metrics').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
+    S.metric=b.dataset.m; render(); };
+  $('#selCur').onchange=e=>{ CUR=e.target.value; S.week=false; render(); };
+  $('#selPrev').onchange=e=>{ PREV=e.target.value; S.week=false; render(); };
+  $('#btnWeek').onclick=()=>{
+    const ok=applyWeekMode();
+    S.week=ok;
+    if(!ok){ toast('数据不足两个自然周，无法对比'); S.week=false; return; }
+    render();
+    toast('已切到自然周：本期=第'+groupOf(CUR).no+'周，对比=第'+groupOf(PREV).no+'周');
   };
-  const sortFn=(a,b)=>a.p-b.p;
-  bad.sort(sortFn); good.sort((a,b)=>b.p-a.p);
-  const badBox=document.getElementById('badList'), goodBox=document.getElementById('goodList');
-  badBox.innerHTML = bad.length? bad.map(r=>rowHtml(r,'bad')).join('') : '<div class="note">✅ 本期没有"已标记但仍亏损未改善"的链接。</div>';
-  goodBox.innerHTML = good.length? good.map(r=>rowHtml(r,'good')).join('') : '<div class="note">本期标记优化的链接都还在亏损，暂无转正/改善案例。</div>';
+  $('#ckSame').onchange=e=>{ S.same=e.target.checked; render(); };
+  $('#btnExp').onclick=exportCsv;
 }
-function renderOwners(cur,prev){
-  const owners=new Set([...cur.map(r=>r.owner),...prev.map(r=>r.owner)]);
-  const rows=[];
-  owners.forEach(own=>{
-    const c=cur.filter(r=>r.owner===own), p=prev.filter(r=>r.owner===own);
-    const a=agg(c), b=agg(p);
-    const handled=c.filter(r=>r.handled).length;
-    const lossHandled=c.filter(r=>r.p<0&&r.handled).length;
-    const impr=c.filter(r=>r.p<0&&r.handled&&((r.prevP!=null&&r.p>r.prevP)||r.p>=0)).length;
-    // 覆盖率按「该负责人的亏损链接」为分母（需要优化的才是分母）
-    const cov=a.lossN?Math.round(lossHandled/a.lossN*100):0;
-    const imprRate=lossHandled?Math.round(impr/lossHandled*100):0;
-    // 亏损额Δ：亏损额是负数，Δ为正 = 亏损变小 = 改善
-    const lossDelta=a.lossAmt-b.lossAmt, proDelta=a.proAmt-b.proAmt;
-    let grade,cls;
-    if(lossDelta>0 && proDelta>0){grade='优';cls='top';}
-    else if(lossDelta>=0 || proDelta>=0){grade='良';cls='mid';}
-    else {grade='差';cls='low';}
-    rows.push({own,a,b,cov,imprRate,grade,cls,lossDelta,proDelta,salesDelta:a.sales-b.sales});
-  });
-  rows.sort((x,y)=>y.lossDelta-x.lossDelta); // 亏损额Δ 由大到小：亏损收窄最多 = 改善最好
-  let html='<table class="tbl"><thead><tr><th>#</th><th>负责人</th><th>亏损链接Δ</th><th>亏损额Δ</th><th>盈利额Δ</th><th>销售额Δ</th><th>优化覆盖</th><th>改善率</th><th>评级</th></tr></thead><tbody>';
-  rows.forEach((r,i)=>{
-    html+='<tr><td><span class="rank '+r.cls+'">'+(i+1)+'</span></td>'
-      +'<td class="owner">'+esc(r.own)+'</td>'
-      +'<td>'+deltaSpan(r.a.lossN,r.b.lossN,false)+'</td>'
-      +'<td>'+deltaSpan(r.lossDelta,0,false,fmtMoney)+'</td>'
-      +'<td>'+deltaSpan(r.proDelta,0,true,fmtMoney)+'</td>'
-      +'<td>'+deltaSpan(r.salesDelta,0,true,fmtMoney)+'</td>'
-      +'<td>'+(r.cov?r.cov+'%':'—')+'</td>'
-      +'<td>'+(r.imprRate?r.imprRate+'%':'—')+'</td>'
-      +'<td><span class="tag '+(r.cls==='top'?'good':r.cls==='mid'?'mid':'bad')+'">'+r.grade+'</span></td></tr>';
-  });
-  html+='</tbody></table>';
-  html+='<div class="note">评级：<b>优</b>=亏损额收窄且盈利额上升；<b>良</b>=其中一项改善；<b>差</b>=亏损扩大且盈利下降。按「亏损额Δ」从大到小排序（Δ为正=亏损变小，排最前=改善最好）。Δ 均为「本期 − 上期」。优化覆盖率 = 已标记动作数 ÷ 该负责人亏损链接数；改善率 = 已标记中亏损变小或转正的比例。</div>';
-  document.getElementById('ownerTblWrap').innerHTML=html;
-}
-main();
+boot();
 </script>
 </body>
 </html>

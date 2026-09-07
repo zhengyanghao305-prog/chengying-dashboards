@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609051041"></script>
-<script src="js/xlsx.full.min.js?v=202609051041"></script>
+<script src="js/echarts.min.js?v=202609071200"></script>
+<script src="js/xlsx.full.min.js?v=202609071200"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -43,6 +43,9 @@
   .win-tag{font-size:12px;color:#6d28d9;background:#ede9fe;padding:3px 10px;border-radius:10px;font-weight:600;}
   .win-scope{font-size:11.5px;color:var(--text-tertiary);}
   .win-scope b{color:var(--text-secondary);}
+  .syncbadge{font-size:11px;color:#64748b;background:#e2e8f0;padding:3px 10px;border-radius:10px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .syncbadge.ok{color:#047857;background:#d1fae5;}
+  .syncbadge:active{opacity:.7;}
   .controlbar .sp{margin-left:auto;display:flex;align-items:center;gap:8px;}
   .platbox{display:flex;gap:6px;}
   .platbox button{border:1px solid var(--border);background:#fff;padding:5px 13px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;border-radius:14px;transition:all .12s;}
@@ -242,6 +245,7 @@
     <span class="lab" style="margin-left:14px">数据窗口</span>
     <select class="win-select" id="winSel" title="所选平台下各近7天快照窗口的链接数，最新=当前数据"></select>
     <span class="win-scope" id="winScope"></span>
+    <span class="syncbadge" id="syncBadge" title="已处理/优化动作状态同步到本机服务器，团队/换电脑共享；灰色=当前离线（仅存本机与链接）">⏳ 同步中…</span>
     <span class="sp">
       <button class="dlbtn" id="dlBtn">⬇ 下载运营执行清单 Excel</button>
       <span class="win-tag" id="winTag"></span>
@@ -293,7 +297,12 @@ const HANDLED_TERM={'已下架':1,'已停推广':1,'已完成':1,'不处理':1};
 const HANDLED_ADJ={'已提投产':1,'已提价':1,'处理中':1};               // 调整型：等回弹观察
 let PLAN={};
 let DATA={rows:[],windows:[],winRowsMap:{}};
-let WIN='', PLAT='all', OWNER='all', ACT='all', AMT='all', DACT='all', SELECTED=new Set(), SEL_POOL='action';
+let WIN='', PLAT='all', OWNER='all', ACT='all', AMT='all', DACT='all', SEL_POOL='action';
+/* 勾选集合按板块(act/drill/follow/search)分池，互不串扰：全选某列表不会把上一列表的勾选带过去 */
+const SEL_POOLS={act:new Set(),drill:new Set(),follow:new Set(),search:new Set()};
+let CUR_POOL='act';
+function selOf(pool){ return SEL_POOLS[pool]||(SEL_POOLS[pool]=new Set()); }
+function clearAllSel(){ Object.values(SEL_POOLS).forEach(function(s){ s.clear(); }); }
 let PAGE=0, DRILL_PAGE=0, BUCKET=null, FVIEW='all', FLOOK_DAYS=7;   // FLOOK_DAYS=观察回弹期(默认7天≈1窗口)
 
 function toNum(v){ if(v===null||v===undefined||v==='')return 0; if(typeof v==='number')return v; return parseFloat(String(v).replace(/[%,¥\s]/g,''))||0; }
@@ -315,11 +324,91 @@ function actLabelByKey(key){ const m=Object.values(ACT_META).find(x=>x.key===key
 
 // ── 处理状态 v2：{st:'已下架', ts:'2026-09-03'}，兼容旧版纯字符串 ──
 function normPlanVal(v){ if(v&&typeof v==='object')return {st:stateLabel(v.st||'todo'), ts:v.ts||''}; return {st:stateLabel(v), ts:''}; }
-function loadPlan(){ try{PLAN=JSON.parse(localStorage.getItem(PLAN_KEY)||'{}');}catch(e){PLAN={};} for(const k in PLAN){ if(typeof PLAN[k]!=='object') PLAN[k]=normPlanVal(PLAN[k]); } }
-function savePlan(){ try{localStorage.setItem(PLAN_KEY,JSON.stringify(PLAN));}catch(e){} syncHash(); }
+const PLAN_DEL_KEY='bi_digest_plan_del_v1';   // 删除墓碑：标回「待处理」的记录，防止旧状态从别人电脑/服务器复活
+let PLAN_DEL={};
+function nowTs(){ const d=new Date(); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
+function loadPlan(){
+  try{PLAN=JSON.parse(localStorage.getItem(PLAN_KEY)||'{}');}catch(e){PLAN={};}
+  try{PLAN_DEL=JSON.parse(localStorage.getItem(PLAN_DEL_KEY)||'{}');}catch(e){PLAN_DEL={};}
+  for(const k in PLAN){ if(typeof PLAN[k]!=='object') PLAN[k]=normPlanVal(PLAN[k]); }
+  syncFromServer();
+  if(typeof window.__planPoll==='undefined'){ window.__planPoll=setInterval(()=>{ if(document.visibilityState==='visible') syncFromServer(); },45000); }
+}
+function savePlan(){
+  try{localStorage.setItem(PLAN_KEY,JSON.stringify(PLAN));}catch(e){}
+  try{localStorage.setItem(PLAN_DEL_KEY,JSON.stringify(PLAN_DEL));}catch(e){}
+  syncHash(); pushToServer();
+}
+
+// ── 服务器同步：合并动作到 data/bi-actions.json（团队共享：谁在哪台电脑标记都汇总，45s 轮询+保存即推）──
+const BI_ACT_API='/api/files/bi-actions', BI_ACT_KEY='chengying2026';
+let _pushT=null, _syncBusy=false;
+function setSyncBadge(st){
+  const el=document.getElementById('syncBadge'); if(!el)return;
+  if(st==='on'){ el.textContent='☁ 已同步'; el.className='syncbadge ok'; }
+  else if(st==='off'){ el.textContent='⏸ 仅本机/链接'; el.className='syncbadge'; }
+  else { el.textContent='⏳ 同步中…'; el.className='syncbadge'; }
+}
+function pushToServer(){
+  clearTimeout(_pushT);
+  _pushT=setTimeout(()=>{
+    try{
+      const v={};
+      for(const k in PLAN){ const st=stateLabel(planState(k)); if(st==='待处理')continue; const vv=PLAN[k]; v[k]={st:vv.st||st, ts:vv.ts||nowTs(), by:''}; }
+      setSyncBadge('mid');
+      fetch(BI_ACT_API,{method:'POST',headers:{'X-API-Key':BI_ACT_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify({data:{v:v, del:PLAN_DEL}})})
+        .then(r=>{ if(r.ok) setSyncBadge('on'); else setSyncBadge('off'); })
+        .catch(()=>setSyncBadge('off'));
+    }catch(e){}
+  },1200);
+}
+function syncFromServer(){
+  if(_syncBusy)return; _syncBusy=true;
+  (async()=>{
+    try{
+      const r=await fetch(BI_ACT_API,{headers:{'X-API-Key':BI_ACT_KEY}});
+      if(!r.ok){ setSyncBadge('off'); return; }
+      const j=await r.json();
+      if(!j||typeof j!=='object'){ setSyncBadge('off'); return; }
+      // 兼容不同服务返回形态：{v,del} / {data:{v,del}} / 旧版扁平 map / 数组
+      const wrap=(j.data&&typeof j.data==='object'&&!Array.isArray(j.data))?j.data:j;
+      const sv=(wrap.v&&typeof wrap.v==='object')?wrap.v:( (wrap&&typeof wrap==='object'&&!Array.isArray(wrap)&&Object.keys(wrap).length&&wrap[Object.keys(wrap)[0]]&&wrap[Object.keys(wrap)[0]].st)?wrap:{} );
+      const sd=(wrap.del&&typeof wrap.del==='object')?wrap.del:{};
+      let changed=false;
+      for(const id in sv){
+        const s=sv[id]; if(!s||!s.st)continue;
+        const st=stateLabel(s.st); if(st==='待处理')continue;
+        const l=PLAN[id];
+        if(!l||(!l.ts&&s.ts)||(l.ts&&s.ts&&s.ts>l.ts)){ PLAN[id]={st:st,ts:s.ts||''}; changed=true; }
+      }
+      for(const id in sd){ // 服务器墓碑：某人已改回待处理 → 本地旧状态删除
+        if(!PLAN[id])continue;
+        const lts=PLAN[id].ts||'';
+        if(!lts||!sd[id]||lts<=sd[id]){ delete PLAN[id]; changed=true; }
+      }
+      if(changed){
+        try{localStorage.setItem(PLAN_KEY,JSON.stringify(PLAN));}catch(e){}
+        syncHash();
+        if(typeof renderAll==='function') try{renderAll();}catch(e){}
+      }
+      setSyncBadge('on');
+    }catch(e){ setSyncBadge('off'); }
+    finally{ _syncBusy=false; }
+  })();
+}
 function planState(id){ const v=PLAN[id]; return v?(v.st||'todo'):'todo'; }
 function planTs(id){ const v=PLAN[id]; return v&&v.ts?v.ts:''; }
-function setPlan(id,s){ const cur=planState(id); PLAN[id]={st:stateLabel(s), ts:cur!=='todo'&&stateLabel(s)===cur?PLAN[id].ts:todayISO()}; savePlan(); }
+function setPlan(id,s){
+  const cur=stateLabel(planState(id)), st=stateLabel(s);
+  if(st==='待处理'){           // 改回待处理 = 删除该状态，并留下墓碑防止他处旧状态复活
+    if(cur!=='待处理') PLAN_DEL[id]=(PLAN[id]&&PLAN[id].ts)||nowTs();
+    delete PLAN[id];
+    savePlan(); return;
+  }
+  PLAN[id]={st:st, ts:(cur!=='待处理'&&st===cur)?(PLAN[id].ts||nowTs()):nowTs()};
+  savePlan();
+}
 function isHandled(id){ const s=planState(id); return !(s==='todo'||s==='待处理'); }
 function isHandledAdj(id){ const s=planState(id); return !!(HANDLED_ADJ[s]||s==='doing'); }
 function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -482,17 +571,17 @@ function renderWinBar(){
     if(OWNER!=='all'&&!cnt.has(OWNER)) OWNER='all';
     oSel.innerHTML='<option value="all"'+(OWNER==='all'?' selected':'')+'>全部负责人（'+base.length+' 条）</option>'
       + list.map(([o,n])=>'<option value="'+String(o).replace(/"/g,'')+'"'+(o===OWNER?' selected':'')+'>'+ownShort(o)+'（'+n+' 条）</option>').join('');
-    oSel.onchange=()=>{ OWNER=oSel.value; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); };
+    oSel.onchange=()=>{ OWNER=oSel.value; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; clearAllSel(); renderAll(); };
     if(wsel) wsel.value=WIN;
   }
   const end=toDate((DATA.rows.find(r=>r.window===WIN)||{}).window_end)||'';
   const start=DATA.windows[0]?DATA.windows[0].slice(0,10):'';
   document.getElementById('winScope').innerHTML='<b>'+platName()+'</b> · 滚动近7天快照 · 覆盖 '+start.replace(/\//g,'-')+' → '+(end||'')+' · 共 '+DATA.windows.length+' 张，窗口链接数按所选平台/负责人统计';
   document.getElementById('winTag').textContent=WIN.replace(/\//g,'-')+' 已选中';
-  sel.onchange=()=>{ WIN=sel.value; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); };
+  sel.onchange=()=>{ WIN=sel.value; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; clearAllSel(); renderAll(); };
   // 平台切换 + 下载按钮
   document.querySelectorAll('#platBox button').forEach(b=>b.classList.toggle('active',b.dataset.plat===PLAT));
-  document.getElementById('platBox').onclick=(e)=>{ const b=e.target.closest('button'); if(b&&b.dataset.plat!==PLAT){ PLAT=b.dataset.plat; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; SELECTED.clear(); renderAll(); } };
+  document.getElementById('platBox').onclick=(e)=>{ const b=e.target.closest('button'); if(b&&b.dataset.plat!==PLAT){ PLAT=b.dataset.plat; ACT='all'; AMT='all'; DACT='all'; BUCKET=null; PAGE=0; clearAllSel(); renderAll(); } };
   document.getElementById('dlBtn').onclick=downloadExcel;
 }
 function platRowCount(w){ const rows=DATA.winRowsMap[w]||[]; return rows.filter(matchScope).length; }
@@ -569,7 +658,7 @@ function followWatchCounts(rows){
 }
 
 /* ---------- 已处理 · 观察跟进（防重复核心） ---------- */
-function followRowHTML(r){
+function followRowHTML(r){ CUR_POOL='follow';
   const t=followTag(r.link_id,r.p)||{tag:'new',days:0};
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
   const ts=planTs(r.link_id), days=t.days;
@@ -657,9 +746,9 @@ function stateChipHTML(id){
   const st=stateLabel(planState(id));
   return '<div class="ostate '+stateCls(stateLabel(planState(id)))+'" data-pid="'+id+'" title="点击切换状态">'+st+'</div>';
 }
-function chkHTML(id){ return '<input type="checkbox" class="chk" data-chk="'+id+'" '+(SELECTED.has(id)?'checked':'')+'>'; }
+function chkHTML(id,pool){ const s=selOf(pool||CUR_POOL); return '<input type="checkbox" class="chk" data-chk="'+id+'" '+(s.has(id)?'checked':'')+'>'; }
 function batchBarHTML(pool,total){
-  const n=SELECTED.size;
+  const n=selOf(pool).size;
   return '<div class="batchbar">'
     +'<span>已选 <span class="cnt" id="selCnt_'+pool+'">'+n+'</span> 条</span>'
     +'<button class="bbtn" data-b="all">全选本页</button>'
@@ -692,9 +781,31 @@ function downloadTxt(name, content){
 }
 function toast(pool,msg){ const el=document.getElementById('toast_'+pool); if(el){ el.textContent=msg; setTimeout(()=>{ if(el)el.textContent=''; },2500); } }
 
+/* 勾选链接 → Excel 表格下载（.xlsx） */
+function downloadSelectedExcel(rows,pool){
+  try{
+    const headers=['产品','商品标题','平台','店铺','负责人','链接id','链接URL','进发货利润(近7天)','净销售额','ROI','毛利率','利润率','趋势Δ(元/窗)','建议动作','判定依据','优化动作状态'];
+    const out=rows.map(r=>{
+      const rec=classifyRec(r);
+      const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?pctStr(r.gmTxt):'';
+      const prTxt=(r.prTxt&&r.prTxt!=='0.00%'&&r.prTxt!=='0%')?pctStr(r.prTxt):'';
+      return {'产品':r.product||'','商品标题':r.title||'','平台':r.platform||'','店铺':r.shop||'','负责人':r.owner||'','链接id':r.link_id,'链接URL':platUrl(r.platform,r.link_id),
+        '进发货利润(近7天)':Math.round(r.p*10)/10,'净销售额':Math.round(r.s*10)/10,'ROI':(r.roiV===null||r.roiV===undefined)?'':Math.round(r.roiV*100)/100,'毛利率':gmTxt,'利润率':prTxt,
+        '趋势Δ(元/窗)':trendDelta(r.link_id),'建议动作':rec.act,'判定依据':rec.why,'优化动作状态':stateLabel(planState(r.link_id))};
+    });
+    const ws=XLSX.utils.json_to_sheet(out,{header:headers});
+    ws['!cols']=[{wch:14},{wch:26},{wch:8},{wch:12},{wch:10},{wch:16},{wch:36},{wch:13},{wch:11},{wch:7},{wch:9},{wch:9},{wch:11},{wch:16},{wch:46},{wch:12}];
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'勾选清单');
+    XLSX.writeFile(wb,'BI勾选清单_'+pool+'_'+WIN.replace(/\//g,'-')+'.xlsx');
+    return true;
+  }catch(e){ return false; }
+}
+
 function bindBatch(host,pool){
+  const S=selOf(pool);
   host.querySelectorAll('.chk').forEach(cb=>{
-    cb.addEventListener('change',()=>{ const id=cb.dataset.chk; if(cb.checked)SELECTED.add(id); else SELECTED.delete(id); refreshSelUI(host,pool); });
+    cb.addEventListener('change',()=>{ const id=cb.dataset.chk; if(cb.checked)S.add(id); else S.delete(id); refreshSelUI(host,pool); });
   });
   host.querySelectorAll('.arow[data-id],.lrow[data-id]').forEach(row=>{
     if(row.classList.contains('head'))return;
@@ -709,37 +820,37 @@ function bindBatch(host,pool){
   host.querySelectorAll('[data-b]').forEach(btn=>{
     btn.addEventListener('click',()=>{
       const b=btn.dataset.b;
-      if(b==='all'){ host.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=true;SELECTED.add(cb.dataset.chk);}); refreshSelUI(host,pool); }
+      if(b==='all'){ host.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=true;S.add(cb.dataset.chk);}); refreshSelUI(host,pool); }
       else if(b==='allSel'){ // 全选所有：选中当前筛选池全部(跨分页)
         let allIds=[];
         const card=host.closest('.listcard')||host;
         if(card&&card.dataset.allids){ try{ allIds=JSON.parse(card.dataset.allids); }catch(e){ allIds=[]; } }
-        if(allIds.length){ allIds.forEach(id=>SELECTED.add(id)); host.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=SELECTED.has(cb.dataset.chk);}); toast(pool,'已全选 '+allIds.length+' 条'); refreshSelUI(host,pool); }
+        if(allIds.length){ allIds.forEach(id=>S.add(id)); host.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=S.has(cb.dataset.chk);}); toast(pool,'已全选 '+allIds.length+' 条'); refreshSelUI(host,pool); }
         else toast(pool,'无可全选行');
       }
-      else if(b==='clear'){ SELECTED.clear(); host.querySelectorAll('.chk[data-chk]').forEach(cb=>cb.checked=false); refreshSelUI(host,pool); }
-      else if(b==='download'){ // 下载勾选清单（URL+ID+标题）
-        const rows=platRows().filter(r=>SELECTED.has(r.link_id));
+      else if(b==='clear'){ S.clear(); host.querySelectorAll('.chk[data-chk]').forEach(cb=>cb.checked=false); refreshSelUI(host,pool); }
+      else if(b==='download'){ // 下载勾选清单（Excel 表格）
+        const rows=platRows().filter(r=>S.has(r.link_id));
         if(!rows.length){ toast(pool,'请先勾选'); return; }
-        const lines=rows.map(r=>platUrl(r.platform,r.link_id)+'\t'+r.product+'\t'+r.title+'\t'+r.link_id);
-        const ok=downloadTxt('BI勾选清单_'+pool+'_'+WIN.replace(/\//g,'-')+'.txt',lines.join('\n'));
-        toast(pool,ok?('已下载 '+rows.length+' 条'):'下载失败');
+        const ok=downloadSelectedExcel(rows,pool);
+        toast(pool,ok?('已下载 '+rows.length+' 条 Excel'):'下载失败');
       }
-      else if(b==='copyId'){ const rows=platRows().filter(r=>SELECTED.has(r.link_id)); if(!rows.length){toast(pool,'请先勾选');return;} const txt=rows.map(r=>r.link_id).join('\n'); copyText(txt).then(ok=>toast(pool,ok?'已复制 '+rows.length+' 个链接ID':'复制失败')); }
+      else if(b==='copyId'){ const rows=platRows().filter(r=>S.has(r.link_id)); if(!rows.length){toast(pool,'请先勾选');return;} const txt=rows.map(r=>r.link_id).join('\n'); copyText(txt).then(ok=>toast(pool,ok?'已复制 '+rows.length+' 个链接ID':'复制失败')); }
       else if(b==='copyLink'){ syncHash(); copyText(location.href).then(ok=>toast(pool,ok?'已复制带状态链接，可发给同事/换设备打开':'复制失败')); }
     });
   });
   const applyBtn=host.querySelector('[data-b="applyState"]');
   if(applyBtn) applyBtn.addEventListener('click',()=>{
     const val=applyBtn.previousElementSibling.value;
-    if(!SELECTED.size){ toast(pool,'请先勾选链接'); return; }
-    let n=0; SELECTED.forEach(id=>{ setPlan(id,val); n++; });
+    if(!S.size){ toast(pool,'请先勾选链接'); return; }
+    let n=0; S.forEach(id=>{ setPlan(id,val); n++; });
     toast(pool,'已将 '+n+' 条标记为「'+val+'」'); refreshAllAfterState();
   });
 }
 function refreshSelUI(host,pool){
-  const cntEl=document.getElementById('selCnt_'+pool); if(cntEl)cntEl.textContent=SELECTED.size;
-  host.querySelectorAll('[data-b="download"],[data-b="copyId"]').forEach(b=>{ b.disabled=!SELECTED.size; });
+  const s=selOf(pool);
+  const cntEl=document.getElementById('selCnt_'+pool); if(cntEl)cntEl.textContent=s.size;
+  host.querySelectorAll('[data-b="download"],[data-b="copyId"]').forEach(b=>{ b.disabled=!s.size; });
   host.querySelectorAll('.arow[data-id],.lrow[data-id]').forEach(row=>{
     const cb=row.querySelector('.chk'); if(cb) row.classList.toggle('sel',cb.checked);
   });
@@ -752,7 +863,7 @@ function toggleTrend(row){
   if(scope){ scope.querySelectorAll('.arow.expanded,.lrow.expanded').forEach(e=>e.classList.remove('expanded')); scope.querySelectorAll('.trendbox.open').forEach(b=>{b.classList.remove('open');try{b.__c&&b.__c.dispose();}catch(e){}}); }
   if(!isOpen&&box&&box.classList.contains('trendbox')){ row.classList.add('expanded'); box.classList.add('open'); drawTrend(box.querySelector('.chart'),row.dataset.id); }
 }
-function actRowHTML(r,ac){
+function actRowHTML(r,ac){ CUR_POOL='act';
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
   const meta=ACT_META[ac.k];
   return '<div class="arow" data-id="'+r.link_id+'">'
@@ -778,7 +889,7 @@ function renderActionSummary(counts){
   });
   html+='<div class="as-card '+(ACT==='all'?'sel':'')+'" data-ak="all"><div class="av">'+Object.values(counts).reduce((a,b)=>a+b,0)+'</div><div class="ak">全部亏损</div></div>';
   document.getElementById('actionHost').innerHTML='<div class="action-summary">'+html+'</div>';
-  document.querySelectorAll('#actionHost .as-card').forEach(el=>{ el.addEventListener('click',()=>{ ACT=el.dataset.ak; PAGE=0; SELECTED.clear(); renderActionList(); }); });
+  document.querySelectorAll('#actionHost .as-card').forEach(el=>{ el.addEventListener('click',()=>{ ACT=el.dataset.ak; PAGE=0; clearAllSel(); renderActionList(); }); });
   renderActionList();
 }
 function amtCountsAll(){
@@ -812,9 +923,9 @@ function renderActionList(){
   const card=host.querySelector('#actCard');
   bindBatch(card,'act');
   const ha=card.querySelector('[data-b="headAll"]');
-  if(ha) ha.addEventListener('change',()=>{ const on=ha.checked; card.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=on; if(on)SELECTED.add(cb.dataset.chk); else SELECTED.delete(cb.dataset.chk);}); refreshSelUI(card,'act'); });
+  if(ha) ha.addEventListener('change',()=>{ const on=ha.checked; const S=selOf('act'); card.querySelectorAll('.chk[data-chk]').forEach(cb=>{cb.checked=on; if(on)S.add(cb.dataset.chk); else S.delete(cb.dataset.chk);}); refreshSelUI(card,'act'); });
   card.querySelectorAll('[data-pg]').forEach(btn=>{ btn.addEventListener('click',()=>{ PAGE+=btn.dataset.pg==='prev'?-1:1; renderActionList(); }); });
-  card.querySelectorAll('.amt-chip').forEach(ch=>{ ch.addEventListener('click',()=>{ if(ch.classList.contains('disable'))return; AMT=ch.dataset.am; PAGE=0; SELECTED.clear(); renderActionList(); }); });
+  card.querySelectorAll('.amt-chip').forEach(ch=>{ ch.addEventListener('click',()=>{ if(ch.classList.contains('disable'))return; AMT=ch.dataset.am; PAGE=0; clearAllSel(); renderActionList(); }); });
   // 重新整理 action-summary 到容器顶部
   const sum=host.querySelector('.action-summary'); host.insertBefore(sum,host.querySelector('.listcard'));
 }
@@ -881,11 +992,11 @@ function renderBuckets(){
     +block('rate','🟣',true,B.rate,rows.length,'<div class="bcell special rate-s" data-bucket="rate_all"><div class="brow"><span class="bname" style="font-weight:700">全部利润率 →</span><span class="bval">'+rows.length+'</span></div><div class="bdelta good"><span class="lab">≥20% 为可放大高利区 · 0-20% 先提毛利 · &lt;0% 亏毛利止损</span></div></div>',PB);
   const hint=document.getElementById('bucketHint');
   if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'上方卡片 = 待办(未处理)视角，已处理的自动移入「已处理·观察跟进」防重复提醒；点任意档位下钻，每条含「动作建议+依据」；以利润额×利润率最大化定建议';
-  document.querySelectorAll('#bucketHost .bcell[data-g]').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DACT='all'; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
-  document.querySelectorAll('#bucketHost .bcell[data-bucket]').forEach(el=>{ el.addEventListener('click',()=>{ BUCKET={g:el.dataset.bucket,i:0}; DACT='all'; DRILL_PAGE=0; SELECTED.clear(); renderBuckets(); renderDrill(); }); });
+  document.querySelectorAll('#bucketHost .bcell[data-g]').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DACT='all'; DRILL_PAGE=0; clearAllSel(); renderBuckets(); renderDrill(); }); });
+  document.querySelectorAll('#bucketHost .bcell[data-bucket]').forEach(el=>{ el.addEventListener('click',()=>{ BUCKET={g:el.dataset.bucket,i:0}; DACT='all'; DRILL_PAGE=0; clearAllSel(); renderBuckets(); renderDrill(); }); });
   document.querySelectorAll('#bucketHost .follow-go').forEach(el=>{ el.addEventListener('click',()=>{ const fb=document.getElementById('followHost'); if(fb){ fb.scrollIntoView({behavior:'smooth',block:'start'}); } }); });
 }
-function drillRowHTML(r){
+function drillRowHTML(r){ CUR_POOL='drill';
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
   const rec=classifyRec(r), meta=REC_META[rec.k];
   const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?pctStr(r.gmTxt):'—';
@@ -956,7 +1067,7 @@ function renderDrill(){
   host.innerHTML=html;
   const card=document.getElementById('drillCard');
   bindBatch(card,'drill');
-  card.querySelectorAll('.amt-chip[data-dact]').forEach(ch=>{ ch.addEventListener('click',()=>{ if(ch.classList.contains('disable'))return; DACT=ch.dataset.dact; DRILL_PAGE=0; SELECTED.clear(); renderDrill(); }); });
+  card.querySelectorAll('.amt-chip[data-dact]').forEach(ch=>{ ch.addEventListener('click',()=>{ if(ch.classList.contains('disable'))return; DACT=ch.dataset.dact; DRILL_PAGE=0; clearAllSel(); renderDrill(); }); });
   card.querySelectorAll('[data-pg]').forEach(btn=>{ btn.addEventListener('click',()=>{ DRILL_PAGE+=btn.dataset.pg==='prev'?-1:1; renderDrill(); }); });
 }
 
@@ -1065,13 +1176,16 @@ function bindIdSearch(){
   const input=document.getElementById('idSearchInput');
   const btn=document.getElementById('idSearchBtn');
   const clr=document.getElementById('idSearchClear');
-  const run=()=>{ const ids=parseIds(input.value); SEARCH_IDS=ids; SELECTED.clear(); renderIdSearch(); if(ids.length) renderAll(); };
+  const run=()=>{ const ids=parseIds(input.value); SEARCH_IDS=ids; selOf('search').clear(); renderIdSearch(); if(ids.length) renderAll(); };
   btn.addEventListener('click',run);
   input.addEventListener('keydown',e=>{ if(e.key==='Enter')run(); });
-  clr.addEventListener('click',()=>{ input.value=''; SEARCH_IDS=[]; SELECTED.clear(); renderIdSearch(); renderAll(); });
+  clr.addEventListener('click',()=>{ input.value=''; SEARCH_IDS=[]; selOf('search').clear(); renderIdSearch(); renderAll(); });
 }
 async function main(){
   loadPlan();
+  // 点同步徽标 → 立即从服务器拉一次（微信/QQ 等分享链接的同事可借此把状态汇总上来）
+  const sb=document.getElementById('syncBadge');
+  if(sb) sb.addEventListener('click',()=>{ syncFromServer(); });
   // 链接携带的分享状态 → 与本地合并(以最新为准)，再写回，保证地址栏始终是完整可分享状态
   const urlPlan=parseHashPlan();
   if(urlPlan && Object.keys(urlPlan).length){ PLAN=mergePlanToLocal(PLAN,urlPlan); savePlan(); }

@@ -299,8 +299,8 @@ async function planApiUrlB(){
   if(mem) cloud.unshift(mem);
   const uniq=[...new Set(cloud)];
   const probe=async u=>{ try{ const r=await fetch(u,{method:'GET',headers:{'X-API-Key':API_KEY},signal:AbortSignal.timeout?AbortSignal.timeout(4500):undefined}); return r.ok; }catch(e){ return false; } };
-  if(await probe(API)){ _syncBaseB=''; return API; }
   for(const b of uniq){ if(await probe(b+API)){ _syncBaseB=b; try{ localStorage.setItem('bi_plan_sync_base',b); }catch(e){} return b+API; } }
+  if(await probe(API)){ _syncBaseB=''; return API; }
   _syncBaseB=null; return null;
 }
 

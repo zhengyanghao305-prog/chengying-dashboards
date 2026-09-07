@@ -139,6 +139,27 @@ tbody tr:hover td{background:#fafbfc}
 .lg{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--tx3)}
 .lg i{width:10px;height:10px;border-radius:3px;display:inline-block}
 
+/* 优化效果 · 每人分区块 */
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.fxWrap{display:grid;gap:10px}
+.fxSec{border:1px solid #edf0f3;border-radius:10px;padding:9px 11px;background:#fff}
+.fxT{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;margin-bottom:7px}
+.fxT .fxDot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.fxT .fxN{margin-left:auto;background:#f1f3f6;color:#6b7280;border-radius:10px;padding:0 8px;font-size:11px;font-weight:700}
+.fxBody{display:grid;gap:6px}
+.fxRow{display:flex;align-items:center;gap:12px;padding:6px 8px;border:1px solid #eef0f3;border-radius:8px;background:#fbfcfd}
+.fxRow:hover{background:#f4f6f9}
+.fxRow .nm{flex:1;min-width:0}
+.fxRow .t1{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.fxRow .t2{font-size:10.5px;color:var(--tx4);display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap}
+.fxRow .vals{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.fxRow .b{font-weight:700;font-size:12px}
+.fxRow .arw{color:var(--tx4);font-size:11px}
+.fxRow .dch{font-weight:700;font-size:12px}
+.fxRow .sub{font-size:10.5px;color:var(--tx4)}
+.fxEmpty{color:var(--tx4);font-size:11.5px;padding:2px 0}
+.fxMore{font-size:11px;color:var(--tx4);text-align:center;padding:4px 0 1px}
+
 @media print{.bar,.hdr .btnx{display:none}body{background:#fff}.blk{break-inside:avoid}}
 /* 负责人卡片墙 */
 .oc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
@@ -285,7 +306,9 @@ const API='/api/files/bi-actions', API_KEY='chengying2026', LS_KEY='bi_digest_pl
 let _syncBaseB;
 async function planApiUrlB(){
   if(_syncBaseB!==undefined) return _syncBaseB===null?null:_syncBaseB+API;
-  const cloud=['https://sync-server-production-bdec.up.railway.app'];
+  let cfgHub='';
+  try{ const cr=await fetch('data/sync.json?v='+Date.now(),{cache:'no-store'}); if(cr.ok){ const cj=await cr.json(); if(cj&&cj.hub) cfgHub=String(cj.hub).replace(/\/+$/,''); } }catch(e){}
+  const cloud=[cfgHub,'https://sync-server-production-bdec.up.railway.app'];
   const mem=(()=>{ try{ return localStorage.getItem('bi_plan_sync_base')||''; }catch(e){ return ''; } })();
   if(mem) cloud.unshift(mem);
   const uniq=[...new Set(cloud)];
@@ -377,7 +400,7 @@ function chart(labels,vals,fmt,bands){
 /* ════════ 状态 ════════ */
 let WIN=[], LINK={}, ACTIONS={}, OWNERS=[], PLATS=[];
 let CUR='', PREV='';
-let S={plat:'', owner:'', metric:'net', view:'data', cmpSort:'opt'};   // view: data=数据周报 | compare=负责人对比 | learn=会议复盘
+let S={plat:'', owner:'', metric:'net', view:'data'};   // view: data=数据周报 | compare=优化效果 | learn=会议复盘
 
 function wEnd(w){ const p=String(w||'').split('-'); return (p[1]||p[0]||'').replace(/\//g,'-'); }
 function wStart(w){ const p=String(w||'').split('-'); return (p[0]||'').replace(/\//g,'-'); }
@@ -718,72 +741,127 @@ function ownerStat(){
   return sorted;
 }
 const GRADE_CSS={'A':['#15803d','#16a34a'],'B':['#1d4ed8','#60a5fa'],'C':['#b45309','#f59e0b'],'D':['#c0332f','#ef4444']};
-const CMPS={opt:'优化处理数',un:'待办亏损数',lossN:'亏损链接数',net:'净利变化'};
-function renderCompare(){
-  let list=ownerStat();
-  if(!list.length){ $('#cmpTbl').innerHTML='<div class="empty">当前平台下没有数据</div>'; $('#cmpTop').innerHTML=''; return; }
-  // 排序：按所选「链接数」维度从多到少（bad 指标越长越要盯）
-  const key=S.cmpSort||'opt';
-  list.sort((a,b)=>{
-    const va=key==='net'?a.dNet:(key==='un'?a.un:(key==='lossN'?a.a.lossN:a.acts));
-    const vb=key==='net'?b.dNet:(key==='un'?b.un:(key==='lossN'?b.a.lossN:b.acts));
-    return vb-va;
-  });
-  $$('#cmpSort .pill').forEach(x=>x.classList.toggle('on',x.dataset.s===key));
-  const anyAct=list.reduce((s,x)=>s+x.acts,0);
-  const top=[];
-  top.push('本期共处理优化链接 <b class="hl">'+anyAct+'</b> 条'
-    +(S.plat?' · '+S.plat:'')+'，剩 <b class="hl2">'+list.reduce((s,x)=>s+x.un,0)+'</b> 条亏损未处理。');
-  const maxAct=list.reduce((m,x)=>x.acts>m.acts?x:m,list[0]);
-  const maxUn=list.reduce((m,x)=>x.un>m.un?x:m,list[0]);
-  top.push('优化处理最多：<b>'+esc(maxAct.own)+'</b>'
-    +(maxAct.acts?('（'+maxAct.acts+' 条'+(maxAct.eff?'，有效 '+maxAct.eff:'')+'）'):'（暂无动作记录）')
-    +'；待办最多：<b>'+esc(maxUn.own)+'</b>（'+maxUn.un+' 条）。');
-  if(!anyAct) top.push('本周还没有标记任何动作，先让负责人把亏损链接的处置状态标上，这里才有「优化链接数」可以对比。');
-  $('#cmpTop').innerHTML='<div class="t">👥 负责人对比 · 按'+CMPS[key]+'排序</div><ul>'+top.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
-  // 条形归一：绿条按处理数，红条按待办数（组内各自独立归一，保证能比出相对大小）
-  const mxActs=Math.max(...list.map(x=>x.acts),1);
-  const mxUn =Math.max(...list.map(x=>x.un),1);
-  const mxLoss=Math.max(...list.map(x=>x.a.lossN),1);
-  const mxNet=Math.max(...list.map(x=>Math.abs(x.dNet)),1);
-  const h='<div class="tb"><table class="rtable"><thead><tr>'
-    +'<th style="width:46px">名次</th><th>负责人</th>'
-    +'<th style="width:24%">🟢 优化处理链接 <span class="lg"><i style="background:#16a34a"></i></span></th>'
-    +'<th style="width:24%">🔴 未处理亏损 <span class="lg"><i style="background:#dc2626"></i></span></th>'
-    +'<th>亏损链接</th><th>净利</th><th>评级</th></tr></thead><tbody>'
-    +list.map((r,i)=>{
-      const g=GRADE_CSS[r.grade];
-      const wAct=r.acts?Math.max(2,r.acts/mxActs*100):0;
-      const wUn=r.un?Math.max(2,r.un/mxUn*100):0;
-      const wLoss=r.a.lossN/mxLoss*100;
-      const wNet=Math.min(100,Math.abs(r.dNet)/mxNet*100);
-      const actSub=r.all?('有效 '+r.eff+(r.all-r.eff?(' · 观察/无效 '+(r.all-r.eff)):'')):'待验证';
-      return '<tr data-o="'+esc(r.own)+'">'
-        +'<td><span class="rk" style="background:'+g[1]+'">'+(i+1)+'</span></td>'
-        +'<td><span class="who"><span class="av" style="background:'+g[1]+'">'+esc(r.own.slice(0,1))+'</span>'+esc(r.own)+'</span></td>'
-        +'<td><div class="rbar"><span class="tr"><i style="width:'+wAct.toFixed(0)+'%;background:#16a34a"></i></span>'
-        +'<span class="v num" style="color:'+(r.acts?'#15803d':'var(--tx4)')+'">'+(r.acts||'0')+'</span>'
-        +'<span class="s">条</span></div>'+(r.acts?'<div class="subline">'+actSub+'</div>':'')+'</td>'
-        +'<td><div class="rbar"><span class="tr"><i style="width:'+wUn.toFixed(0)+'%;background:#dc2626"></i></span>'
-        +'<span class="v num" style="color:'+(r.un?'#c0332f':'var(--tx4)')+'">'+r.un+'</span>'
-        +'<span class="s">条</span></div></td>'
-        +'<td><div class="rbar" style="min-width:110px"><span class="tr"><i style="width:'+wLoss.toFixed(0)+'%;background:#f59e0b"></i></span>'
-        +'<span class="v num">'+r.a.lossN+'</span><span class="s">/'+r.a.n+'</span></div></td>'
-        +'<td><div style="display:flex;align-items:center;gap:6px;min-width:120px"><span class="tr" style="flex:1;height:8px;background:#f0f2f5;border-radius:4px;overflow:hidden">'
-        +'<i style="display:block;height:100%;width:'+wNet.toFixed(0)+'%;background:'+(r.dNet>=0?'#16a34a':'#dc2626')+'"></i></span>'
-        +'<span class="num '+(r.dNet>=0?'pos':'neg')+'"><b>'+money(r.dNet)+'</b></span></div></td>'
-        +'<td><span class="tag" style="background:'+g[0]+'1a;color:'+g[1]+';font-weight:700">'+r.grade+'</span></td></tr>';
-    }).join('')
-    +'</tbody></table></div>';
-  $('#cmpTbl').innerHTML=h;
-  $$('#cmpTbl tr[data-o]').forEach(tr=>tr.onclick=()=>drillOwner(tr.dataset.o));
+
+/* 优化效果视图：每位负责人「动作效果 + 没优化的」回顾 */
+function effectOwners(){
+  // 负责人全集：本期窗口内有链接的（受平台过滤；忽略 S.owner，一次看全）
+  const ownSet=new Set(), noOpt={};
+  for(const id in LINK){
+    const L=LINK[id], m=L.meta;
+    if(S.plat&&m.platform!==S.plat) continue;
+    const c=L.W[CUR];
+    if(!c) continue;
+    const o=m.owner||'未分配';
+    ownSet.add(o);
+    if(c.p<0&&(!ACTIONS[id]||ACTIONS[id].st==='待处理')){
+      const p=L.W[PREV];
+      (noOpt[o]=noOpt[o]||[]).push({id,m,c,p,persist:p&&p.p<0});
+    }
+  }
+  // 每个负责人已判定的动作
+  const jm={};
+  for(const id in ACTIONS){
+    if(id.indexOf('__')===0) continue;
+    const L=LINK[id]; if(!L) continue;
+    const m=L.meta, act=ACTIONS[id], st=act.st||'待处理';
+    if(st==='待处理'||st==='不处理') continue;
+    if(S.plat&&m.platform!==S.plat) continue;
+    if(!L.W[CUR]) continue;
+    const o=m.owner||'未分配'; if(!ownSet.has(o)) ownSet.add(o);
+    const bw=baseWinOf(id,act), b=L.W[bw];
+    if(!b) continue;
+    const c=L.W[CUR];
+    const bp=b.p, cp=c?c.p:null;
+    const days=act.ts?Math.max(0,dDiff(wEnd(CUR),String(act.ts).slice(0,10))):null;
+    let j='观察', rate=null, deltaAmt=null;
+    if(cp==null) j='消失';
+    else{ deltaAmt=cp-bp;
+      if(bp<0&&cp>=0){ j='转正'; rate=100; }
+      else if(bp<0&&cp<0){ rate=Math.abs(bp)>=50?deltaAmt/Math.abs(bp)*100:null;
+        j=(rate!=null&&rate>=30)?'有效':((rate!=null&&rate<=-10)?'无效':'观察'); }
+      else if(bp>=0&&cp<0) j='无效';
+      else j=deltaAmt>=0?'有效':'无效'; }
+    (jm[o]=jm[o]||[]).push({id,st,ts:act.ts||'',bw,bp,cp,deltaAmt,rate,j,days,m,
+      pending:(days!=null&&days<7)});
+  }
+  const out=[];
+  for(const o of ownSet){
+    const js=(jm[o]||[]).sort((a,b)=>String(a.days==null?999:b.days==null?-999:a.days-b.days));
+    const done=js.filter(x=>!x.pending);
+    const eff=done.filter(x=>x.j==='有效'||x.j==='转正');
+    const bad=done.filter(x=>x.j==='无效');
+    const obs=js.filter(x=>x.pending||x.j==='观察');
+    const gain=done.reduce((s,x)=>s+(x.deltaAmt||0),0);
+    const nl=(noOpt[o]||[]).slice().sort((a,b)=>a.c.p-b.c.p); // 亏得最多的在前
+    out.push({own:o,js,done,eff,bad,obs,gain,noOpt:nl,
+      noOptN:(noOpt[o]||[]).length,persistN:(noOpt[o]||[]).filter(x=>x.persist).length});
+  }
+  out.sort((a,b)=> (b.done.length-a.done.length)||(b.noOptN-a.noOptN));
+  return out;
 }
-function drillOwner(o){
-  S.owner=o; S.view='data';
-  $$('#viewSw .pill').forEach(x=>x.classList.toggle('on',x.dataset.v==='data'));
-  $('#vData').classList.remove('hide'); $('#vCompare').classList.add('hide'); $('#vLearn').classList.add('hide');
-  render();
-  document.getElementById('vData').scrollIntoView({behavior:'smooth'});
+function renderCompare(){
+  const list=effectOwners();
+  if(!list.length){ $('#cmpTbl').innerHTML='<div class="empty">当前筛选下没有数据</div>'; $('#cmpTop').innerHTML=''; return; }
+  const allDone=list.reduce((s,x)=>s+x.done.length,0);
+  const allEff=list.reduce((s,x)=>s+x.eff.length,0);
+  const allBad=list.reduce((s,x)=>s+x.bad.length,0);
+  const allObs=list.reduce((s,x)=>s+x.obs.length,0);
+  const allUn=list.reduce((s,x)=>s+x.noOptN,0);
+  const allGain=list.reduce((s,x)=>s+x.gain,0);
+  const top=[];
+  top.push('本期（'+CUR+'）共处理优化 <b class="hl">'+allDone+'</b> 条'
+    +(allObs?'（另有 <b>'+allObs+'</b> 条观察期未满）：':'：')+'<span class="hl">有效/转正 '+allEff+'</span> · '
+    +'<span class="hl2">无效需改进 '+allBad+'</span>，'
+    +'已过观察期的动作累计利润变化 <b class="'+(allGain>=0?'pos':'neg')+'">'+(allGain>=0?'+':'')+money(allGain)+'</b>。');
+  top.push('还没优化的亏损链接还有 <b class="hl2">'+allUn+'</b> 条（其中 <b class="hl2">'+list.reduce((s,x)=>s+x.persistN,0)+'</b> 条是上一期就在亏、本期仍亏的连续亏损）。');
+  if(!allDone) top.push('本周还没有人标记优化动作，下面的「未处理亏损」就是每个人下周要做的量。');
+  $('#cmpTop').innerHTML='<div class="t">🎯 优化效果 · 每人上周优化 vs 上上周</div><ul>'+top.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+
+  const rowJ=(x)=>{
+    const sub=x.pending?'待验证(未满7天)':x.j;
+    return '<div class="fxRow"><div class="nm"><div class="t1">'+esc(x.m.product||x.m.title||x.id)+'</div>'
+      +'<div class="t2"><span class="mono">'+esc(x.id)+'</span> · <span class="tag n">'+esc(x.st)+'</span>'
+      +' · '+esc(String(x.ts||'—').slice(0,10))+'处理</div></div>'
+      +'<div class="vals"><span class="b '+(x.bp>=0?'pos':'neg')+'">'+money(x.bp)+'</span><span class="arw">→</span>'
+      +'<span class="b '+(x.cp==null?'flat-t':x.cp>=0?'pos':'neg')+'">'+(x.cp==null?'已消失':money(x.cp))+'</span>'
+      +'<span class="dch '+(x.deltaAmt==null?'flat-t':x.deltaAmt>=0?'pos':'neg')+'">'
+      +(x.deltaAmt==null?'—':(x.deltaAmt>=0?'+':'')+money(x.deltaAmt))
+      +(x.rate!=null?' ('+(x.rate>=0?'+':'')+x.rate.toFixed(0)+'%)':'')+'</span>'
+      +'<span class="tag '+(x.pending?'b':(JC[x.j]||'n'))+'">'+sub+'</span></div></div>';
+  };
+  const rowN=(x)=>{
+    return '<div class="fxRow"><div class="nm"><div class="t1">'+esc(x.m.product||x.m.title||x.id)+'</div>'
+      +'<div class="t2"><span class="mono">'+esc(x.id)+'</span> · '
+      +'<span class="tag n">'+(x.persist?'连续亏损':'本期待处理')+'</span></div></div>'
+      +'<div class="vals"><span class="b neg">'+money(x.c.p)+'</span>'
+      +(x.p?'<span class="sub">上期 '+money(x.p.p)+'</span>':'')
+      +'<span class="tag r">未处理</span></div></div>';
+  };
+  const sec=(title,cls,rows,extra)=>'<div class="fxSec"><div class="fxT"><i class="fxDot" style="background:'+cls+'"></i>'+title
+    +'<span class="fxN">'+rows.length+'</span></div><div class="fxBody">'
+    + (rows.length?rows.slice(0,8).map(rowJ).join('')+(rows.length>8?'<div class="fxMore">…还有 '+rows.length+' 条，去数据周报/动作台账看全量</div>':'')
+      :'<div class="fxEmpty">没有</div>')+'</div></div>';
+  let h='';
+  list.forEach(r=>{
+    const effRows=r.eff.sort((a,b)=>b.deltaAmt-a.deltaAmt);
+    const badRows=r.bad.sort((a,b)=>a.deltaAmt-b.deltaAmt);
+    const obsRows=r.obs;
+    const doneGain=r.gain;
+    h+='<div class="blk" style="margin-bottom:15px">'
+      +'<h3><span class="av" style="width:28px;height:28px;border-radius:50%;background:#374151;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px">'+esc(r.own.slice(0,1))+'</span>'
+      +esc(r.own)+' <span class="hint" style="margin-left:auto;font-weight:500">'
+      +'动作 '+r.done.length+' 条 · 有效 '+r.eff.length+' / 无效 '+r.bad.length+(r.obs.length?' / 观察待验 '+r.obs.length:'')
+      +' · 累计改善 <b class="'+(doneGain>=0?'pos':'neg')+'">'+(doneGain>=0?'+':'')+money(doneGain)+'</b>'
+      +(r.noOptN?' · <span style="color:#c0332f">未处理亏损 '+r.noOptN+'</span>':'')
+      +'</span></h3>'
+      +'<div class="fxWrap">'
+      +(r.done.length?sec('✅ 优化有效','#16a34a',effRows,''):'')
+      +(r.obs.length?'<div class="fxSec"><div class="fxT"><i class="fxDot" style="background:#60a5fa"></i>⏳ 观察中 / 观察期未满<span class="fxN">'+obsRows.length+'</span></div><div class="fxBody">'+obsRows.slice(0,6).map(rowJ).join('')+(obsRows.length>6?'<div class="fxMore">…还有 '+obsRows.length+' 条</div>':'')+'</div></div>':'')
+      +(badRows.length?'<div class="fxSec"><div class="fxT"><i class="fxDot" style="background:#dc2626"></i>❌ 优化无效 · 需要改进<span class="fxN">'+badRows.length+'</span></div><div class="fxBody">'+badRows.map(rowJ).join('')+'</div></div>':'')
+      +(r.noOptN?'<div class="fxSec"><div class="fxT"><i class="fxDot" style="background:#f59e0b"></i>⚠️ 没优化的亏损 · 下周待办<span class="fxN">'+r.noOptN+'</span></div><div class="fxBody">'+(r.noOpt||[]).slice(0,6).map(rowN).join('')+(r.noOptN>6?'<div class="fxMore">…共 '+r.noOptN+' 条，亏最多的前 6 条已列出</div>':'')+'</div></div>':'')
+      +'</div></div>';
+  });
+  $('#cmpTbl').innerHTML=h;
 }
 
 /* ═══════════════════ 会议复盘视图（提炼成开会能讲的内容） ═══════════════════ */
@@ -965,8 +1043,6 @@ function bindUI(){
     S.owner=b.dataset.o; render(); };
   $('#metrics').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
     S.metric=b.dataset.m; render(); };
-  $('#cmpSort').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
-    S.cmpSort=b.dataset.s; render(); };
   $('#selCur').onchange=e=>{ CUR=e.target.value; render(); };
   $('#selPrev').onchange=e=>{ PREV=e.target.value; render(); };
   $('#btnExp').onclick=exportCsv;

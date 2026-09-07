@@ -1,1 +1,11 @@
 server.js
+
+# 内部运行状态文件，不发布
+/data/_refresh_*.json
+/data/_monitor_*.json
+/data/_probe_*.json
+/data/chat-log.json
+/data/automation-log.json
+/data/owner_notify_state.json
+/data/workorder_state.json
+/data/decision-log.json

@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609071218"></script>
-<script src="js/xlsx.full.min.js?v=202609071218"></script>
+<script src="js/echarts.min.js?v=202609071336"></script>
+<script src="js/xlsx.full.min.js?v=202609071336"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -341,8 +341,19 @@ function savePlan(){
 }
 
 // ── 服务器同步：合并动作到 data/bi-actions.json（团队共享：谁在哪台电脑标记都汇总，45s 轮询+保存即推）──
-const BI_ACT_API='/api/files/bi-actions', BI_ACT_KEY='chengying2026';
-let _pushT=null, _syncBusy=false;
+const BI_ACT_PATH='/api/files/bi-actions', BI_ACT_KEY='chengying2026';
+let _pushT=null, _syncBusy=false, _syncBase;      // ''=同源可用；字符串=云端绝对地址；null=全部不可达
+function lsSyncBase(){ try{ return localStorage.getItem('bi_plan_sync_base')||''; }catch(e){ return ''; } }
+async function resolveSyncBase(){
+  if(_syncBase!==undefined) return _syncBase;
+  const cloud=[lsSyncBase(), (window.__BI_SYNC_BASE?String(window.__BI_SYNC_BASE).replace(/\/+$/,''):''), 'https://sync-server-production-bdec.up.railway.app'].filter(Boolean);
+  const uniq=[]; cloud.forEach(b=>{ if(uniq.indexOf(b)<0) uniq.push(b); });
+  const probe=async url=>{ try{ const r=await fetch(url,{method:'GET',headers:{'X-API-Key':BI_ACT_KEY},signal:AbortSignal.timeout?AbortSignal.timeout(4500):undefined}); return r.ok; }catch(e){ return false; } };
+  try{ const same=await probe(BI_ACT_PATH); if(same){ _syncBase=''; return _syncBase; } }catch(e){}
+  for(const b of uniq){ if(await probe(b+BI_ACT_PATH)){ _syncBase=b; try{ localStorage.setItem('bi_plan_sync_base',b); }catch(e){} return _syncBase; } }
+  _syncBase=null; return null;
+}
+async function apiPlanUrl(){ const b=await resolveSyncBase(); return (b===null)?null:(b+BI_ACT_PATH); }
 function setSyncBadge(st){
   const el=document.getElementById('syncBadge'); if(!el)return;
   if(st==='on'){ el.textContent='☁ 已同步'; el.className='syncbadge ok'; }
@@ -356,10 +367,13 @@ function pushToServer(){
       const v={};
       for(const k in PLAN){ const st=stateLabel(planState(k)); if(st==='待处理')continue; const vv=PLAN[k]; v[k]={st:vv.st||st, ts:vv.ts||nowTs(), by:''}; }
       setSyncBadge('mid');
-      fetch(BI_ACT_API,{method:'POST',headers:{'X-API-Key':BI_ACT_KEY,'Content-Type':'application/json'},
-        body:JSON.stringify({data:{v:v, del:PLAN_DEL}})})
-        .then(r=>{ if(r.ok) setSyncBadge('on'); else setSyncBadge('off'); })
-        .catch(()=>setSyncBadge('off'));
+      apiPlanUrl().then(u=>{
+        if(!u){ setSyncBadge('off'); return; }
+        return fetch(u,{method:'POST',headers:{'X-API-Key':BI_ACT_KEY,'Content-Type':'application/json'},
+          body:JSON.stringify({data:{v:v, del:PLAN_DEL}})})
+          .then(r=>{ if(r.ok) setSyncBadge('on'); else setSyncBadge('off'); })
+          .catch(()=>setSyncBadge('off'));
+      });
     }catch(e){}
   },1200);
 }
@@ -367,7 +381,9 @@ function syncFromServer(){
   if(_syncBusy)return; _syncBusy=true;
   (async()=>{
     try{
-      const r=await fetch(BI_ACT_API,{headers:{'X-API-Key':BI_ACT_KEY}});
+      const u=await apiPlanUrl();
+      if(!u){ setSyncBadge('off'); return; }
+      const r=await fetch(u,{headers:{'X-API-Key':BI_ACT_KEY}});
       if(!r.ok){ setSyncBadge('off'); return; }
       const j=await r.json();
       if(!j||typeof j!=='object'){ setSyncBadge('off'); return; }

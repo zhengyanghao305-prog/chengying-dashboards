@@ -1,5 +1,86 @@
 [
   {
+    "id": "d36b4a62",
+    "ts": "2026-09-07 13:36:05",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "手动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 9994 条主数据",
+    "details": "· 推广ROI汇总：[ok] 14天 | 天猫5960条计划 | 拼多多4034条计划 | 总花费¥445,003 | 总成交¥1,135,086 | 综合ROI 2.55\n· 天猫推广：[ok] 5960 条计划明细（14 天）\n· 拼多多推广：[ok] 13天汇总 | 4034条计划",
+    "steps": [
+      {
+        "board": "推广ROI汇总",
+        "status": "ok",
+        "msg": "14天 | 天猫5960条计划 | 拼多多4034条计划 | 总花费¥445,003 | 总成交¥1,135,086 | 综合ROI 2.55"
+      },
+      {
+        "board": "天猫推广",
+        "status": "ok",
+        "msg": "5960 条计划明细（14 天）"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "ok",
+        "msg": "13天汇总 | 4034条计划"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "b4605fde",
+    "ts": "2026-09-07 13:33:30",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "手动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 207 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 180 条 / 周维度 27 条",
+        "count": 207
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "f993037f",
+    "ts": "2026-09-07 13:32:26",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "手动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 120 条主数据，120 条详情",
+    "details": "· 店铺日报·拼多多：[ok] 同步 60 天\n· 店铺日报·天猫：[ok] 同步 60 天\n· 店铺日报·发货数据：[ok] 合并 118 天净销售额(发货/支付)",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "ok",
+        "msg": "同步 60 天",
+        "count": 60
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "ok",
+        "msg": "同步 60 天",
+        "count": 60
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "ok",
+        "msg": "合并 118 天净销售额(发货/支付)",
+        "count": 118
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
     "id": "a44dd3ae",
     "ts": "2026-09-07 12:09:54",
     "task": "同步 推广投放 ROI",
@@ -687,19 +768,6 @@
     "target": "daily-pulse"
   },
   {
-    "id": "9304c556",
-    "ts": "2026-09-05 13:03:23",
-    "task": "数据同步主流程",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "定时",
-    "status": "error",
-    "status_label": "错误失败",
-    "summary": "脚本主流程异常(已兜底记录，未崩溃)",
-    "details": "异常类型: PermissionError\nTraceback (most recent call last):\n  File \"F:\\workbuddy\\工作台\\sync_board_data.py\", line 2398, in <module>\n    main()\n    ~~~~^^\n  File \"F:\\workbuddy\\工作台\\sync_board_data.py\", line 2145, in main\n    results[bid] = sync_board(bid, trigger=args.trigger)\n                   ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"F:\\workbuddy\\工作台\\sync_board_data.py\", line 2082, in sync_board\n    os.replace(_tmp_path, out_path)\n    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [WinError 5] 拒绝访问。: 'F:/workbuddy/工作台\\\\data\\\\sales-alert.json.tmp' -> 'F:/workbuddy/工作台\\\\data\\\\sales-alert.json'\n",
-    "steps": [],
-    "target": ""
-  },
-  {
     "id": "5e686c67",
     "ts": "2026-09-05 13:01:02",
     "task": "同步 店铺日报",
@@ -1206,35 +1274,6 @@
       }
     ],
     "target": "daily-pulse"
-  },
-  {
-    "id": "eba7c889",
-    "ts": "2026-09-05 09:47:58",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "error",
-    "status_label": "错误失败",
-    "summary": "同步返回空数据，已保留现有文件",
-    "details": "同步返回空数据，现有文件已保留（未清空）",
-    "steps": [
-      {
-        "board": "天猫推广",
-        "status": "error",
-        "msg": "拉取失败或无数据"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "error",
-        "msg": "拉取失败或无数据"
-      },
-      {
-        "board": "推广ROI",
-        "status": "warn",
-        "msg": "无有效数据"
-      }
-    ],
-    "target": "ad-roi"
   },
   {
     "id": "8421b424",
@@ -9782,7 +9821,7 @@
     "ts": "2026-09-03 10:07:14",
     "task": "同步 BI销售分析与预警",
     "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
+    "trigger_type": "自���",
     "status": "skip",
     "status_label": "无新数据",
     "summary": "写入 0 条主数据",

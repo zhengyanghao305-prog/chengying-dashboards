@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>window.__EDITION = 'mgmt';</script>
+<script>window.__EDITION = 'cloud'; window.__SYNC_BASE = location.protocol + '//' + location.host;</script>
 <title>橙萤零售工作台</title>
 <style>
   /* ============================================================
@@ -800,6 +800,17 @@
   @keyframes spin { to{transform:rotate(360deg);} }
   .refresh-status { color:#fff; font-size:16px; font-weight:600; }
   .refresh-progress { color:rgba(255,255,255,0.7); font-size:13px; }
+  .refresh-timer { color:#ffd479; font-size:13px; font-weight:600; }
+  .refresh-log {
+    width:min(680px,88vw); max-height:240px; overflow:auto;
+    background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.16);
+    border-radius:10px; padding:10px 12px; color:#c8d6e5;
+    font-family:Consolas,'Courier New',monospace; font-size:12px;
+    line-height:1.55; white-space:pre-wrap; word-break:break-all;
+    text-align:left; display:none;
+  }
+  .refresh-log.stalled { border-color:#f87171; color:#fecaca; }
+  .refresh-stall { color:#f87171; font-size:12px; display:none; }
 
   /* ====================================================
      Blue Chat Widget (AI 聊天)
@@ -1724,8 +1735,11 @@ body{
 <!-- 强制刷新遮罩 -->
 <div id="refreshOverlay">
   <div class="refresh-spinner"></div>
-  <div class="refresh-status">正在同步最新数据…</div>
+  <div class="refresh-status" id="refreshStatusTitle">正在同步最新数据…</div>
+  <div class="refresh-timer" id="refreshTimer" style="display:none"></div>
   <div class="refresh-progress" id="refreshProgress">准备中…</div>
+  <div class="refresh-stall" id="refreshStall">⚠ 已长时间无新输出，可能网络等待或进程异常；你可先关闭本层，任务会在后台继续，稍后手动刷新页面。</div>
+  <div class="refresh-log" id="refreshStepLog"></div>
 </div>
 </div></div>
 
@@ -1786,52 +1800,125 @@ function setFilter(filter) {
 updateGroupCounts();
 renderEmployeeCockpit();
 
-// ==================== 强制刷新 ====================
+// ==================== 强制刷新（触发后端真实抓取） ====================
+// file:// 打开时改用本机 3588 同步服务地址；http(s) 同源直接用相对路径
+function refreshApi(u) {
+  return (location.protocol === 'http:' || location.protocol === 'https:') ? u : ('http://localhost:3588' + u);
+}
 async function forceRefreshAll() {
   var ov = document.getElementById('refreshOverlay');
   var pg = document.getElementById('refreshProgress');
   if (!ov) return;
   ov.style.display = 'flex';
 
-  // 收集所有板块 ID
-  var boardIds = [];
-  if (typeof BOARDS !== 'undefined') {
-    for (var k in BOARDS) { if (BOARDS.hasOwnProperty(k)) boardIds.push(k); }
+  // 1) 判断同步服务是否可达
+  if (pg) pg.textContent = '正在连接同步服务…';
+  var svcOk = false;
+  try {
+    var pr = await fetch(refreshApi('/api/ping'), { cache: 'no-store' });
+    svcOk = pr.ok;
+  } catch (e) { svcOk = false; }
+
+  // 未连接同步服务：降级为清本地缓存 + 重读（file:// 离线场景，数据文件本身已是本机最新）
+  if (!svcOk) {
+    if (pg) pg.textContent = '未连接同步服务，仅刷新本地缓存…';
+    try { localStorage.clear(); } catch (e) {}
+    await new Promise(function (r) { setTimeout(r, 300); });
+    setTimeout(function () { ov.style.display = 'none'; location.reload(true); }, 800);
+    return;
   }
-  // 补充不在 BOARDS 中的板块（如 automation-projects 等）
-  var extraIds = ['automation-projects','dept-members','emp-notice','emp-task','emp-daily','emp-kb','emp-performance'];
-  extraIds.forEach(function(id){ if(boardIds.indexOf(id)===-1) boardIds.push(id); });
 
-  var total = boardIds.length;
-  var done = 0;
-  var ok = 0;
+  // 2) 触发后端全量抓取（force=已抓过的也重抓一遍）
+  if (pg) pg.textContent = '已通知同步服务开始抓取数据…';
+  var started = false;
+  try {
+    var r = await fetch(refreshApi('/api/refresh'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    });
+    var j = await r.json();
+    started = !!(j && (j.ok || j.busy));
+    if (j && j.ok) { if (pg) pg.textContent = '已通知同步服务开始抓取数据…'; }
+    else if (j && j.busy) { if (pg) pg.textContent = '已有刷新任务在进行中，跟随进度…'; }
+  } catch (e) { started = false; }
 
-  // 第1步：清除缓存
-  if (pg) pg.textContent = '正在清除本地缓存…';
-  try { localStorage.clear(); } catch(e) {}
-  await new Promise(function(r){ setTimeout(r, 300); });
+  if (!started) {
+    if (pg) pg.textContent = '启动刷新失败，仅刷新本地视图…';
+    setTimeout(function () { ov.style.display = 'none'; location.reload(true); }, 1200);
+    return;
+  }
 
-  // 第2步：逐个拉取最新数据
-  for (var i = 0; i < boardIds.length; i++) {
-    var id = boardIds[i];
-    if (pg) pg.textContent = '正在同步 (' + (i+1) + '/' + total + ') ' + id + '…';
-    try {
-      var result = await Store.forceLoad(id, 'data/' + id + '.json');
-      if (result) ok++;
-    } catch(e) {
-      console.warn('[强制刷新] 失败:', id, e.message);
+  // 3) 轮询进度（后端 refresh_all.py 实时写 data/_refresh_status.json）
+  var _lastHb = 0, _lastHbAt = 0, _localClick = Date.now();
+  function renderRunning(st) {
+    var run = null;
+    (st.steps || []).forEach(function (x) { if (x.status === 'running') run = x; });
+    if (!run) return;
+    var timerEl = document.getElementById('refreshTimer');
+    var logEl = document.getElementById('refreshStepLog');
+    var stallEl = document.getElementById('refreshStall');
+    var sec = run.elapsed_sec || 0;
+    var mm = Math.floor(sec / 60), ss = sec % 60;
+    var clock = (mm < 10 ? '0' : '') + mm + ':' + (ss < 10 ? '0' : '') + ss;
+    if (timerEl) { timerEl.style.display = 'block'; timerEl.textContent = '⏱ 正在抓取：' + run.label + '　已运行 ' + clock; }
+    if (pg) pg.textContent = '同步进度 (' + (st.done || 0) + '/' + (st.total || 0) + ')　跳过 ' + (st.skipped || 0);
+    if (logEl) {
+      logEl.style.display = 'block';
+      logEl.textContent = run.log_tail ? run.log_tail : '（脚本运行中，等待输出…）';
+      logEl.scrollTop = logEl.scrollHeight;
     }
-    done++;
-    // 小延迟避免并发过快
-    await new Promise(function(r){ setTimeout(r, 50); });
+    // 心跳停滞检测：后端每 3s 刷新 heartbeat，90s 无变化视为异常
+    if (st.heartbeat) {
+      if (_lastHb !== st.heartbeat) { _lastHb = st.heartbeat; _lastHbAt = Date.now(); }
+      var stall = (Date.now() - _lastHbAt) > 90000;
+      if (stallEl) stallEl.style.display = stall ? 'block' : 'none';
+      if (logEl) logEl.classList.toggle('stalled', stall);
+    }
   }
-
-  // 第3步：完成
-  if (pg) pg.textContent = '同步完成！' + ok + '/' + total + ' 个板块已更新';
-  setTimeout(function() {
-    ov.style.display = 'none';
-    location.reload(true);
-  }, 800);
+  var polls = 0, noRunPolls = 0;
+  while (polls < 300) { // 最多约 25 分钟
+    polls++;
+    await new Promise(function (r) { setTimeout(r, 5000); });
+    var st = null;
+    try {
+      var s = await fetch(refreshApi('/api/refresh/status'), { cache: 'no-store' });
+      st = await s.json();
+    } catch (e) { st = null; }
+    if (!st) { if (pg) pg.textContent = '读取进度中…'; continue; }
+    // 判定 status 是否为「本次点击之后」的新任务（防旧残留状态误判为完成）
+    var stEpoch = 0;
+    if (st.startedAt) { var _d = new Date(String(st.startedAt).replace(' ', 'T')); if (!isNaN(_d.getTime())) stEpoch = _d.getTime(); }
+    var isNewRun = stEpoch >= (_localClick - 1000);
+    if (st.running) {
+      noRunPolls = 0;
+      renderRunning(st);
+      continue;
+    }
+    // running=false：是本次点击后的完成，还是旧状态（守护尚未消费 / 未启动）？
+    if (isNewRun) {
+      var okN = (st.steps || []).filter(function (x) { return x.status === 'ok'; }).length;
+      var skipN = st.skipped || 0;
+      var failN = (st.steps || []).filter(function (x) { return x.status === 'fail'; }).length;
+      var msg = '同步完成！已更新 ' + okN + ' 个板块';
+      if (skipN) msg += '，跳过 ' + skipN + ' 个（已最新）';
+      if (failN) msg += '，' + failN + ' 个失败';
+      if (pg) pg.textContent = msg;
+      var timerEl = document.getElementById('refreshTimer');
+      if (timerEl) timerEl.style.display = 'none';
+      setTimeout(function () { ov.style.display = 'none'; location.reload(true); }, 1500);
+      return;
+    }
+    noRunPolls++;
+    if (noRunPolls > 14) { // 约 70s 仍无新任务启动
+      if (pg) pg.textContent = '同步服务未能启动任务（守护进程可能未运行）。可稍后手动刷新页面，或检查 refresh_daemon。';
+      setTimeout(function () { ov.style.display = 'none'; }, 1500);
+      return;
+    }
+    if (pg) pg.textContent = '等待同步服务启动任务…(' + noRunPolls + ')';
+  }
+  if (pg) pg.textContent = '刷新耗时较长，已后台继续；稍后手动刷新页面即可';
+  setTimeout(function () { ov.style.display = 'none'; location.reload(true); }, 1500);
 }
 
 // ==================== 员工驾驶舱 ====================
@@ -2028,15 +2115,15 @@ initSync();
 </script>
 
 
-<script src="js/store.js?v=202609051041"></script>
-<script src="js/boards-config.js?v=202609051041"></script>
-<script src="js/diagnostics-config.js?v=202609051041"></script>
-<script src="js/diagnosis.js?v=202609051041"></script>
-<script src="js/deep-link.js?v=202609051041"></script>
-<script src="js/home-health.js?v=202609051041"></script>
-<script src="js/web-sync.js?v=202609051041"></script>
-<script src="js/auth.js?v=202609051041"></script>
-<script src="js/chat-widget.js?v=202609051041"></script>
+<script src="js/store.js?v=202609071210"></script>
+<script src="js/boards-config.js?v=202609071210"></script>
+<script src="js/diagnostics-config.js?v=202609071210"></script>
+<script src="js/diagnosis.js?v=202609071210"></script>
+<script src="js/deep-link.js?v=202609071210"></script>
+<script src="js/home-health.js?v=202609071210"></script>
+<script src="js/web-sync.js?v=202609071210"></script>
+<script src="js/auth.js?v=202609071210"></script>
+<script src="js/chat-widget.js?v=202609071210"></script>
 <script>
 /* ============================================================
  * 本地数据引导（仅浏览器 http / 预览静态模式）

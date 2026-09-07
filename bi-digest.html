@@ -1212,7 +1212,7 @@ async function main(){
   else syncHash();
   bindIdSearch();
   try{
-    const res=await fetch('data/feishu_bi.json'); if(!res.ok)throw new Error('HTTP '+res.status);
+    const res=await fetch('data/feishu_bi.json?v='+Date.now()); if(!res.ok)throw new Error('HTTP '+res.status);
     const raw=await res.json();
     const rows=buildDedup(raw.rows);
     DATA.rows=rows;

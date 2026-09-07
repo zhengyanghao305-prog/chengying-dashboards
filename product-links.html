@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>产品 · 链接钻取分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609041614"></script>
-<script src="js/diagnosis.js?v=202609041614"></script>
-<script src="js/deep-link.js?v=202609041614"></script>
+<script src="js/diagnostics-config.js?v=202609071200"></script>
+<script src="js/diagnosis.js?v=202609071200"></script>
+<script src="js/deep-link.js?v=202609071200"></script>
 <script>window.__DIAG_LINKS = [];</script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -262,7 +262,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609041614"></script>
+<script src="js/freshness-alert.js?v=202609071200"></script>
 <div class="wrap">
   <header>
     <div>
@@ -283,7 +283,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       </div>
       <div class="search-box">
         <span class="ico">🔍</span>
-        <input id="searchInput" type="text" placeholder="输入产品名 / 链接ID / 推广计划名 …" autocomplete="off">
+        <input id="searchInput" type="text" placeholder="输入产品名 / 链接ID / 计划名，支持批量粘贴（逗号/空格/换行分隔）…" autocomplete="off">
         <div class="dd" id="dropdown"></div>
       </div>
     </div>
@@ -516,6 +516,20 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     });
   }
 
+  /* ── 批量关键词 ── 支持逗号/分号/空白/换行分隔多个关键词，命中任一即匹配 */
+  function kwTokens() {
+    return kw.split(/[，,;；\s]+/).map(function (s) { return s.trim().toLowerCase(); })
+      .filter(function (s) { return !!s; }).slice(0, 100);
+  }
+  function hayMatchAny(hay) {
+    var toks = kwTokens();
+    if (!toks.length) return true;
+    for (var i = 0; i < toks.length; i++) {
+      if (hay.indexOf(toks[i]) >= 0) return true;
+    }
+    return false;
+  }
+
   function filteredLinks() {
     if (!DATA) return [];
     if (focusLinks) return focusLinks;
@@ -524,11 +538,11 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       if (trendFilter !== "all" && lk.t.trend !== trendFilter) return false;
       if (statusFilter !== "all" && getLinkStatus(lk) !== statusFilter) return false;
       if (hotFilter && (lk.plat !== hotFilter.plat || lk.product !== hotFilter.name)) return false;
-      var kwl = kw.trim().toLowerCase();
-      if (!kwl) return true;
+      var toks = kwTokens();
+      if (!toks.length) return true;
       var hay = (lk.product + " " + lk.id + " " +
         lk.plans.map(function (p) { return p.plan; }).join(" ")).toLowerCase();
-      return hay.indexOf(kwl) >= 0;
+      return hayMatchAny(hay);
     });
   }
 
@@ -554,39 +568,56 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
       if (trendFilter !== "all" && prod.t.trend !== trendFilter) return false;
       if (statusFilter !== "all" && getProductStatus(prod) !== statusFilter) return false;
       if (newFilter && prod.new !== newFilter) return false;
-      var kwl = kw.trim().toLowerCase();
-      if (!kwl) return true;
+      var toks = kwTokens();
+      if (!toks.length) return true;
       // 匹配产品名 / 平台
-      if ((prod.name + " " + prod.plat).toLowerCase().indexOf(kwl) >= 0) return true;
+      var nameHay = (prod.name + " " + prod.plat).toLowerCase();
+      if (hayMatchAny(nameHay)) return true;
       // 匹配该产品下任意链接ID或推广计划名
       for (var i = 0; i < prod.links.length; i++) {
         var lk = prod.links[i];
-        if (String(lk.id).toLowerCase().indexOf(kwl) >= 0) return true;
-        for (var j = 0; j < lk.plans.length; j++) {
-          if ((lk.plans[j].plan || "").toLowerCase().indexOf(kwl) >= 0) return true;
-        }
+        var hay = (String(lk.id) + " " + lk.plans.map(function (p) { return p.plan || ""; }).join(" ")).toLowerCase();
+        if (hayMatchAny(hay)) return true;
       }
       return false;
     });
   }
 
   function productMatchHits(prod) {
-    if (!kw.trim()) return { name: false, links: 0, plans: 0 };
-    var kwl = kw.trim().toLowerCase();
-    var res = { name: false, links: 0, plans: 0 };
-    if ((prod.name + " " + prod.plat).toLowerCase().indexOf(kwl) >= 0) res.name = true;
+    var toks = kwTokens();
+    if (!toks.length) return { name: false, links: 0, plans: 0, matched: 0, total: 0 };
+    var res = { name: false, links: 0, plans: 0, matched: 0, total: toks.length };
+    var nameHay = (prod.name + " " + prod.plat).toLowerCase();
+    var linkHay = prod.links.map(function (lk) {
+      return String(lk.id) + " " + lk.plans.map(function (p) { return p.plan || ""; }).join(" ");
+    }).join(" ").toLowerCase();
+    toks.forEach(function (tok) {
+      var hit = false;
+      if (nameHay.indexOf(tok) >= 0) { res.name = true; hit = true; }
+      if (linkHay.indexOf(tok) >= 0) { hit = true; }
+      if (hit) res.matched++;
+    });
     prod.links.forEach(function (lk) {
-      if (String(lk.id).toLowerCase().indexOf(kwl) >= 0) res.links++;
-      lk.plans.forEach(function (p) {
-        if ((p.plan || "").toLowerCase().indexOf(kwl) >= 0) res.plans++;
-      });
+      var lhay = (String(lk.id) + " " + lk.plans.map(function (p) { return p.plan || ""; }).join(" ")).toLowerCase();
+      if (hayMatchAny(lhay)) res.links++;
     });
     return res;
   }
 
   function renderProducts() {
     var rows = filteredProducts();
-    $("prodCnt").innerHTML = '共 <b>' + rows.length + '</b> 个产品' + (kw ? '（匹配「<b>' + escHtml(kw) + '</b>」）' : "");
+    var toks = kwTokens();
+    var kwLabel = toks.length > 1
+      ? '批量 ' + toks.length + ' 个关键词'
+      : (kw ? '匹配「<b>' + escHtml(kw.trim()) + '</b>」' : "");
+    var goBtn = "";
+    if (toks.length > 1) {
+      var matchedLinks = filteredLinks().length;
+      goBtn = ' <button id="btnGoBatchLinks" style="margin-left:10px;border:1px solid #2563eb;background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🔗 查看命中链接（' + matchedLinks + ' 条）</button>';
+    }
+    $("prodCnt").innerHTML = '共 <b>' + rows.length + '</b> 个产品' + (kwLabel ? '（' + kwLabel + '）' : "") + goBtn;
+    var gb = $("btnGoBatchLinks");
+    if (gb) gb.addEventListener("click", goBatchLinks);
 
     var shown = rows.slice(0, listLimit);
     var html = shown.map(function (prod) {
@@ -598,6 +629,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
         var parts = [];
         if (hits.links) parts.push('链接 ' + hits.links + ' 条');
         if (hits.plans) parts.push('计划 ' + hits.plans + ' 个');
+        if (hits.total > 1) parts.push('命中 ' + hits.matched + '/' + hits.total + ' 个关键词');
         hitBadge = '<div style="margin:6px 0 -4px;font-size:11px;font-weight:700;color:#b45309;background:#fef3c7;display:inline-block;padding:2px 8px;border-radius:8px;">🔍 命中' + parts.join(' · ') + '</div>';
       }
       var linkStatuses = prod.links.map(function (lk) { return classifyAction(lk.t); });
@@ -671,13 +703,37 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // 批量搜索入口：跳到链接列表视图，展示所有命中的链接
+  function goBatchLinks() {
+    if (kwTokens().length < 2) return;
+    currentProduct = null;
+    hotFilter = null;
+    focusLinks = null;
+    focusMode = null;
+    listLimit = STEP;
+    var pd = $("productDiag");
+    if (pd) pd.innerHTML = "";
+    $("viewProduct").classList.remove("active");
+    $("viewLink").classList.remove("active");
+    $("viewPlan").classList.remove("active");
+    $("viewList").classList.add("active");
+    renderList();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   /* ── 视图1：链接卡片列表 ── */
   function renderList() {
     var backBtn = $("backBtnProduct");
-    if (backBtn) backBtn.style.display = currentProduct ? "inline-flex" : "none";
+    var showBack = !focusLinks && (!!currentProduct || !!hotFilter || kw.trim());
+    if (backBtn) {
+      backBtn.style.display = showBack ? "inline-flex" : "none";
+      backBtn.innerHTML = (currentProduct ? '← 返回产品看板' : '← 清空搜索返回产品看板');
+    }
 
     var rows = filteredLinks();
-    $("listCnt").innerHTML = '共 <b>' + rows.length + '</b> 条链接' + (kw ? '（匹配「<b>' + escHtml(kw) + '</b>」）' : "");
+    var lToks = kwTokens();
+    var lLabel = lToks.length > 1 ? '批量 ' + lToks.length + ' 个关键词' : (kw ? '匹配「<b>' + escHtml(kw.trim()) + '</b>」' : "");
+    $("listCnt").innerHTML = '共 <b>' + rows.length + '</b> 条链接' + (lLabel ? '（' + lLabel + '）' : "");
 
     var shown = rows.slice(0, listLimit);
     var html = shown.map(function (lk) {
@@ -1173,13 +1229,18 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
     if (!kw.trim()) { box.classList.remove("open"); return; }
     var inProduct = $("viewProduct").classList.contains("active");
     if (inProduct) {
+      var toks = kwTokens();
+      if (toks.length > 1) {
+        // 批量模式：不弹联想，直接看过滤结果
+        box.classList.remove("open");
+        return;
+      }
       var prods = filteredProducts().slice(0, 12);
-      var kwl = kw.trim().toLowerCase();
       var links = DATA.links.filter(function (lk) {
         if (plat !== "全部" && lk.plat !== plat) return false;
         var hay = (lk.product + " " + lk.id + " " +
           lk.plans.map(function (p) { return p.plan; }).join(" ")).toLowerCase();
-        return hay.indexOf(kwl) >= 0;
+        return hayMatchAny(hay);
       }).slice(0, 10);
       var html = '';
       if (!prods.length && !links.length) {
@@ -1193,6 +1254,7 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
           }).join("");
         }
         if (links.length) {
+          var kwl = toks[0] || "";
           html += '<div class="dd-group">链接 / 计划</div>' + links.map(function (lk) {
             var planHit = lk.plans.some(function (p) { return (p.plan || '').toLowerCase().indexOf(kwl) >= 0; });
             var idHit = String(lk.id).toLowerCase().indexOf(kwl) >= 0;
@@ -1265,6 +1327,13 @@ footer { margin-top: 22px; font-size: 11px; color: #94a3b8; line-height: 1.7; }
   });
   $("searchInput").addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
+      var toks = kwTokens();
+      if (toks.length > 1) {
+        // 批量模式：回车直接跳到链接列表视图，展示所有命中的链接
+        $("dropdown").classList.remove("open");
+        goBatchLinks();
+        return;
+      }
       if ($("viewProduct").classList.contains("active")) {
         var prows = filteredProducts();
         if (prows.length) {

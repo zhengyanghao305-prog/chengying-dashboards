@@ -831,8 +831,6 @@ function renderCompare(){
     +'<th style="width:120px">近'+WIN.length+'期亏损走势</th></tr></thead><tbody>';
   list.forEach((r,i)=>{
     const g=GRADE_CSS[r.grade];
-    const better=r.dLoss<0;
-    const dec=b.r?null:null;
     const dropRate=r.b.lossN?(-r.dLoss/r.b.lossN*100):(r.a.lossN===0?100:null);
     h+='<tr data-o="'+esc(r.own)+'">'
       +'<td><span class="rk" style="background:'+g[1]+'">'+(i+1)+'</span></td>'
@@ -906,7 +904,8 @@ function renderLearn(){
     const oe=ova.filter(x=>x.j==='有效'||x.j==='转正').length;
     const un=byOwn[o].cur.filter(r=>r.p<0&&(!ACTIONS[r.id]||ACTIONS[r.id].st==='待处理')).length;
     return {own:o,a:ca,b:cb,dNet:ca.net-cb.net,dLossAmt:ca.lossAmt-cb.lossAmt,dSales:ca.sales-cb.sales,
-      acts:oa.length,valid:ova.length,eff:oe,rate:ova.length?Math.round(oe/ova.length*100):null,
+      acts:oa.length,valid:ova.length,eff:oe,pending:oa.length-ova.length,
+      rate:ova.length?Math.round(oe/ova.length*100):null,
       lossN:ca.lossN,un,grade:'C'};
   });
   const sorted=[...owns].sort((x,y)=>y.dNet-x.dNet);
@@ -999,9 +998,10 @@ function renderLearn(){
     oh+='<tr><td style="font-weight:600">'+esc(r.own)+'</td>'
       +'<td class="num '+(r.dNet>=0?'pos':'neg')+'"><b>'+money(r.dNet)+'</b></td>'
       +'<td class="num">'+r.lossN+'</td>'
-      +'<td class="num">'+(r.acts?r.acts+' 条 / '+r.eff+' 有效':'<span style="color:var(--tx4)">—</span>')+'</td>'
+      +'<td class="num">'+(r.acts?r.acts+' 条 / '+r.eff+' 有效'+(r.pending?' · '+r.pending+' 待验':'')
+        :'<span style="color:var(--tx4)">—</span>')+'</td>'
       +'<td class="num"><b style="color:'+(r.rate==null?'var(--tx3)':r.rate>=60?'#16a34a':r.rate>=35?'#d97706':'#dc2626')+'">'
-      +(r.rate==null?'—':r.rate+'%')+'</b></td>'
+      +(r.rate==null?(r.acts?'待验':'—'):r.rate+'%')+'</b></td>'
       +'<td class="num">'+(r.un?'<span style="color:var(--red);font-weight:700">'+r.un+'</span>':'<span style="color:var(--tx4)">0</span>')+'</td>'
       +'<td><span class="tag" style="background:'+g[0]+';color:'+g[1]+'">'+r.grade+' '+cmt[r.grade]+'</span></td>'
       +'<td style="text-align:left;color:var(--tx2)">'+rec.join('；')+'</td></tr>';

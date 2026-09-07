@@ -117,6 +117,28 @@ tbody tr:hover td{background:#fafbfc}
   padding:8px 16px;border-radius:8px;font-size:12.5px;opacity:0;transition:.2s;pointer-events:none;z-index:99}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .hide{display:none!important}
+/* 对比排行（横向条形表） */
+.rtable{width:100%;border-collapse:separate;border-spacing:0}
+.rtable thead th{position:sticky;top:0;background:#f4f6f8;color:var(--tx3);font-weight:600;font-size:11px;
+  text-align:left;padding:8px 10px;border-bottom:1px solid var(--bd);white-space:nowrap;z-index:2}
+.rtable tbody td{padding:9px 10px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+.rtable tbody tr{cursor:pointer}
+.rtable tbody tr:hover td{background:#fafbfc}
+.rtable .who{display:flex;align-items:center;gap:8px;font-weight:600;min-width:130px}
+.rtable .who .av{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;flex:none}
+.rtable .rk{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:#fff;flex:none}
+.rbar{display:flex;align-items:center;gap:9px;min-width:170px}
+.rbar .tr{flex:1;height:14px;background:#f0f2f5;border-radius:7px;overflow:hidden;position:relative}
+.rbar .tr i{display:block;height:100%;border-radius:7px}
+.rbar .tr em{position:absolute;right:0;top:0;bottom:0;margin:auto;height:100%;border-left:1px dashed #fff}
+.rbar .v{font-weight:800;font-size:14px;min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.rbar .s{font-size:11px;color:var(--tx4);white-space:nowrap}
+.subline{font-size:11px;color:var(--tx4);font-variant-numeric:tabular-nums}
+.lg{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--tx3)}
+.lg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+
 @media print{.bar,.hdr .btnx{display:none}body{background:#fff}.blk{break-inside:avoid}}
 /* 负责人卡片墙 */
 .oc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
@@ -221,11 +243,22 @@ tbody tr:hover td{background:#fafbfc}
       </div>
     </div>
 
-    <!-- 负责人对比视图 -->
+    <!-- 负责人对比视图（链接数维度 · 横向条形排行） -->
     <div id="vCompare" class="hide">
       <div class="concl" id="cmpTop"></div>
-      <div class="oc-grid" id="cmpGrid"></div>
-      <div class="note" style="margin-top:10px">说明：卡片按净利环比从高到低排，A/B/C/D 是本周综合评级（净利变化 + 亏损 + 销售额）。点卡片 → 下钻到该负责人数据周报。对比口径：两期都出现的链接。</div>
+      <div class="blk">
+        <h3>负责人对比 <span class="hint">按「链接条数」为主维度 · 条越长数字越大 · 点行下钻</span>
+          <span class="sp"></span>
+          <div class="pills" id="cmpSort">
+            <button class="pill" data-s="opt">优化处理数</button>
+            <button class="pill" data-s="un">待办亏损数</button>
+            <button class="pill" data-s="lossN">亏损链接数</button>
+            <button class="pill" data-s="net">净利变化</button>
+          </div>
+        </h3>
+        <div id="cmpTbl"></div>
+        <div class="note">绿条=优化处理的链接数（括号里是已过观察期仍有效的条数）；红条=还没处理的亏损链接。<b>目标：红条打短、绿条打长。</b>点负责人行 → 下钻看他的明细。</div>
+      </div>
     </div>
 
     <!-- 会议复盘视图 -->
@@ -257,6 +290,19 @@ tbody tr:hover td{background:#fafbfc}
 <script>
 /* ════════ 运营周报看板（简约白 · 平台 × 负责人） ════════ */
 const API='/api/files/bi-actions', API_KEY='chengying2026', LS_KEY='bi_digest_plan_v4';
+// 静态托管页(GitHub Pages/CloudStudio)跨域连云端同步中枢；同源(局域网/云端同域)直接相对路径
+let _syncBaseB;
+async function planApiUrlB(){
+  if(_syncBaseB!==undefined) return _syncBaseB===null?null:_syncBaseB+API;
+  const cloud=['https://sync-server-production-bdec.up.railway.app'];
+  const mem=(()=>{ try{ return localStorage.getItem('bi_plan_sync_base')||''; }catch(e){ return ''; } })();
+  if(mem) cloud.unshift(mem);
+  const uniq=[...new Set(cloud)];
+  const probe=async u=>{ try{ const r=await fetch(u,{method:'GET',headers:{'X-API-Key':API_KEY},signal:AbortSignal.timeout?AbortSignal.timeout(4500):undefined}); return r.ok; }catch(e){ return false; } };
+  if(await probe(API)){ _syncBaseB=''; return API; }
+  for(const b of uniq){ if(await probe(b+API)){ _syncBaseB=b; try{ localStorage.setItem('bi_plan_sync_base',b); }catch(e){} return b+API; } }
+  _syncBaseB=null; return null;
+}
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 function num(v){ if(v==null)return 0; if(typeof v==='number')return isFinite(v)?v:0;
@@ -340,7 +386,7 @@ function chart(labels,vals,fmt,bands){
 /* ════════ 状态 ════════ */
 let WIN=[], LINK={}, ACTIONS={}, OWNERS=[], PLATS=[];
 let CUR='', PREV='';
-let S={plat:'', owner:'', metric:'net', view:'data'};   // view: data=数据周报 | learn=会议复盘
+let S={plat:'', owner:'', metric:'net', view:'data', cmpSort:'opt'};   // view: data=数据周报 | compare=负责人对比 | learn=会议复盘
 
 function wEnd(w){ const p=String(w||'').split('-'); return (p[1]||p[0]||'').replace(/\//g,'-'); }
 function wStart(w){ const p=String(w||'').split('-'); return (p[0]||'').replace(/\//g,'-'); }
@@ -359,7 +405,8 @@ function autoPair(){
 /* 动作 */
 async function loadActions(){
   let srv={}, delMap={};
-  try{ const r=await fetch(API,{headers:{'X-API-Key':API_KEY}});
+  try{ const u=await planApiUrlB(); if(!u) throw new Error('no-sync-base');
+    const r=await fetch(u,{headers:{'X-API-Key':API_KEY}});
     if(r.ok){ const j=await r.json();
       // 服务器结构可能是 {v:{},del:{}}（新）或 扁平 map（旧）；统一取 v + 墓碑
       const wrap=(j&&j.data&&typeof j.data==='object')?j.data:j;
@@ -376,7 +423,8 @@ async function loadActions(){
   return mig;
 }
 async function saveActions(silent){
-  try{ await fetch(API,{method:'POST',headers:{'X-API-Key':API_KEY,'Content-Type':'application/json'},
+  try{ const u=await planApiUrlB(); if(!u) return;
+    await fetch(u,{method:'POST',headers:{'X-API-Key':API_KEY,'Content-Type':'application/json'},
     body:JSON.stringify({data:{v:ACTIONS, del:{}}})}); }catch(e){}
 }
 
@@ -679,55 +727,72 @@ function ownerStat(){
   return sorted;
 }
 const GRADE_CSS={'A':['#15803d','#16a34a'],'B':['#1d4ed8','#60a5fa'],'C':['#b45309','#f59e0b'],'D':['#c0332f','#ef4444']};
+const CMPS={opt:'优化处理数',un:'待办亏损数',lossN:'亏损链接数',net:'净利变化'};
 function renderCompare(){
-  const list=ownerStat();
-  if(!list.length){ $('#cmpGrid').innerHTML='<div class="empty">当前平台下没有数据</div>'; $('#cmpTop').innerHTML=''; return; }
-  const top=[]; const best=list[0], worst=list[list.length-1];
-  top.push('本周净利提升最大：<b>'+esc(best.own)+'</b>（+'+money(best.dNet)+'），最需关注：<b>'+esc(worst.own)+'</b>（'+money(worst.dNet)+'）。');
-  const rateOwn=list.filter(x=>x.all).length;
-  top.push('共 <b>'+list.length+'</b> 位负责人'+(S.plat?' · '+S.plat:'')+' · 本期 '+CUR+'，对比 '+PREV+'。'
-    +(rateOwn?'本周有动作记录 '+rateOwn+' 人。':'本周还没有动作记录，点卡片下去看详情。'));
-  $('#cmpTop').innerHTML='<div class="t">👥 全部负责人对比</div><ul>'+top.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
-  // 取本期净利最大值做比例条（净利 bar 用 |maxNet|）
-  const maxAbs=Math.max(...list.map(x=>Math.abs(x.a.net)),1);
-  let h='';
-  list.forEach((r,i)=>{
-    const g=GRADE_CSS[r.grade];
-    const posBar=r.a.net>=0?Math.min(100,Math.abs(r.a.net)/maxAbs*100):0;
-    const negBar=r.a.net<0?Math.min(100,Math.abs(r.a.net)/maxAbs*100):0;
-    const sel = S.owner===r.own?' sel':'';
-    h+='<div class="oc'+sel+'" data-o="'+esc(r.own)+'">'
-      +'<div class="top"><span class="rk" style="background:'+g[1]+'">'+(i+1)+'</span>'
-      +'<span class="av" style="background:'+g[1]+'">'+esc(r.own.slice(0,1))+'</span>'
-      +'<span class="nm">'+esc(r.own)+'</span>'
-      +'<span class="tag" style="background:'+g[0]+'1a;color:'+g[1]+';font-weight:700">'+r.grade+'</span></div>'
-      +'<div class="big"><span class="v num '+(r.a.net>=0?'pos':'neg')+'">'+money(r.a.net)+'</span>'
-      +'<span class="d '+(r.dNet>=0?'up-t':'down-t')+'">'+(r.dNet>=0?'▲ +':'▼ ')+money(Math.abs(r.dNet))+'</span></div>'
-      +'<div class="cur">本期净利 '+CUR.slice(-5)+' · 环比对 '+PREV.slice(-5)+'</div>'
-      +'<div class="bar"><i style="width:'+(posBar||negBar).toFixed(0)+'%;background:'+(r.a.net>=0?'#16a34a':'#dc2626')+'"></i></div>'
-      +'<div class="lab">关键指标</div>'
-      +'<div class="rows">'
-      +'<div class="cell"><div class="l">亏损链接</div><div class="vv num">'+r.a.lossN+'<small>/'+r.a.n+'</small></div>'
-      +'<div style="font-size:10.5px" class="'+(r.dLoss<=0?'up-t':'down-t')+'">'+(r.dLoss<=0?'↓':'↑')+Math.abs(r.dLoss)+'</div></div>'
-      +'<div class="cell"><div class="l">亏损额</div><div class="vv num neg">'+money(r.a.lossAmt)+'</div>'
-      +'<div style="font-size:10.5px" class="'+(r.dLossAmt>=0?'up-t':'down-t')+'">'+(r.dLossAmt>=0?'↑':'↓')+money(Math.abs(r.dLossAmt))+'</div></div>'
-      +'<div class="cell"><div class="l">销售额</div><div class="vv num">'+money(r.a.sales)+'</div>'
-      +'<div style="font-size:10.5px" class="'+(r.dSales>=0?'up-t':'down-t')+'">'+(r.dSales>=0?'↑':'↓')+money(Math.abs(r.dSales))+'</div></div>'
-      +'</div><div class="lab">动作 · 待办</div>'
-      +'<div class="rows"><div class="cell"><div class="l">处理 / 有效</div><div class="vv num">'+(r.all?r.all+'/'+r.eff:'<span style="color:var(--tx4)">—</span>')+'</div></div>'
-      +'<div class="cell"><div class="l">有效率</div><div class="vv num">'+(r.rate==null?'<span style="color:var(--tx4)">—</span>':r.rate+'%')+'</div></div>'
-      +'<div class="cell"><div class="l">未处理亏损</div><div class="vv num" style="color:'+(r.un?'#c0332f':'var(--tx4)')+'">'+r.un+'</div></div>'
-      +'</div></div>';
+  let list=ownerStat();
+  if(!list.length){ $('#cmpTbl').innerHTML='<div class="empty">当前平台下没有数据</div>'; $('#cmpTop').innerHTML=''; return; }
+  // 排序：按所选「链接数」维度从多到少（bad 指标越长越要盯）
+  const key=S.cmpSort||'opt';
+  list.sort((a,b)=>{
+    const va=key==='net'?a.dNet:(key==='un'?a.un:(key==='lossN'?a.a.lossN:a.acts));
+    const vb=key==='net'?b.dNet:(key==='un'?b.un:(key==='lossN'?b.a.lossN:b.acts));
+    return vb-va;
   });
-  $('#cmpGrid').innerHTML=h;
-  $$('#cmpGrid .oc').forEach(c=>c.onclick=()=>{
-    S.owner=c.dataset.o;
-    S.view='data';
-    $$('#viewSw .pill').forEach(x=>x.classList.toggle('on',x.dataset.v==='data'));
-    $('#vData').classList.remove('hide'); $('#vCompare').classList.add('hide'); $('#vLearn').classList.add('hide');
-    render();
-    document.getElementById('vData').scrollIntoView({behavior:'smooth'});
-  });
+  $$('#cmpSort .pill').forEach(x=>x.classList.toggle('on',x.dataset.s===key));
+  const anyAct=list.reduce((s,x)=>s+x.acts,0);
+  const top=[];
+  top.push('本期共处理优化链接 <b class="hl">'+anyAct+'</b> 条'
+    +(S.plat?' · '+S.plat:'')+'，剩 <b class="hl2">'+list.reduce((s,x)=>s+x.un,0)+'</b> 条亏损未处理。');
+  const maxAct=list.reduce((m,x)=>x.acts>m.acts?x:m,list[0]);
+  const maxUn=list.reduce((m,x)=>x.un>m.un?x:m,list[0]);
+  top.push('优化处理最多：<b>'+esc(maxAct.own)+'</b>'
+    +(maxAct.acts?('（'+maxAct.acts+' 条'+(maxAct.eff?'，有效 '+maxAct.eff:'')+'）'):'（暂无动作记录）')
+    +'；待办最多：<b>'+esc(maxUn.own)+'</b>（'+maxUn.un+' 条）。');
+  if(!anyAct) top.push('本周还没有标记任何动作，先让负责人把亏损链接的处置状态标上，这里才有「优化链接数」可以对比。');
+  $('#cmpTop').innerHTML='<div class="t">👥 负责人对比 · 按'+CMPS[key]+'排序</div><ul>'+top.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+  // 条形归一：绿条按处理数，红条按待办数（组内各自独立归一，保证能比出相对大小）
+  const mxActs=Math.max(...list.map(x=>x.acts),1);
+  const mxUn =Math.max(...list.map(x=>x.un),1);
+  const mxLoss=Math.max(...list.map(x=>x.a.lossN),1);
+  const mxNet=Math.max(...list.map(x=>Math.abs(x.dNet)),1);
+  const h='<div class="tb"><table class="rtable"><thead><tr>'
+    +'<th style="width:46px">名次</th><th>负责人</th>'
+    +'<th style="width:24%">🟢 优化处理链接 <span class="lg"><i style="background:#16a34a"></i></span></th>'
+    +'<th style="width:24%">🔴 未处理亏损 <span class="lg"><i style="background:#dc2626"></i></span></th>'
+    +'<th>亏损链接</th><th>净利</th><th>评级</th></tr></thead><tbody>'
+    +list.map((r,i)=>{
+      const g=GRADE_CSS[r.grade];
+      const wAct=r.acts?Math.max(2,r.acts/mxActs*100):0;
+      const wUn=r.un?Math.max(2,r.un/mxUn*100):0;
+      const wLoss=r.a.lossN/mxLoss*100;
+      const wNet=Math.min(100,Math.abs(r.dNet)/mxNet*100);
+      const actSub=r.all?('有效 '+r.eff+(r.all-r.eff?(' · 观察/无效 '+(r.all-r.eff)):'')):'待验证';
+      return '<tr data-o="'+esc(r.own)+'">'
+        +'<td><span class="rk" style="background:'+g[1]+'">'+(i+1)+'</span></td>'
+        +'<td><span class="who"><span class="av" style="background:'+g[1]+'">'+esc(r.own.slice(0,1))+'</span>'+esc(r.own)+'</span></td>'
+        +'<td><div class="rbar"><span class="tr"><i style="width:'+wAct.toFixed(0)+'%;background:#16a34a"></i></span>'
+        +'<span class="v num" style="color:'+(r.acts?'#15803d':'var(--tx4)')+'">'+(r.acts||'0')+'</span>'
+        +'<span class="s">条</span></div>'+(r.acts?'<div class="subline">'+actSub+'</div>':'')+'</td>'
+        +'<td><div class="rbar"><span class="tr"><i style="width:'+wUn.toFixed(0)+'%;background:#dc2626"></i></span>'
+        +'<span class="v num" style="color:'+(r.un?'#c0332f':'var(--tx4)')+'">'+r.un+'</span>'
+        +'<span class="s">条</span></div></td>'
+        +'<td><div class="rbar" style="min-width:110px"><span class="tr"><i style="width:'+wLoss.toFixed(0)+'%;background:#f59e0b"></i></span>'
+        +'<span class="v num">'+r.a.lossN+'</span><span class="s">/'+r.a.n+'</span></div></td>'
+        +'<td><div style="display:flex;align-items:center;gap:6px;min-width:120px"><span class="tr" style="flex:1;height:8px;background:#f0f2f5;border-radius:4px;overflow:hidden">'
+        +'<i style="display:block;height:100%;width:'+wNet.toFixed(0)+'%;background:'+(r.dNet>=0?'#16a34a':'#dc2626')+'"></i></span>'
+        +'<span class="num '+(r.dNet>=0?'pos':'neg')+'"><b>'+money(r.dNet)+'</b></span></div></td>'
+        +'<td><span class="tag" style="background:'+g[0]+'1a;color:'+g[1]+';font-weight:700">'+r.grade+'</span></td></tr>';
+    }).join('')
+    +'</tbody></table></div>';
+  $('#cmpTbl').innerHTML=h;
+  $$('#cmpTbl tr[data-o]').forEach(tr=>tr.onclick=()=>drillOwner(tr.dataset.o));
+}
+function drillOwner(o){
+  S.owner=o; S.view='data';
+  $$('#viewSw .pill').forEach(x=>x.classList.toggle('on',x.dataset.v==='data'));
+  $('#vData').classList.remove('hide'); $('#vCompare').classList.add('hide'); $('#vLearn').classList.add('hide');
+  render();
+  document.getElementById('vData').scrollIntoView({behavior:'smooth'});
 }
 
 /* ═══════════════════ 会议复盘视图（提炼成开会能讲的内容） ═══════════════════ */
@@ -909,6 +974,8 @@ function bindUI(){
     S.owner=b.dataset.o; render(); };
   $('#metrics').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
     S.metric=b.dataset.m; render(); };
+  $('#cmpSort').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
+    S.cmpSort=b.dataset.s; render(); };
   $('#selCur').onchange=e=>{ CUR=e.target.value; render(); };
   $('#selPrev').onchange=e=>{ PREV=e.target.value; render(); };
   $('#btnExp').onclick=exportCsv;

@@ -160,7 +160,28 @@ tbody tr:hover td{background:#fafbfc}
 .fxEmpty{color:var(--tx4);font-size:11.5px;padding:2px 0}
 .fxMore{font-size:11px;color:var(--tx4);text-align:center;padding:4px 0 1px}
 
-@media print{.bar,.hdr .btnx{display:none}body{background:#fff}.blk{break-inside:avoid}}
+/* 每人复盘卡 */
+.pcGrid{display:grid;gap:12px}
+.pc{background:#fff;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:.13s}
+.pc:hover{box-shadow:0 4px 14px -8px rgba(26,29,35,.2)}
+.pcH{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:11px 14px;border-bottom:1px solid #eef0f3}
+.pcH .av{width:28px;height:28px;border-radius:50%;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none}
+.pcH b{font-size:15px}
+.pcSub{font-size:12px;color:var(--tx3);margin-left:auto;font-variant-numeric:tabular-nums}
+.pcBody{display:grid;grid-template-columns:1fr 1fr;gap:0}
+@media(max-width:860px){.pcBody{grid-template-columns:1fr}}
+.pcCol{padding:10px 14px;min-width:0}
+.pcCol+.pcCol{border-left:1px solid #eef0f3}
+@media(max-width:860px){.pcCol+.pcCol{border-left:none;border-top:1px solid #eef0f3}}
+.pcColT{font-size:12.5px;font-weight:700;margin-bottom:6px}
+.pcWhy{font-size:12.5px;line-height:1.7;color:var(--tx2);margin-bottom:8px}
+.pcWhy b{color:var(--tx)}
+.pcLinks{display:grid;gap:5px}
+.pcLink{font-size:12px;border:1px solid #f0f2f5;border-radius:7px;padding:5px 8px;background:#fbfcfd}
+.pcLink .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.pcLink .s{font-size:11px;color:var(--tx3);display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+
+@media print{.bar,.hdr .btnx{display:none}body{background:#fff}.blk,.pc{break-inside:avoid}}
 /* 负责人卡片墙 */
 .oc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
 @media(max-width:1180px){.oc-grid{grid-template-columns:repeat(2,1fr)}}
@@ -227,14 +248,14 @@ tbody tr:hover td{background:#fafbfc}
     <!-- 视图切换 -->
     <div class="pills" id="viewSw" style="margin-bottom:14px">
       <button class="pill on" data-v="data">📊 数据周报</button>
-      <button class="pill" data-v="compare">🏆 负责人排行</button>
+      <button class="pill" data-v="compare">👤 每人复盘</button>
       <button class="pill" data-v="learn">🗣 会议复盘</button>
     </div>
 
+    <!-- ① 数据周报 -->
     <div id="vData">
       <div class="concl" id="concl"></div>
       <div class="kpis" id="kpis"></div>
-
       <div class="blk" style="margin-top:15px">
         <h3>多期走势 <span class="hint" id="trHint"></span><span class="sp"></span>
           <div class="pills" id="metrics">
@@ -246,7 +267,6 @@ tbody tr:hover td{background:#fafbfc}
         </h3>
         <div id="chart"></div>
       </div>
-
       <div class="g2">
         <div class="blk">
           <div class="subt"><i style="background:var(--red)"></i>最该处理的（利润下滑最多）</div>
@@ -257,32 +277,16 @@ tbody tr:hover td{background:#fafbfc}
           <div class="tb" id="goodTbl"></div>
         </div>
       </div>
-
-      <div class="blk" id="actBlk">
-        <h3>优化动作效果 <span class="hint">以标记动作那一期为基线，看本期有没有变好</span></h3>
-        <div id="actBody"></div>
-      </div>
     </div>
 
-    <!-- 负责人效率排行视图：上周亏损 vs 本周亏损 -->
+    <!-- ② 每人复盘：这个人这轮优化得怎么样 -->
     <div id="vCompare" class="hide">
       <div class="concl" id="cmpTop"></div>
-      <div class="blk">
-        <h3>负责人效率排行 <span class="hint">上周（对比期）亏损数 → 本周（本期）亏损数，看每个人变化</span>
-          <span class="sp"></span>
-          <div class="pills" id="cmpSort">
-            <button class="pill" data-s="lossD">亏损减少最多</button>
-            <button class="pill" data-s="lossN">本周亏损最多</button>
-            <button class="pill" data-s="net">净利变化</button>
-            <button class="pill" data-s="acts">处理力度</button>
-          </div>
-        </h3>
-        <div id="cmpTbl"></div>
-        <div class="note">「上周→本周」两期口径一致（仅统计两期都出现的链接）。<b>Δ 亏损数为负 = 亏损少了，做得好；为正 = 亏损变多了，要盯。</b>走势列是该负责人近 N 期亏损链接数。点负责人行 → 下钻明细。</div>
-      </div>
+      <div id="cmpTbl"></div>
+      <div class="note">给每人下的结论依据：<b>处理了多少条、过观察期后有效/无效各多少、还有多少亏损没标动作</b>。做得好的往下点名讲方法，不足的当场约下周动作。</div>
     </div>
 
-    <!-- 会议复盘视图 -->
+    <!-- ③ 会议复盘 -->
     <div id="vLearn" class="hide">
       <div class="concl" id="learnTop"></div>
       <div class="g2">
@@ -296,11 +300,7 @@ tbody tr:hover td{background:#fafbfc}
         </div>
       </div>
       <div class="blk">
-        <h3>动作方法论 <span class="hint">哪种优化真的有效，哪种要谨慎</span></h3>
-        <div id="learnAct"></div>
-      </div>
-      <div class="blk">
-        <h3>每人一页 <span class="hint">评语 + 下周建议，逐人过</span></h3>
+        <h3>逐人过堂表 <span class="hint">一句评语 + 下周动作，逐人念完</span></h3>
         <div class="tb" id="learnOwn"></div>
       </div>
     </div>
@@ -409,7 +409,7 @@ function chart(labels,vals,fmt,bands){
 /* ════════ 状态 ════════ */
 let WIN=[], LINK={}, ACTIONS={}, OWNERS=[], PLATS=[];
 let CUR='', PREV='';
-let S={plat:'', owner:'', metric:'net', view:'data', cmpSort:'lossD'};   // view: data=数据周报 | compare=负责人排行 | learn=会议复盘
+let S={plat:'', owner:'', metric:'net', view:'data'};   // view: data=数据周报 | compare=每人复盘 | learn=会议复盘
 
 function wEnd(w){ const p=String(w||'').split('-'); return (p[1]||p[0]||'').replace(/\//g,'-'); }
 function wStart(w){ const p=String(w||'').split('-'); return (p[0]||'').replace(/\//g,'-'); }
@@ -591,7 +591,6 @@ function render(){
   renderKpis(a,b);
   renderChart();
   renderChanges();
-  renderActs(a,b);
 }
 function renderBar(){
   $('#plats').innerHTML='<button class="pill'+(S.plat?'':' on')+'" data-p="">全部</button>'
@@ -675,182 +674,136 @@ function renderChanges(){
   $('#goodTbl').innerHTML= good.length?'<table>'+th+good.filter(x=>x.d>0).map(row).join('')+'</tbody></table>'
     :'<div class="empty">没有利润提升的链接</div>';
 }
-function renderActs(a,b){
-  const all=judgeAll();
-  if(!all.length){ $('#actBody').innerHTML='<div class="empty">还没有优化动作记录。'
-    +'去「BI指标归档处理中心」标记状态后，这里会自动复盘效果。</div>'; return; }
-  const va=all.filter(x=>!x.pending);
-  const eff=va.filter(x=>x.j==='有效'||x.j==='转正').length;
-  const no=va.filter(x=>x.j==='无效').length;
-  const rate=va.length?Math.round(eff/va.length*100):0;
-  let h='<div style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:12px;font-size:12.5px;color:var(--tx2)">'
-    +'<span>共 <b style="color:var(--tx)">'+all.length+'</b> 条动作</span>'
-    +'<span>已过观察期 <b style="color:var(--tx)">'+va.length+'</b> 条</span>'
-    +'<span style="color:var(--green);font-weight:700">有效 '+eff+'</span>'
-    +'<span style="color:var(--amber);font-weight:700">观察 '+va.filter(x=>x.j==='观察').length+'</span>'
-    +'<span style="color:var(--red);font-weight:700">无效 '+no+'</span>'
-    +'<span>有效率 <b style="color:var(--tx)">'+(va.length?rate+'%':'—')+'</b></span>'
-    +'<span>累计利润变化 <b class="'+(va.reduce((s,x)=>s+(x.deltaAmt||0),0)>=0?'pos':'neg')+'">'
-    +money(va.reduce((s,x)=>s+(x.deltaAmt||0),0))+'</b></span>'
-    +(all.filter(x=>x.pending).length?'<span class="hint">待验证 '+all.filter(x=>x.pending).length+' 条（不满7天）</span>':'')
-    +'</div>';
-  const ord={'无效':0,'观察':1,'有效':2,'转正':3,'消失':4};
-  const list=all.slice().sort((x,y)=>{
-    const pa=x.pending?1:0, pb=y.pending?1:0; if(pa!==pb)return pa-pb;
-    return (ord[x.j]||9)-(ord[y.j]||9); });
-  h+='<div class="tb"><table><thead><tr><th>链接</th><th>平台</th>'+(S.owner?'':'<th>运营</th>')
-    +'<th>动作</th><th>处理日</th><th>基线利润</th><th>本期利润</th><th>Δ</th><th>观察天数</th><th>判定</th></tr></thead><tbody>';
-  list.slice(0,60).forEach(x=>{
-    h+='<tr><td><div style="max-width:190px;overflow:hidden;text-overflow:ellipsis">'+esc(x.m.product||x.m.title||x.id)+'</div>'
-      +'<div style="font-size:10px;color:var(--tx4)">'+esc(x.id)+'</div></td>'
-      +'<td><span class="pl '+(x.m.platform==='天猫'?'tm':'pdd')+'">'+esc((x.m.platform||'').slice(0,2))+'</span></td>'
-      +(S.owner?'':'<td>'+esc(x.m.owner)+'</td>')
-      +'<td><span class="tag n">'+esc(x.st)+'</span></td>'
-      +'<td style="font-size:11px;color:var(--tx3)">'+esc(x.ts?String(x.ts).slice(0,10):'—')+'</td>'
-      +'<td class="num" style="color:var(--tx3)">'+money(x.bp)+'</td>'
-      +'<td class="num '+(x.cp==null?'':x.cp>=0?'pos':'neg')+'"><b>'+(x.cp==null?'<span style="color:var(--tx4)">已消失</span>':money(x.cp))+'</b></td>'
-      +'<td>'+(x.deltaAmt==null?'—':dltT(x.deltaAmt,0,true))+'</td>'
-      +'<td class="num">'+(x.days==null?'—':x.days+'d')+'</td>'
-      +'<td><span class="tag '+(JC[x.j]||'n')+'">'+(x.pending?'待验证':x.j)+'</span></td></tr>';
-  });
-  h+='</tbody></table></div>';
-  $('#actBody').innerHTML=h;
-  window.__list=list;
-}
-
-/* ═══════════════════ 负责人对比视图（一眼看全员的卡片墙） ═══════════════════ */
-function ownerStat(){
-  // 范围内全部负责人（受平台/窗口过滤，忽略当前 S.owner，用于横向对比）
-  const byOwn={};
-  for(const id in LINK){
-    const L=LINK[id], m=L.meta;
-    if(S.plat&&m.platform!==S.plat) continue;
-    const c=L.W[CUR], p=L.W[PREV];
-    if(!c||!p) continue;
-    const o=m.owner||'未分配';
-    (byOwn[o]=byOwn[o]||{cur:[],prev:[]}).cur.push(c); byOwn[o].prev.push(p);
-  }
-  const out=[];
-  for(const o in byOwn){
-    const ca=aggList(byOwn[o].cur), cb=aggList(byOwn[o].prev);
-    const acts=Object.keys(ACTIONS).filter(id=>LINK[id]&&LINK[id].meta.owner===o&&ACTIONS[id].st&&['待处理','不处理'].indexOf(ACTIONS[id].st)<0);
-    const all=judgeAll().filter(x=>x.m.owner===o);
-    const ova=all.filter(x=>!x.pending);
-    const oe=ova.filter(x=>x.j==='有效'||x.j==='转正').length;
-    const un=byOwn[o].cur.filter(r=>r.p<0&&(!ACTIONS[r.id]||ACTIONS[r.id].st==='待处理')).length;
-    out.push({own:o,a:ca,b:cb,dNet:ca.net-cb.net,dLoss:ca.lossN-cb.lossN,dLossAmt:ca.lossAmt-cb.lossAmt,
-      dSales:ca.sales-cb.sales,acts:acts.length,all:all.length,eff:oe,rate:ova.length?Math.round(oe/ova.length*100):null,
-      un,plats:[...new Set(byOwn[o].cur.map(r=>r.platform))]});
-  }
-  const sorted=[...out].sort((x,y)=>y.dNet-x.dNet);
-  sorted.forEach((r,i)=>{ const q=sorted.length>1?i/(sorted.length-1):0;
-    if(r.dNet<=0&&q>0.4) r.grade='D';
-    else if(q<0.25) r.grade='A'; else if(q<0.5) r.grade='B';
-    else if(q<0.75) r.grade='C'; else r.grade='D'; });
-  return sorted;
-}
 const GRADE_CSS={'A':['#15803d','#16a34a'],'B':['#1d4ed8','#60a5fa'],'C':['#b45309','#f59e0b'],'D':['#c0332f','#ef4444']};
-const CMPS={'lossD':'亏损减少最多','lossN':'本周亏损最多','net':'净利变化','acts':'处理力度'};
 
-/* ── 负责人效率排行：上周(对比期)亏损 vs 本周(本期) ── */
-function ownerRows(){
-  // 每位负责人：上周/本周两期都出现的链接做同口径对比
-  const byOwn={};
+/* ═══ 每人复盘：这个人这轮优化得怎么样（好→好在哪 / 不足→下一步） ═══ */
+function judgeListForAll(){
+  const jm={}, noOpt={}, ownSet=new Set();
   for(const id in LINK){
     const L=LINK[id], m=L.meta;
     if(S.plat&&m.platform!==S.plat) continue;
-    const c=L.W[CUR], p=L.W[PREV];
-    if(!c||!p) continue;
-    const o=m.owner||'未分配';
-    (byOwn[o]=byOwn[o]||{cur:[],prev:[]}).cur.push(c); byOwn[o].prev.push(p);
+    const c=L.W[CUR]; if(!c) continue;
+    const o=m.owner||'未分配'; ownSet.add(o);
+    if(c.p<0 && (!ACTIONS[id]||ACTIONS[id].st==='待处理'||ACTIONS[id].st==='不处理')){
+      const p=L.W[PREV];
+      (noOpt[o]=noOpt[o]||[]).push({id,m,c,p,persist:p&&p.p<0});
+    }
   }
-  // 每人近 N 期亏损链接数走势（只要求该期出现过）
-  const lossSeries={};
-  for(const o in byOwn){
-    lossSeries[o]=WIN.map(w=>{
-      let n=0;
-      for(const id in LINK){ const L=LINK[id];
-        if(L.meta.owner!==o) continue;
-        if(S.plat&&L.meta.platform!==S.plat) continue;
-        const c=L.W[w]; if(c&&c.p<0) n++; }
-      return n;
-    });
+  for(const id in ACTIONS){
+    if(id.indexOf('__')===0) continue;
+    const L=LINK[id]; if(!L) continue;
+    const m=L.meta, act=ACTIONS[id], st=act.st||'待处理';
+    if(st==='待处理'||st==='不处理') continue;
+    if(S.plat&&m.platform!==S.plat) continue;
+    const c=L.W[CUR]; if(!c) continue;
+    const o=m.owner||'未分配'; if(!ownSet.has(o)) ownSet.add(o);
+    const bw=baseWinOf(id,act), b=L.W[bw]; if(!b) continue;
+    const bp=b.p, cp=c.p;
+    const days=act.ts?Math.max(0,dDiff(wEnd(CUR),String(act.ts).slice(0,10))):null;
+    let j='观察', rate=null, deltaAmt=null;
+    if(cp==null) j='消失';
+    else{ deltaAmt=cp-bp;
+      if(bp<0&&cp>=0){ j='转正'; rate=100; }
+      else if(bp<0&&cp<0){ rate=Math.abs(bp)>=50?deltaAmt/Math.abs(bp)*100:null;
+        j=(rate!=null&&rate>=30)?'有效':((rate!=null&&rate<=-10)?'无效':'观察'); }
+      else if(bp>=0&&cp<0) j='无效';
+      else j=deltaAmt>=0?'有效':'无效'; }
+    (jm[o]=jm[o]||[]).push({id,st,ts:act.ts||'',bp,cp,deltaAmt,rate,j,days,m,pending:(days!=null&&days<7)});
   }
-  const out=[];
-  for(const o in byOwn){
-    const ca=aggList(byOwn[o].cur), cb=aggList(byOwn[o].prev);
-    const acts=Object.keys(ACTIONS).filter(id=>LINK[id]&&LINK[id].meta.owner===o&&ACTIONS[id].st&&['待处理','不处理'].indexOf(ACTIONS[id].st)<0).length;
-    const all=judgeAll().filter(x=>x.m.owner===o);
-    const eff=all.filter(x=>!x.pending&&(x.j==='有效'||x.j==='转正')).length;
-    out.push({own:o,a:ca,b:cb,dNet:ca.net-cb.net,dLoss:ca.lossN-cb.lossN,dLossAmt:ca.lossAmt-cb.lossAmt,
-      dSales:ca.sales-cb.sales,acts,eff,all:all.length,
-      lossRate:ca.n?ca.lossN/ca.n*100:0,
-      ser:lossSeries[o]||[],
-      plats:[...new Set(byOwn[o].cur.map(r=>r.platform))],
-      grade:'C'});
-  }
-  // 评级：以「亏损数变化」为主（降得多=好），净利下滑强约束
-  const byLoss=[...out].sort((x,y)=>x.dLoss-y.dLoss);
-  byLoss.forEach((r,i)=>{ const q=byLoss.length>1?i/(byLoss.length-1):0;
-    if(r.dNet<=0&&q>0.5) r.grade='D';
-    else if(q<0.25) r.grade='A';
-    else if(q<0.5) r.grade='B';
-    else if(q<0.75) r.grade='C';
-    else r.grade='D'; });
-  return out;
+  return {ownSet,noOpt,jm};
+}
+function qualityOf(o){
+  const done=o.done, eff=o.eff, bad=o.bad, pend=o.pend, handled=done.length+pend.length;
+  if(eff>=2 && bad===0) return {k:'good',t:'优化得好',c:'#16a34a',bg:'#e9f7ef'};
+  if(bad>eff&&bad>0) return {k:'improve',t:'要改进',c:'#d97706',bg:'#fdf3e3'};
+  if(handled>=3 || o.un===0) return {k:'watch',t:'已处理·等结果',c:'#2563eb',bg:'#eaf1fd'};
+  if(o.un>0) return {k:'todo',t:'没做，需跟进',c:'#dc2626',bg:'#fdecec'};
+  return {k:'ok',t:'无需优化',c:'#6b7280',bg:'#f1f3f6'};
+}
+function whyGood(o){
+  const s=[];
+  const effBySt={};
+  o.done.forEach(x=>{ if(x.j==='有效'||x.j==='转正') effBySt[x.st]=(effBySt[x.st]||0)+1; });
+  const top=Object.keys(effBySt).sort((a,b)=>effBySt[b]-effBySt[a]);
+  if(top.length){ const t=top[0];
+    s.push('主要靠「'+t+'」止损'+effBySt[t]+' 条（如：'+o.done.filter(x=>x.st===t&&(x.j==='有效'||x.j==='转正')).slice(0,2).map(x=>esc(x.m.product||'')).join('、')+'），动作命中率高'); }
+  else if(o.done.length) s.push('处理了 '+o.done.length+' 条，方向对，可以再加大动作量');
+  if(o.dLoss<0) s.push('亏损链接 '+Math.abs(o.dLoss)+' 条被压下来');
+  if(o.dNet>0) s.push('净利改善 '+money(o.dNet));
+  return s.join('；') || '整体在好转';
+}
+function nextSteps(o){
+  const s=[];
+  if(o.bad.length) s.push('有 <b>'+o.bad.length+'</b> 条做了没效果（多集中在「'+o.bad[0].st+'」），先复盘是不是用错场景');
+  if(o.un>0) s.push(o.un<=3?('还剩 <b>'+o.un+'</b> 条亏损没标动作，马上处理'):('还剩 <b>'+o.un+'</b> 条亏损没标动作，优先处理亏最多的 '+Math.min(3,o.un)+' 条'));
+  if(o.pend>0&&o.done<=1) s.push(o.pend+' 条刚处理（观察期未满），下周继续盯结果');
+  if(!s.length&&o.done.length) s.push('动作都在见效，保持节奏；顺手把没问题的链接也过一遍');
+  if(!s.length) s.push('本周名下没有待处理亏损');
+  return s.join('；');
 }
 function renderCompare(){
-  let list=ownerRows();
-  if(!list.length){ $('#cmpTbl').innerHTML='<div class="empty">当前筛选下没有数据</div>'; $('#cmpTop').innerHTML=''; return; }
-  const key=S.cmpSort||'lossD';
-  list.sort((a,b)=>{
-    const get=r=> key==='lossD'?r.dLoss:(key==='lossN'?r.a.lossN:(key==='acts'?r.acts:r.dNet));
-    return get(a)-get(b);
+  const {ownSet,noOpt,jm}=judgeListForAll();
+  const raw=[];
+  for(const o of ownSet){
+    const js=jm[o]||[];
+    const done=js.filter(x=>!x.pending), pend=js.filter(x=>x.pending);
+    const eff=done.filter(x=>x.j==='有效'||x.j==='转正'), bad=done.filter(x=>x.j==='无效');
+    const nl=(noOpt[o]||[]).slice().sort((a,b)=>a.c.p-b.c.p);
+    // 该负责人 上周→本周 亏损/净利（两期都出现的口径）
+    let lB=0,lA=0,nB=0,nA=0,cnt=0;
+    for(const id in LINK){ const L=LINK[id];
+      if(L.meta.owner!==o) continue; if(S.plat&&L.meta.platform!==S.plat) continue;
+      const c=L.W[CUR], p=L.W[PREV]; if(!c||!p) continue;
+      cnt++; if(p.p<0)lB++; if(c.p<0)lA++; nB+=p.p; nA+=c.p; }
+    raw.push({own:o,js,done,pend,eff,bad,un:nl.length,noOpt:nl,
+      lB,lA,dLoss:lA-lB,nB,nA,dNet:nA-nB,cnt});
+  }
+  if(!raw.length){ $('#cmpTbl').innerHTML='<div class="empty">当前筛选下没有数据</div>'; $('#cmpTop').innerHTML=''; return; }
+  // 排序：做得好的（有有效案例）在前讲，之后是没做/待跟进的（按待办多→少）
+  const rank=v=>{
+    const q=qualityOf(v);
+    const ord={good:0,watch:1,improve:1,todo:2,ok:3};
+    return [ord[q.k]||2, q.k==='todo'? -v.un : (q.k==='good'?-v.eff:-v.done.length)];
+  };
+  raw.sort((a,b)=>{ const x=rank(a),y=rank(b); return x[0]-y[0]||x[1]-y[1]; });
+  const rows=raw.map(o=>{ const q=qualityOf(o);
+    const linkLine=x=>'<div class="pcLink"><div class="t">'+esc(x.m.product||x.m.title||x.id)+'</div>'
+      +(x.p?'<div class="s"><span class="tag n">'+esc(x.p.st)+'</span>'+money(x.p.bp)+' → '+money(x.p.cp)+' '
+        +'<span class="'+(x.p.deltaAmt>=0?'pos':'neg')+'">'+(x.p.deltaAmt>=0?'+':'')+money(x.p.deltaAmt)+'</span> '+x.p.j+'</div>':'')+'</div>';
+    return {o,q,h:'<div class="pc" data-o="'+esc(o.own)+'">'
+      +'<div class="pcH"><span class="av" style="background:'+q.c+'">'+esc(o.own.slice(0,1))+'</span>'
+      +'<b>'+esc(o.own)+'</b>'
+      +'<span class="tag" style="background:'+q.bg+';color:'+q.c+';font-weight:700">'+q.t+'</span>'
+      +'<span class="pcSub">处理 '+o.done.length+' 条（有效 '+o.eff.length+' · 无效 '+o.bad.length+(o.pend.length?' · 待验 '+o.pend.length:'')+'）'
+      +' · 亏损 '+o.lB+'→'+o.lA+' 条 · 未处理 '+o.un+' 条</span></div>'
+      +'<div class="pcBody">'
+      +'<div class="pcCol"><div class="pcColT" style="color:'+(q.k==='good'?'#16a34a':'#111827')+'">'
+      +(q.k==='good'?'✅ 优化得好，好在哪':'✅ 做得好的（若有）')+'</div>'
+      +'<div class="pcWhy">'+whyGood(o)+'</div>'
+      +(o.eff.length?'<div class="pcLinks">'+o.eff.slice(0,3).map(linkLine).join('')+'</div>':'')+'</div>'
+      +'<div class="pcCol"><div class="pcColT" style="color:#dc2626">⚠️ 不足 & 下一步</div>'
+      +'<div class="pcWhy">'+nextSteps(o)+'</div>'
+      +((o.bad.length||o.un>0)?'<div class="pcLinks">'
+        +(o.bad.slice(0,2).map(x=>'<div class="pcLink"><div class="t">'+esc(x.m.product||x.m.title||x.id)+'</div><div class="s"><span class="tag r">无效·'+esc(x.st)+'</span></div></div>')).join('')
+        +o.noOpt.slice(0,2).map(x=>'<div class="pcLink"><div class="t">'+esc(x.m.product||x.m.title||x.id)+'</div><div class="s"><span style="color:#dc2626;font-weight:700">'+money(x.c.p)+'</span>'+(x.persist?'<span class="tag r">连续亏损未动</span>':'<span class="tag n">未标动作</span>')+'</div></div>').join('')
+        +'</div>':'')
+      +'</div></div></div>'};
   });
-  $$('#cmpSort .pill').forEach(x=>x.classList.toggle('on',x.dataset.s===key));
-  // 顶部结论（全团队合计）
-  const tLossB=list.reduce((s,r)=>s+r.b.lossN,0);
-  const tLossA=list.reduce((s,r)=>s+r.a.lossN,0);
-  const tNetA=list.reduce((s,r)=>s+r.a.net,0);
-  const tNetD=list.reduce((s,r)=>s+r.dNet,0);
-  const imp=[...list].sort((x,y)=>x.dLoss-y.dLoss)[0];
-  const wors=[...list].sort((x,y)=>y.dLoss-x.dLoss)[0];
+  $('#cmpTbl').innerHTML='<div class="pcGrid">'+rows.map(r=>r.h).join('')+'</div>';
+  // 顶部总结
+  const goodN=raw.filter(r=>qualityOf(r).k==='good').length;
+  const watchN=raw.filter(r=>qualityOf(r).k==='watch').length;
+  const impN=raw.filter(r=>qualityOf(r).k==='improve').length;
+  const todoN=raw.filter(r=>qualityOf(r).k==='todo').length;
   const top=[];
-  top.push('上周（'+PREV+'）亏损链接 <b>'+tLossB+'</b> 条 → 本周（'+CUR+'）<b>'+tLossA+'</b> 条，'
-    +'净变化 <span class="'+(tLossA-tLossB<=0?'hl':'hl2')+'">'+(tLossA-tLossB>=0?'+':'')+(tLossA-tLossB)+'</span> 条'
-    +'；净利 <b class="num">'+money(tNetA)+'</b>（<span class="'+(tNetD>=0?'hl':'hl2')+'">'+(tNetD>=0?'+':'')+money(tNetD)+'</span>）。');
-  if(imp!==wors) top.push('本周做得最好：<b>'+esc(imp.own)+'</b>（亏损 '+(imp.b.lossN)+' → '+imp.a.lossN+'，<span class="hl">减少 '+Math.abs(Math.min(imp.dLoss,0))+' 条</span>'
-    +(imp.a.lossN<imp.b.lossN?'':'')+'）；最需要盯：<b>'+esc(wors.own)+'</b>（亏损 '+wors.b.lossN+' → '+wors.a.lossN+'，<span class="hl2">增加 '+Math.max(wors.dLoss,0)+' 条</span>）。');
-  else top.push('当前只看 <b>'+esc(imp.own)+'</b> 一人，亏损 '+imp.b.lossN+' → '+imp.a.lossN+' 条。');
-  $('#cmpTop').innerHTML='<div class="t">🏆 负责人效率排行 · 按'+(CMPS[key]||'')+'</div><ul>'+top.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
-
-  let h='<div class="tb"><table class="rtable"><thead><tr>'
-    +'<th style="width:44px">名次</th><th>负责人</th>'
-    +'<th>上周亏损</th><th>本周亏损</th><th>Δ亏损</th><th>降幅</th>'
-    +'<th>亏损额</th><th>净利变化</th><th>处理</th><th>评级</th>'
-    +'<th style="width:120px">近'+WIN.length+'期亏损走势</th></tr></thead><tbody>';
-  list.forEach((r,i)=>{
-    const g=GRADE_CSS[r.grade];
-    const dropRate=r.b.lossN?(-r.dLoss/r.b.lossN*100):(r.a.lossN===0?100:null);
-    h+='<tr data-o="'+esc(r.own)+'">'
-      +'<td><span class="rk" style="background:'+g[1]+'">'+(i+1)+'</span></td>'
-      +'<td><span class="who"><span class="av" style="background:'+g[1]+'">'+esc(r.own.slice(0,1))+'</span>'+esc(r.own)+'</span>'
-      +'<div style="font-size:10px;color:var(--tx4)">'+r.plats.map(x=>x.slice(0,2)).join('/')+' · 共 '+r.a.n+' 条</div></td>'
-      +'<td class="num" style="color:var(--tx3)">'+r.b.lossN+'</td>'
-      +'<td class="num"><b>'+r.a.lossN+'</b></td>'
-      +'<td>'+(r.dLoss<0?'<span class="up-t" style="font-weight:700">▼ '+Math.abs(r.dLoss)+'</span>'
-        :r.dLoss>0?'<span class="down-t" style="font-weight:700">▲ '+r.dLoss+'</span>'
-        :'<span class="flat-t">0</span>')+'</td>'
-      +'<td class="num">'+(dropRate==null?'—':(dropRate>=0?'<span class="up-t">': '<span class="down-t">')+Math.abs(dropRate).toFixed(0)+'%</span>')+'</td>'
-      +'<td class="num neg">'+money(r.a.lossAmt)+'<div class="subline">'+dltT(r.a.lossAmt,r.b.lossAmt,true)+'</div></td>'
-      +'<td class="num '+(r.dNet>=0?'pos':'neg')+'"><b>'+money(r.dNet)+'</b></td>'
-      +'<td class="num">'+(r.acts?'<span style="color:#1d4ed8;font-weight:700">'+r.acts+'</span><div class="subline">有效'+r.eff+'</div>':'<span class="flat-t">0</span>')+'</td>'
-      +'<td><span class="tag" style="background:'+g[0]+'1a;color:'+g[1]+';font-weight:700">'+r.grade+'</span></td>'
-      +'<td>'+sparkLine(r.ser)+'</td></tr>';
-  });
-  h+='</tbody></table></div>';
-  $('#cmpTbl').innerHTML=h;
-  $$('#cmpTbl tr[data-o]').forEach(tr=>tr.onclick=()=>drillOwner(tr.dataset.o));
+  top.push('处理合计 <b>'+raw.reduce((s,r)=>s+r.done.length+ r.pend.length,0)+'</b> 条，其中 <b class="hl">'+raw.reduce((s,r)=>s+r.eff.length,0)+'</b> 条过观察期仍有效、'
+    +'<b class="hl2">'+raw.reduce((s,r)=>s+r.bad.length,0)+'</b> 条做了没效果；全组还剩 <b class="hl2">'+raw.reduce((s,r)=>s+r.un,0)+'</b> 条亏损没标动作。');
+  top.push('这轮判下来：<b class="hl">'+goodN+'</b> 人优化得好可讲方法，<b>'+watchN+'</b> 人已处理在等观察结果，'
+    +(impN?'<b style="color:#d97706;font-weight:700">'+impN+'</b> 人动作要改进，':'')
+    +'<b class="hl2">'+todoN+'</b> 人基本没做需当场约活。');
+  if(!raw.reduce((s,r)=>s+r.done.length+r.pend.length,0)) top.push('这轮还没人标优化动作——先在「BI指标归档处理中心」把状态标起来，这里才有内容可评。');
+  $('#cmpTop').innerHTML='<div class="t">👤 每人复盘 · '+CUR+'</div><ul>'+top.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+  $$('.pc[data-o]').forEach(c=>c.onclick=()=>drillOwner(c.dataset.o));
 }
 function drillOwner(o){
   S.owner=o; S.view='data';
@@ -858,17 +811,6 @@ function drillOwner(o){
   $('#vData').classList.remove('hide'); $('#vCompare').classList.add('hide'); $('#vLearn').classList.add('hide');
   render();
   document.getElementById('vData').scrollIntoView({behavior:'smooth'});
-}
-/* 迷你走势 */
-function sparkLine(vals){
-  const h=22,w=110;
-  const vv=vals.filter(x=>x!=null);
-  if(vv.length<2) return '<span class="flat-t" style="font-size:11px">数据不足</span>';
-  let mn=Math.min(...vv),mx=Math.max(...vv); if(mn===mx){mn-=1;mx+=1;}
-  const pts=vv.map((v,i)=>((w-8)*(i/(vv.length-1))+4).toFixed(1)+','+((h-8)-((v-mn)/(mx-mn))*(h-14)+2).toFixed(1)).join(' ');
-  const last=vv[vv.length-1], first=vv[0];
-  const col=last<=first?'#16a34a':'#dc2626';
-  return '<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:22px;display:block"><polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
 }
 
 /* ═══════════════════ 会议复盘视图（提炼成开会能讲的内容） ═══════════════════ */
@@ -953,32 +895,7 @@ function renderLearn(){
   $('#learnBad').innerHTML=badTop.length?'<table>'+th+badTop.map(x=>caseRow(x,0)).join('')+'</tbody></table>'
     +'<div class="note">说明：下滑最多的这几条，先问运营「是什么原因、打算怎么办」，会上当场定处理动作。</div>'
     :'<div class="empty">本期没有明显恶化的链接</div>';
-  // ── 动作方法论
-  const bySt={};
-  acts.forEach(x=>{ (bySt[x.st]=bySt[x.st]||[]).push(x); });
-  let mh='';
-  if(acts.length){
-    const stRows=Object.keys(bySt).map(st=>{
-      const g=bySt[st], gv=g.filter(x=>!x.pending), ge=gv.filter(x=>x.j==='有效'||x.j==='转正').length;
-      return {st,n:g.length,v:gv.length,e:ge,rate:gv.length?ge/gv.length*100:null,
-        d:gv.reduce((s,x)=>s+(x.deltaAmt||0),0)};
-    }).sort((a,b)=>(b.rate||-1)-(a.rate||-1));
-    mh='<div class="tb"><table><thead><tr><th>动作</th><th>条数</th><th>已验证</th><th>有效</th><th>有效率</th>'
-      +'<th>累计利润变化</th></tr></thead><tbody>';
-    stRows.forEach(r=>{ mh+='<tr><td style="font-weight:600">'+esc(r.st)+'</td><td class="num">'+r.n+'</td>'
-      +'<td class="num">'+r.v+'</td><td class="num pos">'+r.e+'</td>'
-      +'<td class="num"><b style="color:'+(r.rate==null?'var(--tx3)':r.rate>=60?'#16a34a':r.rate>=35?'#d97706':'#dc2626')+'">'
-      +(r.rate==null?'—':r.rate.toFixed(0)+'%')+'</b></td>'
-      +'<td class="num '+(r.d>=0?'pos':'neg')+'">'+money(r.d)+'</td></tr>'; });
-    mh+='</tbody></table></div>';
-    if(stRows[0]&&stRows[0].v>=2) mh+='<div class="note">经验：<b>「'+esc(stRows[0].st)+'」</b>本周有效率最高'
-      +(stRows[0].rate>=60?'，处理亏损优先考虑用这个动作':'，但仍要结合链接本身情况');
-    if(stRows[stRows.length-1]&&stRows[stRows.length-1].v>=2&&stRows[0]!==stRows[stRows.length-1])
-      mh+='；<b>「'+esc(stRows[stRows.length-1].st)+'」</b>效果最差，复盘是不是用错了场景';
-    mh+='。</div>';
-  } else mh='<div class="empty">还没有动作数据。方法论的结论要等动作标记起来才有意义——<b>先让亏损链接的处置状态都标上</b>。</div>';
-  $('#learnAct').innerHTML=mh;
-  // ── 每人一页
+  // ── 逐人过堂表
   const gmap={'A':['#e9f7ef','#15803d'],'B':['#eaf1fd','#1d4ed8'],'C':['#fdf3e3','#b45309'],'D':['#fdecec','#c0332f']};
   const cmt={'A':'整体向好，净利在涨、亏损在收，方法可复制','B':'有进步，挑几个亮点案例在会上讲','C':'数据没明显变化，需要主动找增量','D':'净利下滑/亏损没控住，本周重点跟'};
   let oh='<table><thead><tr><th>负责人</th><th>净利Δ</th><th>亏损条数</th><th>处理/有效</th><th>有效率</th><th>未处理亏损</th><th>评语</th><th>下周建议</th></tr></thead><tbody>';
@@ -1052,8 +969,6 @@ function bindUI(){
     S.owner=b.dataset.o; render(); };
   $('#metrics').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
     S.metric=b.dataset.m; render(); };
-  $('#cmpSort').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
-    S.cmpSort=b.dataset.s; render(); };
   $('#selCur').onchange=e=>{ CUR=e.target.value; render(); };
   $('#selPrev').onchange=e=>{ PREV=e.target.value; render(); };
   $('#btnExp').onclick=exportCsv;

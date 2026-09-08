@@ -11,178 +11,378 @@
     background: #f7f8fa; color: #1f2937; line-height: 1.6; padding: 22px 22px 48px;
   }
   .wrap { max-width: 1080px; margin: 0 auto; }
-  header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
   .ttl { display: flex; align-items: center; gap: 10px; }
   .back { font-size: 13px; color: #6b7280; text-decoration: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 5px 11px; background: #fff; transition: .15s; }
   .back:hover { border-color: #7c3aed; color: #7c3aed; }
   h1 { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-  .date-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; font-weight: 700; color: #fff;
-    background: linear-gradient(135deg,#7c3aed,#a78bfa);
-    padding: 3px 10px; border-radius: 20px; letter-spacing: .3px; vertical-align: middle;
-  }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #fff; background: linear-gradient(135deg,#7c3aed,#a78bfa); padding: 3px 10px; border-radius: 20px; vertical-align: middle; }
   .sub { font-size: 12px; color: #9ca3af; margin-top: 2px; }
-  .flow { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .flow b { color: #111827; }
-  .step { display: inline-flex; align-items: center; gap: 5px; background: #f3f0ff; color: #5b21b6; font-weight: 700; border-radius: 6px; padding: 3px 9px; font-size: 12px; }
-  .arrow { color: #c4b5fd; font-weight: 800; }
-  .card { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
-  .card-hd { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
-  .card-hd .t { font-size: 15px; font-weight: 800; }
-  .card-hd .hint { font-size: 11.5px; color: #9ca3af; }
-  .copy-btn {
-    border: 1px solid #7c3aed; background: #7c3aed; color: #fff;
-    padding: 5px 14px; font-size: 12px; font-weight: 700; border-radius: 16px;
-    cursor: pointer; transition: .15s;
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .panel { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 16px 18px; }
+  .panel h2 { font-size: 14px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .panel h2 .n { width: 20px; height: 20px; border-radius: 6px; background: #7c3aed; color: #fff; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+  .fld { margin-bottom: 10px; }
+  .fld label { display: block; font-size: 11.5px; font-weight: 700; color: #6b7280; margin-bottom: 4px; }
+  .fld label small { font-weight: 400; color: #9ca3af; }
+  .fld input, .fld textarea, .fld select {
+    width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 10px;
+    font-size: 13px; color: #1f2937; background: #fff; outline: none; transition: .15s; font-family: inherit;
   }
-  .copy-btn:hover { background: #6d28d9; }
-  .copy-btn.copied { background: #16a34a; border-color: #16a34a; }
-  textarea.block {
-    width: 100%; min-height: 360px; border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 14px; font-family: ui-monospace, SFMono-Regular, Consolas, "Cascadia Mono", monospace;
-    font-size: 12.5px; line-height: 1.7; color: #374151; background: #fafafa; resize: vertical; white-space: pre-wrap;
+  .fld input:focus, .fld textarea:focus, .fld select:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.08); }
+  .fld textarea { resize: vertical; min-height: 52px; line-height: 1.5; }
+  .fld textarea.big { min-height: 72px; }
+  .fld .ph { font-size: 11px; color: #c2c9d4; margin-top: 3px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 640px) { .row2 { grid-template-columns: 1fr; } }
+  .gen-bar { display: flex; align-items: center; gap: 10px; margin: 14px 0 0; flex-wrap: wrap; }
+  .btn-gen {
+    border: none; background: linear-gradient(135deg,#7c3aed,#6d28d9); color: #fff;
+    padding: 11px 26px; font-size: 14px; font-weight: 800; border-radius: 10px; cursor: pointer; transition: .18s;
+    display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 6px 16px rgba(124,58,237,.28);
   }
-  textarea.block:focus { outline: none; border-color: #7c3aed; background: #fff; }
-  .note { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 12px 15px; font-size: 12.5px; color: #92400e; margin-bottom: 16px; }
-  .note b { color: #78350f; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
-  thead th { text-align: left; font-size: 11.5px; color: #9ca3af; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid #f0f1f3; }
-  tbody td { padding: 9px 10px; border-bottom: 1px solid #f6f7f8; vertical-align: top; }
-  td.k { font-weight: 600; color: #374151; white-space: nowrap; }
-  ul.tips { margin: 6px 0 0 0; padding-left: 18px; font-size: 13px; color: #4b5563; }
-  ul.tips li { margin-bottom: 4px; }
-  ul.tips b { color: #111827; }
-  footer { font-size: 11px; color: #b9bfc7; text-align: center; margin-top: 6px; }
+  .btn-gen:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-gen:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-sec { border: 1px solid #e5e7eb; background: #fff; color: #6b7280; padding: 9px 16px; font-size: 12.5px; font-weight: 700; border-radius: 9px; cursor: pointer; transition: .15s; }
+  .btn-sec:hover { border-color: #7c3aed; color: #7c3aed; }
+  .result { margin-top: 16px; }
+  .result-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .result-head .t { font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .dots { display: inline-flex; gap: 4px; }
+  .dots i { width: 6px; height: 6px; border-radius: 50%; background: #c4b5fd; animation: blink 1.2s infinite; }
+  .dots i:nth-child(2){ animation-delay: .2s } .dots i:nth-child(3){ animation-delay: .4s }
+  @keyframes blink { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+  .out-box {
+    background: #0f1220; color: #e6edf3; border-radius: 12px; padding: 16px 18px;
+    font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-word;
+    font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, monospace;
+    max-height: 560px; overflow-y: auto; min-height: 120px;
+  }
+  .out-box .hd { color: #a78bfa; font-weight: 800; }
+  .empty-tip { color: #6b7280; }
+  .out-box a { color: #22d3ee; }
+  .status-line { font-size: 12px; color: #7c3aed; margin-top: 8px; font-weight: 600; }
+  .err-line { font-size: 12px; color: #b91c1c; margin-top: 8px; font-weight: 600; }
+  .copy-mini { border: 1px solid #334155; background: transparent; color: #cbd5e1; padding: 5px 12px; font-size: 11.5px; font-weight: 700; border-radius: 8px; cursor: pointer; }
+  .copy-mini.copied { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .hint-box { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; font-size: 12.5px; color: #6b7280; display: flex; gap: 10px; align-items: flex-start; }
+  .hint-box b { color: #374151; }
+  footer { font-size: 11px; color: #b9bfc7; text-align: center; margin-top: 18px; }
+  .spin { display:inline-block; width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite; }
+  @keyframes sp { to { transform: rotate(360deg) } }
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609081337"></script>
+<script src="js/freshness-alert.js?v=202609081403"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
       <a class="back" href="index.html">← 返回</a>
       <div>
-        <h1>文案智能体 <span class="date-badge">按需触发</span></h1>
-        <div class="sub">把"产品参数"翻译成"买家下单的理由" · 抖音脚本 / 电商详情页通用</div>
+        <h1>文案智能体 <span class="badge">直接出稿</span></h1>
+        <div class="sub">填好产品信息 → 点「生成文案」→ 直接输出抖音脚本 / 电商详情文案</div>
       </div>
     </div>
   </header>
 
-  <div class="flow">
-    <b>使用流程：</b>
-    <span class="step">① 填素材卡</span><span class="arrow">→</span>
-    <span class="step">② 复制五角色提示词</span><span class="arrow">→</span>
-    <span class="step">③ 粘贴到任意 AI 对话</span><span class="arrow">→</span>
-    <span class="step">④ 按出口拿稿</span><span class="arrow">→</span>
-    <span class="step">⑤ 上架测数回填迭代</span>
+  <div class="hint-box">
+    <div>
+      <b>怎么用：</b>下面只需填你<u>确定的信息</u>，不确定的留空，AI 会自己补行业常识并在稿里标注。卖点/差评/常问越真实，稿子越能打。
+      <b>建议：</b>差评和"买家常问"是痛点金矿，能填尽量填。
+    </div>
   </div>
 
-  <div class="note">
-    <b>重要：</b>文案不是写出来的，是测出来的。先批量出 5~10 版小预算测试，让点击率/转化率数据选稿，不要一条磨到死。
-    买家真实痛点 = 你的评价 / 问大家 / 客服原话，填入素材卡第 7、8 行，转化效果立刻不一样。
-  </div>
+  <div class="grid">
+    <!-- ======== 左：表单 ======== -->
+    <div class="panel">
+      <h2><span class="n">1</span> 产品信息（能填多少填多少）</h2>
 
-  <div class="card">
-    <div class="card-hd">
-      <div>
-        <div class="t">第一步 · 产品素材卡</div>
-        <div class="hint">每个产品填一张，复制后粘贴给 AI，或直接发回工作台 AI 对话</div>
+      <div class="fld"><label>货品名称 *</label>
+        <input id="fName" placeholder="例：撕拉线静电油烟贴（透明款）">
+      </div>
+
+      <div class="row2">
+        <div class="fld"><label>大类别</label>
+          <select id="fCat">
+            <option value="">（选一个）</option>
+            <option>仿瓷砖贴</option><option>油烟贴</option><option>静电墙贴</option>
+            <option>PVC贴纸</option><option>电梯门贴</option><option>地毯</option>
+            <option>静电膜/磨砂膜</option><option>白板贴/绿板贴</option>
+            <option>地板贴</option><option>其他</option>
+          </select>
+        </div>
+        <div class="fld"><label>主要销售端</label>
+          <select id="fEnd">
+            <option value="">（选一个）</option><option>零售端</option><option>批发端</option><option>双端</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="fld"><label>规格 / 尺寸</label>
+          <input id="fSpec" placeholder="例：0.45m宽 × 按米卖">
+        </div>
+        <div class="fld"><label>材质 / 工艺</label>
+          <input id="fMaterial" placeholder="例：静电免胶 / PVC">
+        </div>
+      </div>
+
+      <div class="fld"><label>使用场景</label>
+        <input id="fScene" placeholder="例：厨房灶台防油、出租屋墙面粉尘">
+      </div>
+
+      <div class="fld"><label>目标人群（猜的也行）</label>
+        <input id="fPeople" placeholder="例：租房年轻人 / 宝妈 / 装修省钱党 / 开店老板">
+      </div>
+
+      <div class="fld"><label>价格带</label>
+        <input id="fPrice" placeholder="例：9.9~29.9，客单15左右">
+      </div>
+
+      <div class="fld"><label>真实卖点（有数字更好，逐条用 / 分开）</label>
+        <textarea id="fPoints" class="big" placeholder="例：静电吸附免胶 / 撕下不留痕可反复贴 / 防水防油一擦净 / 0.45~1.2m多宽可选按米卖"></textarea>
+      </div>
+
+      <div class="fld"><label>买家常夸的（从评价抄 2 条）</label>
+        <textarea id="fGood" placeholder="例：贴上很服帖 / 撕下来墙没留印"></textarea>
+      </div>
+
+      <div class="fld"><label>差评 / 买家常问的（金矿，从评价、问大家、客服抄）</label>
+        <textarea id="fBad" class="big" placeholder="例：有人说贴不平有气泡 / 总问能不能贴乳胶漆墙 / 担心撕下来留胶"></textarea>
+      </div>
+
+      <div class="row2">
+        <div class="fld"><label>要哪种稿</label>
+          <select id="fOut">
+            <option value="both">出口A抖音脚本 + 出口B详情页（都要）</option>
+            <option value="A">只要出口A：抖音脚本（2版）</option>
+            <option value="B">只要出口B：标题+详情页文案</option>
+            <option value="xhs">出口C：小红书笔记</option>
+          </select>
+        </div>
+        <div class="fld"><label>风格语气</label>
+          <select id="fTone">
+            <option value="">默认（真实痛点 + 有画面）</option>
+            <option>实在理工男：参数讲透、不夸张</option>
+            <option>妈妈口吻：懂过日子、会心疼钱</option>
+            <option>年轻网感：短平快、有梗</option>
+            <option>批发招商：讲利润、讲复购</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fld"><label>补充要求 / 其他想说的</label>
+        <input id="fExtra" placeholder="例：突出租房改造，别用太夸张的词">
+      </div>
+
+      <div class="gen-bar">
+        <button class="btn-gen" id="btnGen" onclick="generate()">
+          <span id="genIcon">⚡</span> 生成文案
+        </button>
+        <button class="btn-sec" onclick="loadExample()">填入示例</button>
+        <button class="btn-sec" onclick="clearAll()">清空</button>
+      </div>
+      <div class="status-line" id="statusLine" style="display:none"></div>
+      <div class="err-line" id="errLine" style="display:none"></div>
+    </div>
+
+    <!-- ======== 右：输出 ======== -->
+    <div class="panel">
+      <div class="result-head">
+        <div class="t" id="resultTitle">生成结果</div>
+        <button class="copy-mini" id="btnCopy" onclick="copyResult()" style="display:none">复制全文</button>
+      </div>
+      <div class="out-box" id="outBox"><span class="empty-tip">填好左边信息，点「生成文案」，结果会实时显示在这里。</span></div>
+      <div class="fld" style="margin-top:12px">
+        <label>已生成记录（本地保存，关页不丢）</label>
+        <select id="histSel" style="width:100%" onchange="loadHist(this.value)"><option value="">— 选择一条历史记录回看 —</option></select>
       </div>
     </div>
-    <textarea class="block" id="cardText">【产品素材卡】
-货品名称:
-大类别(仿瓷砖贴/油烟贴/静电墙贴/PVC贴纸/地毯/其他):
-规格/尺寸(长×宽、按米卖还是按片卖):
-材质/工艺(静电膜/PVC/带胶/现割/撕拉线等):
-真实卖点(请写3-5条，越具体越好，尽量有数字):
-  1.
-  2.
-  3.
-使用场景(厨房/卫生间/客厅/儿童房/出租屋/店铺):
-主要销售端(零售端/批发端):
-价格带(客单价区间):
-目标人群猜测(比如:租房年轻人/宝妈/装修省钱的/开店装饰的):
-已有评价里买家最常夸的 2 条(可从评价里抄):
-已有差评/买家常问的 2 个问题(最值钱的信息，请一定填):</textarea>
-    <div style="margin-top:10px;text-align:right"><button class="copy-btn" onclick="copyText('cardText',this)">复制素材卡模板</button></div>
   </div>
 
-  <div class="card">
-    <div class="card-hd">
-      <div>
-        <div class="t">第二步 · 五角色接力提示词</div>
-        <div class="hint">把素材卡内容贴在提示词末尾一起发给 AI，一次只跑一个产品</div>
-      </div>
-      <button class="copy-btn" onclick="copyText('promptText',this)">复制整套提示词</button>
-    </div>
-    <textarea class="block" id="promptText">你是我的电商文案团队，下面要服务一个家居贴纸/墙贴卖家。产品信息见下方【产品素材卡】。
-请以五个角色分工，严格按顺序接力，每一轮只输出当前角色的成果，不要一次性全给：
-
-角色①卖点分析师：根据素材卡，把所有卖点拆出来分两层列：
-  - "参数层"(规格/材质/工艺/数字)
-  - "利益层"(这个参数对买家意味着什么)
-  如果素材卡信息不足，直接列出"需要补的信息"问题清单，不要瞎编卖点。
-
-角色②人群分析师：根据产品和使用场景，定义3类最可能买单的人群画像。
-  每类写清楚：身份场景、ta在什么时刻想买、ta最怕什么(顾虑)、ta会被哪句话打动。
-
-角色③文案策划师：把素材卡里的"卖点"逐条翻译成"买家听得懂的话"(痛点→场景→承诺)。
-  参考句式：参数"静电免胶" → 买家话"租房也能贴，撕下来不留印，房东检查不扣钱"。
-  输出"买点清单"(5条以内)，每条一句话，口语化。
-
-角色④评审专家：拿转化标准审稿：
-  - 3秒内能不能看懂"这是什么、关我什么事"
-  - 有没有具体场景让买家代入
-  - 有没有消除顾虑(留痕?难贴?会掉?尺寸?)
-  - 有没有行动指令(下单/点关注/看详情)
-  不过关的买点打回去重写，给出理由。
-
-角色⑤优化专家：输出最终可用稿，严格按出口格式给：
-  【出口A 抖音脚本】给2版，每版含：前3秒钩子 / 画面建议 / 口播文案 / 字幕关键词 / 结尾CTA
-  【出口B 电商详情文案】给1套，含：标题关键词组合 / 首图卖点字 / 详情页5条卖点小标题+正文 / 规格说明提醒
-
-（想只针对一个平台，可加一句"本次只要出口A，人群偏XX，参考平台：抖音"）
-
-========================
-【产品素材卡】(复制第一步填好的内容到此处)</textarea>
-  </div>
-
-  <div class="card">
-    <div class="card-hd"><div class="t">分平台出口 · 口味差异</div></div>
-    <table>
-      <thead><tr><th style="width:130px">出口</th><th>一句话核心</th><th>容易踩的坑</th></tr></thead>
-      <tbody>
-        <tr><td class="k">抖音脚本</td><td>前3秒给"结果或冲突"，别铺垫</td><td>口播像念说明书</td></tr>
-        <tr><td class="k">天猫/拼多多详情</td><td>每条卖点=一个场景+一个承诺+一个证据</td><td>堆参数，没有画面感</td></tr>
-        <tr><td class="k">小红书(备选)</td><td>收藏欲&gt;购买欲，让人想存</td><td>太广告，像卖家秀</td></tr>
-      </tbody>
-    </table>
-    <ul class="tips" style="margin-top:10px">
-      <li><b>标题 vs 详情要分开：</b>标题负责被搜到(堆搜索词)，详情负责让下单(写买点)。</li>
-      <li><b>数据回填：</b>点击率低 → 优化前3秒钩子/首图；转化率低 → 优化顾虑消除和行动指令。</li>
-    </ul>
-  </div>
-
-  <footer>文案智能体 · 板块编码：WA-013 · 数据来源：产品素材卡 + 你的评价/问大家/客服原话</footer>
+  <footer>文案智能体 · 板块编码：WA-013 · 生成能力：工作台 AI 通道（DeepSeek/通义）</footer>
 </div>
 
 <script>
-function copyText(id, btn){
-  var el = document.getElementById(id);
-  if (!el) return;
-  el.select();
-  try { navigator.clipboard.writeText(el.value).then(function(){ flash(btn); }); }
-  catch(e){
-    document.execCommand('copy');
-    flash(btn);
+(function(){
+  var API_BASE = '';
+  // 员工版无本地后端时尝试云端；管理版/外网版同源走 server
+  try { if (window.__EDITION === 'employee') API_BASE = 'https://sync-server-production-bdec.up.railway.app'; } catch(e) {}
+  var MODEL = 'qwen-plus';
+  var HISTORY_KEY = 'copywriter-history';
+  var hist = [];
+  try { hist = JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch(e) {}
+  var allText = '';
+  var streaming = false;
+  var abortCtl = null;
+  var firstTokenTs = null;
+
+  function val(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
+  function statusLine(t){ var el=document.getElementById('statusLine'); if(!t){el.style.display='none';return;} el.style.display='block'; el.textContent=t; }
+  function errLine(t){ var el=document.getElementById('errLine'); if(!t){el.style.display='none';return;} el.style.display='block'; el.textContent=t; }
+
+  function buildMessages(){
+    var name = val('fName');
+    if(!name){ errLine('请至少填「货品名称」'); return null; }
+    errLine(null);
+    var seg = [];
+    var fields = [
+      ['货品名称', name],
+      ['大类别', val('fCat')], ['规格/尺寸', val('fSpec')], ['材质/工艺', val('fMaterial')],
+      ['使用场景', val('fScene')], ['目标人群', val('fPeople')], ['价格带', val('fPrice')],
+      ['真实卖点', val('fPoints')], ['买家常夸', val('fGood')], ['差评/常问痛点', val('fBad')]
+    ];
+    fields.forEach(function(p){ if(p[1]) seg.push(p[0]+'：'+p[1]); });
+    var out = val('fOut'), tone = val('fTone'), extra = val('fExtra');
+    var outTxt = {both:'出口A抖音脚本(2版) + 出口B详情页文案(标题/首图/5条卖点/规格提醒)',A:'出口A：抖音脚本2版（前3秒钩子/画面/口播/字幕/CTA）',B:'出口B：电商详情文案（标题关键词/首图卖点字/5条卖点/规格提醒）',xhs:'出口C：小红书笔记（标题+正文+标签，重收藏感）'}[out] || '出口A+出口B';
+    var toneTxt = { '':'语气自然、真实痛点优先', '实在理工男':'语气实在理工，参数讲透但不夸张，像懂行的朋友推荐', '妈妈口吻':'妈妈口吻，懂过日子、会心疼钱、说人话', '年轻网感':'年轻网感，短平快、有梗、不端着', '批发招商':'面向批发/招商客户，讲利润空间、走量、复购' }[tone] || '';
+
+    var system = '你是资深电商文案总监，专精家居贴纸/墙贴/贴膜类目（静电免胶、自粘、可移除是核心卖点词）。你的铁律：\n' +
+      '1. 绝不编造产品参数；素材没给的，用行业常识合理补足但用【*】标注"待核实"，提醒卖家核对。\n' +
+      '2. 核心方法=把"参数卖点"翻译成"买家听得懂的下单理由"（痛点→场景→承诺→证据）。\n' +
+      '3. 顾虑消解法：把差评/常问里的顾虑正面回答进文案。\n' +
+      '4. 每版稿都要：3秒能懂是什么、有场景代入、有行动指令。\n' +
+      '5. 直接给成品稿，不要先解释思路；如有不确定，在稿子末尾用【待你核实】列出问题清单。\n' +
+      '6. 卖点写实，宁可少写一句也不要假大空（如"全网第一""绝对不掉"这类禁用）。';
+
+    var user = '【产品信息】\n' + seg.join('\n') + '\n\n' +
+      '【出口要求】' + outTxt + '\n' +
+      (tone ? '【语气】' + toneTxt + '\n' : '') +
+      (extra ? '【补充】' + extra + '\n' : '') +
+      '\n请按上面要求，走五步思考后直接输出最终稿：' +
+      '（1秒内先在心里拆卖点→人群→买点，但不要输出思考过程，直接给稿）\n' +
+      '如信息不足影响出稿，可在稿末【待你核实】里集中提问。';
+
+    return [ {role:'system', content: system}, {role:'user', content: user} ];
   }
-}
-function flash(btn){
-  btn.textContent = '✓ 已复制';
-  btn.classList.add('copied');
-  setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('copied'); }, 1600);
-}
+
+  window.generate = async function(){
+    if (streaming) { if(abortCtl) abortCtl.abort(); streaming=false; resetGenBtn(); return; }
+    var msgs = buildMessages(); if(!msgs) return;
+    allText = '';
+    var box = document.getElementById('outBox');
+    box.textContent = '';
+    box.classList.remove('empty-tip');
+    document.getElementById('btnCopy').style.display = 'inline-block';
+    document.getElementById('resultTitle').innerHTML = '生成中 <span class="dots"><i></i><i></i><i></i></span>';
+    firstTokenTs = null;
+
+    streaming = true;
+    var btn = document.getElementById('btnGen');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> 生成中…（再点=停止）';
+    statusLine('正在连接 AI 生成通道…');
+    abortCtl = new AbortController();
+
+    try {
+      var response = await fetch(API_BASE + '/api/chat', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        credentials:'same-origin',
+        body: JSON.stringify({messages: msgs, model: MODEL, mode:'chat'}),
+        signal: abortCtl.signal
+      });
+      if(!response.ok){ throw new Error('服务器错误 (' + response.status + ')'); }
+      statusLine('AI 开始输出…（生成中可随时点按钮停止）');
+
+      var reader = response.body.getReader();
+      var decoder = new TextDecoder();
+      var buf = '';
+      while(true){
+        var r = await reader.read();
+        if(r.done) break;
+        buf += decoder.decode(r.value, {stream:true});
+        var lines = buf.split('\n');
+        buf = lines.pop() || '';
+        for(var i=0;i<lines.length;i++){
+          var ln = lines[i].trim();
+          if(!ln.startsWith('data: ')) continue;
+          var ds = ln.slice(6);
+          if(ds === '[DONE]') { reader.cancel && reader.cancel(); break; }
+          try{
+            var d = JSON.parse(ds);
+            if(d.error){ errLine('AI通道错误：' + d.error); break; }
+            var c = d.choices && d.choices[0] && d.choices[0].delta && d.choices[0].delta.content;
+            if(c){ allText += c; box.textContent = allText; box.scrollTop = box.scrollHeight; }
+          }catch(e){}
+        }
+      }
+      streaming = false;
+      resetGenBtn();
+      if(allText){ statusLine('✅ 生成完成'); saveHist(); } else { statusLine(null); box.innerHTML='<span class="empty-tip">没有拿到内容，可能被中断。点「生成文案」再试一次。</span>'; }
+    } catch(err){
+      streaming = false; resetGenBtn();
+      if(err.name === 'AbortError'){ statusLine('已停止生成。'); return; }
+      errLine('无法连接生成通道：' + (err.message||'') + '。如果你是在线上/手机打开的静态页，生成功能需要「电脑工作台在运行」，或用电脑打开本页面。');
+      box.innerHTML = '<span class="empty-tip">生成通道连不上。\n\n可能原因：\n· 你在线上网页打开（GitHub Pages 无后端）→ 请用电脑工作台打开本页\n· 电脑工作台没在运行 → 启动橙萤零售工作台后再试\n· 网络波动 → 点「生成文案」重试一次</span>';
+    }
+  };
+
+  function resetGenBtn(){
+    var btn = document.getElementById('btnGen');
+    btn.disabled = false;
+    btn.innerHTML = '<span id="genIcon">⚡</span> 生成文案';
+  }
+
+  function saveHist(){
+    var name = val('fName') || ('文案 ' + new Date().toLocaleString('zh-CN'));
+    var rec = { name:name, text:allText, ts:Date.now(), fmt:new Date().toLocaleString('zh-CN') };
+    hist.unshift(rec); if(hist.length > 20) hist.length = 20;
+    try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(hist)); }catch(e){}
+    renderHist();
+  }
+  function renderHist(){
+    var sel = document.getElementById('histSel');
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">— 选择一条历史记录回看 —</option>';
+    hist.forEach(function(r){ var o=document.createElement('option'); o.value = String(r.ts); o.textContent = r.name + ' · ' + r.fmt; sel.appendChild(o); });
+    if(cur){ var el = sel.querySelector('[value="'+cur+'"]'); if(el) sel.value = cur; }
+  }
+  window.loadHist = function(ts){
+    var rec = hist.find(function(r){ return String(r.ts) === ts; });
+    if(!rec) return;
+    allText = rec.text;
+    var box = document.getElementById('outBox');
+    box.textContent = allText;
+    box.classList.remove('empty-tip');
+    document.getElementById('resultTitle').textContent = '历史：' + rec.name;
+    document.getElementById('btnCopy').style.display = 'inline-block';
+    statusLine(null); errLine(null);
+  };
+  window.copyResult = function(){
+    if(!allText){ return; }
+    var btn = document.getElementById('btnCopy');
+    function done(){ btn.textContent='已复制 ✓'; btn.classList.add('copied'); setTimeout(function(){ btn.textContent='复制全文'; btn.classList.remove('copied'); },1500); }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(allText).then(done, function(){ fallbackCopy(); done(); }); }
+    else { fallbackCopy(); done(); }
+    function fallbackCopy(){ var ta=document.createElement('textarea'); ta.value=allText; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
+  };
+
+  window.loadExample = function(){
+    var set = function(id,v){ var el=document.getElementById(id); if(el) el.value=v; };
+    set('fName','撕拉线静电油烟贴（透明款）');
+    set('fCat','油烟贴');
+    set('fSpec','0.45m宽 × 2m/3m/5m长，按米卖');
+    set('fMaterial','静电吸附 · 免胶 · 撕拉线可整片撕');
+    set('fScene','厨房灶台墙面防油污、出租屋厨房改造');
+    set('fPeople','租房年轻人 / 常做饭家庭 / 讨厌擦油墙的人');
+    set('fPrice','8.9~19.9，客单约12');
+    set('fPoints','静电免胶不伤瓷砖/一贴就上墙/撕拉线设计想换就换不留胶/透明不影响原墙/油污一擦即净/按米卖不浪费');
+    set('fGood','贴上很透，不显眼/油点子一擦就掉');
+    set('fBad','总问贴久了会不会掉/有人说贴不平有气泡/担心撕下来留胶印/问能不能贴乳胶漆墙');
+    set('fOut','both');
+    set('fExtra','突出租房党也能用、退租一撕就干净');
+    statusLine(null); errLine(null);
+  };
+  window.clearAll = function(){
+    ['fName','fSpec','fMaterial','fScene','fPeople','fPrice','fPoints','fGood','fBad','fExtra'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('fOut').value='both'; document.getElementById('fTone').value='';
+    statusLine(null); errLine(null);
+  };
+
+  renderHist();
+})();
 </script>
 </body>
 </html>

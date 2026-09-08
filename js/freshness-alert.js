@@ -32,7 +32,8 @@
     'competition-analysis': { file: 'data/competition.json',             tol: 2 },   // 低频，与 home-health.js 一致
     'category-analysis':    { file: 'data/trend-analysis.json',  inline: '__TREND_DATA', tol: 0, scanDates: true },   // 日更
     'trend-analysis':       { file: 'data/trend-analysis.json',  inline: '__TREND_DATA', tol: 0, scanDates: true },   // 日更
-    'platform-trend':       { file: 'data/platform-trend.json',          tol: 0 }    // 日更
+    'platform-trend':       { file: 'data/platform-trend.json',          tol: 0 },    // 日更
+    'keyword-trend':        { file: 'data/keyword-trend.json',           tol: 2 }     // 周环比，容忍 2 天
   };
 
   function pad(n) { return String(n).padStart(2, '0'); }

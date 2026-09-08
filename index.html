@@ -1461,6 +1461,53 @@ body{
           <div class="card-footer">📡 数据源 → feishu_bi.json + 优化动作状态<span class="card-arrow">→</span></div>
         </div>
 
+        <!-- 10 — 设计数据月度反馈 -->
+        <div class="card" onclick="location.href='design-feedback.html'" data-accent="pink" data-tags="demand,daily" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#10</span>
+              <span class="card-title">设计数据月度反馈</span>
+              <span class="card-subtitle">Design Feedback</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 按需触发</span>
+            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 月度复盘</span>
+          </div>
+          <div class="card-desc">每月给设计部的素材数据月报：短视频素材 × 推广链接，把投放效果归到每条素材</div>
+          <ul class="card-list">
+            <li>短视频素材月度排行（花费 / 成交 / ROI / 转化）</li>
+            <li>链接月度表现（花费 / 成交 / ROI / 投放场景）</li>
+            <li>按月窗口对比 + ROI 复盘清单（导出 CSV）</li>
+          </ul>
+          <div class="card-footer">📡 数据源 → 飞书推广明细（商品推广 / 短视频推广 / 拼多多）<span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- 11 — 关键词趋势分析 -->
+        <div class="card" onclick="location.href='keyword-trend.html'" data-accent="orange" data-tags="demand,weekly" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#11</span>
+              <span class="card-title">关键词趋势分析</span>
+              <span class="card-subtitle">Keyword Trend</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">🔑 关键词洞察</span>
+            <span class="card-tag" style="background:var(--tag-update);color:var(--tag-update-text)">🔄 周环比更新</span>
+          </div>
+          <div class="card-desc">4 个类目关键词谁在涨、谁新冒头、谁在退，一眼看清</div>
+          <ul class="card-list">
+            <li>新增词：近 7 天出现、更早 14 天未上榜的冒头词</li>
+            <li>上升 / 下降：关键词人气周环比（日均）</li>
+            <li>每个词给动作：上新 / 标题卡位 / 直通车加词 / 降竞价</li>
+            <li>按类目 Tab 切换 + 一键复制可动作词</li>
+          </ul>
+          <div class="card-footer">📡 数据源 → 市场关键词数据表（贴饰 / 软装墙贴 / 开关贴 / 身高贴）<span class="card-arrow">→</span></div>
+        </div>
+
       </div>
     </div>
 
@@ -2115,15 +2162,15 @@ initSync();
 </script>
 
 
-<script src="js/store.js?v=202609071712"></script>
-<script src="js/boards-config.js?v=202609071712"></script>
-<script src="js/diagnostics-config.js?v=202609071712"></script>
-<script src="js/diagnosis.js?v=202609071712"></script>
-<script src="js/deep-link.js?v=202609071712"></script>
-<script src="js/home-health.js?v=202609071712"></script>
-<script src="js/web-sync.js?v=202609071712"></script>
-<script src="js/auth.js?v=202609071712"></script>
-<script src="js/chat-widget.js?v=202609071712"></script>
+<script src="js/store.js?v=202609081126"></script>
+<script src="js/boards-config.js?v=202609081126"></script>
+<script src="js/diagnostics-config.js?v=202609081126"></script>
+<script src="js/diagnosis.js?v=202609081126"></script>
+<script src="js/deep-link.js?v=202609081126"></script>
+<script src="js/home-health.js?v=202609081126"></script>
+<script src="js/web-sync.js?v=202609081126"></script>
+<script src="js/auth.js?v=202609081126"></script>
+<script src="js/chat-widget.js?v=202609081126"></script>
 <script>
 /* ============================================================
  * 本地数据引导（仅浏览器 http / 预览静态模式）

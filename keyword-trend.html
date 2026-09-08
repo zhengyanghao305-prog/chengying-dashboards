@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>关键词趋势</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f7f8fa; color: #1f2937; line-height: 1.5; padding: 22px 22px 48px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .ttl { display: flex; align-items: center; gap: 10px; }
+  .back { font-size: 13px; color: #6b7280; text-decoration: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 5px 11px; background: #fff; transition: .15s; }
+  .back:hover { border-color: #7c3aed; color: #7c3aed; }
+  h1 { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  .date-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg,#7c3aed,#a78bfa);
+    padding: 3px 10px; border-radius: 20px; letter-spacing: .3px;
+    vertical-align: middle;
+  }
+  .sub { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .tabs { display: inline-flex; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 3px; }
+  .tabs button { border: none; background: transparent; padding: 7px 15px; font-size: 13px; font-weight: 600; color: #6b7280; border-radius: 7px; cursor: pointer; transition: .15s; }
+  .tabs button.active { background: #7c3aed; color: #fff; }
+  .signal { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+  .signal .dots { display: flex; gap: 22px; flex-wrap: wrap; font-size: 13px; font-weight: 600; }
+  .signal .dots .d { display: inline-flex; align-items: baseline; gap: 6px; }
+  .signal .dots .v { font-size: 20px; font-weight: 800; }
+  .signal .dots .v.vnew { color: #7c3aed; }
+  .signal .dots .v.vup { color: #16a34a; }
+  .signal .dots .v.vdown { color: #dc2626; }
+  .signal .dots .l { color: #9ca3af; font-weight: 500; }
+  .signal .verdict { margin-top: 11px; font-size: 13.5px; color: #374151; }
+  .signal .verdict b { color: #111827; }
+  .signal .meta { margin-top: 8px; font-size: 11.5px; color: #9ca3af; }
+  .card { background: #fff; border: 1px solid #eef0f3; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+  .card-hd { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
+  .card-hd .t { font-size: 14px; font-weight: 700; }
+  .card-hd .hint { font-size: 11.5px; color: #9ca3af; margin-top: 3px; }
+  .filters { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .filters button { border: 1px solid #e5e7eb; background: #fff; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 16px; cursor: pointer; color: #6b7280; transition: .15s; }
+  .filters button.active { background: #111827; color: #fff; border-color: #111827; }
+  .pill { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; margin-left: 4px; }
+  .pill.p-new { background: #ede9fe; color: #6d28d9; }
+  .pill.p-up { background: #dcfce7; color: #15803d; }
+  .pill.p-down { background: #fee2e2; color: #b91c1c; }
+  .pill.p-flat { background: #f3f4f6; color: #6b7280; }
+  .tag-prod { display: inline-block; font-size: 11px; color: #374151; background: #f3f4f6; border-radius: 6px; padding: 1px 7px; margin-right: 4px; }
+  .tag-drop { color: #9ca3af; background: #fafafa; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; font-size: 11.5px; color: #9ca3af; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid #f0f1f3; white-space: nowrap; }
+  thead th.num, tbody td.num { text-align: right; }
+  tbody td { padding: 9px 10px; border-bottom: 1px solid #f6f7f8; vertical-align: middle; }
+  tbody tr.tr-new { box-shadow: inset 3px 0 0 #7c3aed; }
+  tbody tr.tr-up { box-shadow: inset 3px 0 0 #16a34a; }
+  tbody tr.tr-down { box-shadow: inset 3px 0 0 #dc2626; background: #fffafa; }
+  .nm { font-weight: 600; color: #1f2937; font-size: 13px; }
+  .kw-sub { font-size: 11px; color: #9ca3af; }
+  .num { font-variant-numeric: tabular-nums; }
+  .chg { font-weight: 700; }
+  .chg.up { color: #16a34a; } .chg.down { color: #dc2626; } .chg.flat { color: #9ca3af; }
+  .act { font-size: 12px; color: #374151; }
+  .act .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .act .dot.d-up { background: #16a34a; } .act .dot.d-down { background: #dc2626; } .act .dot.d-flat { background: #9ca3af; } .act .dot.d-drop { background: #d1d5db; }
+  .copy-all {
+    border: 1px solid #7c3aed; background: #7c3aed; color: #fff;
+    padding: 4px 12px; font-size: 12px; font-weight: 700; border-radius: 16px;
+    cursor: pointer; transition: .15s;
+  }
+  .copy-all:hover { background: #6d28d9; }
+  .copy-all.copied { background: #16a34a; border-color: #16a34a; }
+  .err { background: #fff5f5; border: 1px solid #fecaca; color: #b91c1c; border-radius: 12px; padding: 20px; text-align: center; font-size: 14px; }
+  footer { font-size: 11px; color: #b9bfc7; text-align: center; margin-top: 6px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #6b7280; margin-bottom: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+</style>
+</head>
+<body>
+<script src="js/freshness-alert.js?v=202609081126"></script>
+<div class="wrap">
+  <header>
+    <div class="ttl">
+      <a class="back" href="index.html">← 返回</a>
+      <div>
+        <h1>关键词趋势 <span class="date-badge" id="dateBadge">—</span></h1>
+        <div class="sub" id="sub">本周 vs 上周 · 关键词人气周环比</div>
+      </div>
+    </div>
+    <div class="tabs" id="tabs">
+      <button data-cat="全部" class="active">全部</button>
+      <button data-cat="贴饰">贴饰</button>
+      <button data-cat="软装墙贴">软装墙贴</button>
+      <button data-cat="开关贴">开关贴</button>
+      <button data-cat="身高贴">身高贴</button>
+    </div>
+  </header>
+
+  <div class="signal" id="signal"></div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div>
+        <div class="t" id="listTtl">词明细</div>
+        <div class="hint" id="listHint">人气 = 预估搜索人气 · 日均</div>
+      </div>
+      <div style="display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="copy-all" id="copyBtn" onclick="copyActionWords()">复制可动作词</button>
+        <div class="filters" id="filters">
+          <button data-state="全部" class="active">全部</button>
+          <button data-state="new">新增</button>
+          <button data-state="up">上升</button>
+          <button data-state="down">下降</button>
+          <button data-state="flat">平稳</button>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><span class="sw" style="background:#7c3aed"></span>新增：近7天出现、更早14天无</span>
+      <span><span class="sw" style="background:#16a34a"></span>上升：本期人气较上期 ≥+15%</span>
+      <span><span class="sw" style="background:#dc2626"></span>下降：本期人气较上期 ≤-15%</span>
+      <span><span class="sw" style="background:#f3f4f6"></span>平稳：其余</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="list">
+        <thead><tr>
+          <th>关键词</th>
+          <th>状态</th>
+          <th>相关产品</th>
+          <th class="num">本期日均人气</th>
+          <th class="num">上期日均</th>
+          <th class="num">变动</th>
+          <th class="num">上榜天数</th>
+          <th class="num">转化率</th>
+          <th>建议动作</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="hint" id="listNote" style="margin-top:8px;"></div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+(function () {
+  var raw = null;
+  var cat = "全部";
+  var state = "全部";
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function fmtPv(v) { return v == null ? "—" : (v >= 10000 ? (v / 10000).toFixed(1) + "万" : Math.round(v)); }
+  function fmtChg(r) { if (r == null || r.chg == null) return "—"; var s = r.chg > 0 ? "+" : ""; return s + r.chg + "%"; }
+  function chgCls(r) { if (r.chg == null) return "flat"; return r.chg > 0 ? "up" : r.chg < 0 ? "down" : "flat"; }
+  var STATE_NAME = { "new": "新增", "up": "上升", "down": "下降", "flat": "平稳" };
+  var STATE_PILL = { "new": "p-new", "up": "p-up", "down": "p-down", "flat": "p-flat" };
+  var ACT_DOT = { "up": "d-up", "down": "d-down", "flat": "d-flat", "drop": "d-drop" };
+
+  function loadJSON(url) {
+    var sep = url.indexOf("?") >= 0 ? "&" : "?";
+    return fetch(url + sep + Date.now())
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .catch(function () {
+        return fetch("http://localhost:3588/" + url.replace(/^\.?\//, "") + sep + Date.now())
+          .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+      });
+  }
+
+  function rankState(s) { var m = { new: 0, up: 1, down: 2, flat: 3 }; return m[s] != null ? m[s] : 9; }
+  // 同词多类目重复时，判断 b 是否比 a 更值得保留：
+  // 1) 非 drop（可动作）优先；2) 状态 新增>上升>下降>平稳；3) 人气更高；4) 在榜天数更多
+  function isBetter(a, b) {
+    function dropScore(x) { return x.acls === "drop" ? 0 : 1; }
+    if (dropScore(a) !== dropScore(b)) return dropScore(a) > dropScore(b);
+    var ra = rankState(a.state), rb = rankState(b.state);
+    if (ra !== rb) return ra < rb;
+    if ((a.cur_avg || 0) !== (b.cur_avg || 0)) return (a.cur_avg || 0) > (b.cur_avg || 0);
+    return (a.days || 0) > (b.days || 0);
+  }
+  // 按当前 cat 取出全部词并做跨类目去重（同词合并为一行，保留最好的那一条，附来源）
+  function mergedAll() {
+    var map = {};
+    (raw.categories || []).forEach(function (c) {
+      if (cat !== "全部" && c.name !== cat) return;
+      (c.items || []).forEach(function (it) {
+        var k = it.kw;
+        var ex = map[k];
+        if (!ex) {
+          map[k] = Object.assign({}, it, { _src: [c.name] });
+          return;
+        }
+        if (isBetter(ex, it)) { ex._src.push(c.name); return; }
+        it._src = ex._src.concat([c.name]);
+        map[k] = it;
+      });
+    });
+    return Object.keys(map).map(function (k) { return map[k]; });
+  }
+
+  function curItems() {
+    var list = mergedAll();
+    if (state !== "全部") list = list.filter(function (it) { return it.state === state; });
+    return list;
+  }
+
+  function renderSignal() {
+    var all = mergedAll();
+    var counts = { new: 0, up: 0, down: 0, total: all.length };
+    all.forEach(function (it) {
+      if (it.state === "new") counts.new++;
+      else if (it.state === "up") counts.up++;
+      else if (it.state === "down") counts.down++;
+    });
+    var items = curItems();
+    var best = null, worst = null, bnew = null;
+    items.forEach(function (it) {
+      if (it.state === "new" && (!bnew || (it.cur_avg || 0) > (bnew.cur_avg || 0))) bnew = it;
+      if (it.state === "up" && it.chg != null && (!best || it.chg > best.chg)) best = it;
+      if (it.state === "down" && it.chg != null && (!worst || it.chg < worst.chg)) worst = it;
+    });
+    var w = raw.window || {};
+    var verdict = '';
+    if (bnew) verdict += '新增词看<b>' + esc(bnew.kw) + '</b>（日均人气 ' + fmtPv(bnew.cur_avg) + '）值得提前卡位。';
+    if (best) verdict += '上升最猛：<b>' + esc(best.kw) + '</b> +' + best.chg + '%（' + esc(best.prod || '未打标') + '）。';
+    if (worst) verdict += '下降最狠：<b>' + esc(worst.kw) + '</b> ' + worst.chg + '%。';
+    if (!verdict) verdict = '本期词人气整体平稳，可重点看下方平稳头部词维护排名。';
+    var sig = '<div class="dots">'
+      + '<span class="d"><span class="l">在榜相关词</span><span class="v">' + counts.total + '</span></span>'
+      + '<span class="d"><span class="l">新增词</span><span class="v vnew">' + counts.new + '</span></span>'
+      + '<span class="d"><span class="l">上升词</span><span class="v vup">' + counts.up + '</span></span>'
+      + '<span class="d"><span class="l">下降词</span><span class="v vdown">' + counts.down + '</span></span>'
+      + '</div>'
+      + '<div class="verdict">' + verdict + '</div>'
+      + '<div class="meta">对比窗口：本期 ' + ((w.cur || {}).start || "—") + ' ~ ' + ((w.cur || {}).end || "—")
+      + ' ｜ 上期 ' + ((w.prev || {}).start || "—") + ' ~ ' + ((w.prev || {}).end || "—")
+      + ' ｜ 依据：' + (raw.note || "") + '</div>';
+    document.getElementById("signal").innerHTML = sig;
+  }
+
+  function render() {
+    document.getElementById("tabs").querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-cat") === cat);
+    });
+    document.getElementById("filters").querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-state") === state);
+    });
+    renderSignal();
+    var items = curItems().slice();
+    var order = { "new": 0, "up": 1, "down": 2, "flat": 3 };
+    items.sort(function (a, b) {
+      var d = (order[a.state] || 9) - (order[b.state] || 9);
+      if (d) return d;
+      return (b.cur_avg || 0) - (a.cur_avg || 0);
+    });
+    var rows = items.map(function (r) {
+      var relNote = "";
+      if (r.rel === "无关") relNote = '<span class="tag-prod tag-drop">无关</span>';
+      var prod = r.prod && r.prod !== "不相关" && r.prod !== "无关产品" && r.prod !== "无匹配类别"
+        ? '<span class="tag-prod">' + esc(r.prod) + '</span>' : '';
+      return '<tr class="tr-' + r.state + '">'
+        + '<td><span class="nm">' + esc(r.kw) + '</span>'
+        + (r._src && r._src.length > 1 ? '<span class="kw-sub"><br>' + esc(r._src.join(" · ")) + '</span>' : '')
+        + '</td>'
+        + '<td><span class="pill ' + STATE_PILL[r.state] + '">' + STATE_NAME[r.state] + '</span></td>'
+        + '<td>' + prod + relNote + '</td>'
+        + '<td class="num">' + fmtPv(r.cur_avg) + '</td>'
+        + '<td class="num">' + fmtPv(r.prev_avg) + '</td>'
+        + '<td class="num chg ' + chgCls(r) + '">' + fmtChg(r) + '</td>'
+        + '<td class="num">' + (r.days || 0) + '</td>'
+        + '<td class="num">' + (r.cvr != null ? r.cvr + "%" : "—") + '</td>'
+        + '<td class="act"><span class="dot ' + (ACT_DOT[r.acls] || "d-flat") + '"></span>' + esc(r.action) + '</td>'
+        + '</tr>';
+    }).join("");
+    document.getElementById("list").querySelector("tbody").innerHTML =
+      rows || '<tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:18px">暂无词（调低门槛或等数据更全）</td></tr>';
+    var total = items.length;
+    var actN = items.filter(function (it) { return it.acls !== "drop"; }).length;
+    document.getElementById("listNote").textContent =
+      "当前 " + total + " 个词 · 其中建议动作 " + actN + " 个（已排除无关词）";
+  }
+
+  function copyActionWords() {
+    var items = curItems().filter(function (it) { return it.acls !== "drop" && (it.state === "new" || it.state === "up"); });
+    var words = items.map(function (it) { return it.kw; });
+    var btn = document.getElementById("copyBtn");
+    if (!words.length) { btn.textContent = "无可动作词"; return; }
+    var text = words.join("，");
+    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+      .catch(function () {
+        var ta = document.createElement("textarea");
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); } catch (e) {}
+        document.body.removeChild(ta);
+      })
+      .then(function () {
+        btn.textContent = "已复制 " + words.length + " 词"; btn.classList.add("copied");
+        setTimeout(function () { btn.textContent = "复制可动作词"; btn.classList.remove("copied"); }, 2000);
+      });
+  }
+  window.copyActionWords = copyActionWords;
+
+  document.getElementById("tabs").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    cat = b.getAttribute("data-cat"); render();
+  });
+  document.getElementById("filters").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    state = b.getAttribute("data-state"); render();
+  });
+
+  loadJSON("data/keyword-trend.json").then(function (d) {
+    raw = d;
+    document.getElementById("dateBadge").textContent = (d.updated || "").split(" ")[0] || "—";
+    render();
+    document.getElementById("foot").textContent = "数据更新：" + (d.updated || "—") + " · 数据源：市场关键词数据表（4类目采集 + AI打标）· 口径详见上方说明";
+  }).catch(function () {
+    document.getElementById("signal").outerHTML = '<div class="err">数据加载失败：data/keyword-trend.json 不可用。<br>请先运行 <code>python _build_keyword_trend.py</code> 生成数据。</div>';
+  });
+})();
+</script>
+</body>
+</html>

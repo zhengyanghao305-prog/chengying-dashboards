@@ -18,10 +18,7 @@
     'daily-pulse':          { file: 'data/daily-pulse.json',             tol: 0 },   // 日更：昨天正常
     'sales-alert':          { file: 'data/sales-alert.json',             tol: 0 },   // 日更
     'ad-roi':               { file: 'data/ad-roi.json',                  tol: 0 },   // 日更
-    'product-pipeline':     { file: 'data/product-pipeline.json',        tol: 6 },   // 周更
     'ecom-workflow':        { file: 'data/ecom-workflow.json',           tol: 6 },   // 周更/按需
-    'automation-log':       { file: 'data/automation-log.json',          tol: 0 },   // 日更
-    'automation-projects':  { file: 'data/automation-projects.json',     tol: 0 },   // 日更
     'emp-task':             { file: 'data/emp-task.json',                tol: 0 },   // 日更
     'emp-daily':            { file: 'data/emp-daily.json',               tol: 0 },   // 日更
     'emp-performance':      { file: 'data/emp-performance.json',         tol: 0 },   // 日更

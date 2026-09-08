@@ -1,355 +1,223 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>设计数据月度反馈</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>短视频数据诊断报告 · 优秀素材</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #f1f5f9; color: #0f172a; padding: 20px 24px 48px;
-}
-.wrap { max-width: 1240px; margin: 0 auto; }
-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
-header h1 { font-size: 20px; font-weight: 800; letter-spacing: .4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.sub { font-size: 12px; color: #64748b; margin-top: 4px; }
-.hd-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-.btn-hd {
-  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #2563eb;
-  background: #fff; border: 1px solid #dbeafe; border-radius: 10px; padding: 8px 16px; text-decoration: none; transition: .15s;
-}
-.btn-hd:hover { background: #eff6ff; border-color: #2563eb; }
-.btn-ghost { color: #64748b; background: #fff; border-color: #e2e8f0; }
-.btn-ghost:hover { color: #2563eb; border-color: #2563eb; }
-.badge-gen { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #475569; background: #fff; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 20px; }
+  :root{
+    --bg:#f4f6fb; --card:#fff; --ink:#1f2937; --sub:#64748b; --line:#e7ebf3;
+    --good:#16a34a; --warn:#dc2626; --mid:#d97706; --accent:#2563eb; --soft:#eef2ff;
+    --chip:#eef4ff; --chipink:#2563eb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.5;padding:20px 22px 60px}
+  .wrap{max-width:1240px;margin:0 auto}
+  header{margin-bottom:14px}
+  h1{font-size:19px;font-weight:800;letter-spacing:.3px}
+  .sub{color:var(--sub);font-size:12.5px;margin-top:4px}
+  .sub b{color:var(--accent)}
 
-.ctrl { background: #fff; border: 1px solid #eef2f7; border-radius: 14px; padding: 14px 18px; box-shadow: 0 1px 3px rgba(15,23,42,.04); margin-bottom: 14px; }
-.row1 { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.tabs { display: inline-flex; background: #f1f5f9; border-radius: 10px; padding: 3px; gap: 2px; }
-.tabs button { border: none; background: transparent; padding: 7px 18px; font-size: 13px; font-weight: 600; color: #64748b; border-radius: 8px; cursor: pointer; transition: .15s; }
-.tabs button.active { background: #2563eb; color: #fff; box-shadow: 0 1px 4px rgba(37,99,235,.3); }
-.view-tabs { margin-left: auto; }
-.note { font-size: 11.5px; color: #94a3b8; margin-top: 8px; line-height: 1.6; }
-.note b { color: #64748b; }
+  /* 给设计的复用指引 banner */
+  .guide{background:linear-gradient(95deg,#1e3a8a,#2563eb);color:#fff;border-radius:14px;padding:16px 18px;margin:14px 0 18px;box-shadow:0 6px 20px rgba(37,99,235,.18)}
+  .guide .gt{font-size:13.5px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .guide .gb{font-size:12.5px;line-height:1.7;opacity:.96}
+  .guide .gtag{display:inline-block;background:rgba(255,255,255,.18);border-radius:20px;padding:2px 10px;font-size:11.5px;font-weight:600;margin-right:6px}
 
-.kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 14px; }
-.kpi { background: #fff; border: 1px solid #eef2f7; border-radius: 12px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(15,23,42,.04); }
-.kpi .l { font-size: 11px; color: #64748b; margin-bottom: 4px; }
-.kpi .v { font-size: 17px; font-weight: 800; color: #0f172a; font-variant-numeric: tabular-nums; }
-.kpi .s { font-size: 10.5px; color: #94a3b8; margin-top: 2px; }
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  select{font-size:12.5px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  .cnt{color:var(--sub);font-size:12.5px}
+  .cnt b{color:var(--ink)}
 
-.sec { font-size: 15px; font-weight: 800; margin: 16px 0 10px; display: flex; align-items: center; gap: 8px; }
-.sec .cnt { font-size: 11px; font-weight: 700; color: #64748b; background: #f1f5f9; border-radius: 10px; padding: 2px 9px; }
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(15,23,42,.04)}
+  .vhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .vtitle{font-size:14px;font-weight:700;line-height:1.4;color:#0f172a}
+  .vid{font-size:11px;color:var(--sub);margin-top:3px;font-family:ui-monospace,Menlo,monospace}
+  .vid .copy{cursor:pointer;border-bottom:1px dashed #cbd5e1;margin-left:4px}
+  .vid a.play{color:var(--accent);font-weight:600;text-decoration:none;background:var(--soft);border:1px solid #c7d6ff;border-radius:5px;padding:1px 7px;margin-left:8px}
+  .vid a.play:hover{background:#e0e7ff}
+  .badge{background:var(--good);color:#fff;font-size:11px;font-weight:700;border-radius:7px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
+  .chip{background:var(--chip);color:var(--chipink);font-size:11px;font-weight:600;border-radius:6px;padding:2px 8px}
+  .chip.g{background:#dcfce7;color:#15803d}
+  .chip.o{background:#fef3c7;color:#b45309}
+  .chip.m{background:#e2e8f0;color:#475569}
 
-.panel { background: #fff; border: 1px solid #eef2f7; border-radius: 14px; box-shadow: 0 1px 3px rgba(15,23,42,.04); overflow: hidden; margin-bottom: 16px; }
-.tbl-scroll { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
-th, td { padding: 9px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid #f1f5f9; font-variant-numeric: tabular-nums; }
-th:first-child, td:first-child, th:left, td.left { text-align: left; }
-thead th { background: #f8fafc; color: #64748b; font-size: 11.5px; font-weight: 700; cursor: pointer; user-select: none; }
-thead th .arr { opacity: .45; margin-left: 2px; }
-tbody tr:hover { background: #f8faff; }
-tr.dim td { color: #94a3b8; }
-.pos { color: #16a34a; font-weight: 700; }
-.neg { color: #dc2626; font-weight: 700; }
-.mid { color: #d97706; font-weight: 700; }
-.num { font-weight: 700; }
-.plat-tag { font-size: 10px; font-weight: 700; color: #fff; border-radius: 4px; padding: 2px 6px; vertical-align: middle; }
-.plat-tm { background: #ff5000; } .plat-pdd { background: #ff6034; }
-.owner-chip { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 20px; font-size: 11px; font-weight: 800; color: #4f46e5; background: #eef2ff; border-radius: 6px; padding: 0 6px; }
-.plan-nm { font-weight: 700; }
-.prod { font-size: 11px; color: #94a3b8; margin-top: 2px; font-weight: 400; }
-.lnk { color: #2563eb; text-decoration: none; font-weight: 600; }
-.lnk:hover { text-decoration: underline; }
-.rank { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 6px; font-size: 11px; font-weight: 800; }
-.rk1 { background: #fef3c7; color: #b45309; } .rk2 { background: #f1f5f9; color: #475569; } .rk3 { background: #fce7f3; color: #be185d; }
-.rk { background: transparent; color: #cbd5e1; }
-.chip { display: inline-block; font-size: 10.5px; background: #f1f5f9; color: #64748b; border-radius: 4px; padding: 2px 7px; margin: 1px 2px 1px 0; }
-.sortby { font-size: 12px; color: #64748b; }
-.sortby select { margin-left: 6px; padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; background: #fff; color: #0f172a; }
-.empty { text-align: center; color: #94a3b8; font-size: 13px; padding: 40px 10px; }
-.footer-note { font-size: 11px; color: #94a3b8; text-align: center; margin-top: 18px; }
-@media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .m{background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:8px 6px;text-align:center}
+  .m .k{font-size:10.5px;color:var(--sub)}
+  .m .v{font-size:15px;font-weight:800;margin-top:2px}
+  .m .v.pos{color:var(--good)} .m .v.neg{color:var(--warn)} .m .v.mid{color:var(--mid)}
+  .m.sec{background:#fff;border-style:dashed}
+
+  .why{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:9px 11px;margin-bottom:10px}
+  .why .h{font-size:11.5px;font-weight:700;color:#15803d;margin-bottom:5px}
+  .why ul{margin:0;padding-left:16px}
+  .why li{font-size:12px;color:#166534;margin:2px 0;line-height:1.45}
+
+  .reuse{background:var(--soft);border:1px solid #c7d6ff;border-radius:9px;padding:9px 11px}
+  .reuse .h{font-size:11.5px;font-weight:700;color:var(--accent);margin-bottom:5px;display:flex;align-items:center;gap:6px}
+  .reuse .rt{font-size:12px;color:#1e40af;line-height:1.6}
+  .reuse .rt b{color:#1d4ed8}
+
+  /* 可直接改拍的脚本文案 */
+  .shot{background:var(--soft);border:1px solid #c7d6ff;border-radius:10px;padding:10px 12px}
+  .shot .h{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .shot .note{font-size:10.5px;font-weight:400;color:#64748b}
+  .seg{border-top:1px dashed #d4defa;padding:7px 0}
+  .seg:first-of-type{border-top:none}
+  .seg .seg-t{font-size:11px;color:#1d4ed8;font-weight:700;margin-bottom:4px}
+  .seg .seg-t b{background:#2563eb;color:#fff;border-radius:4px;padding:0 6px;font-size:10.5px;margin-right:5px}
+  .sg{font-size:11.5px;color:#1e3a8a;line-height:1.55;margin:2px 0}
+  .sg i{font-style:normal;font-size:10px;color:#64748b;border:1px solid #b9c8ee;border-radius:3px;padding:0 4px;margin-right:6px;white-space:nowrap}
+  .sg.vo{color:#1e40af;font-weight:600}
+  .sg.sub{color:#3730a3}
+  .sg.vo i,.sg.sub i{color:#2563eb;border-color:#2563eb}
+
+  /* 品类筛选 */
+  .pc{cursor:pointer;font-size:12px;padding:5px 12px;border:1px solid var(--line);border-radius:20px;background:#fff;color:var(--sub);margin-right:6px}
+  .pc.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .pc b{font-weight:600;opacity:.7}
+
+  footer{margin-top:26px;color:var(--sub);font-size:11.5px;line-height:1.7;border-top:1px solid var(--line);padding-top:14px}
+  footer code{background:#eef2ff;padding:1px 6px;border-radius:5px;color:#3730a3}
+  .empty{text-align:center;color:var(--sub);padding:40px}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <header>
+    <h1>🎬 短视频素材质量诊断报告</h1>
+    <div class="sub">产出月份 <b id="mLabel">—</b> · 维度：素材（按主体名称，来自飞书「天猫-短视频营销数据」）· 仅展示该月产出、经诊断可复用的好素材</div>
+  </header>
 
-<header>
-  <div>
-    <h1>🎨 设计数据月度反馈
-      <span class="badge-gen" id="genBadge">加载中…</span>
-    </h1>
-    <div class="sub">每月给设计部的素材数据月报 · 短视频素材 × 推广链接表现</div>
+  <div class="guide" id="guide">
+    <div class="gt">💡 <span id="guideTitle">给设计的复用指引</span></div>
+    <div class="gb" id="guideBody">加载中…</div>
   </div>
-  <div class="hd-actions">
-    <a class="btn-hd" href="javascript:history.back()">← 返回</a>
-    <a class="btn-hd" href="index.html">工作台</a>
-    <button class="btn-hd btn-ghost" onclick="exportCsv()">⬇ 导出当前视图 CSV</button>
+
+  <div class="toolbar">
+    <label style="color:var(--sub);font-size:12.5px">产出月份</label>
+    <select id="mSel"></select>
+    <span class="cnt">当月共产出 <b id="prodCnt">0</b> 条 · 达标可复用 <b id="cnt">0</b> 条</span>
   </div>
-</header>
-
-<div class="ctrl">
-  <div class="row1">
-    <div class="tabs" id="monthTabs"></div>
-    <div class="view-tabs">
-      <div class="tabs" id="viewTabs">
-        <button data-v="video" class="active">🎬 短视频素材</button>
-        <button data-v="link">🔗 链接表现</button>
-      </div>
-    </div>
+  <div class="toolbar" style="margin-top:-6px">
+    <label style="color:var(--sub);font-size:12.5px">品类</label>
+    <span id="prodBar" style="display:flex;flex-wrap:wrap;gap:6px"></span>
   </div>
-  <div class="note" id="note"></div>
-</div>
 
-<div id="kpiRow" class="kpi-grid"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">该月份暂无诊断出的好素材</div>
 
-<div id="videoView">
-  <div class="sec">📊 短视频素材月度排行 <span class="cnt" id="vcnt"></span></div>
-  <div class="panel"><div class="tbl-scroll">
-    <table id="vtbl"></table>
-  </div></div>
-  <div class="kpi-grid" id="hotBoxes" style="grid-template-columns:repeat(2,1fr)"></div>
-</div>
-
-<div id="linkView" style="display:none">
-  <div class="sec">📦 推广链接月度表现 <span class="cnt" id="lcnt"></span></div>
-  <div class="panel"><div class="tbl-scroll">
-    <table id="ltbl"></table>
-  </div></div>
-</div>
-
-<div class="footer-note" id="foot"></div>
+  <footer>
+    <div><b>关于本页</b></div>
+    <div>· 数据来源：飞书 Base <code>Dsbub221YaKIaKsTWAYcwvURnJe</code> →「天猫-短视频营销数据」（素材/主体级）。</div>
+    <div>· <b>按月产出、次月复盘</b>：本页按素材「计划开通月份」归到产出月份。例如设计 8 月产出 / 8 月开的计划，在 9 月（次月）生成此诊断报告复盘，不再重复展示更早月份的老素材。</div>
+    <div>· 「可复用」判定：成交数&gt;0 且 ROI≥1 且 点击率≥4% 且 加购率≥10%。</div>
+    <div>· 每张卡透出 <b>视频标题 + 主体ID</b>：点「▶ 打开原片」直达视频页，对照真实画面微调脚本文案。</div>
+    <div>· 卡片内的「可直接改拍的脚本文案」为 AI 依据素材<b>真实标题与卖点</b>自动生成的分镜稿（画面/口播/字幕），供设计直接改拍参考；如需逐字还原原视频口播，需接入登录态视频转写通道（当前环境不可用）。</div>
+    <div>· 缺失项：表中无「平均有效观看时长」字段；「观看量」以「展现量」代理。如需真实素材级完播/时长，请另导万相台素材报表接入。</div>
+  </footer>
 </div>
 
 <script>
-const $ = (id) => document.getElementById(id);
-let DATA = null;
-let curMonth = null;
-let curView = 'video';
-let vSort = { key: 'cost', dir: -1 };
-let lSort = { key: 'cost', dir: -1 };
+let DATA=null, MONTH=null, CAT='';
 
-const PLAT_CLS = { '天猫': 'plat-tm', '拼多多': 'plat-pdd' };
-const fmt = (v, d=2) => {
-  if (v === null || v === undefined || isNaN(v)) return '—';
-  return Number(v).toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
-};
-const f0 = (v) => { if (v === null || v === undefined || isNaN(v)) return '—'; return Number(v).toLocaleString('zh-CN'); };
-const roiCls = (v) => v === null ? '' : (v >= 1.5 ? 'pos' : v >= 1 ? 'mid' : 'neg');
-const money = (v) => (v === null || v === undefined || isNaN(v)) ? '—' : '¥' + fmt(v);
-const pct = (v) => (v === null || v === undefined || isNaN(v)) ? '—' : fmt(v) + '%';
+const fmtPct=v=>v==null?"—":(v*100).toFixed(1)+"%";
+const fmtMoney=v=>v==null?"—":"¥"+Number(v).toFixed(1);
 
-function init() {
-  fetch('data/design-feedback.json', { cache: 'no-store' })
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(d => { DATA = d; afterLoad(); })
-    .catch(e => { $('genBadge').textContent = '数据加载失败'; showError(e); });
+function rateCls(k,v){
+  if(v==null) return "";
+  if(k==="ctr") return v>=0.06?"pos":v>=0.03?"mid":"neg";
+  if(k==="cart_rate") return v>=0.20?"pos":v>=0.10?"mid":"neg";
+  if(k==="conv_rate") return v>=0.10?"pos":v>=0.04?"mid":"neg";
+  if(k==="roi") return v>=2?"pos":v>=1.2?"mid":"neg";
+  if(k==="deal_cost") return v>0&&v<=16?"pos":v>28?"neg":"mid";
+  if(k==="cart_cost") return v>0&&v<=6?"pos":v>10?"neg":"mid";
+  return "";
 }
 
-function showError(e) {
-  const k = $('kpiRow');
-  k.innerHTML = '<div class="empty" style="grid-column:1/-1">⚠ 读取 data/design-feedback.json 失败：' + e.message +
-    '<br>请确认数据文件已生成（gen_design_feedback.py）且通过本地服务访问（http://localhost:3588）。</div>';
-}
+function render(){
+  const mSel=document.getElementById("mSel");
+  // 产出月份列表（降序，最新在前）
+  const months=DATA.report_months||[];
+  if(!months.includes(MONTH)) MONTH=months[0];
+  mSel.innerHTML=months.map(m=>`<option value="${m}" ${m===MONTH?"selected":""}>${m} 产出</option>`).join("");
+  document.getElementById("mLabel").textContent=MONTH+" 产出";
 
-function afterLoad() {
-  $('genBadge').textContent = '生成于 ' + (DATA.generated || '');
-  const months = DATA.months || [];
-  curMonth = months.length ? months[months.length - 1] : null;
-  // 月份 tab
-  const mt = $('monthTabs');
-  mt.innerHTML = months.map(m => `<button data-m="${m}" class="${m === curMonth ? 'active' : ''}">${m.replace('-', '年')}月</button>`).join('') || '<button class="active">无数据</button>';
-  mt.querySelectorAll('button').forEach(b => b.onclick = () => {
-    mt.querySelectorAll('button').forEach(x => x.classList.remove('active'));
-    b.classList.add('active'); curMonth = b.dataset.m; render();
-  });
-  $('viewTabs').querySelectorAll('button').forEach(b => b.onclick = () => {
-    $('viewTabs').querySelectorAll('button').forEach(x => x.classList.remove('active'));
-    b.classList.add('active'); curView = b.dataset.v; render();
-  });
-  // 说明
-  $('note').innerHTML = `<b>数据源</b>：${DATA.source || ''}；${DATA.note || ''}
-    <br><b>当前口径</b>：8 月为部分窗口（源表自 08-08 起）；本月数据随每日同步自动增长，月底即为整月。`;
-  $('foot').textContent = '数据由 gen_design_feedback.py 从飞书推广源表按月聚合生成 · 展示口径：付费推广成交';
-  render();
-}
+  const monthGood=DATA.good_list.filter(g=>g.produce_month===MONTH).sort((a,b)=>b.roi-a.roi);
+  // 品类按钮（当月实际有的品类）
+  const prodCount={}; monthGood.forEach(g=>{prodCount[g.product||"其他"]=(prodCount[g.product||"其他"]||0)+1;});
+  const prods=Object.keys(prodCount).sort();
+  if(!prods.includes(CAT)&&CAT!==undefined&&CAT!=='') CAT='';
+  document.getElementById("prodBar").innerHTML=
+    `<button class="pc ${CAT===''?'on':''}" data-cat="">全部 <b>${monthGood.length}</b></button>`+
+    prods.map(p=>`<button class="pc ${CAT===p?'on':''}" data-cat="${p}">${p} <b>${prodCount[p]}</b></button>`).join("");
+  document.querySelectorAll("#prodBar .pc").forEach(btn=>btn.onclick=()=>{CAT=btn.dataset.cat;render();});
 
-function visibleRows() {
-  const arr = curView === 'video' ? (DATA.videos || []) : (DATA.links || []);
-  return arr.filter(x => x.month === curMonth);
-}
+  const good=CAT?monthGood.filter(g=>(g.product||"其他")===CAT):monthGood;
+  const dg=DATA.diag_by_month[MONTH]||{};
+  document.getElementById("cnt").textContent=good.length;
+  document.getElementById("prodCnt").textContent=dg.total_produced||monthGood.length;
+  document.getElementById("empty").style.display=good.length?"none":"block";
+  document.getElementById("empty").textContent=good.length? "":"该品类/月份暂无诊断出的好素材";
 
-function render() {
-  const rows = visibleRows();
-  const isV = curView === 'video';
-  $('videoView').style.display = isV ? '' : 'none';
-  $('linkView').style.display = isV ? 'none' : '';
-  if (!curMonth) {
-    $('kpiRow').innerHTML = '<div class="empty">暂无数据</div>'; return;
-  }
-  renderKpi(rows, isV);
-  if (isV) renderVideoTbl(rows); else renderLinkTbl(rows);
-  if (isV) renderHot(rows);
-}
-
-function sum(rows, k) { return rows.reduce((a, x) => a + (x[k] || 0), 0); }
-
-function renderKpi(rows, isV) {
-  const k = $('kpiRow');
-  if (!rows.length) { k.innerHTML = `<div class="empty" style="grid-column:1/-1">该月暂无数据</div>`; return; }
-  const cost = sum(rows, 'cost'), gmv = sum(rows, 'gmv'), ord = sum(rows, 'orders'),
-        impr = sum(rows, 'impressions'), clk = sum(rows, 'clicks');
-  const roi = cost ? gmv / cost : null;
-  const cnt = isV ? rows.length : rows.length;
-  const cards = [
-    { l: isV ? '投放素材数' : '推广链接数', v: f0(cnt), s: curMonth },
-    { l: '总花费', v: money(cost) },
-    { l: '总成交额', v: money(gmv) },
-    { l: '整体 ROI', v: roi === null ? '—' : fmt(roi), s: '成交/花费', extra: roiCls(roi) },
-    { l: '成交笔数', v: f0(ord) },
-    { l: '曝光 / 点击', v: f0(impr) + ' / ' + f0(clk), s: clk && impr ? '点击率 ' + pct(clk / impr * 100) : '' },
-  ];
-  k.innerHTML = cards.map(c =>
-    `<div class="kpi"><div class="l">${c.l}</div><div class="v ${c.extra || ''}">${c.v}</div>${c.s ? `<div class="s">${c.s}</div>` : ''}</div>`).join('');
-}
-
-function renderVideoTbl(rows) {
-  const s = vSort;
-  const list = [...rows].sort((a, b) => cmpBy(a, b, s.key) * s.dir);
-  $('vcnt').textContent = list.length + ' 条素材';
-  const ths = [
-    ['rank', '排行'], ['plan', '短视频素材（计划）'], ['product', '产品'],
-    ['cost', '花费'], ['gmv', '总成交'], ['roi', 'ROI'], ['orders', '成交笔数'],
-    ['impressions', '曝光'], ['clicks', '点击'], ['ctr', '点击率'], ['cpc', '平均点击花费'],
-  ];
-  const head = '<tr>' + ths.map(([k, t]) => {
-    const arr = s.key === k ? (s.dir === 1 ? '↑' : '↓') : '';
-    return `<th data-k="${k}">${t}<span class="arr">${arr}</span></th>`;
-  }).join('') + '</tr>';
-  const body = list.map((x, i) => {
-    const r = i < 3 ? `rk${i + 1}` : 'rk';
-    const plan = x.owner
-      ? `<span class="owner-chip">${x.owner}</span> <span class="plan-nm">${x.plan || '—'}</span>`
-      : `<span class="plan-nm">${x.plan || '—'}</span>`;
-    return `<tr>
-      <td><span class="rank ${r}">${i + 1}</span></td>
-      <td class="left">${plan}</td>
-      <td class="left">${x.product || '—'}</td>
-      <td class="num">${money(x.cost)}</td>
-      <td class="num pos">${money(x.gmv)}</td>
-      <td class="${roiCls(x.roi)}">${x.roi === null ? '—' : fmt(x.roi)}</td>
-      <td class="num">${f0(x.orders)}</td>
-      <td class="num">${f0(x.impressions)}</td>
-      <td class="num">${f0(x.clicks)}</td>
-      <td class="num">${pct(x.ctr)}</td>
-      <td class="num">${money(x.cpc)}</td>
-    </tr>`;
-  }).join('');
-  const tbl = $('vtbl');
-  tbl.innerHTML = head + body;
-  tbl.querySelectorAll('thead th').forEach(th => th.onclick = () => {
-    const k = th.dataset.k; if (!k) return;
-    if (vSort.key === k) vSort.dir *= -1; else { vSort.key = k; vSort.dir = k === 'plan' ? 1 : -1; }
-    renderVideoTbl(list);
-  });
-  $('vcnt').textContent = list.length + ' 条素材';
-}
-
-function renderLinkTbl(rows) {
-  const s = lSort;
-  const list = [...rows].sort((a, b) => cmpBy(a, b, s.key) * s.dir);
-  $('lcnt').textContent = list.length + ' 个链接';
-  const ths = [
-    ['rank', '排行'], ['link', '链接 ID / 产品'], ['scenes', '投放场景'],
-    ['cost', '花费'], ['gmv', '总成交'], ['roi', 'ROI'], ['orders', '成交笔数'],
-    ['impressions', '曝光'], ['clicks', '点击'], ['plan_count', '计划数'],
-  ];
-  const head = '<tr>' + ths.map(([k, t]) => {
-    const arr = s.key === k ? (s.dir === 1 ? '↑' : '↓') : '';
-    return `<th data-k="${k}">${t}<span class="arr">${arr}</span></th>`;
-  }).join('') + '</tr>';
-  const body = list.map((x, i) => {
-    const r = i < 3 ? `rk${i + 1}` : 'rk';
-    const url = x.url ? `<a class="lnk" href="${x.url}" target="_blank" rel="noopener">${x.link_id}</a>` : x.link_id;
-    const scenes = (x.scenes || []).map(sc => `<span class="chip">${sc}</span>`).join('');
-    return `<tr>
-      <td><span class="rank ${r}">${i + 1}</span></td>
-      <td class="left">
-        <span class="plat-tag ${PLAT_CLS[x.platform] || ''}">${x.platform}</span> ${url}
-        <div class="prod">${x.product || '—'}</div>
-      </td>
-      <td class="left">${scenes || '—'}</td>
-      <td class="num">${money(x.cost)}</td>
-      <td class="num pos">${money(x.gmv)}</td>
-      <td class="${roiCls(x.roi)}">${x.roi === null ? '—' : fmt(x.roi)}</td>
-      <td class="num">${f0(x.orders)}</td>
-      <td class="num">${f0(x.impressions)}</td>
-      <td class="num">${f0(x.clicks)}</td>
-      <td class="num">${f0(x.plan_count)}</td>
-    </tr>`;
-  }).join('');
-  const tbl = $('ltbl');
-  tbl.innerHTML = head + body;
-  tbl.querySelectorAll('thead th').forEach(th => th.onclick = () => {
-    const k = th.dataset.k; if (!k) return;
-    if (lSort.key === k) lSort.dir *= -1; else { lSort.key = k; lSort.dir = k === 'link' ? 1 : -1; }
-    renderLinkTbl(list);
-  });
-}
-
-function cmpBy(a, b, k) {
-  if (k === 'plan' || k === 'link') return String(a[k] || '').localeCompare(String(b[k] || ''), 'zh');
-  const av = a[k], bv = b[k];
-  if (av === null || av === undefined) return 1;
-  if (bv === null || bv === undefined) return -1;
-  return av - bv;
-}
-
-function renderHot(rows) {
-  const k = $('hotBoxes');
-  const active = rows.filter(x => x.cost > 0);
-  const top = [...active].sort((a, b) => (b.gmv || 0) - (a.gmv || 0)).slice(0, 5);
-  const worst = [...active].sort((a, b) => (a.roi === null ? 0 : a.roi) - (b.roi === null ? 0 : b.roi)).slice(0, 5);
-  const box = (title, cls, list, fmtRow) => `
-    <div class="kpi" style="padding:14px 16px">
-      <div class="l" style="font-weight:800;font-size:13px">${title}</div>
-      <div style="margin-top:10px">${list.map((x, i) => `<div style="display:flex;align-items:baseline;gap:8px;padding:4px 0;border-bottom:1px dashed #f1f5f9">
-        <span class="rank ${i < 3 ? 'rk' + (i + 1) : 'rk'}" style="width:18px;height:18px;line-height:18px">${i + 1}</span>
-        <span style="flex:1;font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-          ${x.owner ? `<span class="owner-chip" style="font-size:10px;height:17px;min-width:22px">${x.owner}</span>` : ''} ${x.plan || '—'}</span>
-        <span style="font-size:11px;color:#94a3b8">${fmtRow(x)}</span>
-      </div>`).join('') || '<div class="empty" style="padding:10px">无</div>'}</div>
+  const grid=document.getElementById("grid");
+  grid.innerHTML=good.map(r=>{
+    const ct=(r.creative_tags||[]).map((t,i)=>`<span class="chip ${i?'o':''}">${t}</span>`).join("");
+    const owners=(r.owners||[]).map(o=>`<span class="chip g">${o}</span>`).join("")||'<span class="chip m">未标注</span>';
+    const why=(r.why||[]).map(w=>`<li>${w}</li>`).join("");
+    const M=[
+      ["点击率",fmtPct(r.ctr),"ctr"],["加购率",fmtPct(r.cart_rate),"cart_rate"],["转化率",fmtPct(r.conv_rate),"conv_rate"],
+      ["加购成本",fmtMoney(r.cart_cost),"cart_cost"],["成交成本",fmtMoney(r.deal_cost),"deal_cost"],["ROI",r.roi==null?"—":r.roi.toFixed(2),"roi"],
+    ];
+    const sec=[["观看量",(r.view||0).toLocaleString()],["花费",fmtMoney(r.cost)]];
+    return `<div class="card">
+      <div class="vhead">
+        <div>
+          <div class="vtitle" title="${r.body_name}">${r.body_name}</div>
+          <div class="vid">视频ID ${r.body_id}<span class="copy" onclick="navigator.clipboard.writeText('${r.body_id}')">复制</span>${r.video_link?`<a class="play" href="${r.video_link}" target="_blank" rel="noopener">▶ 打开原片</a>`:""}</div>
+        </div>
+        <span class="badge">可复用</span>
+      </div>
+      <div class="meta"><span class="chip o">${r.product||"其他"}</span>${owners}${ct}<span class="chip m">${r.plans}个计划</span></div>
+      <div class="metrics">
+        ${M.map(([k,v,key])=>`<div class="m"><div class="k">${k}</div><div class="v ${rateCls(key,typeof v==='string'?parseFloat(v):v)}">${v}</div></div>`).join("")}
+      </div>
+      <div class="metrics" style="margin-bottom:12px">
+        ${sec.map(([k,v])=>`<div class="m sec"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}
+      </div>
+      <div class="why"><div class="h">✅ 为什么好</div><ul>${why||"<li>综合指标达标</li>"}</ul></div>
+      <div class="shot"><div class="h">🎬 可直接改拍的脚本文案<span class="note">AI 据素材真实标题/卖点生成 · 原片见▶可对照微调</span></div>
+        ${(r.shot||[]).map(s=>`<div class="seg">
+          <div class="seg-t"><b>${s.t}</b>${s.role}</div>
+          <div class="sg"><i>画面</i>${s.visual}</div>
+          <div class="sg vo"><i>口播</i>${s.vo}</div>
+          <div class="sg sub"><i>字幕</i>${s.sub}</div>
+        </div>`).join("")}
+      </div>
     </div>`;
-  k.innerHTML =
-    box('🏆 成交最好的素材（Top5）', 'pos', top, x => `<b class="pos">${money(x.gmv)}</b> · ROI ${x.roi === null ? '—' : fmt(x.roi)}`) +
-    box('⚠ ROI 最低的素材（需复盘）', 'neg', worst, x => `ROI <b class="neg">${x.roi === null ? '—' : fmt(x.roi)}</b> · ${money(x.cost)}`);
+  }).join("");
+  renderGuide();
 }
 
-function exportCsv() {
-  const rows = visibleRows();
-  if (!rows.length) return alert('当前视图暂无数据');
-  const isV = curView === 'video';
-  let header, cells;
-  if (isV) {
-    header = ['月份','平台','素材计划','设计人','产品','花费','总成交','ROI','成交笔数','曝光','点击','点击率%','平均点击花费'];
-    cells = r => [r.month, r.platform, r.plan, r.owner, r.product, r.cost, r.gmv, r.roi, r.orders, r.impressions, r.clicks, r.ctr, r.cpc];
-  } else {
-    header = ['月份','平台','链接ID','产品','花费','总成交','ROI','成交笔数','曝光','点击','投放场景','计划数'];
-    cells = r => [r.month, r.platform, r.link_id, r.product, r.cost, r.gmv, r.roi, r.orders, r.impressions, r.clicks, (r.scenes||[]).join('/'), r.plan_count];
-  }
-  const esc = v => { const s = v === null || v === undefined ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
-  const csv = [header, ...rows.map(cells)].map(r => r.map(esc).join(',')).join('\n');
-  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `设计月度反馈_${curView}_${curMonth}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+function renderGuide(){
+  const dg=DATA.diag_by_month[MONTH]||{};
+  document.getElementById("guideTitle").textContent=`给设计的复用指引（${MONTH} 产出 · 次月复盘）`;
+  const b=document.getElementById("guideBody");
+  if(!dg.common){b.textContent="（暂无聚合诊断）";return;}
+  const tags=(dg.top_creative||[]).slice(0,3).map(([t,n])=>`<span class="gtag">${t} ${n}条</span>`).join("");
+  b.innerHTML=tags+"<br>"+dg.common;
 }
 
-init();
+fetch("data/design-feedback.json").then(r=>r.json()).then(d=>{
+  DATA=d; MONTH=d.diag_month||(d.report_months&&d.report_months[0]);
+  document.getElementById("mSel").onchange=e=>{MONTH=e.target.value;render();};
+  render();
+}).catch(e=>{
+  document.getElementById("guideBody").textContent="数据加载失败："+e.message;
+});
 </script>
 </body>
 </html>

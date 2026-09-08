@@ -470,6 +470,77 @@ const BOARDS = {
       { key: 'phone', label: '手机', type: 'text', width: 130 },
       { key: 'note', label: '备注', type: 'textarea' }
     ]
+  },
+
+  /* —— 运营打品分析：我方登记商品 vs 同行对标 —— */
+  'daping-analysis': {
+    num: 22, title: '运营打品分析', subtitle: 'Product Battlecard', group: '增长营销',
+    accent: 'pink', status: 'live', icon: '🎯',
+    desc: '登记打品数据（售价/月销/利润/推广），并录入同行对标，自动算出价差·销量差·利润率差，一眼看出我们领先还是落后',
+    future: '打品登记表（\\\\192.168.10.146\\杭州橙萤家居\\运营部\\2-零售部\\3-天猫\\9-打品登记表）→ 一键导入',
+    filterGroups: [
+      { key: 'platform', label: '平台' },
+      { key: 'category', label: '品类' },
+      { key: 'status', label: '状态' }
+    ],
+    fields: [
+      { key: 'product', label: '产品名', type: 'text', width: 130 },
+      { key: 'category', label: '品类', type: 'select', width: 110, options: ['窗帘', '沙发', '床品/四件套', '地毯/地垫', '收纳', '灯具', '靠垫/抱枕', '其他'] },
+      { key: 'platform', label: '平台', type: 'select', width: 90, options: ['天猫', '拼多多', '抖音', '京东'] },
+      { key: 'link', label: '商品链接', type: 'text', width: 200 },
+      { key: 'our_price', label: '我方售价(元)', type: 'number', width: 110 },
+      { key: 'our_msales', label: '我方月销量', type: 'number', width: 100 },
+      { key: 'our_gmv', label: '我方月销售额', type: 'computed', width: 115,
+        compute: function (r) { var p = parseFloat(r.our_price), s = parseFloat(r.our_msales); return (p && s) ? '¥' + (p * s).toLocaleString('zh-CN') : '—'; } },
+      { key: 'our_margin', label: '我方利润率%', type: 'number', width: 100 },
+      { key: 'our_promo', label: '我方推广占比%', type: 'number', width: 110 },
+      { key: 'our_roi', label: '我方ROI', type: 'number', width: 90 },
+      { key: 'rival_shop', label: '对标同行/店铺', type: 'text', width: 130 },
+      { key: 'rival_price', label: '同行售价(元)', type: 'number', width: 110 },
+      { key: 'rival_msales', label: '同行月销量', type: 'number', width: 100 },
+      { key: 'rival_margin', label: '同行利润率%', type: 'number', width: 100 },
+      { key: 'rival_promo', label: '同行推广占比%', type: 'number', width: 110 },
+      { key: 'cmp_price', label: '价差(元)', type: 'computed', width: 125,
+        compute: function (r) {
+          var a = parseFloat(r.our_price), b = parseFloat(r.rival_price);
+          if (!a || !b) return '—';
+          var d = a - b, pct = d / b * 100;
+          var col = d < 0 ? '#16a34a' : (d > 0 ? '#dc2626' : '#6b7280');
+          return '<span style="color:' + col + ';font-weight:600">' + (d > 0 ? '+' : '') + d.toFixed(0) + ' (' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '%)</span>';
+        } },
+      { key: 'cmp_msales', label: '销量差', type: 'computed', width: 110,
+        compute: function (r) {
+          var a = parseFloat(r.our_msales), b = parseFloat(r.rival_msales);
+          if (!a || !b) return '—';
+          var d = a - b, pct = b ? d / b * 100 : 0;
+          var col = d >= 0 ? '#16a34a' : '#dc2626';
+          return '<span style="color:' + col + ';font-weight:600">' + (d > 0 ? '+' : '') + d.toFixed(0) + ' (' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '%)</span>';
+        } },
+      { key: 'cmp_margin', label: '利润率差(pp)', type: 'computed', width: 115,
+        compute: function (r) {
+          var a = parseFloat(r.our_margin), b = parseFloat(r.rival_margin);
+          if (isNaN(a) || isNaN(b)) return '—';
+          var d = a - b;
+          var col = d >= 0 ? '#16a34a' : '#dc2626';
+          return '<span style="color:' + col + ';font-weight:600">' + (d > 0 ? '+' : '') + d.toFixed(1) + 'pp</span>';
+        } },
+      { key: 'verdict', label: '综合判断', type: 'computed', width: 150,
+        compute: function (r) {
+          var a = parseFloat(r.our_margin), b = parseFloat(r.rival_margin);
+          var ap = parseFloat(r.our_price), bp = parseFloat(r.rival_price);
+          if (isNaN(a) || isNaN(b) || !ap || !bp) return '<span style="color:#9ca3af">—</span>';
+          var priceOk = ap <= bp * 1.05, marginOk = a >= b;
+          var label, col, bg;
+          if (marginOk && priceOk) { label = '✅ 全面领先'; col = '#15803d'; bg = '#dcfce7'; }
+          else if (marginOk) { label = '🟢 利润占优'; col = '#16a34a'; bg = '#dcfce7'; }
+          else if (ap < bp) { label = '🟡 价优·利弱'; col = '#b45309'; bg = '#fef3c7'; }
+          else if (a < b - 5) { label = '🔴 落后待优化'; col = '#dc2626'; bg = '#fee2e2'; }
+          else { label = '⚠️ 基本持平'; col = '#6b7280'; bg = '#f3f4f6'; }
+          return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;background:' + bg + ';color:' + col + ';font-weight:600;font-size:12px;white-space:nowrap;">' + label + '</span>';
+        } },
+      { key: 'status', label: '状态', type: 'select', width: 100, options: ['测款中', '起量中', '稳定盈利', '衰退预警', '待优化'] },
+      { key: 'note', label: '备注', type: 'text', width: 160 }
+    ]
   }
 };
 

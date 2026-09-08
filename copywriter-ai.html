@@ -74,14 +74,14 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609081814"></script>
+<script src="js/freshness-alert.js?v=202609082133"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
       <a class="back" href="index.html">← 返回</a>
       <div>
         <h1>文案智能体 <span class="badge">直接出稿</span></h1>
-        <div class="sub">填好产品信息 → 点「生成文案」→ 直接输出抖音脚本 / 电商详情文案</div>
+        <div class="sub">选好投放平台 → 填产品信息 → 点「生成文案」→ 直接按平台出稿</div>
       </div>
     </div>
   </header>
@@ -153,14 +153,28 @@
       </div>
 
       <div class="row2">
-        <div class="fld"><label>要哪种稿</label>
-          <select id="fOut">
-            <option value="both">出口A抖音脚本 + 出口B详情页（都要）</option>
-            <option value="A">只要出口A：抖音脚本（2版）</option>
-            <option value="B">只要出口B：标题+详情页文案</option>
-            <option value="xhs">出口C：小红书笔记</option>
+        <div class="fld"><label>投放平台 *</label>
+          <select id="fPlatform">
+            <option value="douyin">抖音（短视频脚本 + 标题 + 话题）</option>
+            <option value="xhs">小红书（图文笔记 + 标题 + 标签）</option>
+            <option value="tb">淘宝/天猫（标题 + 主图卖点 + 详情页）</option>
+            <option value="video">微信视频号（短视频脚本 + 标题）</option>
+            <option value="kuaishou">快手（短视频脚本 + 标题）</option>
+            <option value="pdd">拼多多（标题 + 详情页短文）</option>
+            <option value="all">全平台通发（抖音+小红书+淘宝 一次给齐）</option>
           </select>
         </div>
+        <div class="fld"><label>生成脚本数量</label>
+          <select id="fNum">
+            <option value="1">1 版</option>
+            <option value="2" selected>2 版</option>
+            <option value="3">3 版</option>
+            <option value="5">5 版</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row2">
         <div class="fld"><label>风格语气</label>
           <select id="fTone">
             <option value="">默认（真实痛点 + 有画面）</option>
@@ -170,10 +184,9 @@
             <option>批发招商：讲利润、讲复购</option>
           </select>
         </div>
-      </div>
-
-      <div class="fld"><label>补充要求 / 其他想说的</label>
-        <input id="fExtra" placeholder="例：突出租房改造，别用太夸张的词">
+        <div class="fld"><label>补充要求 / 其他想说的</label>
+          <input id="fExtra" placeholder="例：突出租房改造，别用太夸张的词">
+        </div>
       </div>
 
       <div class="gen-bar">
@@ -263,8 +276,33 @@
       ['真实卖点', val('fPoints')], ['买家常夸', val('fGood')], ['差评/常问痛点', val('fBad')]
     ];
     fields.forEach(function(p){ if(p[1]) seg.push(p[0]+'：'+p[1]); });
-    var out = val('fOut'), tone = val('fTone'), extra = val('fExtra');
-    var outTxt = {both:'出口A抖音脚本(2版) + 出口B详情页文案(标题/首图/5条卖点/规格提醒)',A:'出口A：抖音脚本2版（前3秒钩子/画面/口播/字幕/CTA）',B:'出口B：电商详情文案（标题关键词/首图卖点字/5条卖点/规格提醒）',xhs:'出口C：小红书笔记（标题+正文+标签，重收藏感）'}[out] || '出口A+出口B';
+    var plat = val('fPlatform'), tone = val('fTone'), extra = val('fExtra');
+    var num = parseInt(val('fNum'), 10) || 2;
+    var PLAT = {
+      douyin:{ name:'抖音',
+        out:'抖音短视频脚本（2版，每版含：3秒钩子 / 画面分镜 / 口播文案 / 字幕 / CTA）+ 视频标题（5个，含悬念型+利益型）+ 发布话题标签（3-5个）',
+        sys:'平台调性：抖音节奏快，前3秒决定划走。脚本必须强钩子开场、画面具体可拍、口播口语化有梗、结尾给明确动作（点赞/收藏/进店）。' },
+      xhs:{ name:'小红书',
+        out:'小红书图文笔记：标题（5个，重痛点/好奇/收藏感）+ 正文（分段+emoji+步骤感+可收藏）+ 话题标签（8-12个，品类词+场景词）+ 封面抓眼文案（一句）',
+        sys:'平台调性：小红书重真实分享与收藏价值，像朋友安利。第一人称、生活化、emoji分段，强调"我用了真的好"，标题要让人想点想存。' },
+      tb:{ name:'淘宝/天猫',
+        out:'电商标题（1个30字内主标题含核心关键词 + 3个长尾备选）+ 主图卖点字（5张主图各一句卖点文案）+ 详情页5条卖点（痛点→解决方案）+ 规格/售后提醒',
+        sys:'平台调性：淘宝天猫重搜索关键词与转化。标题堆核心词+属性词+场景词；主图卖点字要一眼懂；详情页用"痛点-证据-承诺"推进下单。' },
+      video:{ name:'微信视频号',
+        out:'视频号短视频脚本（2版，含3秒钩子/画面/口播/字幕/CTA）+ 视频标题（3个）+ 转发引导语（适合朋友圈/社群的一句话）',
+        sys:'平台调性：视频号社交裂变强、熟人传播。脚本可带"转发给需要的人"钩子，语气可信赖像邻里推荐，适合家庭/装修/收纳场景。' },
+      kuaishou:{ name:'快手',
+        out:'快手短视频脚本（2版，老铁语气真实接地气，含3秒钩子/画面/口播/字幕/CTA）+ 视频标题（3个）+ 话题标签（3-5个）',
+        sys:'平台调性：快手重老铁信任、真实不装。脚本口语化接地气讲实惠，多用"咱/老铁"，结尾引导关注/进店。' },
+      pdd:{ name:'拼多多',
+        out:'拼多多标题（1个含核心词+低价词如工厂直供/9.9/包邮）+ 详情页短文（5条卖点突出便宜好用+销量背书）+ 白底图卖点字（3-5句）',
+        sys:'平台调性：拼多多重低价与转化效率。标题突出工厂/直供/9.9/包邮等词；文案短平快讲性价比，少修饰多证据。' },
+      all:{ name:'全平台通发',
+        out:'一次给齐三套：①抖音短视频脚本2版+标题5个+话题；②小红书笔记标题5个+正文+标签；③淘宝/天猫主标题+主图卖点字+详情页5卖点',
+        sys:'分平台输出：下面分别给抖音、小红书、淘宝三套稿件，各自遵循对应平台调性，用【抖音】【小红书】【淘宝】分段。' }
+    };
+    var p = PLAT[plat] || PLAT['douyin'];
+    if (num !== 2) p = { name:p.name, sys:p.sys, out: p.out.replace(/2版/g, num + '版') };
     var toneTxt = { '':'语气自然、真实痛点优先', '实在理工男':'语气实在理工，参数讲透但不夸张，像懂行的朋友推荐', '妈妈口吻':'妈妈口吻，懂过日子、会心疼钱、说人话', '年轻网感':'年轻网感，短平快、有梗、不端着', '批发招商':'面向批发/招商客户，讲利润空间、走量、复购' }[tone] || '';
 
     var system = '你是资深电商文案总监，服务「橙萤」家居贴纸/墙贴/贴膜店铺。\n\n' +
@@ -282,10 +320,12 @@
       '3. 顾虑消解法：把差评/常问里的顾虑正面回答进文案。\n' +
       '4. 每版稿都要：3秒能懂是什么、有场景代入、有行动指令。\n' +
       '5. 直接给成品稿，不要先解释思路；如有不确定，在稿末用【待你核实】列出问题清单。\n' +
-      '6. 卖点写实，宁可少写一句也不假大空（"全网第一""绝对不掉"等禁用）。';
+      '6. 卖点写实，宁可少写一句也不假大空（"全网第一""绝对不掉"等禁用）。' +
+      '7. 短视频脚本默认时长 15-30 秒（除非【补充】里另有要求）；节奏紧凑、单条不注水，钩子前置。' +
+      '\n\n【本次平台调性 · 必须遵守】\n' + p.sys;
 
     var user = '【产品信息】\n' + seg.join('\n') + '\n\n' +
-      '【出口要求】' + outTxt + '\n' +
+      '【输出要求（' + p.name + '）】' + p.out + '\n' +
       (tone ? '【语气】' + toneTxt + '\n' : '') +
       (extra ? '【补充】' + extra + '\n' : '') +
       '\n请按上面要求，走五步思考后直接输出最终稿：' +
@@ -436,13 +476,13 @@
     set('fPoints','静电免胶不伤瓷砖/一贴就上墙/撕拉线设计想换就换不留胶/透明不影响原墙/油污一擦即净/按米卖不浪费');
     set('fGood','贴上很透，不显眼/油点子一擦就掉');
     set('fBad','总问贴久了会不会掉/有人说贴不平有气泡/担心撕下来留胶印/问能不能贴乳胶漆墙');
-    set('fOut','both');
+    set('fPlatform','douyin');
     set('fExtra','突出租房党也能用、退租一撕就干净');
     statusLine(null); errLine(null);
   };
   window.clearAll = function(){
     ['fName','fSpec','fMaterial','fScene','fPeople','fPrice','fPoints','fGood','fBad','fExtra'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
-    document.getElementById('fOut').value='both'; document.getElementById('fTone').value='';
+    document.getElementById('fPlatform').value='douyin'; document.getElementById('fNum').value='2'; document.getElementById('fTone').value='';
     statusLine(null); errLine(null);
   };
 

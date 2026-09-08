@@ -250,79 +250,91 @@ const BOARDS = {
     ]
   },
 
-  /* —— 组3：供应链中心 —— */
-  'product-pipeline': {
-    num: 7, title: '新品项目追踪', subtitle: 'Product Pipeline', group: '供应链中心',
-    accent: 'green', status: 'live', icon: '🆕',
-    desc: '新品从立项到盈利的全项目管控（基建期→打品期→盈利期）',
-    future: '收集反馈 → 判断责任人 → 写入飞书 Base → 加速推进',
+  /* —— 运营打品分析：我方登记商品 vs 同行对标 —— */
+  'daping-analysis': {
+    num: 22, title: '运营打品分析', subtitle: 'Product Battlecard', group: '增长营销',
+    accent: 'pink', status: 'live', icon: '🎯',
+    desc: '登记打品数据（售价/月销/利润/推广），并录入同行对标，自动算出价差·销量差·利润率差，一眼看出我们领先还是落后',
+    future: '打品登记表（\\\\192.168.10.146\\杭州橙萤家居\\运营部\\2-零售部\\3-天猫\\9-打品登记表）→ 一键导入',
     filterGroups: [
-      { key: 'cycle', label: '周期' },
-      { key: 'platform', label: '平台', options: ['拼多多', '天猫'] }
+      { key: 'platform', label: '平台' },
+      { key: 'category', label: '品类' },
+      { key: 'status', label: '状态' }
     ],
     fields: [
-      { key: 'product', label: '产品', type: 'text', width: 130 },
-      { key: 'cycle', label: '周期', type: 'select', options: ['基建期', '打品期', '盈利期'], width: 90 },
-      { key: 'stage', label: '环节', type: 'select', width: 190, options: [
-        '基建期·市场调研', '基建期·竞品确认', '基建期·产品图册', '基建期·链接素材',
-        '基建期·样品', '基建期·成本', '基建期·编码', '基建期·库存',
-        '基建期·产品手册', '基建期·客服同步', '基建期·上架准备',
-        '打品期·测款验证', '打品期·投流自动化', '打品期·评价口碑',
-        '打品期·活动节奏', '打品期·监控预警工单', '打品期·打品复盘',
-        '盈利期·销售BI', '盈利期·利润BI', '盈利期·库存周转BI',
-        '盈利期·竞品市场BI', '盈利期·盈利预警决策'
-      ] },
-      { key: 'subtasks', label: '子任务', type: 'computed', width: 110, compute: function(r) {
-        var s = r.subtasks || {}; var ks = Object.keys(s).filter(function(k){ return k.charAt(0) !== '_'; });
-        if (!ks.length) return '—';
-        var d = ks.filter(function(k){ return s[k]; }).length;
-        return d + '/' + ks.length;
-      } },
-      { key: 'owner', label: '负责人', type: 'text', width: 90 },
-      { key: 'planDue', label: '计划完成', type: 'date', width: 120 },
-      { key: 'actualDue', label: '实际完成', type: 'date', width: 120 },
-      { key: 'status', label: '状态', type: 'computed', width: 110, compute: function(r) {
-        var d = new Date();
-        var t = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        var s = r.subtasks || {}; var ks = Object.keys(s).filter(function(k){ return k.charAt(0) !== '_'; });
-        var done = r.actualDue || (r.subtasks && r.subtasks._done) || (ks.length && ks.every(function(k){ return s[k]; }));
-        if (done) return '<span style="color:#15803d;font-weight:600">✅ 完成</span>';
-        if (r.planDue && r.planDue < t) return '<span style="color:#dc2626;font-weight:600">🔴 逾期</span>';
-        if (r.planDue) { var diff = Math.ceil((new Date(r.planDue) - new Date(t)) / 86400000); if (diff <= 7) return '<span style="color:#d97706;font-weight:600">⚠️ 即将到期</span>'; }
-        var any = ks.some(function(k){ return s[k]; });
-        if (any || (r.subtasks && r.subtasks._started)) return '<span style="color:#6b7280;font-weight:600">➡️ 进行中</span>';
-        return '<span style="color:#9ca3af;font-weight:600">⚪ 未开始</span>';
-      } },
-      { key: 'note', label: '备注', type: 'text' }
+      { key: 'product', label: '产品名', type: 'text', width: 130 },
+      { key: 'category', label: '品类', type: 'select', width: 110, options: ['窗帘', '沙发', '床品/四件套', '地毯/地垫', '收纳', '灯具', '靠垫/抱枕', '其他'] },
+      { key: 'platform', label: '平台', type: 'select', width: 90, options: ['天猫', '拼多多', '抖音', '京东'] },
+      { key: 'link', label: '商品链接', type: 'text', width: 200 },
+      // —— 我方数据 ——
+      { key: 'our_price', label: '我方售价(元)', type: 'number', width: 110 },
+      { key: 'our_msales', label: '我方月销量', type: 'number', width: 100 },
+      { key: 'our_gmv', label: '我方月销售额', type: 'computed', width: 115,
+        compute: function (r) { var p = parseFloat(r.our_price), s = parseFloat(r.our_msales); return (p && s) ? '¥' + (p * s).toLocaleString('zh-CN') : '—'; } },
+      { key: 'our_margin', label: '我方利润率%', type: 'number', width: 100 },
+      { key: 'our_promo', label: '我方推广占比%', type: 'number', width: 110 },
+      { key: 'our_roi', label: '我方ROI', type: 'number', width: 90 },
+      // —— 同行数据 ——
+      { key: 'rival_shop', label: '对标同行/店铺', type: 'text', width: 130 },
+      { key: 'rival_price', label: '同行售价(元)', type: 'number', width: 110 },
+      { key: 'rival_msales', label: '同行月销量', type: 'number', width: 100 },
+      { key: 'rival_margin', label: '同行利润率%', type: 'number', width: 100 },
+      { key: 'rival_promo', label: '同行推广占比%', type: 'number', width: 110 },
+      // —— 对比计算列 ——
+      { key: 'cmp_price', label: '价差(元)', type: 'computed', width: 125,
+        compute: function (r) {
+          var a = parseFloat(r.our_price), b = parseFloat(r.rival_price);
+          if (!a || !b) return '—';
+          var d = a - b, pct = d / b * 100;
+          var col = d < 0 ? '#16a34a' : (d > 0 ? '#dc2626' : '#6b7280');
+          return '<span style="color:' + col + ';font-weight:600">' + (d > 0 ? '+' : '') + d.toFixed(0) + ' (' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '%)</span>';
+        } },
+      { key: 'cmp_msales', label: '销量差', type: 'computed', width: 110,
+        compute: function (r) {
+          var a = parseFloat(r.our_msales), b = parseFloat(r.rival_msales);
+          if (!a || !b) return '—';
+          var d = a - b, pct = b ? d / b * 100 : 0;
+          var col = d >= 0 ? '#16a34a' : '#dc2626';
+          return '<span style="color:' + col + ';font-weight:600">' + (d > 0 ? '+' : '') + d.toFixed(0) + ' (' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '%)</span>';
+        } },
+      { key: 'cmp_margin', label: '利润率差(pp)', type: 'computed', width: 115,
+        compute: function (r) {
+          var a = parseFloat(r.our_margin), b = parseFloat(r.rival_margin);
+          if (isNaN(a) || isNaN(b)) return '—';
+          var d = a - b;
+          var col = d >= 0 ? '#16a34a' : '#dc2626';
+          return '<span style="color:' + col + ';font-weight:600">' + (d > 0 ? '+' : '') + d.toFixed(1) + 'pp</span>';
+        } },
+      { key: 'verdict', label: '综合判断', type: 'computed', width: 150,
+        compute: function (r) {
+          var a = parseFloat(r.our_margin), b = parseFloat(r.rival_margin);
+          var ap = parseFloat(r.our_price), bp = parseFloat(r.rival_price);
+          if (isNaN(a) || isNaN(b) || !ap || !bp) return '<span style="color:#9ca3af">—</span>';
+          var priceOk = ap <= bp * 1.05, marginOk = a >= b;
+          var label, col, bg;
+          if (marginOk && priceOk) { label = '✅ 全面领先'; col = '#15803d'; bg = '#dcfce7'; }
+          else if (marginOk) { label = '🟢 利润占优'; col = '#16a34a'; bg = '#dcfce7'; }
+          else if (ap < bp) { label = '🟡 价优·利弱'; col = '#b45309'; bg = '#fef3c7'; }
+          else if (a < b - 5) { label = '🔴 落后待优化'; col = '#dc2626'; bg = '#fee2e2'; }
+          else { label = '⚠️ 基本持平'; col = '#6b7280'; bg = '#f3f4f6'; }
+          return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;background:' + bg + ';color:' + col + ';font-weight:600;font-size:12px;white-space:nowrap;">' + label + '</span>';
+        } },
+      { key: 'status', label: '状态', type: 'select', width: 100, options: ['测款中', '起量中', '稳定盈利', '衰退预警', '待优化'] },
+      { key: 'note', label: '备注', type: 'text', width: 160 }
     ]
   },
 
+  
 
 
 
 
 
 
-  /* —— 组5：知识系统 —— */
-  'automation-log': {
-    num: 14, title: '自动化运行日志', subtitle: 'Automation Log', group: '知识系统',
-    accent: 'green', status: 'live', icon: '📝',
-    desc: '每次自动运行都记一笔：正常 / 需补数据重跑 / 出错',
-    future: '由 sync_board_data.py / gen_weekly_report.py 自动写入 data/automation-log.json',
-    isLog: true,   // 标记：运行日志专用渲染（彩色状态 + 步骤详情）
-    filterGroups: [
-      { key: 'task', label: '任务类型', options: ['同步 店铺日报','同步 销售分析与预警','同步 推广投放 ROI','同步 BI销售分析与预警','生成周报'] },
-      { key: 'status', label: '状态', options: [{val:'success',label:'✅ 正常'},{val:'error',label:'❌ 失败'},{val:'pending_data',label:'⏳ 待数据'}] }
-    ],
-    fields: [
-      { key: 'ts', label: '时间', type: 'text', width: 150 },
-      { key: 'task', label: '任务', type: 'text', width: 140 },
-      { key: 'trigger', label: '自动化名称', type: 'text', width: 180 },
-      { key: 'status', label: '状态', type: 'status', width: 100 },
-      { key: 'summary', label: '摘要', type: 'text' }
-    ]
-    // 完整输出：点「📂 查看产出」跳转到对应板块查看
-  },
+
+
+  
+
 
   /* —— 组6：员工协作（员工版同步过来的数据，领导可查看/发布）——
      这些板块由员工版写入云端（emp- 命名空间），领导版以 admin 身份读取。 */
@@ -390,45 +402,10 @@ const BOARDS = {
         compute: function (r) { var t = parseFloat(r.target), s = parseFloat(r.sales); return (!t) ? '—' : (s / t * 100).toFixed(1) + '%'; } }
     ]
   },
-  /* —— 组5：知识系统 —— 自动化项目管理 */
-  'automation-projects': {
-    num: 21, title: '自动化项目管理', subtitle: 'Auto Projects', group: '知识系统',
-    accent: 'indigo', status: 'live', icon: '🤖',
-    desc: '所有自动化任务一览：版本·状态·输出质量',
-    future: '由 sync_board_data.py 末尾自动调用 sync_auto_projects.py 聚合更新',
-    isLog: false,
-    filterGroups: [
-      { key: 'board', label: '所属模块' },
-      { key: 'outputStatus', label: '输出状态' },
-      { key: 'status', label: '运行状态' }
-    ],
-    fields: [
-      { key: 'name', label: '项目名称', type: 'text', width: 240 },
-      { key: 'board', label: '模块', type: 'select', width: 90,
-        options: ['销售数据', '系统运维', '员工管理'] },
-      { key: 'outputStatus', label: '输出状态', type: 'select', width: 100,
-        options: ['✅ 完整', '⚠️ 部分', '❌ 异常', '⏳ 等待'] },
-      { key: 'status', label: '运行', type: 'select', width: 75,
-        options: ['运行中', '已暂停', '待启动', '已完成'] },
-      { key: 'version', label: '版本', type: 'text', width: 65 },
-      { key: 'iterCount', label: '迭代', type: 'number', width: 60 },
-      { key: 'owner', label: '负责人', type: 'text', width: 70 }
-    ]
-  },
+  
 
-  'data-sync': {
-    num: 22, title: '数据抓取中心', subtitle: 'Data Sync Hub', group: '知识系统',
-    accent: 'cyan', status: 'live', icon: '🔗',
-    desc: '统一编排第三方数据源（卧龙进销存/十速ERP/旺店通），一键抓取并归一化',
-    future: '由 connectors/ 后端驱动，connectors.html 触发同步',
-    fields: [
-      { key: 'source', label: '数据源', type: 'text', width: 140 },
-      { key: 'lastSync', label: '最近同步', type: 'text', width: 160 },
-      { key: 'records', label: '记录数', type: 'number', width: 90 },
-      { key: 'state', label: '状态', type: 'select', width: 90, options: ['ok', 'error', 'idle'] },
-      { key: 'note', label: '说明', type: 'text' }
-    ]
-  },
+
+
 
   'dept-members': {
     num: 20, title: '部门成员管理', subtitle: 'Dept Members', group: '员工协作',

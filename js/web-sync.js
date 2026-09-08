@@ -250,7 +250,7 @@
 
     if (opts.fullSync) {
       var ALL_BOARDS = [
-        'daily-pulse', 'sales-alert', 'sales-alert-ship-detail', 'automation-projects', 'automation-log',
+        'daily-pulse', 'sales-alert', 'sales-alert-ship-detail',
         'emp-notice', 'emp-task', 'emp-daily', 'emp-kb', 'emp-performance', 'dept-members'
       ];
       async function syncAll() {

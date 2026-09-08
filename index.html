@@ -1367,6 +1367,53 @@ body{
           <div class="card-footer">📡 飞书妙搭 · 云端已发布<span class="card-arrow">→</span></div>
         </div>
 
+        <!-- 22 — 运营打品分析 -->
+        <div class="card" onclick="location.href='board.html?id=daping-analysis'" data-accent="pink" data-tags="demand,daily,growth" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">#22</span>
+              <span class="card-title">运营打品分析</span>
+              <span class="card-subtitle">Product Battlecard</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 打品登记</span>
+            <span class="card-tag" style="background:var(--tag-call);color:var(--tag-call-text)">🎯 同行对标</span>
+          </div>
+          <div class="card-desc">登记打品数据 + 录入同行对标，自动算出价差·销量差·利润率差</div>
+          <ul class="card-list">
+            <li>我方商品登记表：售价 / 月销 / 利润 / 推广占比</li>
+            <li>同行对标店铺数据一键录入</li>
+            <li>自动对比：谁更便宜·谁卖更多·谁更赚钱</li>
+            <li>综合判断红绿标：领先 / 落后待优化</li>
+          </ul>
+          <div class="card-footer">📋 数据存本地（可对接打品登记表）<span class="card-arrow">→</span></div>
+        </div>
+
+        <!-- 22B — 打品竞品对比看板 -->
+        <div class="card" onclick="location.href='daping-compare.html'" data-accent="pink" data-tags="demand,daily,growth" data-status="live">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-num">VS</span>
+              <span class="card-title">打品竞品对比</span>
+              <span class="card-subtitle">Battle vs Rival</span>
+              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+            </div>
+          </div>
+          <div class="card-tag-row">
+            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 三产品</span>
+            <span class="card-tag" style="background:var(--tag-call);color:var(--tag-call-text)">🎯 竞品对标</span>
+          </div>
+          <div class="card-desc">开关贴 / 打印地毯 / 墙面保护膜：我方 vs 竞品区间对比看板</div>
+          <ul class="card-list">
+            <li>KPI 领先/落后标签（支付·访客·转化·ROI）</li>
+            <li>每日趋势 + 8 渠道访客/支付对比柱状</li>
+            <li>推广计划效率表 + 自动结论</li>
+          </ul>
+          <div class="card-footer">📊 数据取自打品登记表（我们 vs 竞品）<span class="card-arrow">→</span></div>
+        </div>
+
         <!-- 6 — 电商自动化工作流 -->
         <div class="card" onclick="location.href='board.html?id=ecom-workflow'" data-accent="red" data-tags="demand,update,weekly" data-status="live">
           <div class="card-header">
@@ -1462,13 +1509,13 @@ body{
         </div>
 
         <!-- 10 — 设计数据月度反馈 -->
-        <div class="card" onclick="location.href='design-feedback.html'" data-accent="pink" data-tags="demand,daily" data-status="live">
+        <div class="card" onclick="location.href='design-feedback.html'" data-accent="pink" data-tags="demand,daily" data-status="building">
           <div class="card-header">
             <div class="card-title-group">
               <span class="card-num">#10</span>
               <span class="card-title">设计数据月度反馈</span>
               <span class="card-subtitle">Design Feedback</span>
-              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+              <span class="status-badge status-building"><span class="status-dot"></span>搭建中</span>
             </div>
           </div>
           <div class="card-tag-row">
@@ -1512,137 +1559,6 @@ body{
     </div>
 
     <!-- ============================================================
-         GROUP 3：产品供应链
-         ============================================================ -->
-    <div class="group">
-      <div class="group-header">
-        <div class="group-icon" style="background:rgba(16,185,129,0.12);color:var(--accent-green)">📦</div>
-        <span class="group-title">产品供应链</span>
-        <span class="group-subtitle">新品 · 进销存 · 库存物流</span>
-        <div class="group-stats">
-          <span class="group-stat"><span class="group-stat-num" data-count></span></span>
-        </div>
-      </div>
-      <div class="card-grid">
-
-        <!-- 8 — 新品项目追踪 -->
-        <div class="card" onclick="location.href='board.html?id=product-pipeline'" data-accent="green" data-tags="update,demand" data-status="live">
-          <div class="card-header">
-            <div class="card-title-group">
-              <span class="card-num">#08</span>
-              <span class="card-title">新品项目追踪</span>
-              <span class="card-subtitle">Product Pipeline</span>
-              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
-            </div>
-          </div>
-          <div class="card-tag-row">
-            <span class="card-tag" style="background:var(--tag-update);color:var(--tag-update-text)">🔄 每周更新</span>
-            <span class="card-tag" style="background:var(--tag-demand);color:var(--tag-demand-text)">⚡ 按需触发</span>
-          </div>
-          <div class="card-desc">新品从立项到上架的全项目管控</div>
-          <ul class="card-list">
-            <li>打样 → 定样 → 上架 全链路</li>
-            <li>项目里程碑 / 甘特节点追踪</li>
-            <li>责任人 + 截止日 + 风险标记</li>
-            <li>开模 / 辅贴销售跟进</li>
-          </ul>
-          <div class="card-footer">📋 收集反馈 → 判断责任人 → 写入 Base → 加速推进<span class="card-arrow">→</span></div>
-        </div>
-
-        <!-- 8 — 数据抓取中心 -->
-        <div class="card" onclick="location.href='connectors.html'" data-accent="cyan" data-tags="update,alert" data-status="live">
-          <div class="card-header">
-            <div class="card-title-group">
-              <span class="card-num">#09</span>
-              <span class="card-title">数据抓取中心</span>
-              <span class="card-subtitle">Data Sync Hub</span>
-              <span class="status-badge status-live"><span class="status-dot live"></span>可触发</span>
-            </div>
-          </div>
-          <div class="card-tag-row">
-            <span class="card-tag" style="background:var(--tag-update);color:var(--tag-update-text)">🔄 一键抓取</span>
-            <span class="card-tag" style="background:var(--tag-alert);color:var(--tag-alert-text)">🔗 第三方接入</span>
-          </div>
-          <div class="card-desc">套住卧龙进销存 / 十速ERP / 旺店通，统一抓取归一化</div>
-          <ul class="card-list">
-            <li>🟡 拼多多 → 卧龙进销存</li>
-            <li>🟡 天猫 → 十速ERP</li>
-            <li>🟡 库存 → 旺店通（你给账号）</li>
-            <li>🟢 抓取后自动进工作台 BI</li>
-          </ul>
-          <div class="card-footer">⚙️ connectors/ 后端驱动<span class="card-arrow">→</span></div>
-        </div>
-
-      </div>
-    </div>
-
-
-    <!-- ============================================================
-         GROUP 4：系统与数据
-         ============================================================ -->
-    <div class="group">
-      <div class="group-header">
-        <div class="group-icon" style="background:rgba(99,102,241,0.12);color:var(--accent-indigo)">⚙️</div>
-        <span class="group-title">系统与数据</span>
-        <span class="group-subtitle">自动化 · 日志 · 数据接入</span>
-        <div class="group-stats">
-          <span class="group-stat"><span class="group-stat-num" data-count></span></span>
-        </div>
-      </div>
-      <div class="card-grid">
-
-        <!-- 9 — 自动化运行日志 -->
-        <div class="card" onclick="location.href='board.html?id=automation-log'" data-accent="green" data-tags="daily,alert" data-status="live">
-          <div class="card-header">
-            <div class="card-title-group">
-              <span class="card-num">#10</span>
-              <span class="card-title">自动化运行日志</span>
-              <span class="card-subtitle">Automation Log</span>
-              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
-            </div>
-          </div>
-          <div class="card-tag-row">
-            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每天自动</span>
-            <span class="card-tag" style="background:var(--tag-alert);color:var(--tag-alert-text)">🔔 预警·提醒</span>
-          </div>
-          <div class="card-desc">每次自动运行都记一笔，问题一眼可见</div>
-          <ul class="card-list">
-            <li>✅ 正常输出 / 按要求完成</li>
-            <li>🟡 需补充数据后重跑</li>
-            <li>🔴 错误 / 失败</li>
-            <li>🟠 警告 · 部分成功 · 无新数据</li>
-          </ul>
-          <div class="card-footer">⚙️ sync_board_data.py / gen_weekly_report.py 自动写入<span class="card-arrow">→</span></div>
-        </div>
-
-        <!-- 10 — 自动化项目管理 -->
-        <div class="card" onclick="location.href='board.html?id=automation-projects'" data-accent="indigo" data-tags="daily,update" data-status="live">
-          <div class="card-header">
-            <div class="card-title-group">
-              <span class="card-num">#10</span>
-              <span class="card-title">自动化项目管理</span>
-              <span class="card-subtitle">Auto Projects</span>
-              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
-            </div>
-          </div>
-          <div class="card-tag-row">
-            <span class="card-tag" style="background:var(--tag-daily);color:var(--tag-daily-text)">📅 每天同步</span>
-            <span class="card-tag" style="background:var(--tag-update);color:var(--tag-update-text)">🔄 输出状态</span>
-          </div>
-          <div class="card-desc">自动化项目管理 · 版本与输出质量一目了然</div>
-          <ul class="card-list">
-            <li>✅ 运行中 / 按节奏稳定输出</li>
-            <li>🟡 已暂停 / 待启动</li>
-            <li>🔴 错误 / 失败</li>
-            <li>🟠 警告 · 部分成功 · 无新数据</li>
-          </ul>
-          <div class="card-footer">⚙️ sync_auto_projects.py 自动写入<span class="card-arrow">→</span></div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ============================================================
          GROUP 5：智能 Agent 工作台
          ============================================================ -->
     <div class="group">
@@ -1657,13 +1573,13 @@ body{
       <div class="card-grid">
 
         <!-- 11 — 智能 Agent 工作台 -->
-        <div class="card" onclick="location.href='agent-workbench.html'" data-accent="purple" data-tags="call,qa" data-status="live">
+        <div class="card" onclick="location.href='agent-workbench.html'" data-accent="purple" data-tags="call,qa" data-status="planned">
           <div class="card-header">
             <div class="card-title-group">
               <span class="card-num">#11</span>
               <span class="card-title">智能 Agent 工作台</span>
               <span class="card-subtitle">Agent Workbench</span>
-              <span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>
+              <span class="status-badge status-pending"><span class="status-dot"></span>待搭建</span>
             </div>
           </div>
           <div class="card-tag-row">
@@ -2207,8 +2123,8 @@ initSync();
     if (Store.isElectron()) return;                 // Electron 走 IPC
     if (typeof window.WebSync !== 'undefined' && window.WebSync && window.WebSync.enabled) return; // 云端已接管
     // 仅预载确有本地数据文件的板块（避免规划中板块 404 噪音）
-    var ids = ['daily-pulse', 'sales-alert', 'sales-alert-ship-detail', 'automation-projects',
-      'automation-log', 'emp-notice', 'emp-task', 'emp-daily', 'emp-kb',
+    var ids = ['daily-pulse', 'sales-alert', 'sales-alert-ship-detail',
+      'emp-notice', 'emp-task', 'emp-daily', 'emp-kb',
       'emp-performance', 'dept-members',
       'daily-pulse-details', 'sales-alert-details', 'last-update'];
     ids.forEach(function (id) {

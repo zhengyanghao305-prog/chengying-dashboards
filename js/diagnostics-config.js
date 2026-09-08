@@ -423,40 +423,6 @@
     }
   };
 
-  /* ════════ 数据抓取中心（子节点=数据源）════════ */
-  DIAGNOSTICS['data-sync'] = {
-    analyze: function (rows) {
-      var arr = rows || [];
-      if (!arr.length) return emptyResult('数据同步');
-      var err = arr.filter(function (r) { return r.state === 'error' || /失败|未配置|错误/.test(r.note || '') || /失败|错误/.test(r.state || ''); });
-      var stale = arr.filter(function (r) {
-        if (!r.lastSync || r.state === 'idle') return false;
-        var d = new Date(String(r.lastSync).replace(/-/g, '/'));
-        if (isNaN(d)) return false;
-        return Math.round((new Date() - d) / 3600000) > 48;
-      });
-      var findings = [], subNodes = [];
-      if (err.length) {
-        var names = err.map(function (r) { return r.source; });
-        var reason = (err[0] && err[0].note) || '';
-        findings.push(F('danger', err.length + ' 个数据源同步失败',
-          names.join('、') + ' 同步出错。' + (reason ? ' 典型原因：' + String(reason).slice(0, 80) : ''),
-          '执行：打开 connectors.html 逐源点击「重试」；未配置凭据的（如旺店通 sid/appkey）先补全再同步；重试后仍失败则查后端日志。责任人：数据运维。',
-          err.length + '个',
-          err.map(function (r) { return { name: r.source, sub: '失败' }; }),
-          null, 'sync_error'));
-        err.forEach(function (r) { subNodes.push({ label: r.source, severity: 'danger', detail: r.note || '同步失败', metric: '✗' }); });
-      }
-      if (stale.length) {
-        findings.push(F('warning', stale.length + ' 个数据源超48小时未同步',
-          stale.map(function (r) { return r.source; }).join('、') + ' 长时间未同步，下游报表可能过期。',
-          '执行：手动触发这些源同步或检查定时调度是否停止。责任人：数据运维。', stale.length + '个',
-          [], null, 'sync_stale'));
-      }
-      if (!findings.length) findings.push(F('info', '数据同步正常', '所有数据源同步成功且时效正常。', '维持定时调度。'));
-      return { findings: findings, dimensions: [], subNodes: subNodes };
-    }
-  };
 
   /* ════════ 竞品分析（子节点=品类）════════ */
   DIAGNOSTICS['competition-analysis'] = {
@@ -595,93 +561,8 @@
     }
   };
 
-  /* ════════ 新品项目追踪（子节点=产品）════════ */
-  DIAGNOSTICS['product-pipeline'] = {
-    analyze: function (rows) {
-      var arr = rows || [];
-      if (!arr.length) return emptyResult('新品追踪');
-      var t = todayStr();
-      var overdue = arr.filter(function (r) { return r.planDue && r.planDue < t && !r.actualDue; });
-      var soon = arr.filter(function (r) {
-        if (!r.planDue || r.actualDue) return false;
-        var diff = Math.ceil((new Date(r.planDue) - new Date(t)) / 86400000);
-        return diff > 0 && diff <= 7;
-      });
-      var findings = [], subNodes = [];
-      if (overdue.length) {
-        findings.push(F('danger', overdue.length + ' 个新品项目逾期',
-          overdue.map(function (r) { return r.product + '(' + (r.cycle || '') + ')'; }).slice(0, 6).join('、') + ' 等超过计划完成日仍未完成。',
-          '执行：逐项目列卡点（样品/素材/上架/投流），明确阻塞与责任人，本周内给出新完成时间。责任人：项目经理。',
-          overdue.length + '个',
-          overdue.slice(0, 6).map(function (r) { return { name: r.product, sub: r.planDue }; }),
-          null, 'pipeline_overdue'));
-        overdue.slice(0, 10).forEach(function (r) {
-          subNodes.push({ label: r.product, severity: 'danger', detail: '逾期 · 计划 ' + r.planDue + ' · ' + (r.owner || ''), metric: '逾期' });
-        });
-      }
-      if (soon.length) {
-        findings.push(F('warning', soon.length + ' 个项目7天内到期',
-          soon.map(function (r) { return r.product; }).slice(0, 6).join('、') + ' 即将到期。',
-          '执行：加快临近项目子任务推进，避免逾期。责任人：对应负责人。', soon.length + '个'));
-      }
-      if (!findings.length) findings.push(F('info', '新品推进正常', '无逾期/临期项目。', '维持节奏。'));
-      return { findings: findings, dimensions: [], subNodes: subNodes };
-    }
-  };
 
-  /* ════════ 自动化运行日志（子节点=任务）════════ */
-  DIAGNOSTICS['automation-log'] = {
-    analyze: function (rows) {
-      var arr = rows || [];
-      if (!arr.length) return emptyResult('自动化日志');
-      var recent = arr.slice(-12);
-      var err = recent.filter(function (r) { return /error|failed|失败|异常/.test(r.status || r.status_label || ''); });
-      var pending = recent.filter(function (r) { return /pending_data|待数据|等待/.test(r.status || r.status_label || ''); });
-      var findings = [], subNodes = [];
-      if (err.length) {
-        findings.push(F(err.length >= 3 ? 'danger' : 'warning', '近期 ' + err.length + ' 次自动化运行失败',
-          '最近 ' + recent.length + ' 次运行中 ' + err.length + ' 次失败' + (pending.length ? '，' + pending.length + ' 次待数据' : '') + '。',
-          '执行：点开失败记录看步骤摘要，多为上游数据/编码问题；修复后重跑对应同步任务。责任人：数据运维。',
-          err.length + '次',
-          err.slice(0, 5).map(function (r) { return { name: (r.task || '').replace('同步 ', ''), sub: (r.ts || '').slice(5, 16) }; })));
-        err.slice(0, 6).forEach(function (r) {
-          subNodes.push({ label: (r.task || '') + ' · ' + (r.trigger || ''), severity: 'danger', detail: r.summary || r.details || '失败', metric: '✗' });
-        });
-      } else if (pending.length) {
-        findings.push(F('warning', pending.length + ' 次运行等待数据',
-          '近期多次"需补数据重跑"，数据链路可能中断。',
-          '执行：检查上游数据源（飞书 Base/旺店通）是否还有新数据未抓取。责任人：数据运维。', pending.length + '次'));
-      } else {
-        findings.push(F('info', '自动化运行健康', '近期运行无失败。', '维持定时调度。'));
-      }
-      return { findings: findings, dimensions: [], subNodes: subNodes };
-    }
-  };
 
-  /* ════════ 自动化项目管理（子节点=项目）════════ */
-  DIAGNOSTICS['automation-projects'] = {
-    analyze: function (rows) {
-      var arr = rows || [];
-      if (!arr.length) return emptyResult('自动化项目');
-      var bad = arr.filter(function (r) { return /异常|部分|等待/.test(r.outputStatus || ''); });
-      var stopped = arr.filter(function (r) { return /已暂停|待启动/.test(r.status || ''); });
-      var findings = [], subNodes = [];
-      if (bad.length) {
-        findings.push(F('warning', bad.length + ' 个自动化输出异常/不完整',
-          bad.map(function (r) { return r.name; }).join('、') + ' 输出状态异常或部分/等待。',
-          '执行：查看自动化日志修复输出不完整的任务，确认依赖数据是否到位。责任人：数据运维。',
-          bad.length + '个',
-          bad.map(function (r) { return { name: r.name, sub: r.outputStatus }; })));
-      }
-      if (stopped.length) {
-        findings.push(F('info', stopped.length + ' 个自动化未运行',
-          stopped.map(function (r) { return r.name; }).join('、') + ' 处于已暂停/待启动。',
-          '执行：确认是否需要恢复运行。责任人：数据运维。', stopped.length + '个'));
-      }
-      if (!findings.length) findings.push(F('info', '自动化项目健康', '所有自动化输出完整且在运行。', '维持。'));
-      return { findings: findings, dimensions: [], subNodes: subNodes };
-    }
-  };
 
   /* ════════ 电商工作流（子节点=产品/工单）════════ */
   DIAGNOSTICS['ecom-workflow'] = {

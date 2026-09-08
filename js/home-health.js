@@ -11,13 +11,9 @@
     { id: 'sales-alert',        icon: '📈', href: 'board.html?id=sales-alert',          name: 'BI销售预警' },
     { id: 'ad-roi',             icon: '💰', href: 'ad-roi-analysis.html',               name: '推广ROI' },
     { id: 'product-links',      icon: '🔗', href: 'product-links.html',                 name: '产品链接' },
-    { id: 'product-pipeline',   icon: '🆕', href: 'board.html?id=product-pipeline',     name: '新品追踪' },
     { id: 'ecom-workflow',      icon: '🔄', href: 'board.html?id=ecom-workflow',        name: '电商工作流' },
     { id: 'competition-analysis',icon: '⚔️', href: 'competition-analysis.html',         name: '竞品分析' },
     { id: 'category-analysis',  icon: '🗂', href: 'category-analysis.html',              name: '品类分析' },
-    { id: 'automation-log',     icon: '📝', href: 'board.html?id=automation-log',       name: '自动化日志' },
-    { id: 'automation-projects',icon: '🤖', href: 'board.html?id=automation-projects',  name: '自动化项目' },
-    { id: 'data-sync',          icon: '🔗', href: 'connectors.html',                    name: '数据同步', skipDiag: true },  // 暂不参与诊断
     { id: 'emp-task',           icon: '✅', href: 'board.html?id=emp-task',             name: '员工任务' },
     { id: 'dept-members',       icon: '🏢', href: 'board.html?id=dept-members',         name: '部门成员' }
   ];
@@ -26,13 +22,9 @@
     'sales-alert': 'data/sales-alert.json',
     'ad-roi': 'data/ad-roi.json',
     'product-links': 'data/product-links.json',
-    'product-pipeline': 'data/product-pipeline.json',
     'ecom-workflow': null,         // ⚠️ 未接数据源（电商工作流尚未接入飞书 Base，回本周期测算器独立可用）
     'competition-analysis': 'data/competition.json',
     'category-analysis': 'data/category-analysis.json',
-    'automation-log': 'data/automation-log.json',
-    'automation-projects': 'data/automation-projects.json',
-    'data-sync': 'data/connector_status.json',
     'emp-task': null,              // ⚠️ 未接数据源（员工任务由员工版写入，领导版只读；员工版未启用故空）
     'dept-members': 'data/dept-members.json'
   };
@@ -45,7 +37,6 @@
    * 日期来源（自动识别）：
    *   - 对象型数据：updated / generated / end_date 字段（取前 10 位）
    *   - 数组型数据：元素 date 字段的最大值
-   *   - data-sync：connector_status 各源的 last_sync 时间戳
    * 取不到日期的板块（如部门成员）不参与新鲜度检查，不误报。
    * ============================================================ */
   var FRESH_TOL = { 'competition-analysis': 2 };  // 个别板块额外容忍天数（竞品数据更新较晚）
@@ -69,9 +60,6 @@
     'daily_issue': ['daily-pulse'],
     'category_decline': ['category-analysis'],
     'comp_weak': ['competition-analysis'],
-    'sync_error': ['data-sync'],
-    'sync_stale': ['data-sync'],
-    'pipeline_overdue': ['product-pipeline']
   };
   function dedupFindings(list) {
     var groups = {}, out = [];
@@ -108,17 +96,6 @@
       if (!resp.ok) return null;
       var data = await resp.json();
       RAW_CACHE[id] = data;   // 存原始数据，供新鲜度检查提取 updated 等字段
-      if (id === 'data-sync') {
-        var arr = [];
-        Object.keys(data || {}).forEach(function (k) {
-          if (k === '_meta') return;
-          var s = data[k] || {};
-          var lastSync = '';
-          if (s.last_sync) { var d = new Date(s.last_sync * 1000); lastSync = d.toLocaleString('zh-CN'); }
-          arr.push({ source: s.label || k, lastSync: lastSync || '—', records: (s.sales || 0) + (s.inventory || 0), state: s.state || (s.last_error ? 'error' : 'idle'), note: s.last_error || '' });
-        });
-        return arr;
-      }
       if (id === 'product-links') {
         // 关键修正：分析全量链接（1674），而非只有 hot(20)
         return Array.isArray(data && data.links) ? data.links : [];
@@ -151,18 +128,6 @@
         var r = arr[i];
         if (r && r.date) { var v = String(r.date).slice(0, 10); if (v > d) d = v; }
       }
-    }
-    // 3) data-sync：connector_status 各数据源的 last_sync 时间戳
-    if (id === 'data-sync' && raw && typeof raw === 'object') {
-      Object.keys(raw).forEach(function (k) {
-        if (k === '_meta') return;
-        var s = raw[k] || {};
-        if (s.last_sync) {
-          var dt = new Date(s.last_sync * 1000);
-          var iso = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-          if (iso > d) d = iso;
-        }
-      });
     }
     return d || null;
   }

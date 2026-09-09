@@ -51,6 +51,8 @@
   .chips button { border: 1px solid #e9d5ff; background: #fff; color: #6d28d9; font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 16px; cursor: pointer; transition: .13s; }
   .chips button:hover { background: #ede9fe; border-color: #a78bfa; }
   .chips button.cur { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+  .chips button.newp { border-style: dashed; border-color: #a78bfa; background: #faf5ff; color: #6d28d9; }
+  .chips button.newp:hover { background: #ede9fe; }
   .result { margin-top: 16px; }
   .result-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
   .result-head .t { font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
@@ -79,7 +81,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609091954"></script>
+<script src="js/freshness-alert.js?v=202609092036"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -112,6 +114,7 @@
           <button type="button" onclick="loadProduct('baiban', this)">🖍️ 静电白板贴</button>
           <button type="button" onclick="loadProduct('heiban', this)">🎨 静电黑板贴</button>
           <button type="button" onclick="loadProduct('sila', this)">✂️ 撕拉白板（撕拉线）</button>
+          <button type="button" class="newp" onclick="newProduct()">➕ 新建产品（AI 自动生成示例）</button>
         </div>
       </div>
 
@@ -569,8 +572,11 @@
     set('fGood', tpl.fGood || ''); set('fBad', tpl.fBad || ''); set('fExtra', tpl.fExtra || '');
     statusLine(null); errLine(null);
   }
+  // 「新建产品」临时生成的资料卡（本次会话内可复用；刷新后回到内置库）
+  var TEMP_TEMPLATES = {};
+  var tempCount = 0;
   window.loadProduct = function(key, btn){
-    var tpl = PRODUCT_TEMPLATES[key];
+    var tpl = PRODUCT_TEMPLATES[key] || TEMP_TEMPLATES[key];
     if(!tpl) return;
     fillFrom(tpl);
     var btns = document.querySelectorAll('#chips button');
@@ -581,6 +587,105 @@
   };
   window.loadExample = function(){
     return loadProduct('fangyoutie');
+  };
+
+  // 新建产品：让 AI 基于店铺产品知识库 + 行业常识，生成一份可直接修改的默认资料卡
+  window.newProduct = async function(){
+    var hint = '输入新品名称 / 一句话需求。\n例：静电免胶的门板防踢贴\n\nAI 会按店铺产品知识库 + 品类常识，生成一份默认示例填入表单，你再微调即可。';
+    var name = window.prompt(hint, '');
+    if(!name) return;
+    name = String(name).trim();
+    if(!name){ return; }
+    statusLine('正在为「' + name + '」生成资料卡…');
+    var sys = '你是「橙萤」电商新品资料卡助手。橙萤店铺主营家居贴纸/墙贴/贴膜，产品知识库要点：\n' +
+      '· 核心技术：静电吸附无胶（不伤墙、不留胶印），多用于光滑墙面/玻璃/瓷砖，可按米卖；孩子涂鸦/租房保押金/装修防脏/厨房防油是常见真场景。\n' +
+      '· 既有爆款供参考卖法：墙面保护膜（高清透明/磨砂）、点断撕厨房防油贴、静电白板贴/黑板贴、撕拉白板。\n' +
+      '· 已知短板：静电膜对温湿度敏感、高温易起鼓，文案要用卖点化解而不是吹成绝对不掉。\n' +
+      '请为一个新产品生成一份【可直接填进文案智能体表单的 JSON 资料卡】。\n' +
+      '要求：\n' +
+      '1. 严格只输出一个 JSON 对象，不要代码围栏、不要任何多余文字。\n' +
+      '2. 键固定为：fName(货品名称)、fCat(大类别)、fSpec(规格尺寸)、fMaterial(材质工艺)、fScene(使用场景)、fPeople(目标人群)、fPrice(价格带)、fPoints(真实卖点，多条用/分隔)、fGood(买家常夸2-3条用/分隔)、fBad(差评与常问顾虑3-4条用/分隔)、fExtra(给文案的补充建议)、fEnd(销售端：零售端/批发端/双端)。\n' +
+      '3. fCat 只能取下列之一：仿瓷砖贴、油烟贴、静电墙贴、PVC贴纸、电梯门贴、地毯、静电膜/磨砂膜、白板贴/绿板贴、地板贴、其他。\n' +
+      '4. 新品资料不足时，用该品类常识合理推断补齐；拿不准的具体参数用【*待核实】标出；卖点不夸大、不编造认证。';
+    var user = '新品：' + name + '\n请生成 JSON 资料卡。';
+    var txt = '';
+    var lastErr = null;
+    try {
+      var bases = chatBases(), response = null;
+      for(var bi=0; bi<bases.length; bi++){
+        var base = bases[bi];
+        try {
+          statusLine('连接生成通道…' + (bi>0 ? ('（'+(bi+1)+'/'+bases.length+'）') : ''));
+          var rsp = await fetch(base + '/api/chat', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            credentials:'same-origin',
+            body: JSON.stringify({messages:[{role:'system',content:sys},{role:'user',content:user}], model:MODEL, mode:'card'}),
+            signal: new AbortController().signal
+          });
+          if(!rsp.ok){ lastErr = new Error('服务器错误 (' + rsp.status + ')'); continue; }
+          var ct = rsp.headers.get('content-type') || '';
+          if(ct.indexOf('text/event-stream') === -1 && ct.indexOf('application/json') === -1){ lastErr = new Error('该地址不是生成通道'); continue; }
+          response = rsp; break;
+        } catch(e){ if(e && e.name === 'AbortError') throw e; lastErr = e; }
+      }
+      if(!response) throw (lastErr || new Error('没有可用的生成通道'));
+      statusLine('AI 正在生成资料卡…');
+      var reader = response.body.getReader(), decoder = new TextDecoder(), buf = '';
+      while(true){
+        var r = await reader.read();
+        if(r.done) break;
+        buf += decoder.decode(r.value, {stream:true});
+        var lines = buf.split('\n'); buf = lines.pop() || '';
+        for(var i=0;i<lines.length;i++){
+          var ln = lines[i].trim();
+          if(!ln.startsWith('data: ')) continue;
+          var ds = ln.slice(6);
+          if(ds === '[DONE]') { if(reader.cancel) reader.cancel(); break; }
+          try{
+            var d = JSON.parse(ds);
+            if(d.error){ errLine('AI通道错误：' + d.error); break; }
+            var c = d.choices && d.choices[0] && d.choices[0].delta && d.choices[0].delta.content;
+            if(c) txt += c;
+          }catch(e){}
+        }
+      }
+    } catch(err){
+      if(err && err.name === 'AbortError'){ statusLine('已停止生成。'); return; }
+      errLine('生成通道连不上：' + (err && err.message ? err.message : err));
+      return;
+    }
+    if(!txt){ errLine('没拿到生成结果，请重试'); return; }
+    // 从输出里提取 JSON
+    var s = txt.indexOf('{'), e = txt.lastIndexOf('}');
+    var parsed = null;
+    if(s >= 0 && e > s){ try { parsed = JSON.parse(txt.slice(s, e+1)); } catch(_){} }
+    if(!parsed || typeof parsed !== 'object' || !parsed.fName){
+      errLine('AI 返回的不是可用资料卡（可能是通道不稳定）。原文已放到右侧输出区，可人工参考填写，或再点一次「新建产品」。');
+      var box0 = document.getElementById('outBox');
+      if(box0){ box0.textContent = txt; box0.classList.remove('empty-tip'); }
+      statusLine(null);
+      return;
+    }
+    var validCats = ['仿瓷砖贴','油烟贴','静电墙贴','PVC贴纸','电梯门贴','地毯','静电膜/磨砂膜','白板贴/绿板贴','地板贴','其他'];
+    if(validCats.indexOf(parsed.fCat) === -1) parsed.fCat = '其他';
+    if(['零售端','批发端','双端'].indexOf(parsed.fEnd) === -1) parsed.fEnd = '';
+    var keys = ['fName','fCat','fEnd','fSpec','fMaterial','fScene','fPeople','fPrice','fPoints','fGood','fBad','fExtra'];
+    var out = {};
+    for(var k=0;k<keys.length;k++){ var kk = keys[k]; out[kk] = (parsed[kk] !== undefined && parsed[kk] !== null) ? String(parsed[kk]).trim() : ''; }
+    if(!out.fName) out.fName = name;
+    tempCount++;
+    var tmpKey = 'tmp' + tempCount + '_' + Date.now();
+    TEMP_TEMPLATES[tmpKey] = out;
+    fillFrom(out);
+    // 追加一个可复用按钮（本次会话内）
+    var chipsBox = document.getElementById('chips');
+    var nb = document.createElement('button');
+    nb.type = 'button'; nb.className = 'cur';
+    nb.textContent = '🆕 ' + (out.fName.length > 9 ? out.fName.slice(0,9) + '…' : out.fName);
+    nb.onclick = function(){ loadProduct(tmpKey, this); };
+    chipsBox.appendChild(nb);
+    var curName = document.getElementById('fName');
+    statusLine('✅ 「' + (curName ? curName.value : out.fName) + '」资料卡已生成并填入表单，直接微调后点「生成文案」即可');
   };
   window.clearAll = function(){
     ['fName','fSpec','fMaterial','fScene','fPeople','fPrice','fPoints','fGood','fBad','fExtra'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });

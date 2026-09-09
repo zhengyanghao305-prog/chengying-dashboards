@@ -54,12 +54,17 @@ select{background:#fff;color:var(--tx);border:1px solid var(--bd2);border-radius
 .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
 @media(max-width:1080px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
-.kpi{border:1px solid var(--bd);border-radius:var(--r2);padding:12px 13px;background:#fff}
-.kpi .lab{font-size:11.5px;color:var(--tx3);margin-bottom:5px}
-.kpi .val{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.2}
-.kpi .val small{font-size:12px;font-weight:500;color:var(--tx4);margin-left:2px}
-.kpi .cmp{font-size:11.5px;color:var(--tx4);margin-top:4px}
-.kpi .cmp b{color:var(--tx2);font-weight:600}
+.kpi{border:1px solid var(--bd);border-radius:var(--r2);padding:13px 14px;background:#fff;display:flex;flex-direction:column}
+.kpi .klab{font-size:12px;color:var(--tx3);margin-bottom:8px;font-weight:600}
+.kpi .kval{font-size:25px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+.kpi .kval.red{color:var(--red)}
+.kpi .kdelta{font-size:12.5px;font-weight:700;margin-top:7px}
+.kpi .ksub{font-size:11px;color:var(--tx4);margin-top:4px}
+.lead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;background:#fff;border:1px solid var(--bd);
+  border-radius:var(--r);padding:12px 16px;margin-bottom:15px;font-size:13px;color:var(--tx2);line-height:1.5}
+.lead b.num{font-size:15px}
+.kblk .blkH{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.kblk h3{margin-bottom:0}
 
 /* 涨跌 */
 .d{font-weight:600;font-size:11.5px;white-space:nowrap}
@@ -254,26 +259,27 @@ tbody tr:hover td{background:#fafbfc}
 
     <!-- ① 数据周报 -->
     <div id="vData">
-      <div class="concl" id="concl"></div>
+      <div class="lead" id="lead"></div>
       <div class="kpis" id="kpis"></div>
-      <div class="blk" style="margin-top:15px">
-        <h3>多期走势 <span class="hint" id="trHint"></span><span class="sp"></span>
+      <div class="blk kblk" style="margin-top:15px">
+        <div class="blkH"><h3>多期走势</h3>
           <div class="pills" id="metrics">
             <button class="pill" data-m="net">净利</button>
             <button class="pill" data-m="lossAmt">亏损额</button>
             <button class="pill" data-m="lossN">亏损链接数</button>
             <button class="pill" data-m="sales">销售额</button>
           </div>
-        </h3>
+        </div>
+        <div class="subt" id="trHint" style="margin:3px 0 10px"></div>
         <div id="chart"></div>
       </div>
       <div class="g2">
         <div class="blk">
-          <div class="subt"><i style="background:var(--red)"></i>最该处理的（利润下滑最多）</div>
+          <div class="subt"><i style="background:var(--red)"></i>最该处理的 · 利润下滑最多</div>
           <div class="tb" id="badTbl"></div>
         </div>
         <div class="blk">
-          <div class="subt"><i style="background:var(--green)"></i>做得好的（利润提升最多）</div>
+          <div class="subt"><i style="background:var(--green)"></i>做得好的 · 利润提升最多</div>
           <div class="tb" id="goodTbl"></div>
         </div>
       </div>
@@ -587,7 +593,7 @@ function render(){
   if(S.view==='learn'){ renderLearn(); return; }
   if(S.view==='compare'){ renderCompare(); return; }
   const sc=scope(), a=aggList(sc.cur), b=aggList(sc.prev);
-  renderConcl(a,b,sc);
+  renderLead(a,b,sc);
   renderKpis(a,b);
   renderChart();
   renderChanges();
@@ -617,16 +623,20 @@ function renderBar(){
     +(ov>0?'（注意：两期窗口重叠 '+ov+' 天）':'');
 }
 function renderKpis(a,b){
+  const gAmt=Math.abs(a.lossAmt), gAmtP=Math.abs(b.lossAmt);
   const KS=[
-    {l:'净利',v:money(a.net),cur:a.net,prev:b.net,hb:1,f:money},
-    {l:'亏损链接',v:a.lossN+' <small>/'+a.n+'</small>',cur:a.lossN,prev:b.lossN,hb:0,f:money0},
-    {l:'亏损额',v:money(a.lossAmt),cur:a.lossAmt,prev:b.lossAmt,hb:1,f:money},
-    {l:'销售额',v:money(a.sales),cur:a.sales,prev:b.sales,hb:1,f:money},
-    {l:'亏损率',v:pct(a.lossRate),cur:a.lossRate,prev:b.lossRate,hb:0,f:x=>pct(x,1)},
+    {l:'净利',     v:money(a.net),             cur:a.net,       prev:b.net,       hb:1, f:money,  red:a.net<0},
+    {l:'销售额',   v:money(a.sales),          cur:a.sales,     prev:b.sales,     hb:1, f:money,  red:false},
+    {l:'亏损链接', v:a.lossN,                 cur:a.lossN,     prev:b.lossN,     hb:0, f:money0, red:false, sub:'共 '+a.n+' 条'},
+    {l:'亏损额',   v:money(gAmt),             cur:gAmt,        prev:gAmtP,       hb:0, f:money,  red:true},
+    {l:'亏损率',   v:pct(a.lossRate),         cur:a.lossRate,  prev:b.lossRate,  hb:0, f:x=>pct(x,1), red:false},
   ];
-  $('#kpis').innerHTML=KS.map(k=>'<div class="kpi"><div class="lab">'+k.l+'</div>'
-    +'<div class="val num">'+k.v+'</div>'
-    +'<div class="cmp">上期 <b class="num">'+k.f(k.prev)+'</b> '+dlt(k.cur,k.prev,k.hb,k.f)+'</div></div>').join('');
+  $('#kpis').innerHTML=KS.map(k=>{
+    return '<div class="kpi"><div class="klab">'+k.l+'</div>'
+      +'<div class="kval num'+(k.red?' red':'')+'">'+k.v+'</div>'
+      +'<div class="kdelta">'+dlt(k.cur,k.prev,k.hb,k.f)+'</div>'
+      +'<div class="ksub">'+(k.sub?k.sub+' · ':'')+'上期 '+k.f(k.prev)+'</div></div>';
+  }).join('');
 }
 function renderChart(){
   const base=seriesOf(), key=S.metric;
@@ -634,26 +644,18 @@ function renderChart(){
   const fmt=M[key][1];
   $('#chart').innerHTML=chart(WIN.map(w=>wEnd(w).slice(5)), base.map(x=>x[key]), fmt, null);
 }
-function renderConcl(a,b,sc){
-  const li=[];
-  const nd=a.net-b.net;
-  li.push((S.owner?('<b>'+esc(S.owner)+'</b>'):'全部运营')+'（'+(S.plat||'全部平台')+'）本期净利 <b class="num">'+money(a.net)+'</b>，'
-    +'环比 <span class="'+(nd>=0?'hl':'hl2')+'">'+(nd>=0?'+':'')+money(nd)+'</span>；'
-    +'亏损 <b>'+a.lossN+'</b> 条（上期 '+b.lossN+'，<span class="'+(a.lossN<=b.lossN?'hl':'hl2')+'">'
-    +(a.lossN-b.lossN>=0?'+':'')+(a.lossN-b.lossN)+'</span>）；两期都出现的 <b>'+a.n+'</b> 条做同口径对比。');
-  const chg=linkChanges();
-  const worse=chg.filter(x=>x.d<0), better=chg.filter(x=>x.d>0);
-  li.push('利润下滑 <b class="hl2">'+worse.length+'</b> 条（合计 '+money(worse.reduce((s,x)=>s+x.d,0))+'），'
-    +'提升 <b class="hl">'+better.length+'</b> 条（合计 +'+money(better.reduce((s,x)=>s+x.d,0))+'）。');
-  const acts=judgeAll(), va=acts.filter(x=>!x.pending);
-  const eff=va.filter(x=>x.j==='有效'||x.j==='转正').length;
-  if(acts.length) li.push('优化动作 <b>'+acts.length+'</b> 条，已过观察期 <b>'+va.length+'</b> 条中'
-    +'<span class="hl">有效 '+eff+'</span> 条、<span class="hl2">无效 '+va.filter(x=>x.j==='无效').length+'</span> 条'
-    +(va.length?'，有效率 <b>'+Math.round(eff/va.length*100)+'%</b>':'')+'。');
-  else li.push('本期还没有标记任何优化动作。');
+function renderLead(a,b,sc){
+  const nd=a.net-b.net, dl=a.lossN-b.lossN;
   const un=sc.cur.filter(r=>r.p<0&&(!ACTIONS[r.id]||ACTIONS[r.id].st==='待处理')).length;
-  li.push('待办：还有 <b class="hl2">'+un+'</b> 条亏损链接没标记动作。');
-  $('#concl').innerHTML='<div class="t">本周结论</div><ul>'+li.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+  const arrow=(d,hb)=>{ const up=d>0,good=hb?up:!up;
+    return '<span class="'+(good?'up-t':'down-t')+'">'+(up?'▲':'▼')+' '+money(Math.abs(d))+'</span>'; };
+  const s=[];
+  s.push('本期净利 <b class="num">'+money(a.net)+'</b>（环比 '+arrow(nd,1)+'）');
+  s.push('亏损 <b class="num">'+a.lossN+'</b> 条（环比 '
+    +(dl>0?'<span class="down-t">+'+dl+'</span>':'<span class="up-t">'+dl+'</span>')+' 条）');
+  s.push(un>0 ? ('<b class="num" style="color:var(--red)">'+un+'</b> 条亏损还没标动作')
+              : '<b class="num" style="color:var(--green)">全部亏损已标动作</b>');
+  $('#lead').innerHTML=s.join('　·　');
 }
 function renderChanges(){
   const chg=linkChanges(), N=12;

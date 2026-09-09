@@ -46,6 +46,11 @@
   .btn-gen:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
   .btn-sec { border: 1px solid #e5e7eb; background: #fff; color: #6b7280; padding: 9px 16px; font-size: 12.5px; font-weight: 700; border-radius: 9px; cursor: pointer; transition: .15s; }
   .btn-sec:hover { border-color: #7c3aed; color: #7c3aed; }
+  .quick { border: 1px dashed #ddd6fe; background: #faf5ff; border-radius: 10px; padding: 8px 10px 10px; margin-bottom: 12px; }
+  .quick .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chips button { border: 1px solid #e9d5ff; background: #fff; color: #6d28d9; font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 16px; cursor: pointer; transition: .13s; }
+  .chips button:hover { background: #ede9fe; border-color: #a78bfa; }
+  .chips button.cur { background: #7c3aed; border-color: #7c3aed; color: #fff; }
   .result { margin-top: 16px; }
   .result-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
   .result-head .t { font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
@@ -74,7 +79,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609091916"></script>
+<script src="js/freshness-alert.js?v=202609091954"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -97,6 +102,18 @@
     <!-- ======== 左：表单 ======== -->
     <div class="panel">
       <h2><span class="n">1</span> 产品信息（能填多少填多少）</h2>
+
+      <div class="fld quick">
+        <label>快捷选品（点一下自动填好，再微调即可）</label>
+        <div class="chips" id="chips">
+          <button type="button" onclick="loadProduct('fangyoutie', this)">🛢️ 点断撕防油贴</button>
+          <button type="button" onclick="loadProduct('qiangmian', this)">🪟 墙面保护膜·透明</button>
+          <button type="button" onclick="loadProduct('mosha', this)">🌫️ 墙面保护膜·磨砂</button>
+          <button type="button" onclick="loadProduct('baiban', this)">🖍️ 静电白板贴</button>
+          <button type="button" onclick="loadProduct('heiban', this)">🎨 静电黑板贴</button>
+          <button type="button" onclick="loadProduct('sila', this)">✂️ 撕拉白板（撕拉线）</button>
+        </div>
+      </div>
 
       <div class="fld"><label>货品名称 *</label>
         <input id="fName" placeholder="例：撕拉线静电油烟贴（透明款）">
@@ -468,21 +485,102 @@
     function fallbackCopy(){ var ta=document.createElement('textarea'); ta.value=allText; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
   };
 
-  window.loadExample = function(){
+  // 橙萤主力品 · 默认模板（点快捷选品自动填入，运营可再改）
+  var PRODUCT_TEMPLATES = {
+    fangyoutie:{
+      fName:'点断撕静电防油贴（透明款）', fCat:'油烟贴', fEnd:'零售端',
+      fSpec:'0.45m宽 × 2m/3m/5m长，按米卖',
+      fMaterial:'静电吸附 · 免胶 · 点断撕拉线，防水防油',
+      fScene:'厨房灶台墙面防油污、油烟重灾区、出租屋厨房改造',
+      fPeople:'租房年轻人 / 常做饭家庭 / 讨厌天天擦油墙的人',
+      fPrice:'8.9~19.9，客单约16',
+      fPoints:'静电免胶不伤瓷砖/点断撕拉线即撕即用不用剪刀/防水防油防渗透一擦即净/透明不影响原墙/撕下不留胶可换新',
+      fGood:'贴上很透不显眼/油点子一擦就掉/撕下来墙没留印',
+      fBad:'总问贴久了会不会掉/高温油锅旁会不会起鼓/担心撕下来留胶印/问能不能贴乳胶漆墙',
+      fExtra:'突出租房党也能用、退租一撕就干净'
+    },
+    qiangmian:{
+      fName:'墙面保护膜（静电款 · 高清透明）', fCat:'静电墙贴', fEnd:'零售端',
+      fSpec:'宽40/45/60/90/120cm × 长2/3/5/10m，按米卖；赠小刀+无痕贴',
+      fMaterial:'静电吸附 PVC · 免胶 · 高清透明 · 环保无味（欧盟认证）',
+      fScene:'孩子乱涂乱画大白墙、宠物抓墙、鞋架书桌下黑印、装修期保护墙面',
+      fPeople:'宝妈（防孩子涂画）/ 养宠家庭 / 自装修业主 / 租房党保押金',
+      fPrice:'按米计，客单约26',
+      fPoints:'静电免胶不留胶印/可反复撕贴/高清透明不影响墙面/防脏防刮一擦即净/环保无甲醛',
+      fGood:'撕下来墙跟原来一样/孩子画完一擦就掉/贴上几乎看不出来',
+      fBad:'总问会不会贴不平有气泡/能不能贴乳胶漆墙（需光滑不掉灰）/担心时间久起鼓/问撕下来会不会留印',
+      fExtra:'主打孩子涂鸦保护+退租一撕就走，别用太硬的推销词'
+    },
+    mosha:{
+      fName:'静电磨砂玻璃膜（半透光）', fCat:'静电膜/磨砂膜', fEnd:'零售端',
+      fSpec:'宽40/45/60/90cm × 长2/3/5m，按米卖',
+      fMaterial:'静电吸附 · 免胶 PVC 磨砂膜 · 半透光不透视',
+      fScene:'玻璃窗遮挡隐私、卧室卫生间玻璃透光不透明、出租屋贴邻、阳台遮阳',
+      fPeople:'租房党（窗户贴邻/朝走廊）/ 要隐私又要采光的人 / 怕晒的人',
+      fPrice:'按米计，客单约41（偏高，需讲透价值）',
+      fPoints:'静电免胶不伤玻璃/透光不透人/一贴即用可反复撕/防水可擦洗/遮阳不挡光',
+      fGood:'外面看不清里面/光还能透进来/撕下来玻璃干净',
+      fBad:'问尺寸怎么买/大玻璃怕气泡难排/怕贴上屋里变暗/担心留胶',
+      fExtra:'讲清"透光不透视"+测量与两人配合贴法，减少犹豫'
+    },
+    baiban:{
+      fName:'静电白板贴（可擦写 · 免胶）', fCat:'白板贴/绿板贴', fEnd:'零售端',
+      fSpec:'0.45m/0.9m/1.2m宽 × 按需长度，以详情页在售规格为准',
+      fMaterial:'静电吸附 · 免胶 PET 白板膜 · 可擦写',
+      fScene:'儿童学习墙、客厅涂鸦角、书房随手记、出租屋改造',
+      fPeople:'宝妈（孩子学写字画画）/ 家庭办公 / 租房党',
+      fPrice:'客单约15',
+      fPoints:'静电吸附可移除不伤墙/水性笔可擦写/防孩子乱涂墙/轻薄上墙不占地/替代传统白板',
+      fGood:'孩子随便画不心疼/擦得干净/撕下来墙没事',
+      fBad:'长时间会不会起鼓/用久难擦留印/问能不能贴乳胶漆墙/怕自己贴不平',
+      fExtra:'主打儿童房学习墙，画面要有孩子用起来的样子'
+    },
+    heiban:{
+      fName:'静电黑板贴（可擦写 · 免胶）', fCat:'白板贴/绿板贴', fEnd:'零售端',
+      fSpec:'常见宽幅按米卖，以详情页在售规格为准',
+      fMaterial:'静电吸附 · 免胶 · 可擦写黑板面',
+      fScene:'儿童房涂鸦墙、家庭留言墙、兴趣班教室墙面',
+      fPeople:'宝妈 / 幼师 / 爱布置家庭角落的人',
+      fPrice:'客单约13（近两周销量在涨）',
+      fPoints:'静电免胶不伤墙/可写可擦/孩子随便画/贴墙即用不占地',
+      fGood:'孩子每天都想画/好擦/撕下不伤墙',
+      fBad:'用粉笔还是水笔写/粉笔灰会不会到处飞/用久难擦/问贴不平怎么办',
+      fExtra:'板书工具（粉笔/水笔）以店铺实际为准，可顺热度主打儿童教育+护墙'
+    },
+    sila:{
+      fName:'静电撕拉白板（撕拉线即撕即用）', fCat:'白板贴/绿板贴', fEnd:'零售端',
+      fSpec:'自带撕拉线，按需尺寸即撕即用，以详情页规格为准',
+      fMaterial:'静电吸附 · 免胶 · 预置撕拉线',
+      fScene:'儿童学习涂鸦、不想量尺寸裁剪、随手撕一块就能上墙',
+      fPeople:'手残党 / 宝妈 / 不想拿尺子剪刀的人',
+      fPrice:'客单约15',
+      fPoints:'撕拉线即撕即用不用剪刀/静电免胶不伤墙/可擦写/边缘整齐不毛糙',
+      fGood:'撕出来大小刚好/不用自己裁/边缘很整齐',
+      fBad:'问能用多久/撕拉会不会把膜撕坏/担心留胶/贴不平怎么办',
+      fExtra:'突出"不用量不用剪"，对比传统白板贴要自己裁剪的麻烦'
+    }
+  };
+  function fillFrom(tpl){
     var set = function(id,v){ var el=document.getElementById(id); if(el) el.value=v; };
-    set('fName','撕拉线静电油烟贴（透明款）');
-    set('fCat','油烟贴');
-    set('fSpec','0.45m宽 × 2m/3m/5m长，按米卖');
-    set('fMaterial','静电吸附 · 免胶 · 撕拉线可整片撕');
-    set('fScene','厨房灶台墙面防油污、出租屋厨房改造');
-    set('fPeople','租房年轻人 / 常做饭家庭 / 讨厌擦油墙的人');
-    set('fPrice','8.9~19.9，客单约12');
-    set('fPoints','静电免胶不伤瓷砖/一贴就上墙/撕拉线设计想换就换不留胶/透明不影响原墙/油污一擦即净/按米卖不浪费');
-    set('fGood','贴上很透，不显眼/油点子一擦就掉');
-    set('fBad','总问贴久了会不会掉/有人说贴不平有气泡/担心撕下来留胶印/问能不能贴乳胶漆墙');
-    set('fPlatform','douyin');
-    set('fExtra','突出租房党也能用、退租一撕就干净');
+    set('fName', tpl.fName || ''); set('fCat', tpl.fCat || ''); set('fEnd', tpl.fEnd || '');
+    set('fSpec', tpl.fSpec || ''); set('fMaterial', tpl.fMaterial || '');
+    set('fScene', tpl.fScene || ''); set('fPeople', tpl.fPeople || '');
+    set('fPrice', tpl.fPrice || ''); set('fPoints', tpl.fPoints || '');
+    set('fGood', tpl.fGood || ''); set('fBad', tpl.fBad || ''); set('fExtra', tpl.fExtra || '');
     statusLine(null); errLine(null);
+  }
+  window.loadProduct = function(key, btn){
+    var tpl = PRODUCT_TEMPLATES[key];
+    if(!tpl) return;
+    fillFrom(tpl);
+    var btns = document.querySelectorAll('#chips button');
+    for(var i=0;i<btns.length;i++) btns[i].classList.remove('cur');
+    if(btn) btn.classList.add('cur');
+    var nameEl = document.getElementById('fName');
+    statusLine('已填入「' + (nameEl ? nameEl.value : key) + '」默认信息，可继续修改后生成');
+  };
+  window.loadExample = function(){
+    return loadProduct('fangyoutie');
   };
   window.clearAll = function(){
     ['fName','fSpec','fMaterial','fScene','fPeople','fPrice','fPoints','fGood','fBad','fExtra'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });

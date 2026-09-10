@@ -63,6 +63,23 @@ select{background:#fff;color:var(--tx);border:1px solid var(--bd2);border-radius
 .lead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;background:#fff;border:1px solid var(--bd);
   border-radius:var(--r);padding:12px 16px;margin-bottom:15px;font-size:13px;color:var(--tx2);line-height:1.5}
 .lead b.num{font-size:15px}
+/* 本周定性横幅 */
+.verdict{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-radius:var(--r);padding:14px 18px;
+  margin-bottom:15px;border:1px solid var(--bd);background:#fff;border-left:5px solid var(--bd2)}
+.verdict.good{border-left-color:var(--green)}
+.verdict.bad{border-left-color:var(--red)}
+.verdict.mid{border-left-color:var(--amber)}
+.verdict .vbadge{font-size:13px;font-weight:800;padding:4px 13px;border-radius:20px;white-space:nowrap}
+.verdict .vbadge.good{background:#e9f7ef;color:#15803d}
+.verdict .vbadge.bad{background:#fdecec;color:#c0332f}
+.verdict .vbadge.mid{background:#fdf3e3;color:#b45309}
+.verdict .vtxt{font-size:13px;color:var(--tx2);line-height:1.55;flex:1;min-width:210px}
+.verdict .vtxt b{color:var(--tx);font-size:14px}
+/* 聚焦列表：更通透 */
+.tb.tight{max-height:none}
+.tb.tight table tbody td{padding:9px 9px}
+.tb.tight .lk{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+.tb.tight .sub{font-size:10px;color:var(--tx4);margin-top:2px}
 .kblk .blkH{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .kblk h3{margin-bottom:0}
 
@@ -287,7 +304,7 @@ tbody tr:hover td{background:#fafbfc}
 
     <!-- ① 数据周报 -->
     <div id="vData">
-      <div class="lead" id="lead"></div>
+      <div class="verdict" id="verdict"></div>
       <div class="kpis" id="kpis"></div>
       <div class="blk kblk" style="margin-top:15px">
         <div class="blkH"><h3>多期走势</h3>
@@ -301,13 +318,13 @@ tbody tr:hover td{background:#fafbfc}
         <div class="subt" id="trHint" style="margin:3px 0 10px"></div>
         <div id="chart"></div>
       </div>
-      <div class="g2">
+      <div class="g2" style="margin-top:15px">
         <div class="blk">
-          <div class="subt"><i style="background:var(--red)"></i>最该处理的 · 利润下滑最多</div>
+          <div class="subt"><i style="background:var(--red)"></i><span id="badT">最该处理</span></div>
           <div class="tb" id="badTbl"></div>
         </div>
         <div class="blk">
-          <div class="subt"><i style="background:var(--green)"></i>做得好的 · 利润提升最多</div>
+          <div class="subt"><i style="background:var(--green)"></i><span id="goodT">做得好</span></div>
           <div class="tb" id="goodTbl"></div>
         </div>
       </div>
@@ -647,7 +664,7 @@ function render(){
   if(S.view==='learn'){ renderLearn(); return; }
   if(S.view==='compare'){ renderCompare(); return; }
   const sc=scope(), a=aggList(sc.cur), b=aggList(sc.prev);
-  renderLead(a,b,sc);
+  renderVerdict(a,b,sc);
   renderKpis(a,b);
   renderChart();
   renderChanges();
@@ -698,36 +715,42 @@ function renderChart(){
   const fmt=M[key][1];
   $('#chart').innerHTML=chart(WIN.map(w=>wEnd(w).slice(5)), base.map(x=>x[key]), fmt, null);
 }
-function renderLead(a,b,sc){
+function renderVerdict(a,b,sc){
   const nd=a.net-b.net, dl=a.lossN-b.lossN;
   const un=sc.cur.filter(r=>r.p<0&&(!ACTIONS[r.id]||ACTIONS[r.id].st==='待处理')).length;
-  const arrow=(d,hb)=>{ const up=d>0,good=hb?up:!up;
-    return '<span class="'+(good?'up-t':'down-t')+'">'+(up?'▲':'▼')+' '+money(Math.abs(d))+'</span>'; };
-  const s=[];
-  s.push('本期净利 <b class="num">'+money(a.net)+'</b>（环比 '+arrow(nd,1)+'）');
-  s.push('亏损 <b class="num">'+a.lossN+'</b> 条（环比 '
-    +(dl>0?'<span class="down-t">+'+dl+'</span>':'<span class="up-t">'+dl+'</span>')+' 条）');
-  s.push(un>0 ? ('<b class="num" style="color:var(--red)">'+un+'</b> 条亏损还没标动作')
-              : '<b class="num" style="color:var(--green)">全部亏损已标动作</b>');
-  $('#lead').innerHTML=s.join('　·　');
+  const score=(nd>0?1:nd<0?-1:0)+(dl<0?1:dl>0?-1:0);
+  const v=score>=2?{t:'向好',c:'good'}:score<=-2?{t:'承压',c:'bad'}:{t:'分化',c:'mid'};
+  const arrow=(d,hb)=>{const up=d>0,good=hb?up:!up;
+    return '<span class="'+(good?'up-t':'down-t')+'">'+(up?'▲':'▼')+' '+money(Math.abs(d))+'</span>';};
+  let txt='净利 <b class="num">'+money(a.net)+'</b>（环比 '+arrow(nd,1)+'）　'
+    +'亏损 <b class="num">'+a.lossN+'</b> 条（环比 '
+    +(dl>0?'<span class="down-t">+'+dl+'</span>':dl<0?'<span class="up-t">'+dl+'</span>':'<span class="flat-t">0</span>')+' 条）';
+  if(un>0) txt+='　<b style="color:var(--red)">'+un+'</b> 条亏损未标动作';
+  else txt+='　<span style="color:var(--green)">亏损均已标记</span>';
+  $('#verdict').className='verdict '+v.c;
+  $('#verdict').innerHTML='<span class="vbadge '+v.c+'">本周'+v.t+'</span><div class="vtxt">'+txt+'</div>';
 }
 function renderChanges(){
-  const chg=linkChanges(), N=12;
-  const row=(o)=>'<tr><td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis">'
-    +esc(o.m.product||o.m.title||o.id)+'</div>'
-    +'<div style="font-size:10px;color:var(--tx4)">'+esc(o.id)+'</div></td>'
+  const chg=linkChanges(), N=6;
+  const sum=arr=>arr.reduce((s,x)=>s+x.d,0);
+  const row=(o)=>'<tr><td><div class="lk">'+esc(o.m.product||o.m.title||o.id)+'</div>'
+    +'<div class="sub">'+esc(o.id)+(S.owner?'':' · '+esc(o.m.owner))+'</div></td>'
     +'<td><span class="pl '+(o.m.platform==='天猫'?'tm':'pdd')+'">'+esc((o.m.platform||'').slice(0,2))+'</span></td>'
-    +(S.owner?'':'<td>'+esc(o.m.owner)+'</td>')
     +'<td class="num '+(o.c.p>=0?'pos':'neg')+'"><b>'+money(o.c.p)+'</b></td>'
-    +'<td class="num" style="color:var(--tx3)">'+money(o.p.p)+'</td>'
     +'<td>'+dltT(o.d,0,true)+'</td>'
-    +'<td>'+(ACTIONS[o.id]?'<span class="tag n">'+esc(ACTIONS[o.id].st)+'</span>':'<span style="color:var(--tx4)">—</span>')+'</td></tr>';
-  const th='<thead><tr><th>链接</th><th>平台</th>'+(S.owner?'':'<th>运营</th>')
-    +'<th>本期</th><th>上期</th><th>Δ</th><th>动作</th></tr></thead><tbody>';
-  const bad=chg.slice(0,N), good=chg.slice(-N).reverse();
+    +'<td>'+(ACTIONS[o.id]?'<span class="tag n">'+esc(ACTIONS[o.id].st)+'</span>'
+      :'<span class="tag r">未处理</span>')+'</td></tr>';
+  const th='<thead><tr><th>链接</th><th>平台</th><th>本期利润</th><th>Δ</th><th>动作</th></tr></thead><tbody>';
+  const bad=chg.slice(0,N);
+  const good=chg.filter(x=>x.d>0).slice(-N).reverse();
+  const badSum=sum(bad), goodSum=sum(good);
+  $('#badT').innerHTML='最该处理 · <span style="color:var(--red);font-weight:700">合计拖累 '+money(badSum)+'</span>';
+  $('#goodT').innerHTML='做得好 · <span style="color:var(--green);font-weight:700">合计贡献 '+money(goodSum)+'</span>';
+  $('#badTbl').className='tb tight';
+  $('#goodTbl').className='tb tight';
   $('#badTbl').innerHTML = bad.length?'<table>'+th+bad.map(row).join('')+'</tbody></table>'
     :'<div class="empty">没有利润下滑的链接</div>';
-  $('#goodTbl').innerHTML= good.length?'<table>'+th+good.filter(x=>x.d>0).map(row).join('')+'</tbody></table>'
+  $('#goodTbl').innerHTML= good.length?'<table>'+th+good.map(row).join('')+'</tbody></table>'
     :'<div class="empty">没有利润提升的链接</div>';
 }
 const GRADE_CSS={'A':['#e9f7ef','#15803d'],'B':['#eaf1fd','#1d4ed8'],'C':['#fdf3e3','#b45309'],'D':['#fdecec','#c0332f']};

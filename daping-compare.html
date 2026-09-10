@@ -89,9 +89,13 @@
   summary{cursor:pointer;font-size:13px;font-weight:600;color:#374151}
   .foot{color:#9ca3af;font-size:12px;margin-top:20px;line-height:1.8}
   .note{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:8px 12px;font-size:12px;color:#9a3412;margin-bottom:12px;line-height:1.7}
+  .backbtn{position:fixed;top:16px;right:18px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:22px;background:#111827;color:#fff;font-size:13px;font-weight:600;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:background .15s,transform .15s}
+  .backbtn:hover{background:#374151;transform:translateY(-1px)}
+  .backbtn .arw{font-size:15px;line-height:1}
 </style>
 </head>
 <body>
+<a class="backbtn" href="index.html"><span class="arw">←</span> 返回工作台</a>
 <h1>运营打品 · 竞品对比看板</h1>
 <div class="sub">数据来源：打品登记表（我们 vs 竞品）· 维度参考「竞争分析」天猫对比 · 生成时间 2026-09-10 15:34<br>
 竞品区间值按日取中值推算、『比本品高/低』按我方同日值 ±15%/−13% 推算；推广计划 = 近7天汇总。</div>

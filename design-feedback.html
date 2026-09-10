@@ -191,7 +191,6 @@ function renderVideo(){
   const months=DATA.report_months||[];
   if(!months.includes(MONTH)) MONTH=months[0];
   mSel.innerHTML=months.map(m=>`<option value="${m}" ${m===MONTH?"selected":""}>${m} 产出</option>`).join("");
-  document.getElementById("mLabel").textContent=MONTH+" 产出";
 
   const monthGood=DATA.good_list.filter(g=>g.produce_month===MONTH).sort((a,b)=>b.roi-a.roi);
   const prodCount={}; monthGood.forEach(g=>{prodCount[g.product||"其他"]=(prodCount[g.product||"其他"]||0)+1;});

@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>运营周报看板 · 档位对比</title>
+<script>
+/* 版本自更新：打开时对比 version.json（带时间戳绕缓存），线上更新则自动跳到最新版
+   → 根治 GitHub Pages CDN 缓存(HTML max-age=600)导致的「本机是新的、线上看到旧的/不同步」 */
+var __BUILD__='1789029390952';
+(function(){ try{
+  if(String(__BUILD__).indexOf('__')===0) return;                 // 未注入构建号则跳过（本地直接打开时）
+  fetch('version.json?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(v){
+    if(v && v.build && v.build!==__BUILD__){ var u=new URL(location.href); u.searchParams.set('v',v.build); location.replace(u.href); }
+  }).catch(function(){});
+}catch(e){} })();
+</script>
 <style>
 :root{
   --bg:#f6f7f9; --card:#fff; --bd:#e5e8ec; --bd2:#d5d9e0;

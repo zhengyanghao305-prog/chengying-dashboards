@@ -141,6 +141,10 @@ tr.clickable:hover td{background:#f5f8ff}
 
     <div id="curHint"></div>
 
+    <div class="sec-t">🎯 本周优化动作建议 <span class="st-sub" id="advSub"></span></div>
+    <div class="sec-d">按「近7天档位变化」自动生成，按优先级排序；具体链接可对照下方①的档位与③的动作效果。</div>
+    <div id="advice"></div>
+
     <div class="sec-t">① 四维档位对比 <span class="st-sub" id="bktSub"></span></div>
     <div class="sec-d">
       每个档位看的是<b>链接数</b>（上期 → 本期，Δ 为变化）。
@@ -218,6 +222,10 @@ function fmtMD(dt){ return (dt.getMonth()+1)+'/'+dt.getDate(); }
 function weekInfo(dStr){ const m=natMonday(dStr); if(!m)return null;
   const sun=new Date(m); sun.setDate(m.getDate()+6);
   return {key:m.getFullYear()+'-'+(m.getMonth()+1)+'-'+m.getDate(), label:fmtMD(m)+'-'+fmtMD(sun), ts:m.getTime()}; }
+function pad2(x){ return String(x).padStart(2,'0'); }
+function winLabel(win,we){ const m=String(win||'').match(/(\d{4})\/(\d{1,2})\/(\d{1,2})\s*-\s*(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+  if(m) return pad2(m[2])+'/'+pad2(m[3])+'-'+pad2(m[5])+'/'+pad2(m[6]);
+  const s=String(we||'').slice(5); return s; }
 
 /* ── Δ 徽章 ── */
 function deltaBadge(cur,prev,gw){
@@ -263,49 +271,36 @@ async function boot(){
   catch(e){ $('#loading').classList.add('hide');
     $('#errBox').innerHTML='<div class="err"><b>加载 data/feishu_bi.json 失败：'+esc(e.message)+'</b><br>请用本地服务器地址打开（如 http://localhost:3588/bi-result-board.html），不要直接双击文件。</div>'; return; }
   const rows=raw.rows||[];
-  // pass1: link|window 累加 p/s（与执行端口径一致：同链接同窗口多行相加）
-  const byLW={}; let maxEnd='';
+  // 归并：link | 近7天滚动窗口(window_end)，累加 p/s（与执行端一致：同链接同窗口多行相加）
+  const by = {}; let maxEnd='';
   for(const r of rows){
-    const we=r.window_end; if(!we) continue; if(we>maxEnd) maxEnd=we;
+    const we=String(r.window_end||'').slice(0,10); if(!we) continue; if(we>maxEnd) maxEnd=we;
     const id=String(r.link_id==null?'':r.link_id); if(!id) continue;
-    const k=id+'|'+String(r.window||'');
-    let a=byLW[k];
-    if(!a){ a=byLW[k]={id, window:r.window||'', window_end:we, p:0, s:0, prV:null,
+    const k=id+'|'+we;
+    let a=by[k];
+    if(!a){ a=by[k]={id, we, win:r.window||'', p:0, s:0, prV:null,
       product:r.product||'', title:r.title||'', platform:r.platform||'', owner:cleanOwner(r.owner)}; }
     a.p+=num(r.profit_pay); a.s+=num(r.net_pay);
     if(a.prV===null){ const v=num(r.profit_rate); if(v!==0) a.prV=v; }
-    if(we>a.window_end) a.window_end=we;
-  }
-  // pass2: link|自然周 → 取 window_end 最新的滚动窗口
-  const tmp={};
-  for(const k in byLW){ const a=byLW[k]; const wi=weekInfo(a.window_end); if(!wi) continue;
-    const kk=a.id+'|'+wi.key; const old=tmp[kk];
-    if(!old || a.window_end>old.window_end) tmp[kk]=a;
   }
   DATAEND=maxEnd;
-  LINK={}; for(const k in tmp){ const a=tmp[k]; (LINK[a.id]=LINK[a.id]||{id:a.id,W:{}}).W[weekInfo(a.window_end).key]=a; }
+  LINK={};
+  for(const k in by){ const a=by[k]; (LINK[a.id]=LINK[a.id]||{id:a.id,W:{}}).W[a.we]=a; }
   for(const id in LINK){ const L=LINK[id]; let best=null;
-    for(const wk in L.W){ if(!best||L.W[wk].window_end>L.W[best].window_end) best=wk; }
+    for(const we in L.W){ if(!best||we>best) best=we; }
     if(best) L.meta=L.W[best]; }
-  // 周列表
-  const wset={}; for(const id in LINK) for(const wk in LINK[id].W) wset[wk]=weekInfo(LINK[id].W[wk].window_end).ts;
-  WEEKS=Object.keys(wset).sort((a,b)=>wset[a]-wset[b]);
-  for(const wk of WEEKS){
-    let any=null,maxE='';
-    for(const id in LINK){ const r=LINK[id].W[wk]; if(r){ if(!any)any=r.window_end; if(r.window_end>maxE)maxE=r.window_end; } }
-    const wi=weekInfo(any); wi.maxEnd=maxE;
-    try{ const mon=natMonday(any); const sunTs=mon.getTime()+6*86400000;
-      const meTs=Date.parse(String(maxE).slice(0,10).replace(/\//g,'-'));
-      wi.complete=(meTs>=sunTs); }catch(e){ wi.complete=false; }
-    WINFO[wk]=wi;
-  }
+  // 期 = 近7天滚动窗口（按 window_end 升序）；过滤样本过少的早期窗口
+  const pc={}; for(const id in LINK) for(const we in LINK[id].W) pc[we]=(pc[we]||0)+1;
+  WEEKS=Object.keys(pc).filter(we=>pc[we]>=100).sort();
+  for(const we of WEEKS){ let win=''; for(const id in LINK){ if(LINK[id].W[we]){ win=LINK[id].W[we].win; break; } }
+    WINFO[we]={label:winLabel(win,we), win, n:pc[we]}; }
   PLATS=[...new Set(Object.values(LINK).map(l=>l.meta.platform))].filter(Boolean).sort();
   OWNERS=[...new Set(Object.values(LINK).map(l=>l.meta.owner))].sort((a,b)=>a.localeCompare(b,'zh'));
   await loadActions();
 
   $('#loading').classList.add('hide'); $('#app').classList.remove('hide');
-  $('#hdrSub').textContent=WEEKS.length+' 个自然周 · '+Object.keys(LINK).length+' 链接 · '+OWNERS.length+' 运营'
-    +(DATAEND?' · 数据截至 '+String(DATAEND).slice(0,10).replace(/\//g,'-')+'':'');
+  $('#hdrSub').textContent=WEEKS.length+' 个近7天窗口 · '+Object.keys(LINK).length+' 链接 · '+OWNERS.length+' 运营'
+    +(DATAEND?' · 数据截至 '+String(DATAEND).slice(0,10).replace(/\//g,'-'):'');
   CUR=WEEKS[WEEKS.length-1]; PREV=WEEKS.length>1?WEEKS[WEEKS.length-2]:WEEKS[0];
   bindUI(); render();
 }
@@ -344,21 +339,46 @@ function ownerSummary(week,owner,common){
 /* ════════ 渲染 ════════ */
 function render(){ renderBar();
   const SC=ONLY_COMMON?commonIds():null;
+  const c=bucketCounts(CUR,S.plat,S.owner,SC), p=bucketCounts(PREV,S.plat,S.owner,SC);
   renderCurHint(SC);
-  renderBuckets(SC); renderOwnerTable(SC); renderActionEffect(); }
+  renderAdvice(c.cnt,p.cnt);
+  renderBuckets(SC,c,p); renderOwnerTable(SC); renderActionEffect(); }
 function commonIds(){ const s=new Set(); for(const id in LINK){ if(LINK[id].W[CUR]&&LINK[id].W[PREV]) s.add(id); } return s; }
 function renderCurHint(SC){
   const host=$('#curHint'); if(!host) return;
-  const inc = WINFO[CUR] && !WINFO[CUR].complete;
-  if(!inc && ONLY_COMMON){
-    host.innerHTML='<div style="font-size:12px;color:var(--tx3);background:#f0f4ff;border:1px solid #dbe4ff;border-radius:9px;padding:9px 13px;margin-bottom:12px;line-height:1.65">'
-      +'口径：<b>同口径</b>（只统计两期都出现的同一批链接，共 '+(SC?SC.size:0)+' 条），排除本周新增/下架链接的干扰，直接看这批链接档位的变化。取消勾选可看全部链接。</div>';
-    return;
-  }
-  if(!inc){ host.innerHTML=''; return; }
-  host.innerHTML='<div style="font-size:12px;color:#b45309;background:#fdf7e8;border:1px solid #f3e0b0;border-radius:9px;padding:9px 13px;margin-bottom:12px;line-height:1.65">'
-    +'⚠ 本期 <b>'+WINFO[CUR].label+'</b> 数据只到 '+String(WINFO[CUR].maxEnd||'').slice(0,10)+'（<b>进行中</b>，未满一周），各档位<b>绝对条数会偏少</b>，别直接和上期比总数。'
-    +'已默认用<b>同口径</b>（两期都有的 '+(SC?SC.size:0)+' 条链接）对比 —— 这样才是公平的变化。要看绝对数请取消「同口径」。</div>';
+  host.innerHTML='<div style="font-size:12px;color:var(--tx2);background:#f0f4ff;border:1px solid #dbe4ff;border-radius:9px;padding:9px 13px;margin-bottom:12px;line-height:1.65">'
+    +'口径：<b>近7天滚动窗口</b> —— 本期 <b>'+WINFO[CUR].label+'</b>，对比上一窗口 <b>'+WINFO[PREV].label+'</b>。'
+    +(ONLY_COMMON
+      ? '已开<b>同口径</b>：只统计两期都出现的同一批链接（<b>'+(SC?SC.size:0)+'</b> 条），排除新增/下架干扰，直接看这批链接的档位变化。取消勾选可看全部链接。'
+      : '当前为<b>全部链接</b>口径（含本周新增/下架）。')
+    +'</div>';
+}
+
+/* ── 本周优化动作建议（自动按档位变化生成） ── */
+function renderAdvice(c,p){
+  const d=(k,i)=>c[k][i]-p[k][i];
+  const bigC=c.loss[3]+c.loss[4], bigP=p.loss[3]+p.loss[4];
+  const list=[]; const add=(pri,icon,t,text)=>list.push({pri,icon,t,text});
+  if(bigC>bigP) add(0,'🚨','大额亏损优先处理','大额亏损（&gt;500元）'+bigC+' 条，比上期 +'+(bigC-bigP)+'。单条亏损大，先停推广 / 下架。');
+  if(d('rate',0)>0) add(0,'🟣','亏毛利链接立即止损','利润率&lt;0%（亏毛利）'+c.rate[0]+' 条，比上期 +'+d('rate',0)+'。优先自查成本 / 提价 / 停低效计划。');
+  if(d('loss',0)>0) add(0,'🔴','重点优化小额亏损（≤100元）','亏损≤100元档 '+c.loss[0]+' 条，比上期 +'+d('loss',0)+'。数量最多、止损快，本周可批量提投产 / 提价 / 停低效计划。');
+  if(d('loss',0)<0) add(1,'🟢','小额亏损在减少','亏损≤100元档 '+c.loss[0]+' 条（'+d('loss',0)+'），继续维持当前动作。');
+  if(d('profit',0)<0) add(1,'🟠','低利盈利在下滑','盈利≤100元档 '+c.profit[0]+' 条（'+d('profit',0)+'），提防滑向亏损，建议提毛利 / 提价。');
+  if(d('profit',4)<0) add(1,'💎','高利润链接在减少','盈利&gt;1000元 '+c.profit[4]+' 条（'+d('profit',4)+'），盯住头部链接，优先保流量与资源。');
+  if(d('profit',4)>0) add(2,'💎','高利润链接在增加','盈利&gt;1000元 '+c.profit[4]+' 条（+'+d('profit',4)+'），可加大投放 / 复制打法。');
+  if(d('sales',4)<0) add(1,'🔵','大销售额链接减少','销售额&gt;30k '+c.sales[4]+' 条（'+d('sales',4)+'），保住头部链接的流量与库存。');
+  if(d('sales',0)>0) add(2,'🔵','低销售链接增多','销售额&lt;1k '+c.sales[0]+' 条（+'+d('sales',0)+'），清库存 / 优化主图与流量入口。');
+  if(d('rate',4)<0) add(2,'🟣','高利润率链接减少','利润率≥30% '+c.rate[4]+' 条（'+d('rate',4)+'），排查是否被竞品挤压。');
+  if(!list.length) add(2,'✅','本周档位整体平稳','各档位变化不大，保持当前节奏，重点盯住大额亏损与亏毛利链接。');
+  list.sort((a,b)=>a.pri-b.pri);
+  const CL=['var(--red)','var(--amber)','var(--blue)'], CT=['紧急','重要','关注'];
+  const sub=$('#advSub'); if(sub) sub.textContent='（'+WINFO[CUR].label+' vs '+WINFO[PREV].label+(ONLY_COMMON?' · 同口径':'')+'）';
+  $('#advice').innerHTML=list.slice(0,6).map(x=>
+    '<div style="display:flex;gap:11px;border:1px solid var(--bd);border-left:4px solid '+CL[x.pri]+';border-radius:10px;padding:11px 15px;margin-bottom:9px;background:#fff">'
+    +'<div style="font-size:19px;line-height:1.35">'+x.icon+'</div>'
+    +'<div><div style="font-weight:700;font-size:13.5px">'+x.t
+    +' <span style="font-size:10.5px;font-weight:700;color:'+CL[x.pri]+';border:1px solid '+CL[x.pri]+';border-radius:20px;padding:1px 7px;margin-left:3px">'+CT[x.pri]+'</span></div>'
+    +'<div style="font-size:12.5px;color:var(--tx2);margin-top:3px;line-height:1.65">'+x.text+'</div></div></div>').join('');
 }
 
 function renderBar(){
@@ -371,7 +391,7 @@ function renderBar(){
     +OWNERS.filter(o=>!S.plat||cnt[o]).map(o=>
       '<button class="pill'+(S.owner===o?' on':'')+'" data-o="'+esc(o)+'">'+esc(o)
       +(cnt[o]?'<span class="n">'+cnt[o]+'</span>':'')+'</button>').join('');
-  const opt=WEEKS.map(w=>'<option value="'+w+'">'+WINFO[w].label+(WINFO[w].complete?'':'（进行中）')+'</option>').join('');
+  const opt=WEEKS.map(w=>'<option value="'+w+'">'+WINFO[w].label+'</option>').join('');
   if($('#selCur').dataset.n!==String(WEEKS.length)){
     $('#selCur').innerHTML=opt; $('#selPrev').innerHTML=opt; $('#selCur').dataset.n=String(WEEKS.length); }
   $('#selCur').value=CUR; $('#selPrev').value=PREV;
@@ -395,8 +415,9 @@ function bucketCard(key,cur,prev){
     +'<span class="btot">共 <b>'+curTot+'</b> 条（上期 '+prevTot+'）'+deltaInline(curTot,prevTot,DIM[key].gw)+'</span>'
     +'</div><div class="bbody">'+rows+'</div></div>';
 }
-function renderBuckets(SC){
-  const c=bucketCounts(CUR,S.plat,S.owner,SC), p=bucketCounts(PREV,S.plat,S.owner,SC);
+function renderBuckets(SC,c,p){
+  if(!c) c=bucketCounts(CUR,S.plat,S.owner,SC);
+  if(!p) p=bucketCounts(PREV,S.plat,S.owner,SC);
   $('#bucketGrid').innerHTML=['loss','profit','sales','rate'].map(k=>bucketCard(k,c.cnt[k],p.cnt[k])).join('');
 }
 

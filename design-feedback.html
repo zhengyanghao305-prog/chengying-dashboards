@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>短视频数据诊断报告 · 优秀素材</title>
+<title>短视频/链接数据诊断报告 · 可复用</title>
 <style>
   :root{
     --bg:#f4f6fb; --card:#fff; --ink:#1f2937; --sub:#64748b; --line:#e7ebf3;
@@ -13,10 +13,17 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.5;padding:20px 22px 60px}
   .wrap{max-width:1240px;margin:0 auto}
+  .topbar{margin-bottom:10px}
+  .back{display:inline-block;font-size:12.5px;color:var(--accent);text-decoration:none;font-weight:600;background:var(--soft);border:1px solid #c7d6ff;border-radius:8px;padding:4px 12px}
+  .back:hover{background:#e0e7ff}
   header{margin-bottom:14px}
   h1{font-size:19px;font-weight:800;letter-spacing:.3px}
   .sub{color:var(--sub);font-size:12.5px;margin-top:4px}
   .sub b{color:var(--accent)}
+
+  .tabs{display:flex;gap:8px;margin-bottom:14px}
+  .tab{font-size:13px;font-weight:700;padding:8px 16px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--sub);cursor:pointer}
+  .tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
 
   /* 给设计的复用指引 banner */
   .guide{background:linear-gradient(95deg,#1e3a8a,#2563eb);color:#fff;border-radius:14px;padding:16px 18px;margin:14px 0 18px;box-shadow:0 6px 20px rgba(37,99,235,.18)}
@@ -61,6 +68,8 @@
   .reuse .h{font-size:11.5px;font-weight:700;color:var(--accent);margin-bottom:5px;display:flex;align-items:center;gap:6px}
   .reuse .rt{font-size:12px;color:#1e40af;line-height:1.6}
   .reuse .rt b{color:#1d4ed8}
+  .reuse ul.rt{margin:0;padding-left:16px}
+  .reuse ul.rt li{font-size:12px;color:#1e40af;margin:2px 0;line-height:1.5}
 
   /* 可直接改拍的脚本文案 */
   .shot{background:var(--soft);border:1px solid #c7d6ff;border-radius:10px;padding:10px 12px}
@@ -88,42 +97,76 @@
 </head>
 <body>
 <div class="wrap">
+  <div class="topbar">
+    <a href="index.html" class="back">← 返回工作台</a>
+  </div>
   <header>
-    <h1>🎬 短视频素材质量诊断报告</h1>
-    <div class="sub">产出月份 <b id="mLabel">—</b> · 维度：素材（按主体名称，来自飞书「天猫-短视频营销数据」）· 仅展示该月产出、经诊断可复用的好素材</div>
+    <h1>📣 设计 / 投放数据月度反馈</h1>
+    <div class="sub">给设计 &amp; 运营的月度复用复盘 · 仅展示经诊断<b>可复用（素材）/ 可加大（链接）</b>的条目 · 次月复盘</div>
   </header>
 
-  <div class="guide" id="guide">
-    <div class="gt">💡 <span id="guideTitle">给设计的复用指引</span></div>
-    <div class="gb" id="guideBody">加载中…</div>
+  <div class="tabs">
+    <button class="tab on" data-view="video">🎬 短视频素材</button>
+    <button class="tab" data-view="link">🔗 推广链接</button>
   </div>
 
-  <div class="toolbar">
-    <label style="color:var(--sub);font-size:12.5px">产出月份</label>
-    <select id="mSel"></select>
-    <span class="cnt">当月共产出 <b id="prodCnt">0</b> 条 · 达标可复用 <b id="cnt">0</b> 条</span>
-  </div>
-  <div class="toolbar" style="margin-top:-6px">
-    <label style="color:var(--sub);font-size:12.5px">品类</label>
-    <span id="prodBar" style="display:flex;flex-wrap:wrap;gap:6px"></span>
+  <!-- ============ 短视频素材 ============ -->
+  <div id="videoPanel">
+    <div class="guide" id="guide">
+      <div class="gt">💡 <span id="guideTitle">给设计的复用指引</span></div>
+      <div class="gb" id="guideBody">加载中…</div>
+    </div>
+
+    <div class="toolbar">
+      <label style="color:var(--sub);font-size:12.5px">产出月份</label>
+      <select id="mSel"></select>
+      <span class="cnt">当月共产出 <b id="prodCnt">0</b> 条 · 达标可复用 <b id="cnt">0</b> 条</span>
+    </div>
+    <div class="toolbar" style="margin-top:-6px">
+      <label style="color:var(--sub);font-size:12.5px">品类</label>
+      <span id="prodBar" style="display:flex;flex-wrap:wrap;gap:6px"></span>
+    </div>
+
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none">该月份暂无诊断出的好素材</div>
   </div>
 
-  <div class="grid" id="grid"></div>
-  <div class="empty" id="empty" style="display:none">该月份暂无诊断出的好素材</div>
+  <!-- ============ 推广链接 ============ -->
+  <div id="linkPanel" style="display:none">
+    <div class="guide" id="linkGuide">
+      <div class="gt">💡 <span id="linkGuideTitle">给运营的复用指引</span></div>
+      <div class="gb" id="linkGuideBody">加载中…</div>
+    </div>
+
+    <div class="toolbar">
+      <label style="color:var(--sub);font-size:12.5px">数据月份</label>
+      <select id="lmSel"></select>
+      <span class="cnt">当月覆盖 <b id="linkTotal">0</b> 条 · 可加大 <b id="linkCnt">0</b> 条</span>
+    </div>
+    <div class="toolbar" style="margin-top:-6px">
+      <label style="color:var(--sub);font-size:12.5px">上架月份</label>
+      <select id="lListingSel"></select>
+      <label style="color:var(--sub);font-size:12.5px;margin-left:8px">品类</label>
+      <span id="linkProdBar" style="display:flex;flex-wrap:wrap;gap:6px"></span>
+    </div>
+
+    <div class="grid" id="linkGrid"></div>
+    <div class="empty" id="linkEmpty" style="display:none">该月份暂无达标可加大的链接</div>
+  </div>
 
   <footer>
     <div><b>关于本页</b></div>
-    <div>· 数据来源：飞书 Base <code>Dsbub221YaKIaKsTWAYcwvURnJe</code> →「天猫-短视频营销数据」（素材/主体级）。</div>
-    <div>· <b>按月产出、次月复盘</b>：本页按素材「计划开通月份」归到产出月份。例如设计 8 月产出 / 8 月开的计划，在 9 月（次月）生成此诊断报告复盘，不再重复展示更早月份的老素材。</div>
-    <div>· 「可复用」判定：成交数&gt;0 且 ROI≥1 且 点击率≥4% 且 加购率≥10%。</div>
-    <div>· 每张卡透出 <b>视频标题 + 主体ID</b>：复制主体ID到万相台素材库即可定位该素材原片（视频页链接需淘宝登录，不便直接外链）。</div>
-    <div>· 卡片内「可直接开拍的脚本文案」为依据素材<b>真实标题与卖点</b>自动撰写（画面/口播/字幕三段式），设计可照此直接开拍；要逐字还原原视频口播需登录态转写通道，当前环境暂不可用。</div>
-    <div>· 缺失项：表中无「平均有效观看时长」字段；「观看量」以「展现量」代理。如需真实素材级完播/时长，请另导万相台素材报表接入。</div>
+    <div>· 数据来源：飞书 Base <code>Dsbub221YaKIaKsTWAYcwvURnJe</code> →「天猫-短视频营销数据」(素材/主体级) +「天猫-商品数据」(链接/宝贝级)。</div>
+    <div>· <b>短视频</b>：按素材「计划开通月份」归到产出月份，次月复盘；「可复用」判定：成交数&gt;0 且 ROI≥1 且 点击率≥4% 且 加购率≥10%。每张卡透出视频标题 + 主体ID（复制后在万相台素材库搜原片）。</div>
+    <div>· <b>推广链接</b>：按「数据月份」归组、可筛选「上架月份」与品类，指标口径对齐工作台 #04 推广投放 / #07 产品链接；「可加大」判定：ROI≥1 且 支付转化率≥4% 且 加购率≥8%。每张卡透出产品名 + 宝贝ID（复制后在推广后台查链接）。</div>
+    <div>· 卡片内「为什么好」= 相对全量中位的倍数诊断；「可复用要点」给设计(主图/详情结构)与运营(同款计划复制放大)的落地动作。</div>
+    <div>· 短视频脚本为依素材真实卖点自动撰写的可改拍分镜；链接无脚本，复用要点聚焦主图与详情页卖点呈现。</div>
+    <div>· 缺失项：短视频表无「平均有效观看时长」；「观看量」以「展现量」代理。</div>
   </footer>
 </div>
 
 <script>
-let DATA=null, MONTH=null, CAT='';
+let DATA=null, VIEW='video', MONTH=null, CAT='', MONTH_L=null, CAT_L='', LISTING_L='';
 
 const fmtPct=v=>v==null?"—":(v*100).toFixed(1)+"%";
 const fmtMoney=v=>v==null?"—":"¥"+Number(v).toFixed(1);
@@ -136,26 +179,28 @@ function rateCls(k,v){
   if(k==="roi") return v>=2?"pos":v>=1.2?"mid":"neg";
   if(k==="deal_cost") return v>0&&v<=16?"pos":v>28?"neg":"mid";
   if(k==="cart_cost") return v>0&&v<=6?"pos":v>10?"neg":"mid";
+  if(k==="fav_rate") return v>=0.02?"pos":v>=0.01?"mid":"neg";
+  if(k==="bounce") return v<=0.7?"pos":v<=0.8?"mid":"neg";
+  if(k==="stay") return v>=45?"pos":v>=30?"mid":"neg";
   return "";
 }
 
-function render(){
+/* ===== 短视频素材 ===== */
+function renderVideo(){
   const mSel=document.getElementById("mSel");
-  // 产出月份列表（降序，最新在前）
   const months=DATA.report_months||[];
   if(!months.includes(MONTH)) MONTH=months[0];
   mSel.innerHTML=months.map(m=>`<option value="${m}" ${m===MONTH?"selected":""}>${m} 产出</option>`).join("");
   document.getElementById("mLabel").textContent=MONTH+" 产出";
 
   const monthGood=DATA.good_list.filter(g=>g.produce_month===MONTH).sort((a,b)=>b.roi-a.roi);
-  // 品类按钮（当月实际有的品类）
   const prodCount={}; monthGood.forEach(g=>{prodCount[g.product||"其他"]=(prodCount[g.product||"其他"]||0)+1;});
   const prods=Object.keys(prodCount).sort();
   if(!prods.includes(CAT)&&CAT!==undefined&&CAT!=='') CAT='';
   document.getElementById("prodBar").innerHTML=
     `<button class="pc ${CAT===''?'on':''}" data-cat="">全部 <b>${monthGood.length}</b></button>`+
     prods.map(p=>`<button class="pc ${CAT===p?'on':''}" data-cat="${p}">${p} <b>${prodCount[p]}</b></button>`).join("");
-  document.querySelectorAll("#prodBar .pc").forEach(btn=>btn.onclick=()=>{CAT=btn.dataset.cat;render();});
+  document.querySelectorAll("#prodBar .pc").forEach(btn=>btn.onclick=()=>{CAT=btn.dataset.cat;renderVideo();});
 
   const good=CAT?monthGood.filter(g=>(g.product||"其他")===CAT):monthGood;
   const dg=DATA.diag_by_month[MONTH]||{};
@@ -212,10 +257,95 @@ function renderGuide(){
   b.innerHTML=tags+"<br>"+dg.common;
 }
 
+/* ===== 推广链接 ===== */
+function renderLink(){
+  const lmSel=document.getElementById("lmSel");
+  const months=DATA.link_report_months||[];
+  if(!months.includes(MONTH_L)) MONTH_L=months[0];
+  lmSel.innerHTML=months.map(m=>`<option value="${m}" ${m===MONTH_L?"selected":""}>${m} 数据</option>`).join("");
+  document.getElementById("lmSel").onchange=e=>{MONTH_L=e.target.value;LISTING_L='';CAT_L='';renderLink();};
+
+  const monthGood=DATA.good_links.filter(g=>g.data_month===MONTH_L);
+  // 上架月份下拉
+  const listings=DATA.link_listing_months||[];
+  const lSel=document.getElementById("lListingSel");
+  lSel.innerHTML=`<option value="">全部上架月份</option>`+listings.map(m=>`<option value="${m}" ${m===LISTING_L?"selected":""}>${m} 上架</option>`).join("");
+  lSel.onchange=e=>{LISTING_L=e.target.value;renderLink();};
+
+  // 品类
+  const prodCount={}; monthGood.forEach(g=>{const p=g.cat||"未分类";prodCount[p]=(prodCount[p]||0)+1;});
+  const prods=Object.keys(prodCount).sort();
+  if(!prods.includes(CAT_L)&&CAT_L!=='') CAT_L='';
+  document.getElementById("linkProdBar").innerHTML=
+    `<button class="pc ${CAT_L===''?'on':''}" data-cat="">全部 <b>${monthGood.length}</b></button>`+
+    prods.map(p=>`<button class="pc ${CAT_L===p?'on':''}" data-cat="${p}">${p} <b>${prodCount[p]}</b></button>`).join("");
+  document.querySelectorAll("#linkProdBar .pc").forEach(btn=>btn.onclick=()=>{CAT_L=btn.dataset.cat;renderLink();});
+
+  let good=monthGood;
+  if(LISTING_L) good=good.filter(g=>g.listing_month===LISTING_L);
+  if(CAT_L) good=good.filter(g=>(g.cat||"未分类")===CAT_L);
+  const dg=DATA.goods_diag_by_month[MONTH_L]||{};
+  document.getElementById("linkCnt").textContent=good.length;
+  document.getElementById("linkTotal").textContent=dg.total||monthGood.length;
+  document.getElementById("linkEmpty").style.display=good.length?"none":"block";
+
+  const grid=document.getElementById("linkGrid");
+  grid.innerHTML=good.map(r=>{
+    const why=(r.why||[]).map(w=>`<li>${w}</li>`).join("");
+    const reuse=(r.link_reuse||[]).map(t=>`<li>${t}</li>`).join("");
+    const M=[
+      ["ROI",r.roi==null?"—":r.roi.toFixed(2),"roi"],
+      ["支付转化",fmtPct(r.conv_rate),"conv_rate"],
+      ["加购率",fmtPct(r.cart_rate),"cart_rate"],
+      ["收藏率",fmtPct(r.fav_rate),"fav_rate"],
+      ["跳失率",fmtPct(r.bounce),"bounce"],
+      ["停留",(r.stay||0).toFixed(0)+"s","stay"],
+    ];
+    const sec=[["访客数",(r.visitor||0).toLocaleString()],["销售额","¥"+(r.sale||0).toLocaleString()]];
+    return `<div class="card">
+      <div class="vhead">
+        <div>
+          <div class="vtitle" title="${r.name}">${r.name}</div>
+          <div class="vid">宝贝ID ${r.baby_id}<span class="copy" onclick="navigator.clipboard.writeText('${r.baby_id}')">复制</span><span class="find">在推广后台用此ID查链接</span></div>
+        </div>
+        <span class="badge">可加大</span>
+      </div>
+      <div class="meta"><span class="chip o">${r.cat||"未分类"}</span><span class="chip m">${r.listing_month||"?"} 上架</span></div>
+      <div class="metrics">
+        ${M.map(([k,v,key])=>`<div class="m"><div class="k">${k}</div><div class="v ${rateCls(key,typeof v==='string'?parseFloat(v):v)}">${v}</div></div>`).join("")}
+      </div>
+      <div class="metrics" style="margin-bottom:12px">
+        ${sec.map(([k,v])=>`<div class="m sec"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}
+      </div>
+      <div class="why"><div class="h">✅ 为什么好</div><ul>${why||"<li>综合指标达标</li>"}</ul></div>
+      <div class="reuse"><div class="h">🔗 可复用 / 可加大要点</div><ul class="rt">${reuse||"<li>表现平稳</li>"}</ul></div>
+    </div>`;
+  }).join("");
+  renderLinkGuide();
+}
+
+function renderLinkGuide(){
+  const dg=DATA.goods_diag_by_month[MONTH_L]||{};
+  document.getElementById("linkGuideTitle").textContent=`给运营的复用指引（${MONTH_L} 数据 · 次月复盘）`;
+  const b=document.getElementById("linkGuideBody");
+  if(!dg.common){b.textContent="（暂无聚合诊断）";return;}
+  const cats=(dg.top_cat||[]).slice(0,3).map(([t,n])=>`<span class="gtag">${t} ${n}条</span>`).join("");
+  b.innerHTML=cats+"<br>"+dg.common;
+}
+
 fetch("data/design-feedback.json").then(r=>r.json()).then(d=>{
-  DATA=d; MONTH=d.diag_month||(d.report_months&&d.report_months[0]);
-  document.getElementById("mSel").onchange=e=>{MONTH=e.target.value;render();};
-  render();
+  DATA=d;
+  MONTH=d.diag_month||(d.report_months&&d.report_months[0]);
+  MONTH_L=(d.link_report_months&&d.link_report_months[0])||null;
+  document.getElementById("mSel").onchange=e=>{MONTH=e.target.value;renderVideo();};
+  document.querySelectorAll(".tab").forEach(btn=>btn.onclick=()=>{
+    VIEW=btn.dataset.view;
+    document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b===btn));
+    document.getElementById("videoPanel").style.display=VIEW==="video"?"block":"none";
+    document.getElementById("linkPanel").style.display=VIEW==="link"?"block":"none";
+    if(VIEW==="link") renderLink(); else renderVideo();
+  });
+  renderVideo();
 }).catch(e=>{
   document.getElementById("guideBody").textContent="数据加载失败："+e.message;
 });

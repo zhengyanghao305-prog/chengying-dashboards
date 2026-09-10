@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>运营周报看板 · 自然周对比</title>
+<title>运营周报看板 · 档位对比</title>
 <style>
 :root{
   --bg:#f6f7f9; --card:#fff; --bd:#e5e8ec; --bd2:#d5d9e0;
@@ -14,12 +14,11 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--tx);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-  font-size:13.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .num{font-variant-numeric:tabular-nums}
-.wrap{max-width:1180px;margin:0 auto;padding:24px 22px 64px}
+.wrap{max-width:1240px;margin:0 auto;padding:22px 20px 60px}
 
-/* 头部 */
-.hdr{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.hdr{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .hdr h1{font-size:21px;font-weight:700;letter-spacing:.2px}
 .hdr .sub{color:var(--tx3);font-size:12.5px}
 .hdr .sp{flex:1}
@@ -27,7 +26,6 @@ body{background:var(--bg);color:var(--tx);
   padding:5px 11px;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:none}
 .hdr .btnx:hover{border-color:var(--tx3);color:var(--tx)}
 
-/* 筛选条 */
 .bar{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px 15px;margin-bottom:16px}
 .bar .row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .bar .row+.row{margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)}
@@ -42,62 +40,54 @@ select{background:#fff;color:var(--tx);border:1px solid var(--bd2);border-radius
   font-size:12.5px;outline:none;font-family:inherit}
 .hint{font-size:11.5px;color:var(--tx4)}
 
-/* 区块 */
-.blk{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:15px 17px;margin-bottom:14px}
-.blk>h3{font-size:14px;font-weight:700;margin-bottom:11px;display:flex;align-items:center;gap:8px}
-.blk>h3 .sp{flex:1}
-.blk>h3 .hint{font-weight:400;font-size:11.5px;color:var(--tx4)}
+.sec-t{font-size:15px;font-weight:800;margin:20px 2px 4px;display:flex;align-items:center;gap:8px}
+.sec-t .st-sub{font-size:11.5px;color:var(--tx4);font-weight:400}
+.sec-d{font-size:12px;color:var(--tx3);margin:0 2px 11px;line-height:1.6}
+.sec-d b{color:var(--tx)}
 
-/* 定性横幅 */
-.verdict{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-radius:var(--r);padding:13px 17px;
-  margin-bottom:14px;border:1px solid var(--bd);background:#fff;border-left:5px solid var(--bd2)}
-.verdict.good{border-left-color:var(--green)}
-.verdict.bad{border-left-color:var(--red)}
-.verdict.mid{border-left-color:var(--amber)}
-.verdict .vbadge{font-size:13px;font-weight:800;padding:4px 13px;border-radius:20px;white-space:nowrap}
-.verdict .vbadge.good{background:#e9f7ef;color:#15803d}
-.verdict .vbadge.bad{background:#fdecec;color:#c0332f}
-.verdict .vbadge.mid{background:#fdf3e3;color:#b45309}
-.verdict .vtxt{font-size:13px;color:var(--tx2);line-height:1.55;flex:1;min-width:210px}
-.verdict .vtxt b{color:var(--tx);font-size:14px}
-
-/* KPI 卡片 */
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-@media(max-width:1080px){.kpis{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
-.kpi{border:1px solid var(--bd);border-radius:var(--r2);padding:13px 14px;background:#fff;display:flex;flex-direction:column}
-.kpi .klab{font-size:12px;color:var(--tx3);margin-bottom:8px;font-weight:600}
-.kpi .kval{font-size:25px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
-.kpi .kval.red{color:var(--red)}
-.kpi .kdelta{font-size:12.5px;font-weight:700;margin-top:7px}
-.kpi .ksub{font-size:11px;color:var(--tx4);margin-top:4px}
-
-/* 涨跌 */
-.d{font-weight:600;font-size:11.5px;white-space:nowrap}
-.d.up{color:var(--green)}.d.down{color:var(--red)}.d.flat{color:var(--tx4)}
-.up-t{color:var(--green)}.down-t{color:var(--red)}.flat-t{color:var(--tx4)}
-.pos{color:var(--green)}.neg{color:var(--red)}
+/* 档位卡 */
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.bgrid{grid-template-columns:1fr}}
+.bcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.bcard .bhead{padding:11px 15px;border-bottom:1px solid var(--bd);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.bcard .bhead .bt{font-size:13.5px;font-weight:800}
+.bcard .bhead .bp{font-size:11px;color:var(--tx4)}
+.bcard .bhead .bsp{flex:1}
+.bcard .bhead .btot{font-size:11.5px;color:var(--tx3);font-variant-numeric:tabular-nums}
+.bcard .bhead .btot b{font-size:15px;color:var(--tx);font-weight:800}
+.bcard .bbody{padding:5px 8px 8px}
+.brow{display:grid;grid-template-columns:minmax(84px,1.1fr) 62px 24px 62px 1fr;align-items:center;
+  gap:4px;padding:7px 7px;border-radius:7px;font-variant-numeric:tabular-nums}
+.brow:hover{background:#fafbfc}
+.brow .bn{font-size:12.5px;color:var(--tx2);font-weight:600}
+.brow .bp{font-size:13px;color:var(--tx4);text-align:right}
+.brow .ba{font-size:11px;color:var(--tx4);text-align:center}
+.brow .bc{font-size:14.5px;font-weight:800;text-align:right}
+.brow .bd{font-size:12px;font-weight:700;text-align:right;padding-left:4px}
+.brow.hl{background:#fbfcfe}
+.bd.up{color:var(--green)}.bd.down{color:var(--red)}.bd.flat{color:var(--tx4)}
 
 /* 表 */
 table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
-thead th{text-align:right;padding:7px 9px;font-weight:600;font-size:11px;color:var(--tx3);
+thead th{text-align:right;padding:8px 9px;font-weight:700;font-size:11px;color:var(--tx3);
   border-bottom:1px solid var(--bd);white-space:nowrap}
 thead th:first-child{text-align:left}
 tbody td{padding:8px 9px;text-align:right;border-bottom:1px solid #f0f2f5;white-space:nowrap;
   font-variant-numeric:tabular-nums}
 tbody td:first-child{text-align:left}
 tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:#fafbfc}
-.tb{max-height:360px;overflow:auto}
-.tb::-webkit-scrollbar{width:7px}.tb::-webkit-scrollbar-thumb{background:#dfe3e8;border-radius:7px}
+tr.clickable{cursor:pointer}
+tr.clickable:hover td{background:#f5f8ff}
+.dv{font-weight:800;font-size:13.5px}
+.dsmall{font-size:11px;font-weight:700;margin-left:4px}
+.up-t{color:var(--green)}.down-t{color:var(--red)}.flat-t{color:var(--tx4)}
 .tag{font-size:10.5px;padding:1.5px 7px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-block}
 .tag.g{background:#e9f7ef;color:#15803d}.tag.r{background:#fdecec;color:#c0332f}
-.tag.n{background:#f1f3f6;color:#6b7280}
-.pl{font-size:10.5px;padding:1px 6px;border-radius:5px;font-weight:600}
-.pl.tm{background:#fff2ea;color:#c2410c}.pl.pdd{background:#fdeeef;color:#c0332f}
-.empty{padding:22px;text-align:center;color:var(--tx4);font-size:12.5px}
+.tag.a{background:#fdf3e3;color:#b45309}.tag.n{background:#f1f3f6;color:#6b7280}
+.wtable{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);overflow:auto}
+.empty{padding:24px;text-align:center;color:var(--tx4);font-size:12.5px}
 .err{background:#fdecec;border:1px solid #f5c6c6;color:#c0332f;padding:13px 15px;border-radius:var(--r2);font-size:12.5px;line-height:1.7}
-.note{font-size:11.5px;color:var(--tx4);margin-top:8px;line-height:1.7}
+.note{font-size:11.5px;color:var(--tx4);margin-top:12px;line-height:1.75}
 .note b{color:var(--tx2)}
 .load{display:flex;align-items:center;justify-content:center;gap:9px;padding:70px 0;color:var(--tx3)}
 .spin{width:14px;height:14px;border:2px solid var(--bd2);border-top-color:var(--tx);border-radius:50%;animation:sp .7s linear infinite}
@@ -106,24 +96,25 @@ tbody tr:hover td{background:#fafbfc}
   padding:8px 16px;border-radius:8px;font-size:12.5px;opacity:0;transition:.2s;pointer-events:none;z-index:99}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .hide{display:none!important}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:900px){.g2{grid-template-columns:1fr}}
-.subt{font-size:12.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px}
-.subt i{width:3px;height:12px;border-radius:2px;display:inline-block}
+.effgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+@media(max-width:820px){.effgrid{grid-template-columns:repeat(2,1fr)}}
+.eff{border:1px solid var(--bd);border-radius:var(--r2);padding:12px 14px;background:#fff}
+.eff .ev{font-size:24px;font-weight:800}
+.eff .ek{font-size:11.5px;color:var(--tx3);margin-top:3px}
+.eff.good .ev{color:var(--green)}.eff.bad .ev{color:var(--red)}.eff.mid .ev{color:var(--amber)}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <div class="hdr">
-    <h1>运营周报看板</h1>
+    <h1>运营周报看板 · 档位对比</h1>
     <span class="sub" id="hdrSub">加载中…</span>
     <span class="sp"></span>
     <button class="btnx" id="btnExp">⬇ 导出 CSV</button>
     <a class="btnx" href="./index.html">← 返回工作台</a>
   </div>
 
-  <!-- 筛选条 -->
   <div class="bar">
     <div class="row">
       <span class="lb">平台</span>
@@ -133,9 +124,12 @@ tbody tr:hover td{background:#fafbfc}
       <select id="selCur"></select>
       <span class="hint">对比</span>
       <select id="selPrev"></select>
+      <label class="hint" style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;margin-left:6px">
+        <input type="checkbox" id="chkCommon" checked>同口径
+      </label>
     </div>
     <div class="row">
-      <span class="lb">运营</span>
+      <span class="lb">负责人</span>
       <div class="pills" id="owners"></div>
     </div>
   </div>
@@ -144,19 +138,28 @@ tbody tr:hover td{background:#fafbfc}
   <div id="loading" class="load"><div class="spin"></div>正在加载 BI 数据…</div>
 
   <div id="app" class="hide">
-    <div class="verdict" id="verdict"></div>
-    <div class="kpis" id="kpis"></div>
 
-    <div class="g2" style="margin-top:14px">
-      <div class="blk">
-        <div class="subt"><i style="background:var(--red)"></i><span id="badT">最该处理</span></div>
-        <div class="tb" id="badTbl"></div>
-      </div>
-      <div class="blk">
-        <div class="subt"><i style="background:var(--blue)"></i><span id="rankT">负责人排行</span></div>
-        <div class="tb" id="rankTbl"></div>
-      </div>
+    <div id="curHint"></div>
+
+    <div class="sec-t">① 四维档位对比 <span class="st-sub" id="bktSub"></span></div>
+    <div class="sec-d">
+      每个档位看的是<b>链接数</b>（上期 → 本期，Δ 为变化）。
+      <b style="color:var(--red)">亏损档位数字变少＝改善</b>，<b style="color:var(--green)">盈利/销售额/高利润率档位变多＝改善</b>。
     </div>
+    <div class="bgrid" id="bucketGrid"></div>
+
+    <div class="sec-t">② 各负责人 · 档位变化 <span class="st-sub">点某行可只看这个人</span></div>
+    <div class="sec-d">横看每个人：亏损链接有没有变少、盈利/高利润链接有没有变多。<b>点行 = 上方①切换成该负责人</b>。</div>
+    <div class="wtable" id="ownerTbl"></div>
+
+    <div class="sec-t">③ 动作效果 · 做了动作的链接档位迁移 <span class="st-sub">已标记状态的链接，本期档位 vs 上期</span></div>
+    <div class="sec-d">把执行端标记过动作的链接拉出来，看它们<b>从哪个档位移到了哪个档位</b>：转正 / 亏损收窄 / 持平 / 恶化。</div>
+    <div class="effgrid" id="effGrid"></div>
+    <div class="wtable" id="effByAct"></div>
+    <div class="sec-d" style="margin-top:14px"><b>改善案例（转正 / 亏损收窄最多）</b></div>
+    <div class="wtable" id="effGood"></div>
+    <div class="sec-d" style="margin-top:14px"><b>恶化案例（亏损档位变大）</b></div>
+    <div class="wtable" id="effBad"></div>
 
     <div class="note" id="footNote"></div>
   </div>
@@ -164,9 +167,23 @@ tbody tr:hover td{background:#fafbfc}
 <div id="toast"></div>
 
 <script>
-/* ════════ 运营周报看板 · 极简自然周对比 ════════ */
+/* ════════ 运营周报看板 · 四维档位对比（阈值与执行端 bi-digest 一致）════════ */
 const API='/api/files/bi-actions', API_KEY='chengying2026', LS_KEY='bi_digest_plan_v4';
 let _syncBaseB;
+
+/* 档位阈值：复制自 bi-digest.html CONFIG，完全一致 */
+const CONFIG={
+  loss:[[0,100,'≤100元'],[100,200,'100-200'],[200,500,'200-500'],[500,1000,'500-1000'],[1000,Infinity,'>1000']],
+  profit:[[0,100,'≤100元'],[100,200,'100-200'],[200,500,'200-500'],[500,1000,'500-1000'],[1000,Infinity,'>1000']],
+  sales:[[0,1000,'<1k'],[1000,3000,'1-3k'],[3000,9000,'3-9k'],[9000,30000,'9-30k'],[30000,Infinity,'>30k']],
+  rate:[[-Infinity,0,'<0%'],[0,10,'0-10%'],[10,20,'10-20%'],[20,30,'20-30%'],[30,Infinity,'≥30%']],
+};
+const DIM={loss:{t:'🔴 亏损档位',p:'按亏损金额分档（|利润|）· 越往下亏得越多',gw:false},
+           profit:{t:'🟢 盈利档位',p:'按盈利金额分档 · 越往下赚得越多',gw:true},
+           sales:{t:'🔵 销售额档位',p:'按净销售额分档',gw:true},
+           rate:{t:'🟣 利润率档位',p:'<0% 亏毛利 · ≥20% 可放大高利区',gw:null}};
+
+/* ── 同步：读取执行端标记（仅展示） ── */
 async function planApiUrlB(){
   if(_syncBaseB!==undefined) return _syncBaseB===null?null:_syncBaseB+API;
   let cfgHub='';
@@ -189,38 +206,39 @@ function money(v){ if(v==null||isNaN(v))return '—'; const s=v<0?'-':''; const 
   if(a>=1000)return s+Math.round(a).toLocaleString('zh-CN');
   return s+(a<10?a.toFixed(1):Math.round(a)); }
 function money0(v){ if(v==null||isNaN(v))return '—'; return Math.round(v).toLocaleString('zh-CN'); }
-function pct(v,d){ d=d==null?1:d; return v==null||isNaN(v)?'—':v.toFixed(d)+'%'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function cleanOwner(s){ s=(s==null||s==='')?'未分配':String(s); return s.replace(/\((?:运营|推广|客服|美工|专员)\)$/,''); }
 function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show');
   clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
 
-function dlt(cur,prev,hb,fmt){
-  fmt=fmt||money0;
-  if(prev==null||!isFinite(prev)) return '<span class="d flat">—</span>';
-  const d=cur-prev, rel=prev!==0?d/Math.abs(prev)*100:null;
-  if(Math.abs(d)<1e-9) return '<span class="d flat">持平</span>';
-  const up=d>0, good=hb?up:!up;
-  const rc=(rel!=null&&Math.abs(rel)>=1)?' '+(up?'+':'')+rel.toFixed(0)+'%':'';
-  return '<span class="d '+(good?'up':'down')+'">'+(up?'▲':'▼')+fmt(Math.abs(d))+rc+'</span>';
-}
-
-/* ── 自然周工具 ── */
-function natMonday(dStr){                 // dStr: "2026/09/09" -> Date(周一)
-  const t=Date.parse(String(dStr).replace(/\//g,'-')); if(isNaN(t)) return null;
-  const dt=new Date(t); const day=(dt.getDay()+6)%7; const mon=new Date(dt); mon.setDate(dt.getDate()-day);
-  return mon;
-}
+/* ── 自然周 ── */
+function natMonday(dStr){ const t=Date.parse(String(dStr).replace(/\//g,'-')); if(isNaN(t))return null;
+  const dt=new Date(t); const day=(dt.getDay()+6)%7; const mon=new Date(dt); mon.setDate(dt.getDate()-day); return mon; }
 function fmtMD(dt){ return (dt.getMonth()+1)+'/'+dt.getDate(); }
-function natWeekKey(dStr){ const m=natMonday(dStr); if(!m)return null;
-  return m.getFullYear()+'-'+(m.getMonth()+1)+'-'+m.getDate(); }
-function natWeekLabel(dStr){ const m=natMonday(dStr); if(!m)return ''; const sun=new Date(m); sun.setDate(m.getDate()+6);
-  return fmtMD(m)+'-'+fmtMD(sun); }
+function weekInfo(dStr){ const m=natMonday(dStr); if(!m)return null;
+  const sun=new Date(m); sun.setDate(m.getDate()+6);
+  return {key:m.getFullYear()+'-'+(m.getMonth()+1)+'-'+m.getDate(), label:fmtMD(m)+'-'+fmtMD(sun), ts:m.getTime()}; }
 
-/* ════════ 状态（读取执行端标记，仅展示） ════════ */
-let LINK={}, ACTIONS={}, OWNERS=[], PLATS=[], WEEKS=[], WEEKLBL={}, DATAEND='';
-let CUR='', PREV='';
-let S={plat:'', owner:''};
+/* ── Δ 徽章 ── */
+function deltaBadge(cur,prev,gw){
+  if(prev==null) return '<span class="bd flat">—</span>';
+  const d=cur-prev;
+  if(d===0) return '<span class="bd flat">持平</span>';
+  const up=d>0, good=gw?up:!up;
+  return '<span class="bd '+(good?'up':'down')+'">'+(up?'▲ +':'▼ ')+Math.abs(d)+'</span>';
+}
+function deltaInline(cur,prev,gw,fmt){
+  fmt=fmt||(v=>v);
+  if(prev==null) return '';
+  const d=cur-prev;
+  if(d===0) return '<span class="dsmall flat-t">→0</span>';
+  const up=d>0, good=gw?up:!up;
+  return '<span class="dsmall '+(good?'up-t':'down-t')+'">'+(up?'▲+':'▼')+fmt(Math.abs(d))+'</span>';
+}
+
+/* ════════ 数据 ════════ */
+let LINK={}, ACTIONS={}, OWNERS=[], PLATS=[], WEEKS=[], WINFO={}, DATAEND='';
+let CUR='', PREV='', S={plat:'',owner:''}, ONLY_COMMON=true;
 
 async function loadActions(){
   let srv={}, delMap={};
@@ -239,45 +257,47 @@ async function loadActions(){
   ACTIONS=out;
 }
 
-/* ════════ 载入 + 自然周归并 ════════ */
 async function boot(){
   let raw;
   try{ const r=await fetch('data/feishu_bi.json?v='+Date.now()); if(!r.ok)throw new Error('HTTP '+r.status); raw=await r.json(); }
   catch(e){ $('#loading').classList.add('hide');
     $('#errBox').innerHTML='<div class="err"><b>加载 data/feishu_bi.json 失败：'+esc(e.message)+'</b><br>请用本地服务器地址打开（如 http://localhost:3588/bi-result-board.html），不要直接双击文件。</div>'; return; }
   const rows=raw.rows||[];
-  // 归并：每个链接每周只保留「window_end 最新」的滚动窗口值
-  const tmp={};
-  let maxEnd='';
+  // pass1: link|window 累加 p/s（与执行端口径一致：同链接同窗口多行相加）
+  const byLW={}; let maxEnd='';
   for(const r of rows){
-    const we=r.window_end; if(!we) continue;
-    const wk=natWeekKey(we); if(!wk) continue;
-    if(we>maxEnd) maxEnd=we;
+    const we=r.window_end; if(!we) continue; if(we>maxEnd) maxEnd=we;
     const id=String(r.link_id==null?'':r.link_id); if(!id) continue;
-    const k=id+'|'+wk;
-    const old=tmp[k];
-    if(!old || we>old.window_end){
-      tmp[k]={ id, win:r.window||'', window_end:we, week:wk,
-        p:num(r.profit_pay), s:num(r.net_pay), pay:num(r.pay_amt),
-        product:r.product||'', title:r.title||'', platform:r.platform||'', shop:r.shop||'',
-        owner:cleanOwner(r.owner) };
-    }
+    const k=id+'|'+String(r.window||'');
+    let a=byLW[k];
+    if(!a){ a=byLW[k]={id, window:r.window||'', window_end:we, p:0, s:0, prV:null,
+      product:r.product||'', title:r.title||'', platform:r.platform||'', owner:cleanOwner(r.owner)}; }
+    a.p+=num(r.profit_pay); a.s+=num(r.net_pay);
+    if(a.prV===null){ const v=num(r.profit_rate); if(v!==0) a.prV=v; }
+    if(we>a.window_end) a.window_end=we;
+  }
+  // pass2: link|自然周 → 取 window_end 最新的滚动窗口
+  const tmp={};
+  for(const k in byLW){ const a=byLW[k]; const wi=weekInfo(a.window_end); if(!wi) continue;
+    const kk=a.id+'|'+wi.key; const old=tmp[kk];
+    if(!old || a.window_end>old.window_end) tmp[kk]=a;
   }
   DATAEND=maxEnd;
-  LINK={};
-  for(const k in tmp){ const a=tmp[k]; (LINK[a.id]=LINK[a.id]||{id:a.id,W:{}}).W[a.week]=a; }
-  // 取每个链接最新一周的 meta
+  LINK={}; for(const k in tmp){ const a=tmp[k]; (LINK[a.id]=LINK[a.id]||{id:a.id,W:{}}).W[weekInfo(a.window_end).key]=a; }
   for(const id in LINK){ const L=LINK[id]; let best=null;
     for(const wk in L.W){ if(!best||L.W[wk].window_end>L.W[best].window_end) best=wk; }
-    if(best) L.meta=L.W[best];
-  }
-  // 自然周列表（按时间升序）
-  const wset=new Set();
-  for(const id in LINK) for(const wk in LINK[id].W) wset.add(wk);
-  WEEKS=[...wset].sort((a,b)=>a.localeCompare(b));
-  for(const wk of WEEKS){ // 找该周任一 window_end 推 label
-    let any=null; for(const id in LINK){ for(const w in LINK[id].W){ if(w===wk){ any=LINK[id].W[w].window_end; break; } } if(any)break; }
-    WEEKLBL[wk]=any?natWeekLabel(any):wk;
+    if(best) L.meta=L.W[best]; }
+  // 周列表
+  const wset={}; for(const id in LINK) for(const wk in LINK[id].W) wset[wk]=weekInfo(LINK[id].W[wk].window_end).ts;
+  WEEKS=Object.keys(wset).sort((a,b)=>wset[a]-wset[b]);
+  for(const wk of WEEKS){
+    let any=null,maxE='';
+    for(const id in LINK){ const r=LINK[id].W[wk]; if(r){ if(!any)any=r.window_end; if(r.window_end>maxE)maxE=r.window_end; } }
+    const wi=weekInfo(any); wi.maxEnd=maxE;
+    try{ const mon=natMonday(any); const sunTs=mon.getTime()+6*86400000;
+      const meTs=Date.parse(String(maxE).slice(0,10).replace(/\//g,'-'));
+      wi.complete=(meTs>=sunTs); }catch(e){ wi.complete=false; }
+    WINFO[wk]=wi;
   }
   PLATS=[...new Set(Object.values(LINK).map(l=>l.meta.platform))].filter(Boolean).sort();
   OWNERS=[...new Set(Object.values(LINK).map(l=>l.meta.owner))].sort((a,b)=>a.localeCompare(b,'zh'));
@@ -285,56 +305,62 @@ async function boot(){
 
   $('#loading').classList.add('hide'); $('#app').classList.remove('hide');
   $('#hdrSub').textContent=WEEKS.length+' 个自然周 · '+Object.keys(LINK).length+' 链接 · '+OWNERS.length+' 运营'
-    +(DATAEND?' · 数据截至 '+DATAEND.replace(/\//g,'-')+'':'');
-  // 默认本期=最近周，对比=上一周
-  CUR=WEEKS[WEEKS.length-1];
-  PREV=WEEKS.length>1?WEEKS[WEEKS.length-2]:WEEKS[0];
+    +(DATAEND?' · 数据截至 '+String(DATAEND).slice(0,10).replace(/\//g,'-')+'':'');
+  CUR=WEEKS[WEEKS.length-1]; PREV=WEEKS.length>1?WEEKS[WEEKS.length-2]:WEEKS[0];
   bindUI(); render();
 }
 
-/* 聚合：某自然周下，满足平台/负责人筛选的链接汇总 */
-function agg(week, plat, owner){
-  let n=0,lossN=0,lossAmt=0,proN=0,proAmt=0,net=0,sales=0;
+/* ── 分档计数 ── */
+function tierIdx(bins,val){ for(let i=0;i<bins.length;i++){ if(val>=bins[i][0]&&val<bins[i][1]) return i; } return bins.length-1; }
+function bucketCounts(week,plat,owner,common){
+  const cnt={loss:CONFIG.loss.map(()=>0),profit:CONFIG.profit.map(()=>0),sales:CONFIG.sales.map(()=>0),rate:CONFIG.rate.map(()=>0)};
+  const amt={loss:CONFIG.loss.map(()=>0),profit:CONFIG.profit.map(()=>0),rate:CONFIG.rate.map(()=>0)};
   for(const id in LINK){
-    const L=LINK[id], m=L.meta;
-    if(plat&&m.platform!==plat) continue;
-    if(owner&&m.owner!==owner) continue;
-    const rec=L.W[week]; if(!rec) continue;
-    n++; const p=rec.p;
-    if(p<0){lossN++;lossAmt+=p;} else if(p>0){proN++;proAmt+=p;}
-    net+=p; sales+=rec.s;
+    const rec=LINK[id].W[week]; if(!rec) continue;
+    if(common&&!common.has(id)) continue;
+    if(plat&&rec.platform!==plat) continue;
+    if(owner&&rec.owner!==owner) continue;
+    const p=rec.p, s=rec.s, v=(rec.prV==null?0:rec.prV);
+    if(p<0){ const i=tierIdx(CONFIG.loss,Math.abs(p)); cnt.loss[i]++; amt.loss[i]+=p; }
+    else if(p>0){ const i=tierIdx(CONFIG.profit,p); cnt.profit[i]++; amt.profit[i]+=p; }
+    cnt.sales[tierIdx(CONFIG.sales,s)]++;
+    { const i=tierIdx(CONFIG.rate,v); cnt.rate[i]++; amt.rate[i]+=p; }
   }
-  return {n,lossN,lossAmt,proN,proAmt,net,sales,lossRate:n?lossN/n*100:0};
+  return {cnt,amt};
 }
-/* 同口径 id：两期都出现 */
-function scopeIds(cur,prev,plat,owner){
-  const out=[];
-  for(const id in LINK){
-    const L=LINK[id], m=L.meta;
-    if(plat&&m.platform!==plat) continue;
-    if(owner&&m.owner!==owner) continue;
-    if(L.W[cur]&&L.W[prev]) out.push(id);
+/* 某人某周的汇总基数（用于负责人表） */
+function ownerSummary(week,owner,common){
+  let lossN=0,proN=0,bigLoss=0,hiPro=0,net=0;
+  for(const id in LINK){ const rec=LINK[id].W[week]; if(!rec) continue;
+    if(common&&!common.has(id)) continue;
+    if(owner&&rec.owner!==owner) continue;
+    const p=rec.p; net+=p;
+    if(p<0){ lossN++; if(Math.abs(p)>=500) bigLoss++; }
+    else if(p>0){ proN++; if(p>=1000) hiPro++; }
   }
-  return out;
+  return {lossN,proN,bigLoss,hiPro,net};
 }
 
 /* ════════ 渲染 ════════ */
-function render(){
-  renderBar();
-  const a=agg(CUR,S.plat,S.owner), b=agg(PREV,S.plat,S.owner);
-  const ids=scopeIds(CUR,PREV,S.plat,S.owner);
-  const ac=aggByIds(ids,CUR), bc=aggByIds(ids,PREV);   // 同口径
-  renderVerdict(ac,bc,ids);
-  renderKpis(ac,bc);
-  renderBad(ids);
-  renderRank();
+function render(){ renderBar();
+  const SC=ONLY_COMMON?commonIds():null;
+  renderCurHint(SC);
+  renderBuckets(SC); renderOwnerTable(SC); renderActionEffect(); }
+function commonIds(){ const s=new Set(); for(const id in LINK){ if(LINK[id].W[CUR]&&LINK[id].W[PREV]) s.add(id); } return s; }
+function renderCurHint(SC){
+  const host=$('#curHint'); if(!host) return;
+  const inc = WINFO[CUR] && !WINFO[CUR].complete;
+  if(!inc && ONLY_COMMON){
+    host.innerHTML='<div style="font-size:12px;color:var(--tx3);background:#f0f4ff;border:1px solid #dbe4ff;border-radius:9px;padding:9px 13px;margin-bottom:12px;line-height:1.65">'
+      +'口径：<b>同口径</b>（只统计两期都出现的同一批链接，共 '+(SC?SC.size:0)+' 条），排除本周新增/下架链接的干扰，直接看这批链接档位的变化。取消勾选可看全部链接。</div>';
+    return;
+  }
+  if(!inc){ host.innerHTML=''; return; }
+  host.innerHTML='<div style="font-size:12px;color:#b45309;background:#fdf7e8;border:1px solid #f3e0b0;border-radius:9px;padding:9px 13px;margin-bottom:12px;line-height:1.65">'
+    +'⚠ 本期 <b>'+WINFO[CUR].label+'</b> 数据只到 '+String(WINFO[CUR].maxEnd||'').slice(0,10)+'（<b>进行中</b>，未满一周），各档位<b>绝对条数会偏少</b>，别直接和上期比总数。'
+    +'已默认用<b>同口径</b>（两期都有的 '+(SC?SC.size:0)+' 条链接）对比 —— 这样才是公平的变化。要看绝对数请取消「同口径」。</div>';
 }
-function aggByIds(ids,week){
-  let n=0,lossN=0,lossAmt=0,proN=0,proAmt=0,net=0,sales=0;
-  for(const id of ids){ const rec=LINK[id].W[week]; if(!rec) continue;
-    n++; const p=rec.p; if(p<0){lossN++;lossAmt+=p;} else if(p>0){proN++;proAmt+=p;} net+=p; sales+=rec.s; }
-  return {n,lossN,lossAmt,proN,proAmt,net,sales,lossRate:n?lossN/n*100:0};
-}
+
 function renderBar(){
   $('#plats').innerHTML='<button class="pill'+(S.plat?'':' on')+'" data-p="">全部</button>'
     +PLATS.map(p=>'<button class="pill'+(S.plat===p?' on':'')+'" data-p="'+esc(p)+'">'+esc(p)+'</button>').join('');
@@ -345,125 +371,151 @@ function renderBar(){
     +OWNERS.filter(o=>!S.plat||cnt[o]).map(o=>
       '<button class="pill'+(S.owner===o?' on':'')+'" data-o="'+esc(o)+'">'+esc(o)
       +(cnt[o]?'<span class="n">'+cnt[o]+'</span>':'')+'</button>').join('');
-  const opt=WEEKS.map(w=>'<option value="'+w+'">'+WEEKLBL[w]+'</option>').join('');
+  const opt=WEEKS.map(w=>'<option value="'+w+'">'+WINFO[w].label+(WINFO[w].complete?'':'（进行中）')+'</option>').join('');
   if($('#selCur').dataset.n!==String(WEEKS.length)){
     $('#selCur').innerHTML=opt; $('#selPrev').innerHTML=opt; $('#selCur').dataset.n=String(WEEKS.length); }
   $('#selCur').value=CUR; $('#selPrev').value=PREV;
-}
-function renderKpis(a,b){
-  const gAmt=Math.abs(a.lossAmt), gAmtP=Math.abs(b.lossAmt);
-  const KS=[
-    {l:'净利',   v:money(a.net),      cur:a.net,    prev:b.net,    hb:1, f:money,  red:a.net<0},
-    {l:'销售额',  v:money(a.sales),    cur:a.sales,  prev:b.sales,  hb:1, f:money,  red:false},
-    {l:'亏损链接', v:a.lossN,           cur:a.lossN,  prev:b.lossN,  hb:0, f:money0, red:false, sub:'共 '+a.n+' 条'},
-    {l:'亏损额',  v:money(gAmt),        cur:gAmt,     prev:gAmtP,    hb:0, f:money,  red:true},
-    {l:'亏损率',  v:pct(a.lossRate),    cur:a.lossRate,prev:b.lossRate,hb:0, f:x=>pct(x,1), red:false},
-  ];
-  $('#kpis').innerHTML=KS.map(k=>{
-    return '<div class="kpi"><div class="klab">'+k.l+'</div>'
-      +'<div class="kval num'+(k.red?' red':'')+'">'+k.v+'</div>'
-      +'<div class="kdelta">'+dlt(k.cur,k.prev,k.hb,k.f)+'</div>'
-      +'<div class="ksub">'+(k.sub?k.sub+' · ':'')+'上期 '+k.f(k.prev)+'</div></div>';
-  }).join('');
-}
-function renderVerdict(a,b,ids){
-  const nd=a.net-b.net, dl=a.lossN-b.lossN;
-  const un=ids.filter(id=>{ const rec=LINK[id].W[CUR]; return rec&&rec.p<0&&(!ACTIONS[id]||ACTIONS[id].st==='待处理'); }).length;
-  const score=(nd>0?1:nd<0?-1:0)+(dl<0?1:dl>0?-1:0);
-  const v=score>=2?{t:'向好',c:'good'}:score<=-2?{t:'承压',c:'bad'}:{t:'分化',c:'mid'};
-  const arrow=(d,hb)=>{const up=d>0,good=hb?up:!up;
-    return '<span class="'+(good?'up-t':'down-t')+'">'+(up?'▲':'▼')+' '+money(Math.abs(d))+'</span>';};
-  let txt='净利 <b class="num">'+money(a.net)+'</b>（环比 '+arrow(nd,1)+'）　'
-    +'亏损 <b class="num">'+a.lossN+'</b> 条（环比 '
-    +(dl>0?'<span class="down-t">+'+dl+'</span>':dl<0?'<span class="up-t">'+dl+'</span>':'<span class="flat-t">0</span>')+' 条）';
-  if(un>0) txt+='　<b style="color:var(--red)">'+un+'</b> 条亏损未标动作';
-  else txt+='　<span style="color:var(--green)">亏损均已标记</span>';
-  $('#verdict').className='verdict '+v.c;
-  $('#verdict').innerHTML='<span class="vbadge '+v.c+'">本周'+v.t+'</span><div class="vtxt">'+txt+'</div>';
-}
-function renderBad(ids){
-  const rows=ids.map(id=>{
-    const c=LINK[id].W[CUR], p=LINK[id].W[PREV]; if(!c||!p) return null;
-    const d=c.p-p.p; return {id, m:c, c, p, d};
-  }).filter(Boolean).filter(o=>o.c.p<0).sort((a,b)=>a.c.p-b.c.p).slice(0,5);
-  const un=rows.filter(o=>!ACTIONS[o.id]||ACTIONS[o.id].st==='待处理').length;
-  $('#badT').innerHTML='最该处理 · 本周亏损 Top5'
-    +(un?' <span style="color:var(--red);font-weight:700">（'+un+' 条未标动作）</span>':'');
-  if(!rows.length){ $('#badTbl').innerHTML='<div class="empty">本周没有亏损链接 🎉</div>'; return; }
-  const th='<thead><tr><th>链接</th><th>平台</th><th>运营</th><th>本期利润</th><th>Δ</th><th>动作</th></tr></thead><tbody>';
-  const row=o=>'<tr><td><div style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
-      +esc(o.m.product||o.m.title||o.id)+'</div><div style="font-size:10px;color:var(--tx4)">'+esc(o.id)+'</div></td>'
-    +'<td><span class="pl '+(o.m.platform==='天猫'?'tm':'pdd')+'">'+esc((o.m.platform||'').slice(0,2))+'</span></td>'
-    +'<td>'+(S.owner?'—':esc(o.m.owner))+'</td>'
-    +'<td class="num neg"><b>'+money(o.c.p)+'</b></td>'
-    +'<td>'+dltT(o.d,0,true)+'</td>'
-    +'<td>'+(ACTIONS[o.id]?'<span class="tag n">'+esc(ACTIONS[o.id].st)+'</span>':'<span class="tag r">未处理</span>')+'</td></tr>';
-  $('#badTbl').innerHTML='<table>'+th+rows.map(row).join('')+'</tbody></table>';
-}
-function dltT(cur,prev,hb,fmt){ // 复用，仅 Δ（绝对值+方向）
-  fmt=fmt||money0;
-  if(prev==null||!isFinite(prev)) return '<span class="flat-t">—</span>';
-  const d=cur-prev; if(Math.abs(d)<1e-9) return '<span class="flat-t">0</span>';
-  const up=d>0, good=hb?up:!up;
-  return '<span class="'+(good?'up-t':'down-t')+'">'+(up?'+':'-')+fmt(Math.abs(d))+'</span>';
-}
-function renderRank(){
-  const ids=scopeIds(CUR,PREV,'',S.owner?S.owner:''); // 负责人排行始终全员横向对比（即便上面按平台筛，这里只看当前筛选）
-  const byOwner={};
-  for(const id of ids){ const o=LINK[id].W[CUR].owner; (byOwner[o]=byOwner[o]||[]).push(id); }
-  const rows=Object.keys(byOwner).map(o=>{
-    const cur=aggByIds(byOwner[o],CUR), prev=aggByIds(byOwner[o],PREV);
-    return {own:o, cur, prev, dNet:cur.net-prev.net, dLossN:prev.lossN-cur.lossN, dSales:cur.sales-prev.sales};
-  }).filter(r=>r.cur.n>0).sort((a,b)=>b.dNet-a.dNet);
-  $('#rankT').innerHTML='负责人排行 · 按净利Δ（'+WEEKLBL[CUR]+' vs '+WEEKLBL[PREV]+'）';
-  if(!rows.length){ $('#rankTbl').innerHTML='<div class="empty">当前筛选下没有两期都出现的链接</div>'; return; }
-  const th='<thead><tr><th>#</th><th>负责人</th><th>净利Δ</th><th>亏损条数<br><span style="font-weight:400">上期→本期</span></th><th>销售额Δ</th></tr></thead><tbody>';
-  const row=(r,i)=>'<tr><td style="color:var(--tx4)">'+(i+1)+'</td>'
-    +'<td style="font-weight:700">'+esc(r.own)+'</td>'
-    +'<td class="num '+(r.dNet>=0?'pos':'neg')+'"><b>'+(r.dNet>=0?'+':'')+money(r.dNet)+'</b></td>'
-    +'<td class="num">'+r.prev.lossN+' → '+r.cur.lossN+'</td>'
-    +'<td class="num '+(r.dSales>=0?'pos':'neg')+'">'+(r.dSales>=0?'+':'')+money(r.dSales)+'</td></tr>';
-  $('#rankTbl').innerHTML='<table>'+th+rows.map(row).join('')+'</tbody></table>';
-  $('#footNote').innerHTML='口径说明：自然周按周一~周日归并，每链接每周取「window_end 最新」的滚动窗口值；'
-    +'对比为两期<b>都出现</b>的同口径链接。标记状态读取自执行端（BI指标归档处理中心），仅展示、不在此处修改。'
-    +(DATAEND?' 数据截至 '+DATAEND.replace(/\//g,'-')+'。':'');
+  $('#bktSub').textContent='（'+WINFO[CUR].label+' vs '+WINFO[PREV].label
+    +(S.plat?' · '+S.plat:'')+(S.owner?' · '+S.owner:'')+'）';
 }
 
-/* 导出 CSV */
-function dl(name,text){
-  const b=new Blob(['\ufeff'+text],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+function bucketCard(key,cur,prev){
+  const bins=CONFIG[key];
+  let curTot=0,prevTot=0; bins.forEach((b,i)=>{ curTot+=cur[i]; prevTot+=prev[i]; });
+  let rows='';
+  bins.forEach((b,i)=>{
+    const gw = key==='rate' ? (i===0?false:true) : DIM[key].gw;
+    rows+='<div class="brow"><span class="bn">'+b[2]+'</span>'
+      +'<span class="bp">'+prev[i]+'</span><span class="ba">→</span>'
+      +'<span class="bc">'+cur[i]+'</span>'
+      +'<span style="text-align:right">'+deltaBadge(cur[i],prev[i],gw)+'</span></div>';
+  });
+  return '<div class="bcard"><div class="bhead">'
+    +'<span class="bt">'+DIM[key].t+'</span><span class="bp">'+DIM[key].p+'</span><span class="bsp"></span>'
+    +'<span class="btot">共 <b>'+curTot+'</b> 条（上期 '+prevTot+'）'+deltaInline(curTot,prevTot,DIM[key].gw)+'</span>'
+    +'</div><div class="bbody">'+rows+'</div></div>';
 }
+function renderBuckets(SC){
+  const c=bucketCounts(CUR,S.plat,S.owner,SC), p=bucketCounts(PREV,S.plat,S.owner,SC);
+  $('#bucketGrid').innerHTML=['loss','profit','sales','rate'].map(k=>bucketCard(k,c.cnt[k],p.cnt[k])).join('');
+}
+
+function renderOwnerTable(SC){
+  const rows=OWNERS.map(o=>{
+    const a=ownerSummary(CUR,o,SC), b=ownerSummary(PREV,o,SC);
+    return {own:o,a,b};
+  }).filter(r=>r.a.lossN+r.a.proN>0).sort((x,y)=>(y.a.net-x.a.net));
+  const th='<thead><tr><th>负责人</th><th>亏损链接</th><th>盈利链接</th><th>大额亏损<br><span style="font-weight:400">&gt;500元</span></th><th>高利润<br><span style="font-weight:400">&gt;1000元</span></th><th>净利</th></tr></thead><tbody>';
+  const cell=(cur,prev,gw)=>'<span class="dv">'+cur+'</span>'+deltaInline(cur,prev,gw);
+  const cells=(cur,prev,gw)=>'<span class="dv">'+money(cur)+'</span>'+deltaInline(cur,prev,gw,money0);
+  const body=rows.map(r=>'<tr class="clickable" data-o="'+esc(r.own)+'">'
+    +'<td style="font-weight:700">'+esc(r.own)+'</td>'
+    +'<td>'+cell(r.a.lossN,r.b.lossN,false)+'</td>'
+    +'<td>'+cell(r.a.proN,r.b.proN,true)+'</td>'
+    +'<td>'+cell(r.a.bigLoss,r.b.bigLoss,false)+'</td>'
+    +'<td>'+cell(r.a.hiPro,r.b.hiPro,true)+'</td>'
+    +'<td class="num '+(r.a.net>=0?'':'')+'" style="color:'+(r.a.net>=0?'var(--green)':'var(--red)')+'">'+cells(r.a.net,r.b.net,true)+'</td></tr>').join('');
+  $('#ownerTbl').innerHTML='<table>'+th+(body||'<tr><td colspan="6"><div class="empty">当前筛选下没有数据</div></td></tr>')+'</tbody></table>';
+}
+
+/* ── 动作效果：已标记链接的档位迁移 ── */
+function moveOf(cur,pv){
+  // 返回 {k, label}
+  if(!pv) return {k:'new', label:'上期无数据'};
+  const cp=cur.p, pp=pv.p;
+  if(pp<0&&cp>=0) return {k:'turn', label:'转正 ✅'};
+  if(pp>=0&&cp<0) return {k:'bad', label:'由盈转亏 ⚠'};
+  if(pp<0&&cp<0){
+    const ic=tierIdx(CONFIG.loss,Math.abs(cp)), ip=tierIdx(CONFIG.loss,Math.abs(pp));
+    if(ic<ip) return {k:'narrow', label:'亏损收窄 ✅'};
+    if(ic>ip) return {k:'worse', label:'亏损扩大 ⚠'};
+    return {k:'flat', label:'持平'};
+  }
+  if(pp>0&&cp>0) return {k:'keep', label:'持续盈利'};
+  return {k:'other', label:'—'};
+}
+function renderActionEffect(){
+  const arr=[];
+  for(const id in ACTIONS){ const st=ACTIONS[id].st; if(!st||st==='待处理') continue;
+    const c=LINK[id]&&LINK[id].W[CUR]; if(!c) continue;
+    if(S.plat&&c.platform!==S.plat) continue;
+    if(S.owner&&c.owner!==S.owner) continue;
+    const pv=LINK[id].W[PREV]||null;
+    arr.push({id, st, c, pv, mv:moveOf(c,pv)});
+  }
+  const g={turn:0,narrow:0,flat:0,worse:0,bad:0,keep:0,new:0,other:0};
+  arr.forEach(x=>g[x.mv.k]++);
+  const cards=[
+    {k:'turn',n:g.turn,c:'good'},{k:'narrow',n:g.narrow,c:'good'},
+    {k:'flat',n:g.flat,c:'mid'},{k:'worse',n:g.worse+g.bad,c:'bad'}
+  ];
+  const KT={turn:'转正（亏→盈）',narrow:'亏损收窄（档位降级）',flat:'亏损持平（同档）',worse:'恶化（档位升级/由盈转亏）'};
+  $('#effGrid').innerHTML=cards.map(c=>'<div class="eff '+c.c+'"><div class="ev num">'+c.n+'</div><div class="ek">'+KT[c.k]+'</div></div>').join('')
+    +(arr.length?'':'');
+  // 按动作类型
+  const byAct={};
+  arr.forEach(x=>{ const o=byAct[x.st]=byAct[x.st]||{n:0,turn:0,narrow:0,flat:0,worse:0,bad:0,keep:0,new:0,other:0};
+    o.n++; o[x.mv.k]=(o[x.mv.k]||0)+1; });
+  const keys=Object.keys(byAct).sort((a,b)=>byAct[b].n-byAct[a].n);
+  let th='<thead><tr><th>动作</th><th>链接数</th><th>转正</th><th>亏损收窄</th><th>持平</th><th>恶化</th><th>持续盈利</th><th>上期无数据</th></tr></thead><tbody>';
+  const body=keys.map(k=>{ const o=byAct[k];
+    return '<tr><td style="font-weight:700">'+esc(k)+'</td><td class="dv">'+o.n+'</td>'
+      +'<td class="num up-t">'+(o.turn||0)+'</td><td class="num up-t">'+(o.narrow||0)+'</td>'
+      +'<td class="num flat-t">'+(o.flat||0)+'</td><td class="num down-t">'+(o.worse+o.bad||0)+'</td>'
+      +'<td class="num">'+(o.keep||0)+'</td><td class="num flat-t">'+(o.new||0)+'</td></tr>'; }).join('');
+  $('#effByAct').innerHTML='<table>'+th+(body||'<tr><td colspan="8"><div class="empty">还没有已标记动作的链接（去「BI指标归档处理中心」给亏损/盈利链接标状态）</div></td></tr>')+'</tbody></table>';
+
+  // 案例
+  const mTitle=x=>esc(x.c.product||x.c.title||x.id);
+  const mvCell=x=>'<span class="tag '+(x.mv.k==='turn'||x.mv.k==='narrow'?'g':(x.mv.k==='worse'||x.mv.k==='bad'?'r':'n'))+'">'+x.mv.label+'</span>';
+  const cth='<thead><tr><th>链接</th><th>运营</th><th>动作</th><th>上期利润</th><th>本期利润</th><th>迁移</th></tr></thead><tbody>';
+  const crow=x=>'<tr><td style="max-width:240px;overflow:hidden;text-overflow:ellipsis">'+mTitle(x)+'<div style="font-size:10px;color:var(--tx4)">'+esc(x.id)+'</div></td>'
+    +'<td>'+esc(x.c.owner)+'</td><td>'+esc(x.st)+'</td>'
+    +'<td class="num '+(x.pv&&x.pv.p<0?'down-t':'')+'">'+(x.pv?money(x.pv.p):'—')+'</td>'
+    +'<td class="num '+(x.c.p<0?'down-t':'up-t')+'">'+money(x.c.p)+'</td><td>'+mvCell(x)+'</td></tr>';
+  const good=arr.filter(x=>x.mv.k==='turn'||x.mv.k==='narrow')
+    .sort((a,b)=>{ const da=Math.abs(a.pv?a.pv.p:0)-Math.abs(a.c.p), db=Math.abs(b.pv?b.pv.p:0)-Math.abs(b.c.p); return db-da; }).slice(0,12);
+  const bad=arr.filter(x=>x.mv.k==='worse'||x.mv.k==='bad')
+    .sort((a,b)=>(Math.abs(b.c.p)-Math.abs(b.pv?b.pv.p:0))-(Math.abs(a.c.p)-Math.abs(a.pv?a.pv.p:0))).slice(0,12);
+  $('#effGood').innerHTML='<table>'+cth+(good.map(crow).join('')||'<tr><td colspan="6"><div class="empty">暂无改善案例</div></td></tr>')+'</tbody></table>';
+  $('#effBad').innerHTML='<table>'+cth+(bad.map(crow).join('')||'<tr><td colspan="6"><div class="empty">暂无恶化案例</div></td></tr>')+'</tbody></table>';
+
+  $('#footNote').innerHTML='口径：自然周(周一~周日)归并，每链接取该周「window_end 最新」的滚动窗口值；同链接同窗口多行利润/销售额<b>累加</b>（与执行端一致）。'
+    +'档位阈值与「BI指标归档处理中心」完全相同。<br>「动作效果」读取执行端标记状态，本期 vs 上期做档位迁移判定；<b>转正/收窄＝绿，扩大/由盈转亏＝红</b>。'
+    +(DATAEND?' 数据截至 '+String(DATAEND).slice(0,10).replace(/\//g,'-')+'。':'');
+}
+
+/* ── 导出 ── */
+function dl(name,text){ const b=new Blob(['\ufeff'+text],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }
 function exportCsv(){
-  const a=agg(CUR,S.plat,S.owner), b=agg(PREV,S.plat,S.owner);
-  let c='平台,'+(S.plat||'全部')+'\n运营,'+(S.owner||'全部')+'\n本期,'+WEEKLBL[CUR]+'\n对比期,'+WEEKLBL[PREV]+'\n同口径,是\n\n';
-  c+='指标,本期,对比期,变化\n';
-  [['净利',a.net,b.net],['亏损链接数',a.lossN,b.lossN],['亏损额',a.lossAmt.toFixed(2),b.lossAmt.toFixed(2)],
-   ['销售额',a.sales.toFixed(2),b.sales.toFixed(2)],['亏损率',a.lossRate.toFixed(2),b.lossRate.toFixed(2)]]
-   .forEach(r=>c+=r[0]+','+r[1]+','+r[2]+','+((+r[1])-(+r[2])).toFixed(2)+'\n');
-  const ids=scopeIds(CUR,PREV,S.plat,S.owner);
-  c+='\n链接级（本周亏损Top，按利润升序）\n链接ID,产品,平台,运营,本期利润,上期利润,Δ,动作\n';
-  ids.map(id=>{ const c1=LINK[id].W[CUR],p1=LINK[id].W[PREV]; if(!c1||!p1)return null;
-    return {id,m:c1,d:c1.p-p1.p}; }).filter(Boolean).filter(o=>o.d<0).sort((x,y)=>x.d-y.d).forEach(o=>
-    c+=[o.id,(o.m.product||'').replace(/,/g,'，'),o.m.platform,o.m.owner,o.m.p.toFixed(2),
-      LINK[o.id].W[PREV].p.toFixed(2),o.d.toFixed(2),ACTIONS[o.id]?ACTIONS[o.id].st:''].join(',')+'\n');
-  dl('运营周报_'+(S.owner||'全部')+'_'+WEEKLBL[CUR].replace(/\//g,'')+'.csv',c);
+  const c=bucketCounts(CUR,S.plat,S.owner), p=bucketCounts(PREV,S.plat,S.owner);
+  let out='平台,'+(S.plat||'全部')+'\n负责人,'+(S.owner||'全部')+'\n本期,'+WINFO[CUR].label+'\n对比期,'+WINFO[PREV].label+'\n\n';
+  out+='维度,档位,上期链接数,本期链接数,变化\n';
+  const DN={loss:'亏损档位',profit:'盈利档位',sales:'销售额档位',rate:'利润率档位'};
+  ['loss','profit','sales','rate'].forEach(k=>CONFIG[k].forEach((b,i)=>{
+    out+=DN[k]+','+b[2]+','+p.cnt[k][i]+','+c.cnt[k][i]+','+(c.cnt[k][i]-p.cnt[k][i])+'\n'; }));
+  out+='\n负责人档位变化\n负责人,亏损链接(上期),亏损链接(本期),盈利链接(上期),盈利链接(本期),大额亏损>500(本期),高利润>1000(本期),净利(本期)\n';
+  OWNERS.forEach(o=>{ const a=ownerSummary(CUR,o),b=ownerSummary(PREV,o);
+    if(a.lossN+a.proN===0)return;
+    out+=[o,b.lossN,a.lossN,b.proN,a.proN,a.bigLoss,a.hiPro,a.net.toFixed(0)].join(',')+'\n'; });
+  dl('运营周报档位对比_'+WINFO[CUR].label.replace(/\//g,'')+'.csv',out);
   toast('已导出 CSV');
 }
 
-/* 交互 */
+/* ── 交互 ── */
 function bindUI(){
-  $('#plats').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return;
-    S.plat=b.dataset.p;
-    if(S.owner){ let has=false;
-      for(const id in LINK){ if(LINK[id].meta.owner===S.owner&&(!S.plat||LINK[id].meta.platform===S.plat)){has=true;break;} }
-      if(!has){ S.owner=''; toast('该平台下没有此运营的链接，已切回全部'); } }
-    render(); };
+  $('#plats').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return; S.plat=b.dataset.p;
+    if(S.owner){ let has=false; for(const id in LINK){ if(LINK[id].meta.owner===S.owner&&(!S.plat||LINK[id].meta.platform===S.plat)){has=true;break;} }
+      if(!has){ S.owner=''; toast('该平台下没有此运营，已切回全部'); } } render(); };
   $('#owners').onclick=e=>{ const b=e.target.closest('.pill'); if(!b)return; S.owner=b.dataset.o; render(); };
   $('#selCur').onchange=e=>{ CUR=e.target.value; render(); };
   $('#selPrev').onchange=e=>{ PREV=e.target.value; render(); };
+  $('#chkCommon').onchange=e=>{ ONLY_COMMON=!!e.target.checked; render(); };
   $('#btnExp').onclick=exportCsv;
+  $('#ownerTbl').onclick=e=>{ const tr=e.target.closest('tr.clickable'); if(!tr)return;
+    S.owner=tr.dataset.o; render(); window.scrollTo({top:0,behavior:'smooth'});
+    toast('已筛选：'+tr.dataset.o); };
 }
 boot();
 </script>

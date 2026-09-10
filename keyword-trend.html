@@ -74,6 +74,14 @@
   }
   .copy-all:hover { background: #6d28d9; }
   .copy-all.copied { background: #16a34a; border-color: #16a34a; }
+  .opp-btn { border-color: #d97706; background: #f59e0b; }
+  .opp-btn:hover { background: #d97706; }
+  .opp-btn.active { background: #111827; border-color: #111827; }
+  .opp-tip { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; }
+  .opp-tip b { color: #b45309; }
+  .opp-tip .sw { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; }
+  .tr-opp-new { box-shadow: inset 3px 0 0 #f59e0b; }
+  .tr-opp-up { box-shadow: inset 3px 0 0 #16a34a; background: #f4fdf7; }
   .err { background: #fff5f5; border: 1px solid #fecaca; color: #b91c1c; border-radius: 12px; padding: 20px; text-align: center; font-size: 14px; }
   footer { font-size: 11px; color: #b9bfc7; text-align: center; margin-top: 6px; }
   .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #6b7280; margin-bottom: 10px; }
@@ -82,7 +90,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609091801"></script>
+<script src="js/freshness-alert.js?v=202609100904"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -92,15 +100,22 @@
         <div class="sub" id="sub">本周 vs 上周 · 关键词人气周环比</div>
       </div>
     </div>
-    <div class="tabs" id="tabs">
-      <button data-cat="全部" class="active">全部</button>
-      <button data-cat="贴饰">贴饰</button>
-      <button data-cat="软装墙贴">软装墙贴</button>
-      <button data-cat="开关贴">开关贴</button>
-      <button data-cat="身高贴">身高贴</button>
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="tabs" id="tabs">
+        <button data-cat="全部" class="active">全部</button>
+        <button data-cat="贴饰">贴饰</button>
+        <button data-cat="软装墙贴">软装墙贴</button>
+        <button data-cat="开关贴">开关贴</button>
+        <button data-cat="身高贴">身高贴</button>
+      </div>
+      <button class="copy-all opp-btn" id="oppBtn" onclick="toggleOpp()" title="看与我无关、但人气在涨/新冒头的词 → 判断这些品能不能做（选品信号）">
+        💡 机会词监控 <span id="oppBadge" style="background:rgba(255,255,255,.25);border-radius:10px;padding:0 6px;">—</span>
+      </button>
     </div>
   </header>
 
+  <!-- ============ 视图1：类目词趋势 ============ -->
+  <div id="trendPanel">
   <div class="signal" id="signal"></div>
 
   <div class="card">
@@ -144,6 +159,40 @@
     </div>
     <div class="hint" id="listNote" style="margin-top:8px;"></div>
   </div>
+  </div>
+
+  <!-- ============ 视图2：机会词监控（选品信号） ============ -->
+  <div id="oppPanel" style="display:none;">
+    <div class="signal" id="oppSignal"></div>
+    <div class="card">
+      <div class="card-hd">
+        <div>
+          <div class="t">机会词明细</div>
+          <div class="hint" id="oppHint">与我无关的词 = 没在卖的方向；人气在涨说明市场可能有需求 → 判断能不能做</div>
+        </div>
+        <div class="filters" id="oppFilters">
+          <button data-opp-state="全部" class="active">全部</button>
+          <button data-opp-state="new">新冒头</button>
+          <button data-opp-state="up">上升</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="oppList">
+          <thead><tr>
+            <th>关键词</th>
+            <th>类型</th>
+            <th class="num">本期日均人气</th>
+            <th class="num">上期日均</th>
+            <th class="num">变动</th>
+            <th class="num">上榜天数</th>
+            <th>给你的判断</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="hint" id="oppNote" style="margin-top:8px;"></div>
+    </div>
+  </div>
 
   <footer id="foot"></footer>
 </div>
@@ -153,6 +202,8 @@
   var raw = null;
   var cat = "全部";
   var state = "全部";
+  var view = "trend";      // "trend" 词趋势 | "opp" 机会词
+  var oppState = "全部";   // 机会词视图内的状态筛选
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function fmtPv(v) { return v == null ? "—" : (v >= 10000 ? (v / 10000).toFixed(1) + "万" : Math.round(v)); }
@@ -243,7 +294,79 @@
     document.getElementById("signal").innerHTML = sig;
   }
 
+  // ============ 机会词视图 ============
+  function renderOppSignal() {
+    var op = raw.opportunities || { items: [], counts: {} };
+    var c = op.counts || {};
+    var items = curOppItems();
+    var verdict = '';
+    var tips = items.filter(function (o) { return o.state === "new"; })
+      .sort(function (a, b) { return (b.cur_avg || 0) - (a.cur_avg || 0); });
+    var up = items.filter(function (o) { return o.state === "up"; })
+      .sort(function (a, b) { return ((b.chg || 0) * (b.cur_avg || 0)) - ((a.chg || 0) * (a.cur_avg || 0)); });
+    if (tips.length) verdict += '新冒头<b>「' + esc(tips[0].kw) + '」</b>（日均人气 ' + fmtPv(tips[0].cur_avg) + '），这类词你还没在卖——先判断能不能做。';
+    if (up.length) verdict += '在涨<b>「' + esc(up[0].kw) + '」</b>+' + up[0].chg + '%，已持续' + up[0].days + '天，值得评估是否跟进。';
+    if (!verdict) verdict = '本期暂无明显机会词，可稍后再看或把人气门槛调低。';
+    var w = raw.window || {};
+    var sig = '<div class="dots">'
+      + '<span class="d"><span class="l">机会词</span><span class="v">' + (c.total || 0) + '</span></span>'
+      + '<span class="d"><span class="l">新冒头</span><span class="v vnew" style="color:#d97706">' + (c.new || 0) + '</span></span>'
+      + '<span class="d"><span class="l">人气上升</span><span class="v vup">' + (c.up || 0) + '</span></span>'
+      + '</div>'
+      + '<div class="verdict">' + verdict + '</div>'
+      + '<div class="meta">窗口：本期 ' + ((w.cur || {}).start || "—") + ' ~ ' + ((w.cur || {}).end || "—")
+      + ' ｜ 对比上期 ' + ((w.prev || {}).start || "—") + ' ~ ' + ((w.prev || {}).end || "—")
+      + ' ｜ ' + (raw.opportunityNote || '') + '</div>';
+    document.getElementById("oppSignal").innerHTML = sig;
+  }
+
+  function curOppItems() {
+    var op = raw.opportunities || { items: [] };
+    var list = op.items || [];
+    if (oppState !== "全部") list = list.filter(function (o) { return o.state === oppState; });
+    return list;
+  }
+
+  function renderOpp() {
+    document.getElementById("oppFilters").querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-opp-state") === oppState);
+    });
+    renderOppSignal();
+    var items = curOppItems().slice();
+    var order = { "new": 0, "up": 1 };
+    items.sort(function (a, b) {
+      var d = (order[a.state] != null ? order[a.state] : 9) - (order[b.state] != null ? order[b.state] : 9);
+      if (d) return d;
+      if (a.state === "new") return (b.cur_avg || 0) - (a.cur_avg || 0);
+      return ((b.chg || 0) * (b.cur_avg || 0)) - ((a.chg || 0) * (a.cur_avg || 0));
+    });
+    var rows = items.map(function (o) {
+      var typeCls = o.state === "new" ? "p-new" : "p-up";
+      var typeName = o.state === "new" ? "新冒头" : "上升";
+      return '<tr class="tr-opp-' + o.state + '">'
+        + '<td><span class="nm">' + esc(o.kw) + '</span></td>'
+        + '<td><span class="pill ' + typeCls + '">' + typeName + '</span></td>'
+        + '<td class="num">' + fmtPv(o.cur_avg) + '</td>'
+        + '<td class="num">' + fmtPv(o.prev_avg) + '</td>'
+        + '<td class="num chg ' + chgCls(o) + '">' + fmtChg(o) + '</td>'
+        + '<td class="num">' + (o.days || 0) + '</td>'
+        + '<td class="act"><span class="dot d-up"></span>' + esc(o.act || '') + '</td>'
+        + '</tr>';
+    }).join("");
+    document.getElementById("oppList").querySelector("tbody").innerHTML =
+      rows || '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:18px">暂无机会词</td></tr>';
+    var total = items.length;
+    document.getElementById("oppNote").textContent =
+      "当前 " + total + " 个机会词 · 判断建议：先看搜索意图与自身供应链，能做且有利可图就上新，不确定就保持观察 1-2 周";
+  }
+
   function render() {
+    // 视图切换
+    document.getElementById("trendPanel").style.display = view === "trend" ? "" : "none";
+    document.getElementById("oppPanel").style.display = view === "opp" ? "" : "none";
+    document.getElementById("oppBtn").classList.toggle("active", view === "opp");
+    if (view === "opp") { renderOpp(); return; }
+
     document.getElementById("tabs").querySelectorAll("button").forEach(function (b) {
       b.classList.toggle("active", b.getAttribute("data-cat") === cat);
     });
@@ -313,10 +436,22 @@
     var b = e.target.closest("button"); if (!b) return;
     state = b.getAttribute("data-state"); render();
   });
+  document.getElementById("oppFilters").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    oppState = b.getAttribute("data-opp-state"); render();
+  });
+  window.toggleOpp = function () {
+    view = view === "opp" ? "trend" : "opp";
+    render();
+  };
 
   loadJSON("data/keyword-trend.json").then(function (d) {
     raw = d;
     document.getElementById("dateBadge").textContent = (d.updated || "").split(" ")[0] || "—";
+    var oc = (d.opportunities || {}).counts || {};
+    var badge = document.getElementById("oppBadge");
+    badge.textContent = oc.new ? oc.new : (oc.up || 0);
+    badge.title = "新冒头 " + (oc.new || 0) + " · 上升 " + (oc.up || 0);
     render();
     document.getElementById("foot").textContent = "数据更新：" + (d.updated || "—") + " · 数据源：市场关键词数据表（4类目采集 + AI打标）· 口径详见上方说明";
   }).catch(function () {

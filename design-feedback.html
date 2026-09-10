@@ -37,6 +37,7 @@
   .vid .copy{cursor:pointer;border-bottom:1px dashed #cbd5e1;margin-left:4px}
   .vid a.play{color:var(--accent);font-weight:600;text-decoration:none;background:var(--soft);border:1px solid #c7d6ff;border-radius:5px;padding:1px 7px;margin-left:8px}
   .vid a.play:hover{background:#e0e7ff}
+  .vid .find{color:#94a3b8;font-size:10.5px;margin-left:8px}
   .badge{background:var(--good);color:#fff;font-size:11px;font-weight:700;border-radius:7px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
   .meta{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
   .chip{background:var(--chip);color:var(--chipink);font-size:11px;font-weight:600;border-radius:6px;padding:2px 8px}
@@ -115,8 +116,8 @@
     <div>· 数据来源：飞书 Base <code>Dsbub221YaKIaKsTWAYcwvURnJe</code> →「天猫-短视频营销数据」（素材/主体级）。</div>
     <div>· <b>按月产出、次月复盘</b>：本页按素材「计划开通月份」归到产出月份。例如设计 8 月产出 / 8 月开的计划，在 9 月（次月）生成此诊断报告复盘，不再重复展示更早月份的老素材。</div>
     <div>· 「可复用」判定：成交数&gt;0 且 ROI≥1 且 点击率≥4% 且 加购率≥10%。</div>
-    <div>· 每张卡透出 <b>视频标题 + 主体ID</b>：点「▶ 打开原片」直达视频页，对照真实画面微调脚本文案。</div>
-    <div>· 卡片内的「可直接改拍的脚本文案」为 AI 依据素材<b>真实标题与卖点</b>自动生成的分镜稿（画面/口播/字幕），供设计直接改拍参考；如需逐字还原原视频口播，需接入登录态视频转写通道（当前环境不可用）。</div>
+    <div>· 每张卡透出 <b>视频标题 + 主体ID</b>：复制主体ID到万相台素材库即可定位该素材原片（视频页链接需淘宝登录，不便直接外链）。</div>
+    <div>· 卡片内「可直接开拍的脚本文案」为依据素材<b>真实标题与卖点</b>自动撰写（画面/口播/字幕三段式），设计可照此直接开拍；要逐字还原原视频口播需登录态转写通道，当前环境暂不可用。</div>
     <div>· 缺失项：表中无「平均有效观看时长」字段；「观看量」以「展现量」代理。如需真实素材级完播/时长，请另导万相台素材报表接入。</div>
   </footer>
 </div>
@@ -177,7 +178,7 @@ function render(){
       <div class="vhead">
         <div>
           <div class="vtitle" title="${r.body_name}">${r.body_name}</div>
-          <div class="vid">视频ID ${r.body_id}<span class="copy" onclick="navigator.clipboard.writeText('${r.body_id}')">复制</span>${r.video_link?`<a class="play" href="${r.video_link}" target="_blank" rel="noopener">▶ 打开原片</a>`:""}</div>
+          <div class="vid">视频ID ${r.body_id}<span class="copy" onclick="navigator.clipboard.writeText('${r.body_id}')">复制</span><span class="find">用此ID在万相台素材库搜原片</span></div>
         </div>
         <span class="badge">可复用</span>
       </div>
@@ -189,7 +190,7 @@ function render(){
         ${sec.map(([k,v])=>`<div class="m sec"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}
       </div>
       <div class="why"><div class="h">✅ 为什么好</div><ul>${why||"<li>综合指标达标</li>"}</ul></div>
-      <div class="shot"><div class="h">🎬 可直接改拍的脚本文案<span class="note">AI 据素材真实标题/卖点生成 · 原片见▶可对照微调</span></div>
+      <div class="shot"><div class="h">🎬 可直接开拍的脚本文案（参考本素材角度与数据自动撰写）</div>
         ${(r.shot||[]).map(s=>`<div class="seg">
           <div class="seg-t"><b>${s.t}</b>${s.role}</div>
           <div class="sg"><i>画面</i>${s.visual}</div>

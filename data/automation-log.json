@@ -1,5 +1,199 @@
 [
   {
+    "id": "e87f0355",
+    "ts": "2026-09-10 09:03:37",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "同步返回空数据，已保留现有文件",
+    "details": "同步返回空数据，现有文件已保留（未清空）",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "b1dbbbed",
+    "ts": "2026-09-10 09:03:36",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "同步返回空数据，已保留现有文件",
+    "details": "同步返回空数据，现有文件已保留（未清空）",
+    "steps": [
+      {
+        "board": "天猫推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "error",
+        "msg": "拉取失败或无数据"
+      },
+      {
+        "board": "推广ROI",
+        "status": "warn",
+        "msg": "无有效数据"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "129700a1",
+    "ts": "2026-09-10 09:03:36",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 207 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 177 条 / 周维度 30 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 177 条 / 周维度 30 条",
+        "count": 207
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "ad52af0e",
+    "ts": "2026-09-10 09:03:36",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "同步返回空数据，已保留现有文件",
+    "details": "同步返回空数据，现有文件已保留（未清空）",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "771391fa",
+    "ts": "2026-09-09 18:07:00",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 9408 条主数据",
+    "details": "· 推广ROI汇总：[ok] 14天 | 天猫5600条计划 | 拼多多3808条计划 | 总花费¥461,177 | 总成交¥1,192,818 | 综合ROI 2.59\n· 天猫推广：[ok] 5600 条计划明细（14 天）\n· 拼多多推广：[ok] 14天汇总 | 3808条计划",
+    "steps": [
+      {
+        "board": "推广ROI汇总",
+        "status": "ok",
+        "msg": "14天 | 天猫5600条计划 | 拼多多3808条计划 | 总花费¥461,177 | 总成交¥1,192,818 | 综合ROI 2.59"
+      },
+      {
+        "board": "天猫推广",
+        "status": "ok",
+        "msg": "5600 条计划明细（14 天）"
+      },
+      {
+        "board": "拼多多推广",
+        "status": "ok",
+        "msg": "14天汇总 | 3808条计划"
+      }
+    ],
+    "target": "ad-roi"
+  },
+  {
+    "id": "ac5603a5",
+    "ts": "2026-09-09 18:04:26",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 210 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 30 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 180 条 / 周维度 30 条",
+        "count": 210
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "a03f88e8",
+    "ts": "2026-09-09 18:03:06",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 120 条主数据，120 条详情",
+    "details": "· 店铺日报·拼多多：[ok] 同步 60 天\n· 店铺日报·天猫：[ok] 同步 60 天\n· 店铺日报·发货数据：[ok] 合并 118 天净销售额(发货/支付)",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "ok",
+        "msg": "同步 60 天",
+        "count": 60
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "ok",
+        "msg": "同步 60 天",
+        "count": 60
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "ok",
+        "msg": "合并 118 天净销售额(发货/支付)",
+        "count": 118
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
     "id": "cc1b2b59",
     "ts": "2026-09-09 17:59:23",
     "task": "同步 店铺日报",

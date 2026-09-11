@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609101957"></script>
-<script src="js/xlsx.full.min.js?v=202609101957"></script>
+<script src="js/echarts.min.js?v=202609110900"></script>
+<script src="js/xlsx.full.min.js?v=202609110900"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -43,9 +43,15 @@
   .win-tag{font-size:12px;color:#6d28d9;background:#ede9fe;padding:3px 10px;border-radius:10px;font-weight:600;}
   .win-scope{font-size:11.5px;color:var(--text-tertiary);}
   .win-scope b{color:var(--text-secondary);}
-  .syncbadge{font-size:11px;color:#64748b;background:#e2e8f0;padding:3px 10px;border-radius:10px;font-weight:600;cursor:pointer;white-space:nowrap;}
-  .syncbadge.ok{color:#047857;background:#d1fae5;}
-  .syncbadge:active{opacity:.7;}
+  .syncbadge{font-size:11px;color:#64748b;background:#e2e8f0;padding:4px 11px;border-radius:10px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:.15s;display:inline-flex;align-items:center;gap:4px;}
+  .syncbadge.ok{color:#047857;background:#d1fae5;border-color:#a7f3d0;}
+  .syncbadge.mid{color:#0369a1;background:#e0f2fe;border-color:#bae6fd;}
+  .syncbadge:hover{background:#cbd5e1;}
+  .syncbadge.ok:hover{background:#a7f3d0;}
+  .syncbadge.mid:hover{background:#bae6fd;}
+  .syncbadge:active{transform:scale(.97);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .syncbadge .spin{display:inline-block;animation:spin 1s linear infinite;}
   .controlbar .sp{margin-left:auto;display:flex;align-items:center;gap:8px;}
   .platbox{display:flex;gap:6px;}
   .platbox button{border:1px solid var(--border);background:#fff;padding:5px 13px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;border-radius:14px;transition:all .12s;}
@@ -332,7 +338,7 @@ function loadPlan(){
   try{PLAN_DEL=JSON.parse(localStorage.getItem(PLAN_DEL_KEY)||'{}');}catch(e){PLAN_DEL={};}
   for(const k in PLAN){ if(typeof PLAN[k]!=='object') PLAN[k]=normPlanVal(PLAN[k]); }
   syncFromServer();
-  if(typeof window.__planPoll==='undefined'){ window.__planPoll=setInterval(()=>{ if(document.visibilityState==='visible') syncFromServer(); },45000); }
+  if(typeof window.__planPoll==='undefined'){ window.__planPoll=setInterval(()=>{ if(document.visibilityState==='visible') syncFromServer(true); },45000); }
 }
 function savePlan(){
   try{localStorage.setItem(PLAN_KEY,JSON.stringify(PLAN));}catch(e){}
@@ -342,10 +348,11 @@ function savePlan(){
 
 // ── 服务器同步：合并动作到 data/bi-actions.json（团队共享：谁在哪台电脑标记都汇总，45s 轮询+保存即推）──
 const BI_ACT_PATH='/api/files/bi-actions', BI_ACT_KEY='chengying2026';
-let _pushT=null, _syncBusy=false, _syncBase;      // ''=同源可用；字符串=云端绝对地址；null=全部不可达
+let _pushT=null, _syncBusy=false, _syncBase;      // ''=同源可用；字符串=云端绝对地址；null=全部不可达；undefined=未探测
 function lsSyncBase(){ try{ return localStorage.getItem('bi_plan_sync_base')||''; }catch(e){ return ''; } }
-async function resolveSyncBase(){
-  if(_syncBase!==undefined) return _syncBase;
+async function resolveSyncBase(force=false){
+  if(!force && _syncBase!==undefined) return _syncBase;
+  _syncBase=undefined;
   // 公网同步配置 data/sync.json（静态页每次自动读取最新隧道地址）
   let cfgHub='';
   try{ const cr=await fetch('data/sync.json?v='+Date.now(),{cache:'no-store'}); if(cr.ok){ const cj=await cr.json(); if(cj&&cj.hub) cfgHub=String(cj.hub).replace(/\/+$/,''); } }catch(e){}
@@ -357,12 +364,35 @@ async function resolveSyncBase(){
   try{ const same=await probe(BI_ACT_PATH); if(same){ _syncBase=''; return _syncBase; } }catch(e){}
   _syncBase=null; return null;
 }
-async function apiPlanUrl(){ const b=await resolveSyncBase(); return (b===null)?null:(b+BI_ACT_PATH); }
-function setSyncBadge(st){
+async function apiPlanUrl(force=false){ const b=await resolveSyncBase(force); return (b===null)?null:(b+BI_ACT_PATH); }
+function setSyncBadge(st,title){
   const el=document.getElementById('syncBadge'); if(!el)return;
-  if(st==='on'){ el.textContent='☁ 已同步'; el.className='syncbadge ok'; }
-  else if(st==='off'){ el.textContent='⏸ 仅本机/链接'; el.className='syncbadge'; }
-  else { el.textContent='⏳ 同步中…'; el.className='syncbadge'; }
+  if(st==='on'){ el.innerHTML='<span>☁</span><span>已同步</span>'; el.className='syncbadge ok'; }
+  else if(st==='off'){ el.innerHTML='<span>⏸</span><span>手动同步</span>'; el.className='syncbadge'; }
+  else { el.innerHTML='<span class="spin">⏳</span><span>同步中…</span>'; el.className='syncbadge mid'; }
+  if(title) el.title=title;
+}
+// 强制手动同步：清除服务器缓存 → 重探测 → 本机覆盖到服务器 → 拉回服务器最新 → 刷新页面
+async function forceSync(){
+  const sb=document.getElementById('syncBadge'); if(sb) sb.classList.add('mid');
+  setSyncBadge('mid','正在探测同步服务器并推送本机记录…');
+  _syncBase=undefined;
+  try{
+    const u=await apiPlanUrl(true);
+    if(!u){ setSyncBadge('off','未找到可用同步服务器（本机/隧道均未在线），状态仅存本机与链接'); return; }
+    // 1) 先把本机状态 push 到服务器（以本地最新为准覆盖/合并）
+    const v={};
+    for(const k in PLAN){ const st=stateLabel(planState(k)); if(st==='待处理')continue; const vv=PLAN[k]; v[k]={st:vv.st||st, ts:vv.ts||nowTs(), by:''}; }
+    const post=await fetch(u,{method:'POST',headers:{'X-API-Key':BI_ACT_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({data:{v:v, del:PLAN_DEL}})});
+    if(!post.ok) throw new Error('push failed '+post.status);
+    // 2) 再 pull 服务器最新并合并到本地
+    await syncFromServer(true);
+    setSyncBadge('on','同步完成：本机已上传到服务器，并已合并服务器最新状态');
+  }catch(e){
+    _syncBase=undefined;
+    setSyncBadge('off','同步失败：'+e.message+'；点击可再次尝试');
+  }
 }
 function pushToServer(){
   clearTimeout(_pushT);
@@ -371,26 +401,26 @@ function pushToServer(){
       const v={};
       for(const k in PLAN){ const st=stateLabel(planState(k)); if(st==='待处理')continue; const vv=PLAN[k]; v[k]={st:vv.st||st, ts:vv.ts||nowTs(), by:''}; }
       setSyncBadge('mid');
-      apiPlanUrl().then(u=>{
-        if(!u){ setSyncBadge('off'); return; }
+      apiPlanUrl(true).then(u=>{
+        if(!u){ setSyncBadge('off'); _syncBase=undefined; return; }
         return fetch(u,{method:'POST',headers:{'X-API-Key':BI_ACT_KEY,'Content-Type':'application/json'},
           body:JSON.stringify({data:{v:v, del:PLAN_DEL}})})
-          .then(r=>{ if(r.ok) setSyncBadge('on'); else setSyncBadge('off'); })
-          .catch(()=>setSyncBadge('off'));
+          .then(r=>{ if(r.ok) setSyncBadge('on'); else{ setSyncBadge('off'); _syncBase=undefined; } })
+          .catch(()=>{ setSyncBadge('off'); _syncBase=undefined; });
       });
-    }catch(e){}
+    }catch(e){ setSyncBadge('off'); _syncBase=undefined; }
   },1200);
 }
-function syncFromServer(){
-  if(_syncBusy)return; _syncBusy=true;
-  (async()=>{
+function syncFromServer(force=false){
+  if(_syncBusy)return Promise.resolve(); _syncBusy=true;
+  return new Promise((resolve)=>{(async()=>{
     try{
-      const u=await apiPlanUrl();
-      if(!u){ setSyncBadge('off'); return; }
+      const u=await apiPlanUrl(force);
+      if(!u){ setSyncBadge('off'); _syncBase=undefined; return; }
       const r=await fetch(u,{headers:{'X-API-Key':BI_ACT_KEY}});
-      if(!r.ok){ setSyncBadge('off'); return; }
+      if(!r.ok){ setSyncBadge('off'); _syncBase=undefined; return; }
       const j=await r.json();
-      if(!j||typeof j!=='object'){ setSyncBadge('off'); return; }
+      if(!j||typeof j!=='object'){ setSyncBadge('off'); _syncBase=undefined; return; }
       // 兼容不同服务返回形态：{v,del} / {data:{v,del}} / 旧版扁平 map / 数组
       const wrap=(j.data&&typeof j.data==='object'&&!Array.isArray(j.data))?j.data:j;
       const sv=(wrap.v&&typeof wrap.v==='object')?wrap.v:( (wrap&&typeof wrap==='object'&&!Array.isArray(wrap)&&Object.keys(wrap).length&&wrap[Object.keys(wrap)[0]]&&wrap[Object.keys(wrap)[0]].st)?wrap:{} );
@@ -413,9 +443,9 @@ function syncFromServer(){
         if(typeof renderAll==='function') try{renderAll();}catch(e){}
       }
       setSyncBadge('on');
-    }catch(e){ setSyncBadge('off'); }
-    finally{ _syncBusy=false; }
-  })();
+    }catch(e){ setSyncBadge('off'); _syncBase=undefined; }
+    finally{ _syncBusy=false; resolve(); }
+  })();});
 }
 function planState(id){ const v=PLAN[id]; return v?(v.st||'todo'):'todo'; }
 function planTs(id){ const v=PLAN[id]; return v&&v.ts?v.ts:''; }
@@ -1203,9 +1233,9 @@ function bindIdSearch(){
 }
 async function main(){
   loadPlan();
-  // 点同步徽标 → 立即从服务器拉一次（微信/QQ 等分享链接的同事可借此把状态汇总上来）
+  // 点同步徽标 → 强制手动同步：本机覆盖到服务器 + 拉回服务器最新（解决 cloudflared 隧道临时断线后不再重连的问题）
   const sb=document.getElementById('syncBadge');
-  if(sb) sb.addEventListener('click',()=>{ syncFromServer(); });
+  if(sb){ sb.addEventListener('click',()=>{ forceSync(); }); sb.title='点击立即同步：把本机记录上传到服务器，并合并服务器最新状态'; }
   // 链接携带的分享状态 → 与本地合并(以最新为准)，再写回，保证地址栏始终是完整可分享状态
   const urlPlan=parseHashPlan();
   if(urlPlan && Object.keys(urlPlan).length){ PLAN=mergePlanToLocal(PLAN,urlPlan); savePlan(); }

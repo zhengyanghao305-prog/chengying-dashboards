@@ -764,7 +764,7 @@ function renderFollow(){
   const all=platRows(), hs=all.filter(r=>isHandled(r.link_id));
   const w=followWatchCounts(all);
   const hint=document.getElementById('followHint');
-  if(hint) hint.textContent='按「处理动作状态」归档卡片：点击某状态卡 → 下方仅显示该状态链接（含处理天数/回弹标签）。观察期≤'+FLOOK_DAYS+'天不重复提醒，超期未回弹亮红提示二次处理。';
+  if(hint) hint.textContent='按「处理动作状态」归档卡片：点击某状态卡 → 下方仅显示该状态链接（含处理天数/回弹标签）。观察期≤'+FLOOK_DAYS+'天不重复提醒，超期未回弹亮红提示二次处理。点本分区标题可折叠/展开。';
   if(!w.total){ host.innerHTML='<div class="empty-follow">还没有已处理记录 —— 给任意亏损/盈利链接点右侧「状态」标签（如 已停推广 / 已下架 / 已提投产…）后，它会自动从上方待办移出、出现在这里，防止"处理过的链接第二天又来提醒"。<br>处理状态已自动保存到当前链接(地址栏 #p=)，把网址发给同事/换设备打开即可同步，无需依赖本机浏览器。</div>'; 
     return; }
   // 按处理状态分组计数（归档卡）
@@ -1062,7 +1062,7 @@ function renderBuckets(){
   if(hint) hint.textContent=(pw?('较上一期('+pw.replace(/\//g,'-')+')对比 · '):'最早窗口，无上期可比 · ')+'上方卡片 = 待办(未处理)视角，已处理的自动移入「已处理·观察跟进」防重复提醒；点任意档位下钻，每条含「动作建议+依据」；以利润额×利润率最大化定建议';
   document.querySelectorAll('#bucketHost .bcell[data-g]').forEach(el=>{ if(!+el.dataset.cnt)return; el.addEventListener('click',()=>{ const g=el.dataset.g,i=+el.dataset.i; BUCKET=(BUCKET&&BUCKET.g===g&&BUCKET.i===i)?null:{g,i}; DACT='all'; DRILL_PAGE=0; clearAllSel(); renderBuckets(); renderDrill(); }); });
   document.querySelectorAll('#bucketHost .bcell[data-bucket]').forEach(el=>{ el.addEventListener('click',()=>{ BUCKET={g:el.dataset.bucket,i:0}; DACT='all'; DRILL_PAGE=0; clearAllSel(); renderBuckets(); renderDrill(); }); });
-  document.querySelectorAll('#bucketHost .follow-go').forEach(el=>{ el.addEventListener('click',()=>{ const fb=document.getElementById('followHost'); if(fb){ fb.scrollIntoView({behavior:'smooth',block:'start'}); } }); });
+  document.querySelectorAll('#bucketHost .follow-go').forEach(el=>{ el.addEventListener('click',()=>{ const fb=document.getElementById('followHost'); const sec=document.getElementById('followSection'); if(FOLLOW_COLLAPSED && sec){ FOLLOW_COLLAPSED=false; sec.classList.remove('collapsed'); if(fb)fb.style.display=''; try{localStorage.setItem('bi_follow_collapsed','0');}catch(e){} } if(fb){ fb.scrollIntoView({behavior:'smooth',block:'start'}); } }); });
 }
 function drillRowHTML(r){ CUR_POOL='drill';
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
@@ -1259,6 +1259,9 @@ async function main(){
   if(urlPlan && Object.keys(urlPlan).length){ PLAN=mergePlanToLocal(PLAN,urlPlan); savePlan(); }
   else syncHash();
   bindIdSearch();
+  // 「已处理·观察跟进」折叠/展开：点分区标题切换，状态持久化到 localStorage
+  const fs=document.getElementById('followSection');
+  if(fs) fs.addEventListener('click',toggleFollowSection);
   try{
     const res=await fetch('data/feishu_bi.json?v='+Date.now()); if(!res.ok)throw new Error('HTTP '+res.status);
     const raw=await res.json();
@@ -1269,6 +1272,7 @@ async function main(){
     DATA.winRowsMap=map;
     WIN=DATA.windows[DATA.windows.length-1];
     renderAll();
+    if(FOLLOW_COLLAPSED){ const sec=document.getElementById('followSection'),host=document.getElementById('followHost'); if(sec)sec.classList.add('collapsed'); if(host)host.style.display='none'; }
   }catch(err){
     document.querySelector('.controlbar').insertAdjacentHTML('afterend','<div class="err">加载 data/feishu_bi.json 失败：'+err.message+'<br>请用本地服务器地址打开 http://127.0.0.1:3588/bi-digest.html</div>');
   }

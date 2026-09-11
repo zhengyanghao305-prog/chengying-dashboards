@@ -137,6 +137,7 @@
   .chk{width:15px;height:15px;accent-color:#7c3aed;cursor:pointer;flex-shrink:0;}
   .lname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .lid{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
+  .lid .lshop{display:inline-block;margin-top:2px;padding:1px 5px;border-radius:5px;background:#eef2ff;color:#4338ca;font-size:10px;font-weight:600;max-width:118px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .neg{color:var(--accent-red);} .pos{color:var(--accent-green);}
   .metric .v.mut{color:var(--text-tertiary);} .metric .v.warn{color:#d97706;} .metric .v.neg{color:var(--accent-red);} .metric .v.pos{color:var(--accent-green);}
   .act-chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;white-space:nowrap;text-align:center;flex-shrink:0;}
@@ -725,7 +726,7 @@ function followRowHTML(r){ CUR_POOL='follow';
     +chkHTML(r.link_id)
     +'<div class="r-title" style="flex:1 1 22%">'
       +'<div class="r-name"><span class="f-tag '+tCls+'" title="'+esc(tTip)+'">'+tTxt+'</span> '+esc(r.title||r.product)+'</div>'
-      +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+' · 链接 '+esc(r.link_id)+' · 处理于 '+(ts||'—')+(days!==null&&ts?'（'+days+' 天前）':'')+' · 当前状态：'+st+'</div>'
+      +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+(r.shop?' · '+esc(r.shop):'')+' · 链接 '+esc(r.link_id)+' · 处理于 '+(ts||'—')+(days!==null&&ts?'（'+days+' 天前）':'')+' · 当前状态：'+st+'</div>'
       +'</div>'
     +'<div class="r-metrics">'
       +'<div class="metric"><span class="k">当前利润</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
@@ -920,7 +921,7 @@ function actRowHTML(r,ac){ CUR_POOL='act';
   return '<div class="arow" data-id="'+r.link_id+'">'
     +chkHTML(r.link_id)
     +'<div class="lname">'+shortTitle(r.title)+'<span class="prod">'+r.product+'</span></div>'
-    +'<div class="lid">'+r.platform+'<br>'+r.link_id+'</div>'
+    +'<div class="lid">'+r.platform+'<br>'+r.link_id+(r.shop?'<br><span class="lshop" title="'+esc(r.shop)+'">'+esc(r.shop)+'</span>':'')+'</div>'
     +'<div class="lnum neg">'+fmtMoney(r.p)+'</div>'
     +'<div class="lnum">'+fmtMoney(r.s)+'</div>'
     +'<div class="lnum"><span class="'+(r.roiV<1?'roi-neg':'roi-ok')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'

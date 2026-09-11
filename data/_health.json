@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-11 09:02:53",
+  "checked_at": "2026-09-11 11:00:03",
   "today": "2026-09-11",
   "ok": 11,
   "warn": 0,
@@ -9,19 +9,19 @@
       "file": "daily-pulse.json",
       "label": "店铺日报",
       "max_lag": 2,
-      "max_date": "2026-09-09",
-      "lag_days": 2,
+      "max_date": "2026-09-10",
+      "lag_days": 1,
       "status": "ok",
-      "msg": "最新 2026-09-09（滞后 2 天）"
+      "msg": "最新 2026-09-10（滞后 1 天）"
     },
     {
       "file": "sales-alert.json",
       "label": "销售预警",
       "max_lag": 2,
-      "max_date": "2026-09-09",
-      "lag_days": 2,
+      "max_date": "2026-09-10",
+      "lag_days": 1,
       "status": "ok",
-      "msg": "最新 2026-09-09（滞后 2 天）"
+      "msg": "最新 2026-09-10（滞后 1 天）"
     },
     {
       "file": "ad-roi.json",

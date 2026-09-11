@@ -1067,7 +1067,7 @@ function drillRowHTML(r){ CUR_POOL='drill';
     +chkHTML(r.link_id)
     +'<div class="r-title">'
       +'<div class="r-name">'+esc(r.title||r.product)+'</div>'
-      +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+' · 链接 '+esc(r.link_id)+'</div>'
+      +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+(r.shop?' · '+esc(r.shop):'')+' · 链接 '+esc(r.link_id)+'</div>'
       +'</div>'
     +'<div class="r-metrics">'
       +'<div class="metric"><span class="k">利润(7天)</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'

@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609111407"></script>
-<script src="js/xlsx.full.min.js?v=202609111407"></script>
+<script src="js/echarts.min.js?v=202609111408"></script>
+<script src="js/xlsx.full.min.js?v=202609111408"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -76,6 +76,11 @@
   .section-title{font-size:15px;font-weight:700;margin:18px 2px 10px;display:flex;align-items:center;gap:8px;}
   .section-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-purple);}
   .section-title .hint{font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:6px;}
+  /* 可折叠分区标题 */
+  .section-title.collapsible{cursor:pointer;user-select:none;}
+  .section-title.collapsible:hover{color:#4c1d95;}
+  .section-title.collapsible .tw{display:inline-flex;width:14px;justify-content:center;transition:transform .15s;color:var(--text-tertiary);font-size:12px;}
+  .section-title.collapsible.collapsed .tw{transform:rotate(-90deg);}
 
   /* ── 动作分类卡 ── */
   .action-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin:0 0 12px;}
@@ -278,7 +283,7 @@
 
   <div class="ov" id="ovHost"></div>
 
-  <div class="section-title"><span class="dot" style="background:#d97706"></span>已处理 · 观察跟进<span class="hint" id="followHint"></span></div>
+  <div class="section-title collapsible" id="followSection"><span class="tw">▾</span><span class="dot" style="background:#d97706"></span>已处理 · 观察跟进<span class="hint" id="followHint"></span></div>
   <div id="followHost"></div>
 
   <div class="section-title"><span class="dot"></span>BI 分档卡片 · 点击档位 → 该档全部链接 + 每条的动作建议<span class="hint" id="bucketHint"></span></div>
@@ -305,6 +310,17 @@ const HANDLED_ADJ={'已提投产':1,'已提价':1,'处理中':1};               
 let PLAN={};
 let DATA={rows:[],windows:[],winRowsMap:{}};
 let WIN='', PLAT='all', OWNER='all', ACT='all', AMT='all', DACT='all', SEL_POOL='action';
+let FOLLOW_COLLAPSED=false;   // 「已处理·观察跟进」折叠状态（持久化到 localStorage）
+try{ FOLLOW_COLLAPSED = localStorage.getItem('bi_follow_collapsed')==='1'; }catch(e){}
+function toggleFollowSection(){
+  FOLLOW_COLLAPSED=!FOLLOW_COLLAPSED;
+  const sec=document.getElementById('followSection');
+  const host=document.getElementById('followHost');
+  if(!sec||!host) return;
+  sec.classList.toggle('collapsed',FOLLOW_COLLAPSED);
+  host.style.display=FOLLOW_COLLAPSED?'none':'';
+  try{ localStorage.setItem('bi_follow_collapsed',FOLLOW_COLLAPSED?'1':'0'); }catch(e){}
+}
 /* 勾选集合按板块(act/drill/follow/search)分池，互不串扰：全选某列表不会把上一列表的勾选带过去 */
 const SEL_POOLS={act:new Set(),drill:new Set(),follow:new Set(),search:new Set()};
 let CUR_POOL='act';

@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>竞争分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609111424"></script>
-<script src="js/diagnosis.js?v=202609111424"></script>
-<script src="js/deep-link.js?v=202609111424"></script>
+<script src="js/diagnostics-config.js?v=202609111443"></script>
+<script src="js/diagnosis.js?v=202609111443"></script>
+<script src="js/deep-link.js?v=202609111443"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -178,7 +178,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609111424"></script>
+<script src="js/freshness-alert.js?v=202609111443"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -463,20 +463,24 @@ function renderSignal() {
       else risk.push(c.name);
     }
   });
-  var marketTotal = 0, oursTotal = 0, hasOurs = false;
+  var marketTotal = 0, oursTotal = 0, compTotal = 0, hasOurs = false, hasCompTotal = false;
   CATS.forEach(function (c) {
     var last = c.series[c.series.length - 1];
     if (last && last.market) {
       marketTotal += last.market;
       oursTotal += (last.ours || 0);
+      compTotal += (last.comp || 0);
       if (last.ours != null) hasOurs = true;
+      if (last.comp != null) hasCompTotal = true;
     }
   });
   var overall;
   if (!marketTotal) overall = "—";
   else if (!hasOurs) overall = "数据补录中";
   else overall = fmtPct(oursTotal / marketTotal);
-  parts.push(currentPlatform + '市场销量 <b>' + fmt(marketTotal) + '</b> 单 · 我方 <b>' + fmt(oursTotal) + '</b> 单 · 市占 <b>' + overall + '</b>');
+  parts.push('市场销量 <b>' + fmt(marketTotal) + '</b> 单 · <span style="color:#3b82f6;font-weight:600">我方</span> <b style="color:#3b82f6">' + fmt(oursTotal) + '</b> 单' +
+    (hasCompTotal ? ' · <span style="color:#ef4444;font-weight:600">同行</span> <b style="color:#ef4444">' + fmt(compTotal) + '</b> 单' : '') +
+    ' · <span style="color:#10b981;font-weight:600">市占</span> <b style="color:#10b981">' + overall + '</b>');
   if (lead.length) parts.push('<b class="good">领先品类 ' + lead.length + ' 个</b>（' + lead.join("、") + '）');
   if (risk.length) parts.push('<b class="warn">需关注品类 ' + risk.length + ' 个</b>（' + risk.join("、") + '）');
   if (pending.length) parts.push('<b class="warn">待补录数据 ' + pending.length + ' 个</b>（' + pending.join("、") + '）');
@@ -925,7 +929,7 @@ function renderVsBlock() {
   if (oursList.length && ours != null) {
     barNames.push(currentCat.name.length > 8 ? currentCat.name.slice(0, 8) + "…" : currentCat.name);
     barVals.push(Math.round(ours));
-    barColors.push("#10b981");
+    barColors.push("#3b82f6");
   }
   top.forEach(function (c, i) {
     barNames.push(c.shop.length > 8 ? c.shop.slice(0, 8) + "…" : c.shop);

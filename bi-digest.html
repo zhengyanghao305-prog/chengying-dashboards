@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609110900"></script>
-<script src="js/xlsx.full.min.js?v=202609110900"></script>
+<script src="js/echarts.min.js?v=202609110912"></script>
+<script src="js/xlsx.full.min.js?v=202609110912"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -360,8 +360,9 @@ async function resolveSyncBase(force=false){
   const cloud=[cfgHub, lsSyncBase(), (window.__BI_SYNC_BASE?String(window.__BI_SYNC_BASE).replace(/\/+$/,''):''), 'https://sync-server-production-bdec.up.railway.app'].filter(Boolean);
   const uniq=[]; cloud.forEach(b=>{ if(uniq.indexOf(b)<0) uniq.push(b); });
   const probe=async url=>{ try{ const r=await fetch(url,{method:'GET',headers:{'X-API-Key':BI_ACT_KEY},signal:AbortSignal.timeout?AbortSignal.timeout(4500):undefined}); return r.ok; }catch(e){ return false; } };
+  // 同源优先：本机/局域网 3588 最稳，不走隧道避免 cloudflared 临时断线/文件锁冲突
+  try{ if(await probe(BI_ACT_PATH)){ _syncBase=''; return _syncBase; } }catch(e){}
   for(const b of uniq){ if(await probe(b+BI_ACT_PATH)){ _syncBase=b; try{ localStorage.setItem('bi_plan_sync_base',b); }catch(e){} return _syncBase; } }
-  try{ const same=await probe(BI_ACT_PATH); if(same){ _syncBase=''; return _syncBase; } }catch(e){}
   _syncBase=null; return null;
 }
 async function apiPlanUrl(force=false){ const b=await resolveSyncBase(force); return (b===null)?null:(b+BI_ACT_PATH); }

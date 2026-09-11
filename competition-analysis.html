@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>竞争分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609111451"></script>
-<script src="js/diagnosis.js?v=202609111451"></script>
-<script src="js/deep-link.js?v=202609111451"></script>
+<script src="js/diagnostics-config.js?v=202609111500"></script>
+<script src="js/diagnosis.js?v=202609111500"></script>
+<script src="js/deep-link.js?v=202609111500"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -98,21 +98,21 @@
   .empty { text-align: center; color: #b8c2d0; padding: 22px 0; font-size: 12.5px; }
 
   /* 头部竞品对比 */
-  .vs-head { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 9px 14px; font-size: 12.5px; color: #7c2d12; margin-bottom: 10px; line-height: 1.7; }
-  .vs-head b { color: #c2410c; }
+  .vs-head { background: #f8fafc; border: 1px solid #e8edf3; border-radius: 10px; padding: 9px 14px; font-size: 12.5px; color: #4b5563; margin-bottom: 10px; line-height: 1.7; }
+  .vs-head b { color: #374151; }
   #vsTable table { width: 100%; border-collapse: collapse; font-size: 12px; }
   #vsTable th { background: #fafafa; color: #6b7280; font-weight: 600; padding: 7px 8px; text-align: center; border-bottom: 2px solid #f1f3f6; white-space: nowrap; }
   #vsTable td { padding: 7px 8px; border-bottom: 1px solid #f5f6f8; text-align: center; color: #374151; }
   #vsTable tr.vs-top td { background: #fff8f0; }
   #vsTable tr.vs-ours td { background: #f0fdf4; }
-  .vs-ours-badge { background: #10b981; color: #fff; font-size: 10px; padding: 1px 7px; border-radius: 8px; font-weight: 600; }
-  .vs-ours-tag { font-size: 10px; color: #10b981; }
+  .vs-ours-badge { background: #3b82f6; color: #fff; font-size: 10px; padding: 1px 7px; border-radius: 8px; font-weight: 600; }
+  .vs-ours-tag { font-size: 10px; color: #3b82f6; }
   .vs-gap { font-size: 10px; color: #9ca3af; margin-left: 4px; font-weight: 400; }
   .vs-gap.vs-base { color: #f97316; }
   .vs-gap-bad { color: #dc2626; background: #fef2f2; padding: 1px 5px; border-radius: 7px; }
   .vs-gap-good { color: #16a34a; background: #f0fdf4; padding: 1px 5px; border-radius: 7px; }
   .vs-gap-ok { color: #9ca3af; background: #f8fafc; padding: 1px 5px; border-radius: 7px; }
-  .vs-my { color: #059669; font-weight: 600; }
+  .vs-my { color: #3b82f6; font-weight: 600; }
   .vs-my-tag { font-size: 10px; color: #9ca3af; font-weight: 400; }
   #marginTrendBody table { min-width: 780px; }
   .vs-est { color: #f59e0b; }
@@ -139,8 +139,8 @@
   /* 转置布局（指标为行、主体为列）：不横向滚动 */
   .vs-tbl-v { min-width: 0 !important; table-layout: fixed; }
   .vs-tbl-v th { white-space: normal; vertical-align: top; line-height: 1.45; overflow: hidden; }
-  .vs-tbl-v col:nth-child(2) { background: #f7fdf9; }
-  .vs-tbl-v th.vs-col-my { background: #f7fdf9; }
+  .vs-tbl-v col:nth-child(2) { background: #eff6ff; }
+  .vs-tbl-v th.vs-col-my { background: #eff6ff; }
   .vs-tbl-v .v-lab { text-align: left; color: #6b7280; font-weight: 600; background: #fafafa; }
   .vs-tbl-v tr.vs-trend-row td { background: #fafafa; }
   .vs-tbl-v td { text-overflow: ellipsis; }
@@ -178,7 +178,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609111451"></script>
+<script src="js/freshness-alert.js?v=202609111500"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -478,7 +478,7 @@ function renderSignal() {
   if (!marketTotal) overall = "—";
   else if (!hasOurs) overall = "数据补录中";
   else overall = fmtPct(oursTotal / marketTotal);
-  parts.push('市场销量 <b>' + fmt(marketTotal) + '</b> 单 · <span style="color:#3b82f6;font-weight:600">我方</span> <b style="color:#3b82f6">' + fmt(oursTotal) + '</b> 单' +
+  parts.push(currentPlatform + '市场销量 <b>' + fmt(marketTotal) + '</b> 单 · <span style="color:#3b82f6;font-weight:600">我方</span> <b style="color:#3b82f6">' + fmt(oursTotal) + '</b> 单' +
     (hasCompTotal ? ' · <span style="color:#ef4444;font-weight:600">同行</span> <b style="color:#ef4444">' + fmt(compTotal) + '</b> 单' : '') +
     ' · <span style="color:#10b981;font-weight:600">市占</span> <b style="color:#10b981">' + overall + '</b>');
   if (lead.length) parts.push('<b class="good">领先品类 ' + lead.length + ' 个</b>（' + lead.join("、") + '）');
@@ -827,8 +827,8 @@ function renderVsBlock() {
   var headRow = "";
   if (market) {
     var pctTxt = oursPct != null ? fmtPct(oursPct) : "—";
-    headRow = '<div class="vs-head">📦 品类大盘 <b>' + fmt(market) + '</b> 单 · 我方 <b>' + fmt(ours) + '</b> 单 · 我方市占 <b>' + pctTxt + '</b>' +
-      (top.length ? ' · 头部 <b>' + escapeHtml(top[0].shop) + '</b> ' + fmt(top[0].latest_sales) + ' 单' : '') +
+    headRow = '<div class="vs-head">📦 品类大盘 <b>' + fmt(market) + '</b> 单 · <span style="color:#3b82f6;font-weight:600">我方 <b style="color:#3b82f6">' + fmt(ours) + '</b> 单</span> · <span style="color:#10b981;font-weight:600">我方市占 <b style="color:#10b981">' + pctTxt + '</b></span>' +
+      (top.length ? ' · <span style="color:#ef4444;font-weight:600">头部 <b style="color:#ef4444">' + escapeHtml(top[0].shop) + '</b> ' + fmt(top[0].latest_sales) + ' 单</span>' : '') +
       (top.length && oursPct != null ? ' · 我方/头部 = <b>' + (oursPct / (top[0].latest_sales / market)).toFixed(2) + 'x</b>' : '') + '</div>';
   }
   var entities = [];
@@ -913,7 +913,7 @@ function renderVsBlock() {
       var dates = Object.keys(en.c.daily || {}).sort().slice(-30).filter(function (d) { return VS_SKIP_DATES.indexOf(d) < 0; });
       vals = dates.map(function (d) { return en.c.daily[d]; });
     }
-    html += "<td>" + sparkline(vals) + "</td>";
+    html += "<td>" + sparkline(vals, en.isOurs ? "#3b82f6" : "#ef4444") + "</td>";
   });
   html += "</tr></tbody></table></div>";
   box.innerHTML = html;
@@ -934,7 +934,7 @@ function renderVsBlock() {
   top.forEach(function (c, i) {
     barNames.push(c.shop.length > 8 ? c.shop.slice(0, 8) + "…" : c.shop);
     barVals.push(c.latest_sales || 0);
-    barColors.push(i === 0 ? "#f97316" : "#60a5fa");
+    barColors.push(i === 0 ? "#ef4444" : "#f97316");
   });
   vsChart = echarts.init(chartDom, null, { renderer: "canvas" });
   vsChart.setOption({
@@ -979,7 +979,7 @@ function renderVsBlock() {
         if (d.dir === "+") return Math.round(v / Math.max.apply(null, vs) * 100);
         return Math.round(Math.min.apply(null, vs) / v * 100);
       });
-      return { name: it.name, value: values, itemStyle: { color: idx === 0 ? "#10b981" : (idx === 1 ? "#f97316" : (idx === 2 ? "#60a5fa" : "#f59e0b")) }, lineStyle: { width: 2 } };
+      return { name: it.name, value: values, itemStyle: { color: idx === 0 ? "#3b82f6" : (idx === 1 ? "#ef4444" : (idx === 2 ? "#f97316" : "#a78bfa")) }, lineStyle: { width: 2 } };
     });
     vsRadarChart = echarts.init(radarDom, null, { renderer: "canvas" });
     vsRadarChart.setOption({
@@ -1148,7 +1148,7 @@ function renderCompTable() {
   });
 }
 
-function sparkline(vals) {
+function sparkline(vals, color) {
   if (!vals.length) return '<span style="color:#d1d5db">—</span>';
   var w = 90, h = 30, pad = 2;
   var max = Math.max.apply(null, vals), min = Math.min.apply(null, vals);
@@ -1158,7 +1158,7 @@ function sparkline(vals) {
     var y = h - pad - (v - min) / span * (h - pad * 2);
     return x.toFixed(1) + "," + y.toFixed(1);
   });
-  var trend = vals[vals.length - 1] >= (vals[0] || 0) ? "#16a34a" : "#dc2626";
+  var trend = color || (vals[vals.length - 1] >= (vals[0] || 0) ? "#16a34a" : "#dc2626");
   return '<svg class="spark" viewBox="0 0 ' + w + ' ' + h + '"><polyline points="' + pts.join(" ") + '" fill="none" stroke="' + trend + '" stroke-width="1.5"/></svg>';
 }
 

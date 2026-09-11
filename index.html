@@ -2077,15 +2077,15 @@ initSync();
 </script>
 
 
-<script src="js/store.js?v=202609111326"></script>
-<script src="js/boards-config.js?v=202609111326"></script>
-<script src="js/diagnostics-config.js?v=202609111326"></script>
-<script src="js/diagnosis.js?v=202609111326"></script>
-<script src="js/deep-link.js?v=202609111326"></script>
-<script src="js/home-health.js?v=202609111326"></script>
-<script src="js/web-sync.js?v=202609111326"></script>
-<script src="js/auth.js?v=202609111326"></script>
-<script src="js/chat-widget.js?v=202609111326"></script>
+<script src="js/store.js?v=202609111327"></script>
+<script src="js/boards-config.js?v=202609111327"></script>
+<script src="js/diagnostics-config.js?v=202609111327"></script>
+<script src="js/diagnosis.js?v=202609111327"></script>
+<script src="js/deep-link.js?v=202609111327"></script>
+<script src="js/home-health.js?v=202609111327"></script>
+<script src="js/web-sync.js?v=202609111327"></script>
+<script src="js/auth.js?v=202609111327"></script>
+<script src="js/chat-widget.js?v=202609111327"></script>
 <script>
 /* ============================================================
  * 本地数据引导（仅浏览器 http / 预览静态模式）
@@ -2208,6 +2208,35 @@ initSync();
       bootHealth();
     }
   })();
+</script>
+<script>
+(function(){
+  if (window.__dapingAutoInjected) return; window.__dapingAutoInjected = true;
+  var CFG = (typeof BOARDS_CONFIG !== "undefined") ? BOARDS_CONFIG
+          : (typeof BOARDS !== "undefined") ? BOARDS : {};
+  function renderDapingAuto(){
+    var card = document.querySelector('div.card[onclick*="board.html?id=daping-analysis"]');
+    if (!card) return;
+    var grid = card.parentElement; if (!grid) return;
+    Object.keys(CFG).forEach(function(id){
+      if (id === "daping-analysis" || id.indexOf("daping-") !== 0) return;
+      var c = CFG[id]; if (!c) return;
+      var el = document.createElement("div");
+      el.className = "card"; el.setAttribute("data-accent", c.accent || "pink");
+      el.onclick = function(){ location.href = "board.html?id=" + encodeURIComponent(id); };
+      el.innerHTML = '<div class="card-header"><div class="card-title-group">'
+        + '<span class="card-title">' + (c.title || id) + '</span>'
+        + (c.subtitle ? '<span class="card-subtitle">' + c.subtitle + '</span>' : '')
+        + '<span class="status-badge status-live"><span class="status-dot live"></span>运行中</span>'
+        + '</div></div><div class="card-desc">' + (c.desc || "运营打品登记表自动同步")
+        + '</div><div class="card-footer">' + (c.source || "📡 打品登记表")
+        + '<span class="card-arrow">→</span></div>';
+      grid.appendChild(el);
+    });
+  }
+  if (document.readyState !== "loading") renderDapingAuto();
+  else document.addEventListener("DOMContentLoaded", renderDapingAuto);
+})();
 </script>
 </body>
 </html>

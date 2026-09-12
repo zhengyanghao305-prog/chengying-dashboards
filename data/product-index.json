@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-12T12:37:53",
+  "updated": "2026-09-12T13:11:36",
   "total": 43,
   "products": [
     {
@@ -283,16 +283,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 5.27,
-            "gmv": 14.8,
-            "roi": 2.81,
-            "orders": 1,
-            "impressions": 141,
-            "clicks": 11,
-            "ctr": 7.8
-          },
-          {
             "date": "2026-08-29",
             "cost": 4.2,
             "gmv": 11.8,
@@ -421,18 +411,28 @@
             "impressions": 180,
             "clicks": 14,
             "ctr": 7.78
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 5.23,
+            "gmv": 14.8,
+            "roi": 2.83,
+            "orders": 1,
+            "impressions": 201,
+            "clicks": 11,
+            "ctr": 5.47
           }
         ],
-        "total_cost": 92.27,
+        "total_cost": 92.23,
         "total_gmv": 257.8,
-        "blended_roi": 2.79,
+        "blended_roi": 2.8,
         "total_orders": 16,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 92.27,
+            "cost": 92.23,
             "gmv": 257.8,
-            "roi": 2.79,
+            "roi": 2.8,
             "orders": 16
           }
         ],
@@ -1584,16 +1584,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 203.8,
-            "gmv": 1063.66,
-            "roi": 5.22,
-            "orders": 7,
-            "impressions": 2365,
-            "clicks": 245,
-            "ctr": 10.36
-          },
-          {
             "date": "2026-08-29",
             "cost": 207.7,
             "gmv": 864.8,
@@ -1722,19 +1712,29 @@
             "impressions": 817,
             "clicks": 98,
             "ctr": 12.0
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 42.97,
+            "gmv": 252.8,
+            "roi": 5.88,
+            "orders": 3,
+            "impressions": 760,
+            "clicks": 85,
+            "ctr": 11.18
           }
         ],
-        "total_cost": 1314.06,
-        "total_gmv": 7009.49,
-        "blended_roi": 5.33,
-        "total_orders": 59,
+        "total_cost": 1153.23,
+        "total_gmv": 6198.63,
+        "blended_roi": 5.38,
+        "total_orders": 55,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 1314.06,
-            "gmv": 7009.49,
-            "roi": 5.33,
-            "orders": 59
+            "cost": 1153.23,
+            "gmv": 6198.63,
+            "roi": 5.38,
+            "orders": 55
           }
         ],
         "active_days": 14
@@ -2451,16 +2451,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 320.2,
-            "gmv": 1033.06,
-            "roi": 3.23,
-            "orders": 45,
-            "impressions": 4998,
-            "clicks": 385,
-            "ctr": 7.7
-          },
-          {
             "date": "2026-08-29",
             "cost": 446.78,
             "gmv": 1422.19,
@@ -2589,19 +2579,29 @@
             "impressions": 7279,
             "clicks": 483,
             "ctr": 6.64
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 345.75,
+            "gmv": 1294.47,
+            "roi": 3.74,
+            "orders": 57,
+            "impressions": 8508,
+            "clicks": 599,
+            "ctr": 7.04
           }
         ],
-        "total_cost": 5025.19,
-        "total_gmv": 17488.39,
-        "blended_roi": 3.48,
-        "total_orders": 757,
+        "total_cost": 5050.74,
+        "total_gmv": 17749.8,
+        "blended_roi": 3.51,
+        "total_orders": 769,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 5025.19,
-            "gmv": 17488.39,
-            "roi": 3.48,
-            "orders": 757
+            "cost": 5050.74,
+            "gmv": 17749.8,
+            "roi": 3.51,
+            "orders": 769
           }
         ],
         "active_days": 14
@@ -2787,16 +2787,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 0.01,
-            "gmv": 0.0,
-            "roi": 0.0,
-            "orders": 0,
-            "impressions": 2,
-            "clicks": 0,
-            "ctr": 0.0
-          },
-          {
             "date": "2026-08-29",
             "cost": 0.12,
             "gmv": 0.0,
@@ -2925,19 +2915,29 @@
             "impressions": 241,
             "clicks": 22,
             "ctr": 9.13
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 58.49,
+            "gmv": 183.3,
+            "roi": 3.13,
+            "orders": 5,
+            "impressions": 152,
+            "clicks": 8,
+            "ctr": 5.26
           }
         ],
-        "total_cost": 216.21,
-        "total_gmv": 754.32,
-        "blended_roi": 3.49,
-        "total_orders": 27,
+        "total_cost": 274.69,
+        "total_gmv": 937.62,
+        "blended_roi": 3.41,
+        "total_orders": 32,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 216.21,
-            "gmv": 754.32,
-            "roi": 3.49,
-            "orders": 27
+            "cost": 274.69,
+            "gmv": 937.62,
+            "roi": 3.41,
+            "orders": 32
           }
         ],
         "active_days": 14
@@ -3178,16 +3178,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 88.31,
-            "gmv": 205.19,
-            "roi": 2.32,
-            "orders": 9,
-            "impressions": 2639,
-            "clicks": 195,
-            "ctr": 7.39
-          },
-          {
             "date": "2026-08-29",
             "cost": 171.7,
             "gmv": 409.12,
@@ -3316,19 +3306,29 @@
             "impressions": 3342,
             "clicks": 207,
             "ctr": 6.19
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 81.52,
+            "gmv": 239.82,
+            "roi": 2.94,
+            "orders": 13,
+            "impressions": 2966,
+            "clicks": 198,
+            "ctr": 6.68
           }
         ],
-        "total_cost": 2141.76,
-        "total_gmv": 5396.63,
-        "blended_roi": 2.52,
-        "total_orders": 276,
+        "total_cost": 2134.97,
+        "total_gmv": 5431.26,
+        "blended_roi": 2.54,
+        "total_orders": 280,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 2141.76,
-            "gmv": 5396.63,
-            "roi": 2.52,
-            "orders": 276
+            "cost": 2134.97,
+            "gmv": 5431.26,
+            "roi": 2.54,
+            "orders": 280
           }
         ],
         "active_days": 14
@@ -3733,16 +3733,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 50.6,
-            "gmv": 152.94,
-            "roi": 3.02,
-            "orders": 8,
-            "impressions": 4581,
-            "clicks": 297,
-            "ctr": 6.48
-          },
-          {
             "date": "2026-08-29",
             "cost": 101.4,
             "gmv": 423.52,
@@ -3871,19 +3861,29 @@
             "impressions": 6598,
             "clicks": 528,
             "ctr": 8.0
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 172.61,
+            "gmv": 636.41,
+            "roi": 3.69,
+            "orders": 31,
+            "impressions": 5887,
+            "clicks": 405,
+            "ctr": 6.88
           }
         ],
-        "total_cost": 2984.94,
-        "total_gmv": 11478.51,
+        "total_cost": 3106.95,
+        "total_gmv": 11961.98,
         "blended_roi": 3.85,
-        "total_orders": 516,
+        "total_orders": 539,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 2984.94,
-            "gmv": 11478.51,
+            "cost": 3106.95,
+            "gmv": 11961.98,
             "roi": 3.85,
-            "orders": 516
+            "orders": 539
           }
         ],
         "active_days": 14
@@ -4282,16 +4282,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 1304.66,
-            "gmv": 4804.47,
-            "roi": 3.68,
-            "orders": 140,
-            "impressions": 49540,
-            "clicks": 2335,
-            "ctr": 4.71
-          },
-          {
             "date": "2026-08-29",
             "cost": 1521.68,
             "gmv": 4726.17,
@@ -4420,19 +4410,29 @@
             "impressions": 48332,
             "clicks": 2332,
             "ctr": 4.82
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 2082.46,
+            "gmv": 6779.42,
+            "roi": 3.26,
+            "orders": 195,
+            "impressions": 60987,
+            "clicks": 2908,
+            "ctr": 4.77
           }
         ],
-        "total_cost": 23195.06,
-        "total_gmv": 73708.73,
-        "blended_roi": 3.18,
-        "total_orders": 2060,
+        "total_cost": 23972.86,
+        "total_gmv": 75683.68,
+        "blended_roi": 3.16,
+        "total_orders": 2115,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 23195.06,
-            "gmv": 73708.73,
-            "roi": 3.18,
-            "orders": 2060
+            "cost": 23972.86,
+            "gmv": 75683.68,
+            "roi": 3.16,
+            "orders": 2115
           }
         ],
         "active_days": 14
@@ -4816,16 +4816,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 4.75,
-            "gmv": 31.46,
-            "roi": 6.62,
-            "orders": 1,
-            "impressions": 233,
-            "clicks": 14,
-            "ctr": 6.01
-          },
-          {
             "date": "2026-08-29",
             "cost": 9.45,
             "gmv": 62.7,
@@ -4876,20 +4866,20 @@
             "ctr": 5.0
           }
         ],
-        "total_cost": 27.09,
-        "total_gmv": 111.52,
-        "blended_roi": 4.12,
-        "total_orders": 6,
+        "total_cost": 22.34,
+        "total_gmv": 80.06,
+        "blended_roi": 3.58,
+        "total_orders": 5,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 27.09,
-            "gmv": 111.52,
-            "roi": 4.12,
-            "orders": 6
+            "cost": 22.34,
+            "gmv": 80.06,
+            "roi": 3.58,
+            "orders": 5
           }
         ],
-        "active_days": 6
+        "active_days": 5
       },
       "trend_daily": {
         "拼多多": {
@@ -5654,16 +5644,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 493.28,
-            "gmv": 1256.78,
-            "roi": 2.55,
-            "orders": 99,
-            "impressions": 31133,
-            "clicks": 1427,
-            "ctr": 4.58
-          },
-          {
             "date": "2026-08-29",
             "cost": 567.28,
             "gmv": 1494.78,
@@ -5792,19 +5772,29 @@
             "impressions": 30525,
             "clicks": 1401,
             "ctr": 4.59
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 472.16,
+            "gmv": 1219.76,
+            "roi": 2.58,
+            "orders": 89,
+            "impressions": 24382,
+            "clicks": 1211,
+            "ctr": 4.97
           }
         ],
-        "total_cost": 8451.12,
-        "total_gmv": 22821.5,
+        "total_cost": 8430.0,
+        "total_gmv": 22784.48,
         "blended_roi": 2.7,
-        "total_orders": 1755,
+        "total_orders": 1745,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 8451.12,
-            "gmv": 22821.5,
+            "cost": 8430.0,
+            "gmv": 22784.48,
             "roi": 2.7,
-            "orders": 1755
+            "orders": 1745
           }
         ],
         "active_days": 14
@@ -6203,16 +6193,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 43.64,
-            "gmv": 208.18,
-            "roi": 4.77,
-            "orders": 14,
-            "impressions": 1443,
-            "clicks": 77,
-            "ctr": 5.34
-          },
-          {
             "date": "2026-08-29",
             "cost": 28.68,
             "gmv": 145.09,
@@ -6341,19 +6321,29 @@
             "impressions": 2101,
             "clicks": 98,
             "ctr": 4.66
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 34.45,
+            "gmv": 179.72,
+            "roi": 5.22,
+            "orders": 15,
+            "impressions": 2451,
+            "clicks": 123,
+            "ctr": 5.02
           }
         ],
-        "total_cost": 509.68,
-        "total_gmv": 2475.58,
-        "blended_roi": 4.86,
-        "total_orders": 170,
+        "total_cost": 500.49,
+        "total_gmv": 2447.12,
+        "blended_roi": 4.89,
+        "total_orders": 171,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 509.68,
-            "gmv": 2475.58,
-            "roi": 4.86,
-            "orders": 170
+            "cost": 500.49,
+            "gmv": 2447.12,
+            "roi": 4.89,
+            "orders": 171
           }
         ],
         "active_days": 14
@@ -6991,34 +6981,7 @@
           "profit_pct": 2.0
         }
       },
-      "ad_roi": {
-        "daily_series": [
-          {
-            "date": "2026-08-28",
-            "cost": 2.73,
-            "gmv": 0.0,
-            "roi": 0.0,
-            "orders": 0,
-            "impressions": 50,
-            "clicks": 5,
-            "ctr": 10.0
-          }
-        ],
-        "total_cost": 2.73,
-        "total_gmv": 0.0,
-        "blended_roi": 0.0,
-        "total_orders": 0,
-        "channels": [
-          {
-            "channel": "商品推广",
-            "cost": 2.73,
-            "gmv": 0.0,
-            "roi": 0.0,
-            "orders": 0
-          }
-        ],
-        "active_days": 1
-      },
+      "ad_roi": null,
       "trend_daily": {
         "天猫": {
           "daily": [
@@ -7655,16 +7618,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 1687.46,
-            "gmv": 5886.28,
-            "roi": 3.49,
-            "orders": 373,
-            "impressions": 135854,
-            "clicks": 6118,
-            "ctr": 4.5
-          },
-          {
             "date": "2026-08-29",
             "cost": 1783.7,
             "gmv": 6188.54,
@@ -7793,19 +7746,29 @@
             "impressions": 172173,
             "clicks": 7785,
             "ctr": 4.52
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 2347.92,
+            "gmv": 7989.06,
+            "roi": 3.4,
+            "orders": 514,
+            "impressions": 205369,
+            "clicks": 8731,
+            "ctr": 4.25
           }
         ],
-        "total_cost": 28920.7,
-        "total_gmv": 97110.88,
-        "blended_roi": 3.36,
-        "total_orders": 6459,
+        "total_cost": 29581.16,
+        "total_gmv": 99213.66,
+        "blended_roi": 3.35,
+        "total_orders": 6600,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 28920.7,
-            "gmv": 97110.88,
-            "roi": 3.36,
-            "orders": 6459
+            "cost": 29581.16,
+            "gmv": 99213.66,
+            "roi": 3.35,
+            "orders": 6600
           }
         ],
         "active_days": 14
@@ -8563,16 +8526,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 50.31,
-            "gmv": 148.37,
-            "roi": 2.95,
-            "orders": 8,
-            "impressions": 955,
-            "clicks": 102,
-            "ctr": 10.68
-          },
-          {
             "date": "2026-08-29",
             "cost": 26.2,
             "gmv": 78.06,
@@ -8701,19 +8654,29 @@
             "impressions": 1156,
             "clicks": 126,
             "ctr": 10.9
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 19.65,
+            "gmv": 58.14,
+            "roi": 2.96,
+            "orders": 4,
+            "impressions": 1132,
+            "clicks": 126,
+            "ctr": 11.13
           }
         ],
-        "total_cost": 624.09,
-        "total_gmv": 2040.71,
-        "blended_roi": 3.27,
-        "total_orders": 88,
+        "total_cost": 593.43,
+        "total_gmv": 1950.48,
+        "blended_roi": 3.29,
+        "total_orders": 84,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 624.09,
-            "gmv": 2040.71,
-            "roi": 3.27,
-            "orders": 88
+            "cost": 593.43,
+            "gmv": 1950.48,
+            "roi": 3.29,
+            "orders": 84
           }
         ],
         "active_days": 14
@@ -9212,16 +9175,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 0.06,
-            "gmv": 0.0,
-            "roi": 0.0,
-            "orders": 0,
-            "impressions": 3,
-            "clicks": 0,
-            "ctr": 0.0
-          },
-          {
             "date": "2026-08-29",
             "cost": 0.02,
             "gmv": 0.0,
@@ -9320,16 +9273,26 @@
             "impressions": 1,
             "clicks": 0,
             "ctr": 0.0
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 0.12,
+            "gmv": 0.0,
+            "roi": 0.0,
+            "orders": 0,
+            "impressions": 0,
+            "clicks": 0,
+            "ctr": 0
           }
         ],
-        "total_cost": 1.06,
+        "total_cost": 1.12,
         "total_gmv": 0.0,
         "blended_roi": 0.0,
         "total_orders": 0,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 1.06,
+            "cost": 1.12,
             "gmv": 0.0,
             "roi": 0.0,
             "orders": 0
@@ -9573,16 +9536,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 879.59,
-            "gmv": 2372.81,
-            "roi": 2.7,
-            "orders": 150,
-            "impressions": 33426,
-            "clicks": 1638,
-            "ctr": 4.9
-          },
-          {
             "date": "2026-08-29",
             "cost": 1084.29,
             "gmv": 2835.1,
@@ -9711,19 +9664,29 @@
             "impressions": 39051,
             "clicks": 1861,
             "ctr": 4.77
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 960.01,
+            "gmv": 2573.87,
+            "roi": 2.68,
+            "orders": 156,
+            "impressions": 39736,
+            "clicks": 1822,
+            "ctr": 4.59
           }
         ],
-        "total_cost": 15291.85,
-        "total_gmv": 40634.41,
+        "total_cost": 15372.27,
+        "total_gmv": 40835.47,
         "blended_roi": 2.66,
-        "total_orders": 2495,
+        "total_orders": 2501,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 15291.85,
-            "gmv": 40634.41,
+            "cost": 15372.27,
+            "gmv": 40835.47,
             "roi": 2.66,
-            "orders": 2495
+            "orders": 2501
           }
         ],
         "active_days": 14
@@ -10057,16 +10020,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 86.69,
-            "gmv": 320.0,
-            "roi": 3.69,
-            "orders": 23,
-            "impressions": 5276,
-            "clicks": 442,
-            "ctr": 8.38
-          },
-          {
             "date": "2026-08-29",
             "cost": 168.29,
             "gmv": 512.81,
@@ -10195,19 +10148,29 @@
             "impressions": 3882,
             "clicks": 264,
             "ctr": 6.8
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 98.11,
+            "gmv": 366.42,
+            "roi": 3.73,
+            "orders": 24,
+            "impressions": 4658,
+            "clicks": 387,
+            "ctr": 8.31
           }
         ],
-        "total_cost": 1831.31,
-        "total_gmv": 6169.72,
+        "total_cost": 1842.73,
+        "total_gmv": 6216.14,
         "blended_roi": 3.37,
-        "total_orders": 397,
+        "total_orders": 398,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 1831.31,
-            "gmv": 6169.72,
+            "cost": 1842.73,
+            "gmv": 6216.14,
             "roi": 3.37,
-            "orders": 397
+            "orders": 398
           }
         ],
         "active_days": 14
@@ -10228,16 +10191,6 @@
       "latest_profit": {},
       "ad_roi": {
         "daily_series": [
-          {
-            "date": "2026-08-28",
-            "cost": 3.72,
-            "gmv": 0.0,
-            "roi": 0.0,
-            "orders": 0,
-            "impressions": 317,
-            "clicks": 31,
-            "ctr": 9.78
-          },
           {
             "date": "2026-08-29",
             "cost": 4.01,
@@ -10309,20 +10262,20 @@
             "ctr": 6.17
           }
         ],
-        "total_cost": 49.69,
+        "total_cost": 45.97,
         "total_gmv": 125.09,
-        "blended_roi": 2.52,
+        "blended_roi": 2.72,
         "total_orders": 8,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 49.69,
+            "cost": 45.97,
             "gmv": 125.09,
-            "roi": 2.52,
+            "roi": 2.72,
             "orders": 8
           }
         ],
-        "active_days": 8
+        "active_days": 7
       },
       "trend_daily": {},
       "trend_summary": {},
@@ -10598,16 +10551,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 4.07,
-            "gmv": 0.0,
-            "roi": 0.0,
-            "orders": 0,
-            "impressions": 160,
-            "clicks": 10,
-            "ctr": 6.25
-          },
-          {
             "date": "2026-08-29",
             "cost": 4.0,
             "gmv": 0.0,
@@ -10678,20 +10621,20 @@
             "ctr": 10.34
           }
         ],
-        "total_cost": 42.16,
+        "total_cost": 38.09,
         "total_gmv": 46.48,
-        "blended_roi": 1.1,
+        "blended_roi": 1.22,
         "total_orders": 2,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 42.16,
+            "cost": 38.09,
             "gmv": 46.48,
-            "roi": 1.1,
+            "roi": 1.22,
             "orders": 2
           }
         ],
-        "active_days": 8
+        "active_days": 7
       },
       "trend_daily": {
         "天猫": {
@@ -11323,16 +11266,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 149.46,
-            "gmv": 616.2,
-            "roi": 4.12,
-            "orders": 18,
-            "impressions": 1184,
-            "clicks": 145,
-            "ctr": 12.25
-          },
-          {
             "date": "2026-08-29",
             "cost": 40.16,
             "gmv": 167.47,
@@ -11461,19 +11394,29 @@
             "impressions": 622,
             "clicks": 46,
             "ctr": 7.4
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 15.95,
+            "gmv": 33.63,
+            "roi": 2.11,
+            "orders": 1,
+            "impressions": 553,
+            "clicks": 58,
+            "ctr": 10.49
           }
         ],
-        "total_cost": 762.32,
-        "total_gmv": 2624.45,
-        "blended_roi": 3.44,
-        "total_orders": 85,
+        "total_cost": 628.81,
+        "total_gmv": 2041.88,
+        "blended_roi": 3.25,
+        "total_orders": 68,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 762.32,
-            "gmv": 2624.45,
-            "roi": 3.44,
-            "orders": 85
+            "cost": 628.81,
+            "gmv": 2041.88,
+            "roi": 3.25,
+            "orders": 68
           }
         ],
         "active_days": 14
@@ -11946,16 +11889,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 33.57,
-            "gmv": 114.53,
-            "roi": 3.41,
-            "orders": 9,
-            "impressions": 6864,
-            "clicks": 284,
-            "ctr": 4.14
-          },
-          {
             "date": "2026-08-29",
             "cost": 54.88,
             "gmv": 220.1,
@@ -12084,19 +12017,29 @@
             "impressions": 10035,
             "clicks": 409,
             "ctr": 4.08
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 21.26,
+            "gmv": 78.22,
+            "roi": 3.68,
+            "orders": 6,
+            "impressions": 8164,
+            "clicks": 342,
+            "ctr": 4.19
           }
         ],
-        "total_cost": 985.82,
-        "total_gmv": 3632.03,
-        "blended_roi": 3.68,
-        "total_orders": 286,
+        "total_cost": 973.51,
+        "total_gmv": 3595.72,
+        "blended_roi": 3.69,
+        "total_orders": 283,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 985.82,
-            "gmv": 3632.03,
-            "roi": 3.68,
-            "orders": 286
+            "cost": 973.51,
+            "gmv": 3595.72,
+            "roi": 3.69,
+            "orders": 283
           }
         ],
         "active_days": 14
@@ -12332,16 +12275,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 46.33,
-            "gmv": 110.75,
-            "roi": 2.39,
-            "orders": 7,
-            "impressions": 722,
-            "clicks": 85,
-            "ctr": 11.77
-          },
-          {
             "date": "2026-08-29",
             "cost": 36.11,
             "gmv": 87.86,
@@ -12470,19 +12403,29 @@
             "impressions": 885,
             "clicks": 57,
             "ctr": 6.44
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 19.4,
+            "gmv": 52.36,
+            "roi": 2.7,
+            "orders": 3,
+            "impressions": 879,
+            "clicks": 39,
+            "ctr": 4.44
           }
         ],
-        "total_cost": 470.46,
-        "total_gmv": 1067.9,
-        "blended_roi": 2.27,
-        "total_orders": 73,
+        "total_cost": 443.53,
+        "total_gmv": 1009.51,
+        "blended_roi": 2.28,
+        "total_orders": 69,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 470.46,
-            "gmv": 1067.9,
-            "roi": 2.27,
-            "orders": 73
+            "cost": 443.53,
+            "gmv": 1009.51,
+            "roi": 2.28,
+            "orders": 69
           }
         ],
         "active_days": 14
@@ -13015,16 +12958,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 1834.99,
-            "gmv": 7848.19,
-            "roi": 4.28,
-            "orders": 452,
-            "impressions": 77497,
-            "clicks": 5796,
-            "ctr": 7.48
-          },
-          {
             "date": "2026-08-29",
             "cost": 2430.63,
             "gmv": 10087.8,
@@ -13153,19 +13086,29 @@
             "impressions": 70216,
             "clicks": 4934,
             "ctr": 7.03
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 1392.83,
+            "gmv": 5718.5,
+            "roi": 4.11,
+            "orders": 333,
+            "impressions": 65873,
+            "clicks": 4597,
+            "ctr": 6.98
           }
         ],
-        "total_cost": 31443.71,
-        "total_gmv": 131273.71,
+        "total_cost": 31001.55,
+        "total_gmv": 129144.02,
         "blended_roi": 4.17,
-        "total_orders": 7514,
+        "total_orders": 7395,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 31443.71,
-            "gmv": 131273.71,
+            "cost": 31001.55,
+            "gmv": 129144.02,
             "roi": 4.17,
-            "orders": 7514
+            "orders": 7395
           }
         ],
         "active_days": 14
@@ -13570,16 +13513,6 @@
       "ad_roi": {
         "daily_series": [
           {
-            "date": "2026-08-28",
-            "cost": 1285.48,
-            "gmv": 5946.34,
-            "roi": 4.63,
-            "orders": 468,
-            "impressions": 83898,
-            "clicks": 5319,
-            "ctr": 6.34
-          },
-          {
             "date": "2026-08-29",
             "cost": 1449.85,
             "gmv": 6464.76,
@@ -13708,19 +13641,29 @@
             "impressions": 142549,
             "clicks": 8193,
             "ctr": 5.75
+          },
+          {
+            "date": "2026-09-11",
+            "cost": 2115.1,
+            "gmv": 9397.73,
+            "roi": 4.44,
+            "orders": 742,
+            "impressions": 149482,
+            "clicks": 8825,
+            "ctr": 5.9
           }
         ],
-        "total_cost": 28862.1,
-        "total_gmv": 129298.62,
-        "blended_roi": 4.48,
-        "total_orders": 10040,
+        "total_cost": 29691.72,
+        "total_gmv": 132750.01,
+        "blended_roi": 4.47,
+        "total_orders": 10314,
         "channels": [
           {
             "channel": "商品推广",
-            "cost": 28862.1,
-            "gmv": 129298.62,
-            "roi": 4.48,
-            "orders": 10040
+            "cost": 29691.72,
+            "gmv": 132750.01,
+            "roi": 4.47,
+            "orders": 10314
           }
         ],
         "active_days": 14

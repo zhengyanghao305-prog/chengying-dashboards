@@ -81,7 +81,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609111248"></script>
+<script src="js/freshness-alert.js?v=202609121351"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -195,6 +195,19 @@
       </div>
 
       <div class="row2">
+        <div class="fld"><label>脚本类型（视频脚本调性）</label>
+          <select id="fType">
+            <option value="">默认（按平台自动选）</option>
+            <option value="zhongcao">种草型 · 软性安利激发购买欲</option>
+            <option value="kepu">科普型 · 讲原理/误区立专业</option>
+            <option value="pingce">评测型 · 真实实测讲优缺点</option>
+            <option value="juqing">剧情型 · 情景短剧自然植入</option>
+            <option value="jiaocheng">教程型 · 一步步教怎么用</option>
+            <option value="duibi">对比型 · 用前vs用后/避坑</option>
+            <option value="koubo">口播型 · 单人出镜直述干货</option>
+            <option value="kaixiang">开箱型 · 拆包到上墙全过程</option>
+          </select>
+        </div>
         <div class="fld"><label>风格语气</label>
           <select id="fTone">
             <option value="">默认（真实痛点 + 有画面）</option>
@@ -204,9 +217,10 @@
             <option>批发招商：讲利润、讲复购</option>
           </select>
         </div>
-        <div class="fld"><label>补充要求 / 其他想说的</label>
-          <input id="fExtra" placeholder="例：突出租房改造，别用太夸张的词">
-        </div>
+      </div>
+
+      <div class="fld"><label>补充要求 / 其他想说的</label>
+        <input id="fExtra" placeholder="例：突出租房改造，别用太夸张的词">
       </div>
 
       <div class="gen-bar">
@@ -324,6 +338,18 @@
     var p = PLAT[plat] || PLAT['douyin'];
     if (num !== 2) p = { name:p.name, sys:p.sys, out: p.out.replace(/2版/g, num + '版') };
     var toneTxt = { '':'语气自然、真实痛点优先', '实在理工男':'语气实在理工，参数讲透但不夸张，像懂行的朋友推荐', '妈妈口吻':'妈妈口吻，懂过日子、会心疼钱、说人话', '年轻网感':'年轻网感，短平快、有梗、不端着', '批发招商':'面向批发/招商客户，讲利润空间、走量、复购' }[tone] || '';
+    var type = val('fType');
+    var TYPE = {
+      zhongcao:{ name:'种草型', desc:'软性安利向，先用场景/情绪带入让人向往，再自然引出产品，弱化"卖货"感，重在激发购买欲与种草冲动' },
+      kepu:{ name:'科普型', desc:'知识科普向，先把原理/误区/行业黑话讲清楚（如静电免胶为何不伤墙、该贴哪些面），建立专业信任后再带产品' },
+      pingce:{ name:'评测型', desc:'真实体验/实测向，像第三方测评一样讲上手感受、优缺点、对比（含已知短板不回避），可信度优先' },
+      juqing:{ name:'剧情型', desc:'情景短剧植入向，用生活小故事/冲突引出产品，靠人物对话推进，自然不生硬，结尾点题' },
+      jiaocheng:{ name:'教程型', desc:'使用教学向，一步步教怎么选、怎么贴、怎么用、注意什么，实用价值拉满，适合收藏' },
+      duibi:{ name:'对比型', desc:'前后对比/避坑向，强调"用前vs用后""错误做法vs正确做法"，视觉冲击与劝退焦虑并重' },
+      koubo:{ name:'口播型', desc:'单人出镜直述向，面对镜头讲干货/观点/清单，节奏快、信息密度高、字幕强提炼' },
+      kaixiang:{ name:'开箱型', desc:'开箱展示向，从拆包、量尺、上墙到成品全过程呈现，满足好奇心与真实感' }
+    };
+    var t = TYPE[type];
 
     var system = '你是资深电商文案总监，服务「橙萤」家居贴纸/墙贴/贴膜店铺。\n\n' +
       '【你的产品家底 · 必须优先使用】\n' +
@@ -350,6 +376,7 @@
 
     var user = '【产品信息】\n' + seg.join('\n') + '\n\n' +
       '【输出要求（' + p.name + '）】' + p.out + '\n' +
+      (t ? '【脚本类型】本次所有视频脚本统一采用"' + t.name + '"写法——' + t.desc + '（若为图文/详情类稿件，也请让整体调性贴合此类型）\n' : '') +
       (tone ? '【语气】' + toneTxt + '\n' : '') +
       (extra ? '【补充】' + extra + '\n' : '') +
       '\n请按上面要求，走五步思考后直接输出最终稿：' +
@@ -689,7 +716,7 @@
   };
   window.clearAll = function(){
     ['fName','fSpec','fMaterial','fScene','fPeople','fPrice','fPoints','fGood','fBad','fExtra'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
-    document.getElementById('fPlatform').value='douyin'; document.getElementById('fNum').value='2'; document.getElementById('fTone').value='';
+    document.getElementById('fPlatform').value='douyin'; document.getElementById('fNum').value='2'; document.getElementById('fTone').value=''; document.getElementById('fType').value='';
     statusLine(null); errLine(null);
   };
 

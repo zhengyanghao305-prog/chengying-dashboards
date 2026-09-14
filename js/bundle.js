@@ -1885,6 +1885,8 @@ function getBoard(id) {
    * 首页原来要现场下载 ad-roi(7.4MB)/product-links(5.6MB)/competition(1.2MB) 等
    * 十余 MB 的大文件再跑诊断，导致打开极慢。改为读预计算结果；读不到再回退实时计算。 */
   async function loadPrecomputed() {
+    // 静态自包含页（GitHub Pages 线上版）已把体检结果内联为 window.__HOME_HEALTH，直接用
+    if (window.__HOME_HEALTH && window.__HOME_HEALTH.boards) return window.__HOME_HEALTH;
     try {
       var resp = await fetch('data/home-health.json?t=' + Date.now());
       if (!resp.ok) return null;
@@ -2387,6 +2389,11 @@ function getBoard(id) {
       } catch (e2) { return null; }
     }
     async function pull(id) {
+      // 静态自包含页（GitHub Pages 线上版）已在 index.html 内联了首页所需板块数据
+      // （window.__PRELOADED），直接返回，避免每板块 2 次网络往返（API 404 + 静态）拖慢打开。
+      if (window.__PRELOADED && Object.prototype.hasOwnProperty.call(window.__PRELOADED, id)) {
+        return { auth: true, data: window.__PRELOADED[id] || [] };
+      }
       var isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
       // 本地开发/调试优先走静态文件，避免大文件云端拉取过慢导致页面长时间空白
       if (opts.staticFallback && isLocalHost) {
@@ -3448,6 +3455,8 @@ function getBoard(id) {
   var activeSuggestionIdx = -1;
 
   function loadProductList() {
+    // 静态自包含页（GitHub Pages 线上版）无 /api，跳过产品索引拉取（少一次 404 往返）
+    if (window.__STATIC_HOME) return;
     var base = (window.__EDITION === 'employee') ? RAILWAY_BASE : '';
     fetch(base + '/api/product-index')
       .then(function(r) { return r.json(); })

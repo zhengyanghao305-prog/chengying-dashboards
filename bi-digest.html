@@ -217,6 +217,8 @@
   .loss-b .bval{color:var(--accent-red);} .pro-b .bval{color:var(--accent-green);} .sale-b .bval{color:var(--accent-blue);} .rate-b .bval{color:#d97706;}
   .bcomp{font-size:10.5px;font-weight:600;margin-left:auto;padding:2px 8px;border-radius:9px;background:var(--bg-tag);}
   .bcomp.up{color:#15803d;background:#dcfce7;} .bcomp.down{color:#b91c1c;background:#fee2e2;} .bcomp.flat{color:#9ca3af;background:#f3f4f6;}
+  /* 双口径：支付/发货盈亏相反时提示 */
+  .cal-diff{display:inline-block;margin-left:4px;font-size:9.5px;font-weight:700;color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:7px;padding:0 4px;vertical-align:middle;}
 
   /* ── 产品折叠 ── */
   .pgroup{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;overflow:hidden;}
@@ -269,6 +271,10 @@
     回看更早快照可对比趋势；单个链接点行展开也能直接看走势。勾选行后可<b>⬇下载勾选清单、批量标记优化动作状态</b>。
     <b style="color:#b45309">已处理过的链接（标过 停推广/下架/提价 等）会自动从亏损待办移出</b>，
     转到下方「已处理 · 观察跟进」，跟踪数据是否回弹、是否需二次处理。可用上方<b>🔎 批量ID</b>一次粘贴多个ID快速定位并批量调整。
+    <br><b>利润双口径</b>：每条同时给出<b>利润(支付)</b>与<b>利润(发货)</b>。
+    <b>支付预估</b>是看板判定主口径（当天即可看，与「待办亏损」等卡片一致）；
+    <b>发货预估</b>与飞书表「利润(发货预估)」列完全一致（比支付晚1天，用于对账）。
+    两者可能盈亏相反（当日退款/发货滞后所致），行内会亮<b style="color:#b45309">≠口径</b>提示，此时以支付口径为准。
   </div>
 
   <div class="searchbar" id="idSearchBar">
@@ -541,14 +547,18 @@ function followTag(id,todayP){
 function pendingOnly(rows){ return rows.filter(r=>!isHandled(r.link_id)); }
 
 function buildDedup(rows){
+  /* 利润双口径：p/net_pay = 利润/净销售额(支付预估)，ps/ss = 利润/净销售额(发货预估)。
+     判定主口径仍是支付(p)——当天即可看、最及时；发货口径(ps)仅用于与飞书「发货预估」列核对，
+     避免运营发现"两边数字对不上"（同一条链接两口径可盈亏反转，全窗口约 6%）。 */
   const map=new Map();
   rows.forEach(r=>{
     const k=r.link_id+'|'+r.window, p=toNum(r.profit_pay), s=toNum(r.net_pay);
+    const ps=toNum(r.profit_ship), ss=toNum(r.net_ship);
     const roi=toNum(r.roi), gm=toNum(r.gm);
     const gcRaw=r.goods_cost_pay, cfRaw=r.custom_fee_pay, pfRaw=r.promo_fee_pay_ship||r.promo_fee_ship;
     let a=map.get(k);
-    if(!a){ a={link_id:r.link_id,window:r.window,window_end:r.window_end,product:r.product||'',title:r.title||'',platform:r.platform||'',shop:r.shop||'',owner:r.owner||'',gmTxt:r.gm,prTxt:r.profit_rate,p,s,roiV:(roi>0&&roi<10)?roi:0,gmV:gm,prV:toNum(r.profit_rate),gcRaw:gcRaw||'',cfRaw:cfRaw||'',pfRaw:pfRaw||'',n:1}; map.set(k,a); }
-    else { a.p+=p; a.s+=s; a.n++; if(!(a.roiV>0)&&roi>0&&roi<10)a.roiV=roi; if(!a.gmV&&gm!==0)a.gmV=gm; if(!a.prV)a.prV=toNum(r.profit_rate); if(!a.prTxt)a.prTxt=r.profit_rate; if(!a.gcRaw&&gcRaw)a.gcRaw=gcRaw; if(!a.cfRaw&&cfRaw)a.cfRaw=cfRaw; if(!a.pfRaw&&pfRaw)a.pfRaw=pfRaw; }
+    if(!a){ a={link_id:r.link_id,window:r.window,window_end:r.window_end,product:r.product||'',title:r.title||'',platform:r.platform||'',shop:r.shop||'',owner:r.owner||'',gmTxt:r.gm,prTxt:r.profit_rate,p,s,ps,ss,roiV:(roi>0&&roi<10)?roi:0,gmV:gm,prV:toNum(r.profit_rate),gcRaw:gcRaw||'',cfRaw:cfRaw||'',pfRaw:pfRaw||'',n:1}; map.set(k,a); }
+    else { a.p+=p; a.s+=s; a.ps+=ps; a.ss+=ss; a.n++; if(!(a.roiV>0)&&roi>0&&roi<10)a.roiV=roi; if(!a.gmV&&gm!==0)a.gmV=gm; if(!a.prV)a.prV=toNum(r.profit_rate); if(!a.prTxt)a.prTxt=r.profit_rate; if(!a.gcRaw&&gcRaw)a.gcRaw=gcRaw; if(!a.cfRaw&&cfRaw)a.cfRaw=cfRaw; if(!a.pfRaw&&pfRaw)a.pfRaw=pfRaw; }
   });
   return [...map.values()];
 }
@@ -745,7 +755,8 @@ function followRowHTML(r){ CUR_POOL='follow';
       +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+(r.shop?' · '+esc(r.shop):'')+' · 链接 '+esc(r.link_id)+' · 处理于 '+(ts||'—')+(days!==null&&ts?'（'+days+' 天前）':'')+' · 当前状态：'+st+'</div>'
       +'</div>'
     +'<div class="r-metrics">'
-      +'<div class="metric"><span class="k">当前利润</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
+      +'<div class="metric"><span class="k" title="利润·支付预估（看板判定主口径）">利润(支付)</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
+      +'<div class="metric"><span class="k" title="利润·发货预估（与飞书「利润(发货预估)」列一致）">利润(发货)</span><span class="v '+(r.ps<0?'neg':'pos')+'">'+fmtMoney(r.ps)+'</span>'+((r.p<0)!==(r.ps<0)?'<span class="cal-diff" title="两口径盈亏相反：支付'+(r.p<0?'亏':'赚')+' / 发货'+(r.ps<0?'亏':'赚')+'，核对时以支付口径为准">≠口径</span>':'')+'</div>'
       +'<div class="metric"><span class="k">净销售额</span><span class="v">'+fmtMoney(r.s)+'</span></div>'
       +'<div class="metric"><span class="k">ROI</span><span class="v '+(r.roiV<1?'neg':'pos')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
       +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'
@@ -852,13 +863,13 @@ function toast(pool,msg){ const el=document.getElementById('toast_'+pool); if(el
 /* 勾选链接 → Excel 表格下载（.xlsx） */
 function downloadSelectedExcel(rows,pool){
   try{
-    const headers=['产品','商品标题','平台','店铺','负责人','链接id','链接URL','进发货利润(近7天)','净销售额','ROI','毛利率','利润率','趋势Δ(元/窗)','建议动作','判定依据','优化动作状态'];
+    const headers=['产品','商品标题','平台','店铺','负责人','链接id','链接URL','利润·支付预估(近7天)','利润·发货预估(近7天)','净销售额','ROI','毛利率','利润率','趋势Δ(元/窗)','建议动作','判定依据','优化动作状态'];
     const out=rows.map(r=>{
       const rec=classifyRec(r);
       const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?pctStr(r.gmTxt):'';
       const prTxt=(r.prTxt&&r.prTxt!=='0.00%'&&r.prTxt!=='0%')?pctStr(r.prTxt):'';
       return {'产品':r.product||'','商品标题':r.title||'','平台':r.platform||'','店铺':r.shop||'','负责人':r.owner||'','链接id':r.link_id,'链接URL':platUrl(r.platform,r.link_id),
-        '进发货利润(近7天)':Math.round(r.p*10)/10,'净销售额':Math.round(r.s*10)/10,'ROI':(r.roiV===null||r.roiV===undefined)?'':Math.round(r.roiV*100)/100,'毛利率':gmTxt,'利润率':prTxt,
+        '利润·支付预估(近7天)':Math.round(r.p*10)/10,'利润·发货预估(近7天)':Math.round((r.ps||0)*10)/10,'净销售额':Math.round(r.s*10)/10,'ROI':(r.roiV===null||r.roiV===undefined)?'':Math.round(r.roiV*100)/100,'毛利率':gmTxt,'利润率':prTxt,
         '趋势Δ(元/窗)':trendDelta(r.link_id),'建议动作':rec.act,'判定依据':rec.why,'优化动作状态':stateLabel(planState(r.link_id))};
     });
     const ws=XLSX.utils.json_to_sheet(out,{header:headers});
@@ -1086,7 +1097,8 @@ function drillRowHTML(r){ CUR_POOL='drill';
       +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+(r.shop?' · '+esc(r.shop):'')+' · 链接 '+esc(r.link_id)+'</div>'
       +'</div>'
     +'<div class="r-metrics">'
-      +'<div class="metric"><span class="k">利润(7天)</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
+      +'<div class="metric"><span class="k" title="利润·支付预估（看板判定主口径，当天即可看）">利润(支付)</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
+      +'<div class="metric"><span class="k" title="利润·发货预估（飞书表「利润(发货预估)」同列，比支付晚1天）">利润(发货)</span><span class="v '+(r.ps<0?'neg':'pos')+'">'+fmtMoney(r.ps)+'</span>'+((r.p<0)!==(r.ps<0)?'<span class="cal-diff" title="两口径盈亏相反：支付'+(r.p<0?'亏':'赚')+' / 发货'+(r.ps<0?'亏':'赚')+'，核对时以支付口径为准">≠口径</span>':'')+'</div>'
       +'<div class="metric"><span class="k">净销售额</span><span class="v">'+fmtMoney(r.s)+'</span></div>'
       +'<div class="metric"><span class="k">ROI</span><span class="v '+(r.roiV<1?'neg':'pos')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
       +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'
@@ -1222,9 +1234,10 @@ function renderIdSearch(){
     return '<div class="lrow" data-id="'+r.link_id+'"><div class="r-top">'
       +'<input type="checkbox" class="chk" data-chk="'+r.link_id+'">'
       +'<div class="r-title" style="flex:1 1 26%;min-width:0"><div class="r-name">'+esc(r.title||r.product)+'</div>'
-      +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+' · 链接 '+esc(r.link_id)+' · '+(isHandled(r.link_id)?('已处理：'+stateLabel(planState(r.link_id))):'待办')+'</div></div>'
+      +'<div class="r-meta"><b>'+esc(r.product||'')+'</b> · '+esc(r.platform)+(r.shop?' · '+esc(r.shop):'')+' · 链接 '+esc(r.link_id)+' · '+(isHandled(r.link_id)?('已处理：'+stateLabel(planState(r.link_id))):'待办')+'</div></div>'
       +'<div class="r-metrics">'
-      +'<div class="metric"><span class="k">利润</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
+      +'<div class="metric"><span class="k" title="利润·支付预估（看板判定主口径）">利润(支付)</span><span class="v '+(r.p<0?'neg':'pos')+'">'+fmtMoney(r.p)+'</span></div>'
+      +'<div class="metric"><span class="k" title="利润·发货预估（与飞书「利润(发货预估)」列一致）">利润(发货)</span><span class="v '+(r.ps<0?'neg':'pos')+'">'+fmtMoney(r.ps)+'</span>'+((r.p<0)!==(r.ps<0)?'<span class="cal-diff" title="两口径盈亏相反，以支付口径为准">≠口径</span>':'')+'</div>'
       +'<div class="metric"><span class="k">净销售</span><span class="v">'+fmtMoney(r.s)+'</span></div>'
       +'<div class="metric"><span class="k">ROI</span><span class="v">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
       +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'

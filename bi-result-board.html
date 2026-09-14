@@ -113,6 +113,8 @@ tr.clickable:hover td{background:#f5f8ff}
 .eff .ev{font-size:24px;font-weight:800}
 .eff .ek{font-size:11.5px;color:var(--tx3);margin-top:3px}
 .eff.good .ev{color:var(--green)}.eff.bad .ev{color:var(--red)}.eff.mid .ev{color:var(--amber)}
+/* 双口径：支付/发货盈亏相反时提示 */
+.cal-diff{display:inline-block;margin-left:4px;font-size:9.5px;font-weight:700;color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:7px;padding:0 4px;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -289,9 +291,10 @@ async function boot(){
     const id=String(r.link_id==null?'':r.link_id); if(!id) continue;
     const k=id+'|'+we;
     let a=by[k];
-    if(!a){ a=by[k]={id, we, win:r.window||'', p:0, s:0, prV:null,
+    if(!a){ a=by[k]={id, we, win:r.window||'', p:0, s:0, ps:0, ss:0, prV:null,
       product:r.product||'', title:r.title||'', platform:r.platform||'', owner:cleanOwner(r.owner)}; }
     a.p+=num(r.profit_pay); a.s+=num(r.net_pay);
+    a.ps+=num(r.profit_ship); a.ss+=num(r.net_ship);
     if(a.prV===null){ const v=num(r.profit_rate); if(v!==0) a.prV=v; }
   }
   DATAEND=maxEnd;
@@ -500,20 +503,23 @@ function renderActionEffect(){
   // 案例
   const mTitle=x=>esc(x.c.product||x.c.title||x.id);
   const mvCell=x=>'<span class="tag '+(x.mv.k==='turn'||x.mv.k==='narrow'?'g':(x.mv.k==='worse'||x.mv.k==='bad'?'r':'n'))+'">'+x.mv.label+'</span>';
-  const cth='<thead><tr><th>链接</th><th>运营</th><th>动作</th><th>上期利润</th><th>本期利润</th><th>迁移</th></tr></thead><tbody>';
+  const cth='<thead><tr><th>链接</th><th>运营</th><th>动作</th><th>上期利润<br><span style="font-weight:400">支付</span></th><th>本期利润<br><span style="font-weight:400">支付</span></th><th>本期利润<br><span style="font-weight:400">发货</span></th><th>迁移</th></tr></thead><tbody>';
   const crow=x=>'<tr><td style="max-width:240px;overflow:hidden;text-overflow:ellipsis">'+mTitle(x)+'<div style="font-size:10px;color:var(--tx4)">'+esc(x.id)+'</div></td>'
     +'<td>'+esc(x.c.owner)+'</td><td>'+esc(x.st)+'</td>'
     +'<td class="num '+(x.pv&&x.pv.p<0?'down-t':'')+'">'+(x.pv?money(x.pv.p):'—')+'</td>'
-    +'<td class="num '+(x.c.p<0?'down-t':'up-t')+'">'+money(x.c.p)+'</td><td>'+mvCell(x)+'</td></tr>';
+    +'<td class="num '+(x.c.p<0?'down-t':'up-t')+'">'+money(x.c.p)+'</td>'
+    +'<td class="num '+(x.c.ps<0?'down-t':'up-t')+'" title="利润·发货预估（与飞书「利润(发货预估)」列一致）">'+money(x.c.ps)+((x.c.p<0)!==(x.c.ps<0)?'<span class="cal-diff" title="两口径盈亏相反，以支付口径为准">≠口径</span>':'')+'</td>'
+    +'<td>'+mvCell(x)+'</td></tr>';
   const good=arr.filter(x=>x.mv.k==='turn'||x.mv.k==='narrow')
     .sort((a,b)=>{ const da=Math.abs(a.pv?a.pv.p:0)-Math.abs(a.c.p), db=Math.abs(b.pv?b.pv.p:0)-Math.abs(b.c.p); return db-da; }).slice(0,12);
   const bad=arr.filter(x=>x.mv.k==='worse'||x.mv.k==='bad')
     .sort((a,b)=>(Math.abs(b.c.p)-Math.abs(b.pv?b.pv.p:0))-(Math.abs(a.c.p)-Math.abs(a.pv?a.pv.p:0))).slice(0,12);
-  $('#effGood').innerHTML='<table>'+cth+(good.map(crow).join('')||'<tr><td colspan="6"><div class="empty">暂无改善案例</div></td></tr>')+'</tbody></table>';
-  $('#effBad').innerHTML='<table>'+cth+(bad.map(crow).join('')||'<tr><td colspan="6"><div class="empty">暂无恶化案例</div></td></tr>')+'</tbody></table>';
+  $('#effGood').innerHTML='<table>'+cth+(good.map(crow).join('')||'<tr><td colspan="7"><div class="empty">暂无改善案例</div></td></tr>')+'</tbody></table>';
+  $('#effBad').innerHTML='<table>'+cth+(bad.map(crow).join('')||'<tr><td colspan="7"><div class="empty">暂无恶化案例</div></td></tr>')+'</tbody></table>';
 
   $('#footNote').innerHTML='口径：自然周(周一~周日)归并，每链接取该周「window_end 最新」的滚动窗口值；同链接同窗口多行利润/销售额<b>累加</b>（与执行端一致）。'
     +'档位阈值与「BI指标归档处理中心」完全相同。<br>「动作效果」读取执行端标记状态，本期 vs 上期做档位迁移判定；<b>转正/收窄＝绿，扩大/由盈转亏＝红</b>。'
+    +'<br><b>利润双口径</b>：档位/迁移判定用<b>支付预估</b>（当天即可看）；案例表另列<b>发货预估</b>（与飞书「利润(发货预估)」列一致，比支付晚1天）供对账，两者盈亏相反时标 <span class="cal-diff">≠口径</span>。'
     +(DATAEND?' 数据截至 '+String(DATAEND).slice(0,10).replace(/\//g,'-')+'。':'');
 }
 

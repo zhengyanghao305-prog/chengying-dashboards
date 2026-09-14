@@ -1,4 +1,4 @@
-/* === store.js === */
+/* ==== store.js ==== */
 /* ============================================================
  * store.js — 工作台存储引擎（v3 — 支持 Electron IPC + 同步）
  *
@@ -232,8 +232,8 @@ const Store = {
   }
 };
 
-
-/* === boards-config.js === */
+;
+/* ==== boards-config.js ==== */
 /* ============================================================
  * boards-config.js — 14 大板块字段配置
  * 每个板块 = {
@@ -599,8 +599,8 @@ function getBoard(id) {
   return BOARDS[id] || null;
 }
 
-
-/* === diagnostics-config.js === */
+;
+/* ==== diagnostics-config.js ==== */
 /* ============================================================
  * diagnostics-config.js — 全板块诊断规则 v2
  * 「一眼看异常 · 子节点全分析 · 可执行方案」
@@ -1258,8 +1258,8 @@ function getBoard(id) {
   window.DIAG_UTIL = { num: num, isF: isF, parseKV: parseKV, latestDate: latestDate, fmtMoney: fmtMoney, fmtPct: fmtPct, todayStr: todayStr };
 })();
 
-
-/* === diagnosis.js === */
+;
+/* ==== diagnosis.js ==== */
 /* ============================================================
  * diagnosis.js — 橙萤工作台 · 全板块通用诊断引擎 v2
  * 「一眼看异常 · 子节点全分析 · 可执行方案」
@@ -1648,8 +1648,8 @@ function getBoard(id) {
   };
 })();
 
-
-/* === deep-link.js === */
+;
+/* ==== deep-link.js ==== */
 /* ============================================================
  * deep-link.js — 诊断卡片「直达问题本质」的通用深度链接工具
  * 用法：
@@ -1789,8 +1789,8 @@ function getBoard(id) {
   window.DeepLink = { read: read, build: build, add: add, highlight: highlight, toast: toast, waitFor: waitFor };
 })();
 
-
-/* === home-health.js === */
+;
+/* ==== home-health.js ==== */
 /* ============================================================
  * home-health.js — 工作台首页「经营健康总览」v2
  * 顶部「异常速览」：一眼看全最紧急的异常（命名实体+指标，可跳转）
@@ -1879,6 +1879,36 @@ function getBoard(id) {
     });
     out.sort(function (a, b) { return sevOrder(a.finding.severity) - sevOrder(b.finding.severity); });
     return out;
+  }
+
+  /* ---- 优先读取「同步时预计算」的体检结果（data/home-health.json，几 KB）----
+   * 首页原来要现场下载 ad-roi(7.4MB)/product-links(5.6MB)/competition(1.2MB) 等
+   * 十余 MB 的大文件再跑诊断，导致打开极慢。改为读预计算结果；读不到再回退实时计算。 */
+  async function loadPrecomputed() {
+    try {
+      var resp = await fetch('data/home-health.json?t=' + Date.now());
+      if (!resp.ok) return null;
+      var d = await resp.json();
+      if (!d || !d.boards) return null;
+      return d;
+    } catch (e) { return null; }
+  }
+
+  // 组装板块结果：优先用预计算，缺失则回退到实时加载+诊断
+  async function buildResults() {
+    var pre = await loadPrecomputed();
+    if (pre) {
+      return BOARDS.map(function (b) {
+        var pb = pre.boards[b.id];
+        if (!pb) return { board: b, hasData: false, diag: null, fresh: { na: true } };
+        return { board: b, hasData: !!pb.hasData, diag: pb.diag || null, fresh: pb.fresh || { na: true } };
+      });
+    }
+    return Promise.all(BOARDS.map(async function (b) {
+      var rows = await loadData(b.id);
+      var diag = (!b.skipDiag && (rows && (rows.length || typeof rows === 'object'))) ? window.DIAG.run(b.id, rows) : null;
+      return { board: b, hasData: !!(rows && (Array.isArray(rows) ? rows.length : true)), diag: diag };
+    }));
   }
 
   async function loadData(id) {
@@ -2011,15 +2041,10 @@ function getBoard(id) {
     var body = document.getElementById('homeHealthBody');
     body.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:13px;padding:28px 0;">⏳ 正在体检各板块数据…</div>';
 
-    var results = await Promise.all(BOARDS.map(async function (b) {
-      var rows = await loadData(b.id);
-      // skipDiag 板块（如数据同步）暂不参与诊断，不产生异常
-      var diag = (!b.skipDiag && (rows && (rows.length || typeof rows === 'object'))) ? window.DIAG.run(b.id, rows) : null;
-      return { board: b, rows: rows, diag: diag };
-    }));
+    var results = await buildResults();
 
     var valid = results.filter(function (r) { return r.diag; });
-    var scored = valid.filter(function (r) { return r.rows && (Array.isArray(r.rows) ? r.rows.length : true); });
+    var scored = valid.filter(function (r) { return r.hasData; });
     var overall = scored.length ? Math.round(scored.reduce(function (s, r) { return s + r.diag.summary.score; }, 0) / scored.length) : 0;
 
     // 收集所有异常发现（跨板块），用于「异常速览」
@@ -2033,7 +2058,7 @@ function getBoard(id) {
       }
     });
     // ── 数据新鲜度检查：数据未更新的板块 → danger 级异常（顶部「异常速览」可见）──
-    results.forEach(function (r) { r.fresh = checkFreshness(r.board.id, r.rows); });
+    results.forEach(function (r) { if (!r.fresh) r.fresh = checkFreshness(r.board.id, r.rows); });
     results.forEach(function (r) {
       if (r.board.skipDiag) return;   // 暂不参与诊断的板块不报任何异常
       var f = r.fresh;
@@ -2121,7 +2146,7 @@ function getBoard(id) {
     var gridHtml = results.map(function (r) {
       var score = r.diag ? r.diag.summary.score : 0;
       var n = r.diag ? (r.diag.summary.danger + r.diag.summary.warning + r.diag.summary.info) : 0;
-      var hasData = r.rows && (Array.isArray(r.rows) ? r.rows.length : true);
+      var hasData = r.hasData;
       var noSource = !DATA_FILES[r.board.id];  // 没数据文件 / 没接入同步
       var scoreView, statusText, cardStyle;
       var stale = r.fresh && r.fresh.stale;      // 数据未更新（最新日期落后于昨天）
@@ -2192,8 +2217,8 @@ function getBoard(id) {
   window.HomeHealth = { init: init };
 })();
 
-
-/* === web-sync.js === */
+;
+/* ==== web-sync.js ==== */
 /**
  * web-sync.js — 橙萤工作台 统一云端同步（单一源码，按版本适配）
  *
@@ -2505,8 +2530,8 @@ function getBoard(id) {
   }
 })();
 
-
-/* === auth.js === */
+;
+/* ==== auth.js ==== */
 /**
  * auth.js — 橙萤工作台 统一鉴权（单一源码，按版本适配）
  *
@@ -2805,8 +2830,8 @@ function getBoard(id) {
   else localAuth();
 })();
 
-
-/* === chat-widget.js === */
+;
+/* ==== chat-widget.js ==== */
 /**
  * chat-widget.js — 橙萤工作台 AI 聊天组件 v3
  * 对话记录 | 新对话 | 拖拽 | 四角调大小 | 手机版

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-15T10:53:28",
+  "updated": "2026-09-15T11:07:09",
   "total": 42,
   "products": [
     {
@@ -10,6 +10,13 @@
       ],
       "profit_daily": {
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 43.1,
+            "ship": 54.01,
+            "margin": 31.3,
+            "profit_amt": 16.88
+          },
           {
             "date": "2026-09-13",
             "pay": 10.14,
@@ -107,12 +114,12 @@
       },
       "latest_profit": {
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 10.14,
-          "ship": -0.77,
-          "margin": 3802.0,
-          "profit_amt": -29.28,
-          "profit_pct": -0.3
+          "date": "2026-09-14",
+          "pay": 43.1,
+          "ship": 54.01,
+          "margin": 31.3,
+          "profit_amt": 16.88,
+          "profit_pct": 0.1
         },
         "拼多多": {
           "date": "2026-09-07",
@@ -174,6 +181,10 @@
             {
               "date": "2026-09-13",
               "pay": 10.14
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 43.1
             }
           ],
           "type": "stable",
@@ -188,11 +199,11 @@
       },
       "wow": {
         "天猫": {
-          "pay_wow": -3.6,
-          "profit_wow": -207.6,
-          "volatility": 2.36,
-          "data_points": 12,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -30.3,
+          "profit_wow": -232.4,
+          "volatility": 2.48,
+          "data_points": 13,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "拼多多": {
           "pay_wow": null,
@@ -204,15 +215,15 @@
       },
       "ranking": {
         "拼多多": {
-          "rank": 17,
+          "rank": 16,
           "total": 30
         },
         "天猫": {
-          "rank": 31,
+          "rank": 25,
           "total": 34
         }
       },
-      "avg_margin": 450.0,
+      "avg_margin": 415.1,
       "ship_status": null
     },
     {
@@ -396,6 +407,13 @@
       "profit_daily": {
         "拼多多": [
           {
+            "date": "2026-09-14",
+            "pay": 12.8,
+            "ship": 25.6,
+            "margin": 41.8,
+            "profit_amt": 10.7
+          },
+          {
             "date": "2026-09-13",
             "pay": 25.6,
             "ship": 0.0,
@@ -488,6 +506,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 688.6,
+            "ship": 353.33,
+            "margin": -25.3,
+            "profit_amt": -89.44
+          },
           {
             "date": "2026-09-13",
             "pay": 335.66,
@@ -583,20 +608,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 25.6,
-          "ship": 0.0,
-          "margin": null,
-          "profit_amt": 0.0,
-          "profit_pct": 0.0
+          "date": "2026-09-14",
+          "pay": 12.8,
+          "ship": 25.6,
+          "margin": 41.8,
+          "profit_amt": 10.7,
+          "profit_pct": 0.3
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 335.66,
-          "ship": 276.55,
-          "margin": -33.3,
-          "profit_amt": -92.22,
-          "profit_pct": -1.0
+          "date": "2026-09-14",
+          "pay": 688.6,
+          "ship": 353.33,
+          "margin": -25.3,
+          "profit_amt": -89.44,
+          "profit_pct": -0.7
         }
       },
       "ad_roi": null,
@@ -654,6 +679,10 @@
             {
               "date": "2026-09-13",
               "pay": 25.6
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 12.8
             }
           ],
           "type": "stable",
@@ -712,6 +741,10 @@
             {
               "date": "2026-09-13",
               "pay": 335.66
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 688.6
             }
           ],
           "type": "stable",
@@ -730,31 +763,31 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": -74.1,
-          "profit_wow": -57.2,
-          "volatility": 0.51,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -69.7,
+          "profit_wow": -73.9,
+          "volatility": 0.48,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 38.6,
-          "profit_wow": -421.0,
-          "volatility": 679.22,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 32.3,
+          "profit_wow": -325.5,
+          "volatility": 98.34,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 20,
+          "rank": 23,
           "total": 30
         },
         "天猫": {
-          "rank": 17,
+          "rank": 12,
           "total": 34
         }
       },
-      "avg_margin": 16.0,
+      "avg_margin": 15.3,
       "ship_status": null
     },
     {
@@ -765,6 +798,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 0.0,
+            "ship": 19.8,
+            "margin": 50.1,
+            "profit_amt": 9.93
+          },
           {
             "date": "2026-09-13",
             "pay": 39.6,
@@ -858,6 +898,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 67.32,
+            "ship": 122.58,
+            "margin": 37.8,
+            "profit_amt": 46.28
+          },
           {
             "date": "2026-09-13",
             "pay": 125.01,
@@ -953,20 +1000,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 39.6,
-          "ship": 31.6,
-          "margin": 10.5,
-          "profit_amt": 3.32,
-          "profit_pct": 0.1
+          "date": "2026-09-14",
+          "pay": 0.0,
+          "ship": 19.8,
+          "margin": 50.1,
+          "profit_amt": 9.93,
+          "profit_pct": 0.3
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 125.01,
-          "ship": 190.39,
-          "margin": 15.7,
-          "profit_amt": 29.85,
-          "profit_pct": 0.3
+          "date": "2026-09-14",
+          "pay": 67.32,
+          "ship": 122.58,
+          "margin": 37.8,
+          "profit_amt": 46.28,
+          "profit_pct": 0.4
         }
       },
       "ad_roi": null,
@@ -1024,6 +1071,10 @@
             {
               "date": "2026-09-13",
               "pay": 39.6
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 0.0
             }
           ],
           "type": "stable",
@@ -1082,6 +1133,10 @@
             {
               "date": "2026-09-13",
               "pay": 125.01
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 67.32
             }
           ],
           "type": "stable",
@@ -1100,31 +1155,31 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": -22.7,
-          "profit_wow": -67.7,
-          "volatility": 0.8,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -42.9,
+          "profit_wow": -68.1,
+          "volatility": 0.76,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 148.8,
-          "profit_wow": -930.9,
-          "volatility": 5.48,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 79.2,
+          "profit_wow": -1458.9,
+          "volatility": 13.11,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 19,
+          "rank": 26,
           "total": 30
         },
         "天猫": {
-          "rank": 24,
+          "rank": 23,
           "total": 34
         }
       },
-      "avg_margin": 7.1,
+      "avg_margin": 10.0,
       "ship_status": null
     },
     {
@@ -1282,7 +1337,7 @@
       },
       "ranking": {
         "拼多多": {
-          "rank": 26,
+          "rank": 24,
           "total": 30
         }
       },
@@ -1297,6 +1352,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 107.8,
+            "ship": 204.5,
+            "margin": 32.9,
+            "profit_amt": 67.33
+          },
           {
             "date": "2026-09-13",
             "pay": 170.58,
@@ -1391,6 +1453,13 @@
         ],
         "天猫": [
           {
+            "date": "2026-09-14",
+            "pay": 38.94,
+            "ship": -25.06,
+            "margin": 175.5,
+            "profit_amt": -43.97
+          },
+          {
             "date": "2026-09-13",
             "pay": -56.52,
             "ship": 28.27,
@@ -1471,20 +1540,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 170.58,
-          "ship": 189.68,
-          "margin": 4.3,
-          "profit_amt": 8.16,
-          "profit_pct": 0.2
+          "date": "2026-09-14",
+          "pay": 107.8,
+          "ship": 204.5,
+          "margin": 32.9,
+          "profit_amt": 67.33,
+          "profit_pct": 2.0
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": -56.52,
-          "ship": 28.27,
-          "margin": -52.8,
-          "profit_amt": -14.92,
-          "profit_pct": -0.2
+          "date": "2026-09-14",
+          "pay": 38.94,
+          "ship": -25.06,
+          "margin": 175.5,
+          "profit_amt": -43.97,
+          "profit_pct": -0.4
         }
       },
       "ad_roi": {
@@ -1699,6 +1768,10 @@
             {
               "date": "2026-09-13",
               "pay": 170.58
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 107.8
             }
           ],
           "type": "stable",
@@ -1749,6 +1822,10 @@
             {
               "date": "2026-09-13",
               "pay": -56.52
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 38.94
             }
           ],
           "type": "stable",
@@ -1767,18 +1844,18 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": -38.0,
-          "profit_wow": -34.9,
-          "volatility": 1.61,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -65.5,
+          "profit_wow": -38.6,
+          "volatility": 1.48,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 267.6,
-          "profit_wow": 836.7,
-          "volatility": 2.27,
-          "data_points": 11,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 110.5,
+          "profit_wow": -20.7,
+          "volatility": 3.08,
+          "data_points": 12,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
@@ -1787,11 +1864,11 @@
           "total": 30
         },
         "天猫": {
-          "rank": 34,
+          "rank": 26,
           "total": 34
         }
       },
-      "avg_margin": -35.7,
+      "avg_margin": -23.6,
       "ship_status": null
     },
     {
@@ -1802,6 +1879,13 @@
       ],
       "profit_daily": {
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 125.01,
+            "ship": 104.87,
+            "margin": 34.3,
+            "profit_amt": 35.99
+          },
           {
             "date": "2026-09-13",
             "pay": 306.11,
@@ -1934,12 +2018,12 @@
       },
       "latest_profit": {
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 306.11,
-          "ship": 239.44,
-          "margin": 52.5,
-          "profit_amt": 125.61,
-          "profit_pct": 1.3
+          "date": "2026-09-14",
+          "pay": 125.01,
+          "ship": 104.87,
+          "margin": 34.3,
+          "profit_amt": 35.99,
+          "profit_pct": 0.3
         },
         "拼多多": {
           "date": "2026-09-09",
@@ -2031,6 +2115,10 @@
             {
               "date": "2026-09-13",
               "pay": 306.11
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 125.01
             }
           ],
           "type": "stable",
@@ -2049,11 +2137,11 @@
       },
       "wow": {
         "天猫": {
-          "pay_wow": -7.9,
-          "profit_wow": 13.8,
-          "volatility": 5.46,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -20.1,
+          "profit_wow": 6.6,
+          "volatility": 4.36,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "拼多多": {
           "pay_wow": null,
@@ -2065,15 +2153,15 @@
       },
       "ranking": {
         "拼多多": {
-          "rank": 18,
+          "rank": 17,
           "total": 30
         },
         "天猫": {
-          "rank": 19,
+          "rank": 20,
           "total": 34
         }
       },
-      "avg_margin": 20.0,
+      "avg_margin": 20.8,
       "ship_status": null
     },
     {
@@ -2084,6 +2172,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 1120.08,
+            "ship": 1211.85,
+            "margin": 13.3,
+            "profit_amt": 160.92
+          },
           {
             "date": "2026-09-13",
             "pay": 1288.47,
@@ -2177,6 +2272,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 589.65,
+            "ship": 1021.52,
+            "margin": 31.7,
+            "profit_amt": 323.4
+          },
           {
             "date": "2026-09-13",
             "pay": 1193.16,
@@ -2272,20 +2374,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 1288.47,
-          "ship": 1172.35,
-          "margin": 13.4,
-          "profit_amt": 157.6,
-          "profit_pct": 3.1
+          "date": "2026-09-14",
+          "pay": 1120.08,
+          "ship": 1211.85,
+          "margin": 13.3,
+          "profit_amt": 160.92,
+          "profit_pct": 4.8
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 1193.16,
-          "ship": 1389.99,
-          "margin": 31.1,
-          "profit_amt": 432.66,
-          "profit_pct": 4.6
+          "date": "2026-09-14",
+          "pay": 589.65,
+          "ship": 1021.52,
+          "margin": 31.7,
+          "profit_amt": 323.4,
+          "profit_pct": 2.6
         }
       },
       "ad_roi": {
@@ -2500,6 +2602,10 @@
             {
               "date": "2026-09-13",
               "pay": 1288.47
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 1120.08
             }
           ],
           "type": "stable",
@@ -2558,6 +2664,10 @@
             {
               "date": "2026-09-13",
               "pay": 1193.16
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 589.65
             }
           ],
           "type": "stable",
@@ -2576,38 +2686,32 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 33.7,
-          "profit_wow": 209.4,
-          "volatility": 2.62,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 3.8,
+          "profit_wow": 136.8,
+          "volatility": 2.35,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 42.9,
-          "profit_wow": -386.4,
-          "volatility": 3.15,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 12.6,
+          "profit_wow": -602.5,
+          "volatility": 3.06,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 9,
+          "rank": 8,
           "total": 30
         },
         "天猫": {
-          "rank": 12,
+          "rank": 13,
           "total": 34
         }
       },
-      "avg_margin": 21.0,
-      "ship_status": {
-        "pay_orders": 88,
-        "ship_orders": 74,
-        "unshipped_orders": 14,
-        "pay": 2481.63,
-        "ship": 2562.34
-      }
+      "avg_margin": 21.1,
+      "ship_status": null
     },
     {
       "name": "墙面保护膜(磨砂静电款)",
@@ -2790,6 +2894,13 @@
       "profit_daily": {
         "拼多多": [
           {
+            "date": "2026-09-14",
+            "pay": 352.84,
+            "ship": 536.68,
+            "margin": 39.0,
+            "profit_amt": 209.23
+          },
+          {
             "date": "2026-09-13",
             "pay": 596.22,
             "ship": 510.77,
@@ -2882,6 +2993,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 9618.91,
+            "ship": 13209.29,
+            "margin": 19.3,
+            "profit_amt": 2553.08
+          },
           {
             "date": "2026-09-13",
             "pay": 15627.86,
@@ -2977,20 +3095,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 596.22,
-          "ship": 510.77,
-          "margin": 34.7,
-          "profit_amt": 177.13,
-          "profit_pct": 3.4
+          "date": "2026-09-14",
+          "pay": 352.84,
+          "ship": 536.68,
+          "margin": 39.0,
+          "profit_amt": 209.23,
+          "profit_pct": 6.2
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 15627.86,
-          "ship": 14037.36,
-          "margin": 17.3,
-          "profit_amt": 2434.48,
-          "profit_pct": 25.9
+          "date": "2026-09-14",
+          "pay": 9618.91,
+          "ship": 13209.29,
+          "margin": 19.3,
+          "profit_amt": 2553.08,
+          "profit_pct": 20.9
         }
       },
       "ad_roi": {
@@ -3205,6 +3323,10 @@
             {
               "date": "2026-09-13",
               "pay": 596.22
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 352.84
             }
           ],
           "type": "stable",
@@ -3263,6 +3385,10 @@
             {
               "date": "2026-09-13",
               "pay": 15627.86
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 9618.91
             }
           ],
           "type": "stable",
@@ -3281,18 +3407,18 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": -22.1,
-          "profit_wow": -34.1,
+          "pay_wow": -35.9,
+          "profit_wow": -42.8,
           "volatility": 0.25,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 13.2,
-          "profit_wow": 32.6,
-          "volatility": 0.67,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -10.1,
+          "profit_wow": -21.1,
+          "volatility": 0.64,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
@@ -3301,18 +3427,12 @@
           "total": 30
         },
         "天猫": {
-          "rank": 1,
+          "rank": 2,
           "total": 34
         }
       },
-      "avg_margin": 23.1,
-      "ship_status": {
-        "pay_orders": 780,
-        "ship_orders": 639,
-        "unshipped_orders": 141,
-        "pay": 16224.08,
-        "ship": 14548.13
-      }
+      "avg_margin": 23.5,
+      "ship_status": null
     },
     {
       "name": "墙面保护膜(静电磨砂款)",
@@ -3322,6 +3442,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 969.69,
+            "ship": 1206.79,
+            "margin": 21.9,
+            "profit_amt": 264.85
+          },
           {
             "date": "2026-09-13",
             "pay": 1390.98,
@@ -3415,6 +3542,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 9911.62,
+            "ship": 11537.29,
+            "margin": 24.4,
+            "profit_amt": 2817.89
+          },
           {
             "date": "2026-09-13",
             "pay": 13119.23,
@@ -3510,20 +3644,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 1390.98,
-          "ship": 1265.66,
-          "margin": 7.5,
-          "profit_amt": 95.0,
-          "profit_pct": 1.8
+          "date": "2026-09-14",
+          "pay": 969.69,
+          "ship": 1206.79,
+          "margin": 21.9,
+          "profit_amt": 264.85,
+          "profit_pct": 7.9
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 13119.23,
-          "ship": 12361.9,
-          "margin": 19.4,
-          "profit_amt": 2397.37,
-          "profit_pct": 25.6
+          "date": "2026-09-14",
+          "pay": 9911.62,
+          "ship": 11537.29,
+          "margin": 24.4,
+          "profit_amt": 2817.89,
+          "profit_pct": 23.1
         }
       },
       "ad_roi": {
@@ -3738,6 +3872,10 @@
             {
               "date": "2026-09-13",
               "pay": 1390.98
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 969.69
             }
           ],
           "type": "stable",
@@ -3796,6 +3934,10 @@
             {
               "date": "2026-09-13",
               "pay": 13119.23
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 9911.62
             }
           ],
           "type": "stable",
@@ -3814,38 +3956,32 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 26.4,
-          "profit_wow": -49.5,
-          "volatility": 0.85,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -1.5,
+          "profit_wow": -45.0,
+          "volatility": 0.8,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 24.3,
-          "profit_wow": 112.2,
-          "volatility": 0.81,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -4.1,
+          "profit_wow": -11.1,
+          "volatility": 0.77,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 7,
+          "rank": 9,
           "total": 30
         },
         "天猫": {
-          "rank": 2,
+          "rank": 1,
           "total": 34
         }
       },
-      "avg_margin": 13.6,
-      "ship_status": {
-        "pay_orders": 420,
-        "ship_orders": 372,
-        "unshipped_orders": 48,
-        "pay": 14510.21,
-        "ship": 13627.56
-      }
+      "avg_margin": 14.3,
+      "ship_status": null
     },
     {
       "name": "家具膜",
@@ -3855,6 +3991,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 5999.55,
+            "ship": 6021.69,
+            "margin": 13.7,
+            "profit_amt": 822.54
+          },
           {
             "date": "2026-09-13",
             "pay": 6010.95,
@@ -3948,6 +4091,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 210.35,
+            "ship": 616.56,
+            "margin": 44.8,
+            "profit_amt": 276.16
+          },
           {
             "date": "2026-09-13",
             "pay": 609.53,
@@ -4043,20 +4193,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 6010.95,
-          "ship": 5810.31,
-          "margin": 13.5,
-          "profit_amt": 787.09,
-          "profit_pct": 15.3
+          "date": "2026-09-14",
+          "pay": 5999.55,
+          "ship": 6021.69,
+          "margin": 13.7,
+          "profit_amt": 822.54,
+          "profit_pct": 24.5
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 609.53,
-          "ship": 342.4,
-          "margin": 6.3,
-          "profit_amt": 21.56,
-          "profit_pct": 0.2
+          "date": "2026-09-14",
+          "pay": 210.35,
+          "ship": 616.56,
+          "margin": 44.8,
+          "profit_amt": 276.16,
+          "profit_pct": 2.3
         }
       },
       "ad_roi": {
@@ -4271,6 +4421,10 @@
             {
               "date": "2026-09-13",
               "pay": 6010.95
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 5999.55
             }
           ],
           "type": "stable",
@@ -4329,6 +4483,10 @@
             {
               "date": "2026-09-13",
               "pay": 609.53
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 210.35
             }
           ],
           "type": "stable",
@@ -4347,18 +4505,18 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 48.1,
-          "profit_wow": 111.6,
-          "volatility": 0.89,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 32.2,
+          "profit_wow": 38.5,
+          "volatility": 0.83,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": -7.0,
-          "profit_wow": -70.8,
-          "volatility": 3.34,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -15.6,
+          "profit_wow": -66.4,
+          "volatility": 3.06,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
@@ -4367,18 +4525,12 @@
           "total": 30
         },
         "天猫": {
-          "rank": 16,
+          "rank": 17,
           "total": 34
         }
       },
-      "avg_margin": 17.0,
-      "ship_status": {
-        "pay_orders": 231,
-        "ship_orders": 197,
-        "unshipped_orders": 34,
-        "pay": 6620.48,
-        "ship": 6152.71
-      }
+      "avg_margin": 17.9,
+      "ship_status": null
     },
     {
       "name": "带胶地毯",
@@ -4388,6 +4540,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 16.8,
+            "ship": 0.0,
+            "margin": null,
+            "profit_amt": 0.0
+          },
           {
             "date": "2026-09-13",
             "pay": 68.4,
@@ -4460,6 +4619,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 3575.63,
+            "ship": 3913.29,
+            "margin": 18.2,
+            "profit_amt": 712.65
+          },
           {
             "date": "2026-09-13",
             "pay": 3682.18,
@@ -4555,20 +4721,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 68.4,
-          "ship": 68.4,
-          "margin": 43.8,
-          "profit_amt": 29.97,
-          "profit_pct": 0.6
+          "date": "2026-09-14",
+          "pay": 16.8,
+          "ship": 0.0,
+          "margin": null,
+          "profit_amt": 0.0,
+          "profit_pct": 0.0
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 3682.18,
-          "ship": 3116.53,
-          "margin": 4.9,
-          "profit_amt": 153.01,
-          "profit_pct": 1.6
+          "date": "2026-09-14",
+          "pay": 3575.63,
+          "ship": 3913.29,
+          "margin": 18.2,
+          "profit_amt": 712.65,
+          "profit_pct": 5.8
         }
       },
       "ad_roi": {
@@ -4651,6 +4817,10 @@
             {
               "date": "2026-09-13",
               "pay": 68.4
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 16.8
             }
           ],
           "type": "stable",
@@ -4709,6 +4879,10 @@
             {
               "date": "2026-09-13",
               "pay": 3682.18
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 3575.63
             }
           ],
           "type": "stable",
@@ -4727,38 +4901,32 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 252.0,
+          "pay_wow": 111.7,
           "profit_wow": 380.7,
           "volatility": 0.51,
-          "data_points": 10,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "data_points": 11,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 6.7,
-          "profit_wow": 25.5,
-          "volatility": 0.68,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -13.3,
+          "profit_wow": -34.7,
+          "volatility": 0.65,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 15,
+          "rank": 19,
           "total": 30
         },
         "天猫": {
-          "rank": 5,
+          "rank": 4,
           "total": 34
         }
       },
-      "avg_margin": 27.2,
-      "ship_status": {
-        "pay_orders": 132,
-        "ship_orders": 107,
-        "unshipped_orders": 25,
-        "pay": 3750.58,
-        "ship": 3184.93
-      }
+      "avg_margin": 26.7,
+      "ship_status": null
     },
     {
       "name": "带胶黑板",
@@ -4768,6 +4936,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 15.61,
+            "ship": 15.61,
+            "margin": 66.3,
+            "profit_amt": 10.35
+          },
           {
             "date": "2026-09-13",
             "pay": 11.26,
@@ -4861,6 +5036,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 1782.05,
+            "ship": 1511.59,
+            "margin": 38.9,
+            "profit_amt": 588.59
+          },
           {
             "date": "2026-09-13",
             "pay": 1319.15,
@@ -4956,20 +5138,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 11.26,
-          "ship": 35.37,
-          "margin": 70.0,
-          "profit_amt": 24.76,
-          "profit_pct": 0.5
+          "date": "2026-09-14",
+          "pay": 15.61,
+          "ship": 15.61,
+          "margin": 66.3,
+          "profit_amt": 10.35,
+          "profit_pct": 0.3
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 1319.15,
-          "ship": 1018.46,
-          "margin": 28.6,
-          "profit_amt": 291.51,
-          "profit_pct": 3.1
+          "date": "2026-09-14",
+          "pay": 1782.05,
+          "ship": 1511.59,
+          "margin": 38.9,
+          "profit_amt": 588.59,
+          "profit_pct": 4.8
         }
       },
       "ad_roi": null,
@@ -5027,6 +5209,10 @@
             {
               "date": "2026-09-13",
               "pay": 11.26
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 15.61
             }
           ],
           "type": "stable",
@@ -5085,6 +5271,10 @@
             {
               "date": "2026-09-13",
               "pay": 1319.15
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 1782.05
             }
           ],
           "type": "stable",
@@ -5103,38 +5293,32 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 328.0,
-          "profit_wow": 486.2,
+          "pay_wow": 295.2,
+          "profit_wow": 357.5,
           "volatility": 1.31,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 16.8,
-          "profit_wow": -11.4,
-          "volatility": 0.41,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -4.4,
+          "profit_wow": -26.3,
+          "volatility": 0.39,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 25,
+          "rank": 20,
           "total": 30
         },
         "天猫": {
-          "rank": 11,
+          "rank": 9,
           "total": 34
         }
       },
-      "avg_margin": 70.3,
-      "ship_status": {
-        "pay_orders": 55,
-        "ship_orders": 43,
-        "unshipped_orders": 12,
-        "pay": 1330.41,
-        "ship": 1053.83
-      }
+      "avg_margin": 69.0,
+      "ship_status": null
     },
     {
       "name": "开关贴",
@@ -5144,6 +5328,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 1280.41,
+            "ship": 1081.91,
+            "margin": -0.5,
+            "profit_amt": -5.01
+          },
           {
             "date": "2026-09-13",
             "pay": 1291.81,
@@ -5237,6 +5428,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 553.28,
+            "ship": 677.85,
+            "margin": 16.6,
+            "profit_amt": 112.33
+          },
           {
             "date": "2026-09-13",
             "pay": 719.2,
@@ -5332,20 +5530,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 1291.81,
-          "ship": 1304.24,
-          "margin": 22.1,
-          "profit_amt": 287.89,
-          "profit_pct": 5.6
+          "date": "2026-09-14",
+          "pay": 1280.41,
+          "ship": 1081.91,
+          "margin": -0.5,
+          "profit_amt": -5.01,
+          "profit_pct": -0.1
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 719.2,
-          "ship": 946.67,
-          "margin": 8.3,
-          "profit_amt": 78.38,
-          "profit_pct": 0.8
+          "date": "2026-09-14",
+          "pay": 553.28,
+          "ship": 677.85,
+          "margin": 16.6,
+          "profit_amt": 112.33,
+          "profit_pct": 0.9
         }
       },
       "ad_roi": {
@@ -5560,6 +5758,10 @@
             {
               "date": "2026-09-13",
               "pay": 1291.81
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 1280.41
             }
           ],
           "type": "stable",
@@ -5618,6 +5820,10 @@
             {
               "date": "2026-09-13",
               "pay": 719.2
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 553.28
             }
           ],
           "type": "stable",
@@ -5636,23 +5842,23 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 8.3,
-          "profit_wow": 7.4,
-          "volatility": 0.64,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -13.7,
+          "profit_wow": -14.8,
+          "volatility": 0.73,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 31.1,
-          "profit_wow": -111.6,
-          "volatility": 2.13,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -0.3,
+          "profit_wow": -126.3,
+          "volatility": 2.94,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 8,
+          "rank": 7,
           "total": 30
         },
         "天猫": {
@@ -5660,8 +5866,14 @@
           "total": 34
         }
       },
-      "avg_margin": 1.6,
-      "ship_status": null
+      "avg_margin": 2.1,
+      "ship_status": {
+        "pay_orders": 145,
+        "ship_orders": 130,
+        "unshipped_orders": 15,
+        "pay": 1833.69,
+        "ship": 1759.76
+      }
     },
     {
       "name": "异形猫抓贴",
@@ -5671,6 +5883,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 1338.36,
+            "ship": 1444.24,
+            "margin": 11.7,
+            "profit_amt": 168.43
+          },
           {
             "date": "2026-09-13",
             "pay": 1520.06,
@@ -5764,6 +5983,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 1261.25,
+            "ship": 1701.97,
+            "margin": 22.6,
+            "profit_amt": 384.65
+          },
           {
             "date": "2026-09-13",
             "pay": 2739.54,
@@ -5859,20 +6085,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 1520.06,
-          "ship": 1403.72,
-          "margin": 14.9,
-          "profit_amt": 209.33,
-          "profit_pct": 4.1
+          "date": "2026-09-14",
+          "pay": 1338.36,
+          "ship": 1444.24,
+          "margin": 11.7,
+          "profit_amt": 168.43,
+          "profit_pct": 5.0
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 2739.54,
-          "ship": 2763.9,
-          "margin": 29.0,
-          "profit_amt": 800.76,
-          "profit_pct": 8.5
+          "date": "2026-09-14",
+          "pay": 1261.25,
+          "ship": 1701.97,
+          "margin": 22.6,
+          "profit_amt": 384.65,
+          "profit_pct": 3.1
         }
       },
       "ad_roi": {
@@ -6087,6 +6313,10 @@
             {
               "date": "2026-09-13",
               "pay": 1520.06
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 1338.36
             }
           ],
           "type": "stable",
@@ -6145,6 +6375,10 @@
             {
               "date": "2026-09-13",
               "pay": 2739.54
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 1261.25
             }
           ],
           "type": "stable",
@@ -6163,18 +6397,18 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 32.3,
-          "profit_wow": 210.4,
-          "volatility": 2.92,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 4.3,
+          "profit_wow": 139.2,
+          "volatility": 2.63,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 34.9,
-          "profit_wow": 110.3,
-          "volatility": 13.4,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 3.3,
+          "profit_wow": 43.2,
+          "volatility": 18.74,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
@@ -6183,18 +6417,12 @@
           "total": 30
         },
         "天猫": {
-          "rank": 9,
+          "rank": 11,
           "total": 34
         }
       },
-      "avg_margin": -0.5,
-      "ship_status": {
-        "pay_orders": 149,
-        "ship_orders": 127,
-        "unshipped_orders": 22,
-        "pay": 4259.6,
-        "ship": 4167.62
-      }
+      "avg_margin": 0.7,
+      "ship_status": null
     },
     {
       "name": "待分配",
@@ -6203,7 +6431,72 @@
         "拼多多"
       ],
       "profit_daily": {
+        "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 30.0,
+            "ship": 30.0,
+            "margin": 26.1,
+            "profit_amt": 7.83
+          },
+          {
+            "date": "2026-09-12",
+            "pay": 4.0,
+            "ship": 4.0,
+            "margin": -674.6,
+            "profit_amt": -26.98
+          },
+          {
+            "date": "2026-09-10",
+            "pay": 17.0,
+            "ship": 17.0,
+            "margin": -31.5,
+            "profit_amt": -5.36
+          },
+          {
+            "date": "2026-09-07",
+            "pay": 13.23,
+            "ship": 13.23,
+            "margin": -133.6,
+            "profit_amt": -17.67
+          },
+          {
+            "date": "2026-09-05",
+            "pay": 2.0,
+            "ship": 2.0,
+            "margin": -1389.4,
+            "profit_amt": -27.79
+          },
+          {
+            "date": "2026-09-04",
+            "pay": 0.0,
+            "ship": 8.8,
+            "margin": -98.7,
+            "profit_amt": -8.68
+          },
+          {
+            "date": "2026-09-03",
+            "pay": 13.8,
+            "ship": 5.0,
+            "margin": -676.6,
+            "profit_amt": -33.83
+          },
+          {
+            "date": "2026-09-02",
+            "pay": 5.0,
+            "ship": 5.0,
+            "margin": -529.2,
+            "profit_amt": -26.46
+          }
+        ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 486.0,
+            "ship": 427.0,
+            "margin": 46.6,
+            "profit_amt": 199.09
+          },
           {
             "date": "2026-09-13",
             "pay": 332.9,
@@ -6288,75 +6581,24 @@
             "margin": 66.6,
             "profit_amt": 894.54
           }
-        ],
-        "拼多多": [
-          {
-            "date": "2026-09-12",
-            "pay": 4.0,
-            "ship": 4.0,
-            "margin": -674.6,
-            "profit_amt": -26.98
-          },
-          {
-            "date": "2026-09-10",
-            "pay": 17.0,
-            "ship": 17.0,
-            "margin": -31.5,
-            "profit_amt": -5.36
-          },
-          {
-            "date": "2026-09-07",
-            "pay": 13.23,
-            "ship": 13.23,
-            "margin": -133.6,
-            "profit_amt": -17.67
-          },
-          {
-            "date": "2026-09-05",
-            "pay": 2.0,
-            "ship": 2.0,
-            "margin": -1389.4,
-            "profit_amt": -27.79
-          },
-          {
-            "date": "2026-09-04",
-            "pay": 0.0,
-            "ship": 8.8,
-            "margin": -98.7,
-            "profit_amt": -8.68
-          },
-          {
-            "date": "2026-09-03",
-            "pay": 13.8,
-            "ship": 5.0,
-            "margin": -676.6,
-            "profit_amt": -33.83
-          },
-          {
-            "date": "2026-09-02",
-            "pay": 5.0,
-            "ship": 5.0,
-            "margin": -529.2,
-            "profit_amt": -26.46
-          }
         ]
       },
       "latest_profit": {
-        "天猫": {
-          "date": "2026-09-13",
-          "pay": 332.9,
-          "ship": 93.8,
-          "margin": 60.9,
-          "profit_amt": 57.12,
-          "profit_pct": 0.6
-        },
         "拼多多": {
-          "date": "2026-09-12",
-          "pay": 4.0,
-          "ship": 4.0,
-          "margin": -674.6,
-          "profit_amt": -26.98,
-          "profit_pct": -1.7
+          "date": "2026-09-14",
+          "pay": 30.0,
+          "ship": 30.0,
+          "margin": 26.1,
+          "profit_amt": 7.83,
+          "profit_pct": 0.2
+        },
+        "天猫": {
+          "date": "2026-09-14",
+          "pay": 486.0,
+          "ship": 427.0,
+          "margin": 46.6,
+          "profit_amt": 199.09,
+          "profit_pct": 1.6
         }
       },
       "ad_roi": null,
@@ -6390,6 +6632,10 @@
             {
               "date": "2026-09-12",
               "pay": 4.0
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 30.0
             }
           ],
           "type": "stable",
@@ -6444,6 +6690,10 @@
             {
               "date": "2026-09-13",
               "pay": 332.9
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 486.0
             }
           ],
           "type": "stable",
@@ -6461,32 +6711,32 @@
         }
       },
       "wow": {
-        "天猫": {
-          "pay_wow": 38.6,
-          "profit_wow": -2.6,
-          "volatility": 0.49,
-          "data_points": 12,
-          "date_range": "2026-09-02 ~ 2026-09-13"
-        },
         "拼多多": {
-          "pay_wow": null,
-          "profit_wow": null,
-          "volatility": 0.88,
-          "data_points": 7,
-          "date_range": "2026-09-02 ~ 2026-09-12"
+          "pay_wow": 1500.6,
+          "profit_wow": 325.1,
+          "volatility": 1.02,
+          "data_points": 8,
+          "date_range": "2026-09-02 ~ 2026-09-14"
+        },
+        "天猫": {
+          "pay_wow": 14.7,
+          "profit_wow": -51.6,
+          "volatility": 0.48,
+          "data_points": 13,
+          "date_range": "2026-09-02 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 27,
+          "rank": 18,
           "total": 30
         },
         "天猫": {
-          "rank": 18,
+          "rank": 15,
           "total": 34
         }
       },
-      "avg_margin": -153.9,
+      "avg_margin": -135.8,
       "ship_status": null
     },
     {
@@ -6496,37 +6746,14 @@
         "拼多多"
       ],
       "profit_daily": {
-        "拼多多": [
-          {
-            "date": "2026-09-13",
-            "pay": 0.0,
-            "ship": 533.75,
-            "margin": 68.6,
-            "profit_amt": 366.04
-          },
-          {
-            "date": "2026-09-12",
-            "pay": 533.75,
-            "ship": 0.0,
-            "margin": null,
-            "profit_amt": 0.0
-          },
-          {
-            "date": "2026-09-08",
-            "pay": 0.0,
-            "ship": 140.28,
-            "margin": 67.7,
-            "profit_amt": 94.97
-          },
-          {
-            "date": "2026-09-07",
-            "pay": 140.28,
-            "ship": 0.0,
-            "margin": null,
-            "profit_amt": 0.0
-          }
-        ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 1364.88,
+            "ship": 1755.12,
+            "margin": 16.8,
+            "profit_amt": 294.81
+          },
           {
             "date": "2026-09-13",
             "pay": 1541.62,
@@ -6618,9 +6845,47 @@
             "margin": 24.9,
             "profit_amt": 368.33
           }
+        ],
+        "拼多多": [
+          {
+            "date": "2026-09-13",
+            "pay": 0.0,
+            "ship": 533.75,
+            "margin": 68.6,
+            "profit_amt": 366.04
+          },
+          {
+            "date": "2026-09-12",
+            "pay": 533.75,
+            "ship": 0.0,
+            "margin": null,
+            "profit_amt": 0.0
+          },
+          {
+            "date": "2026-09-08",
+            "pay": 0.0,
+            "ship": 140.28,
+            "margin": 67.7,
+            "profit_amt": 94.97
+          },
+          {
+            "date": "2026-09-07",
+            "pay": 140.28,
+            "ship": 0.0,
+            "margin": null,
+            "profit_amt": 0.0
+          }
         ]
       },
       "latest_profit": {
+        "天猫": {
+          "date": "2026-09-14",
+          "pay": 1364.88,
+          "ship": 1755.12,
+          "margin": 16.8,
+          "profit_amt": 294.81,
+          "profit_pct": 2.4
+        },
         "拼多多": {
           "date": "2026-09-13",
           "pay": 0.0,
@@ -6628,14 +6893,6 @@
           "margin": 68.6,
           "profit_amt": 366.04,
           "profit_pct": 7.1
-        },
-        "天猫": {
-          "date": "2026-09-13",
-          "pay": 1541.62,
-          "ship": 923.25,
-          "margin": -59.0,
-          "profit_amt": -544.76,
-          "profit_pct": -5.8
         }
       },
       "ad_roi": null,
@@ -6715,6 +6972,10 @@
             {
               "date": "2026-09-13",
               "pay": 1541.62
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 1364.88
             }
           ],
           "type": "stable",
@@ -6732,19 +6993,19 @@
         }
       },
       "wow": {
+        "天猫": {
+          "pay_wow": 69.8,
+          "profit_wow": 33.5,
+          "volatility": 3.61,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
+        },
         "拼多多": {
           "pay_wow": null,
           "profit_wow": null,
           "volatility": null,
           "data_points": 4,
           "date_range": "2026-09-07 ~ 2026-09-13"
-        },
-        "天猫": {
-          "pay_wow": 108.7,
-          "profit_wow": 108.8,
-          "volatility": 3.49,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
         }
       },
       "ranking": {
@@ -6757,7 +7018,7 @@
           "total": 34
         }
       },
-      "avg_margin": 265.6,
+      "avg_margin": 250.1,
       "ship_status": null
     },
     {
@@ -6767,6 +7028,13 @@
       ],
       "profit_daily": {
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 443.8,
+            "ship": 894.22,
+            "margin": 24.2,
+            "profit_amt": 216.38
+          },
           {
             "date": "2026-09-13",
             "pay": 1054.78,
@@ -6862,12 +7130,12 @@
       },
       "latest_profit": {
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 1054.78,
-          "ship": 719.23,
-          "margin": 2.4,
-          "profit_amt": 17.25,
-          "profit_pct": 0.2
+          "date": "2026-09-14",
+          "pay": 443.8,
+          "ship": 894.22,
+          "margin": 24.2,
+          "profit_amt": 216.38,
+          "profit_pct": 1.8
         }
       },
       "ad_roi": null,
@@ -6925,6 +7193,10 @@
             {
               "date": "2026-09-13",
               "pay": 1054.78
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 443.8
             }
           ],
           "type": "stable",
@@ -6939,27 +7211,21 @@
       },
       "wow": {
         "天猫": {
-          "pay_wow": 30.2,
-          "profit_wow": 1.0,
-          "volatility": 0.64,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -1.6,
+          "profit_wow": -50.5,
+          "volatility": 0.61,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "天猫": {
-          "rank": 13,
+          "rank": 16,
           "total": 34
         }
       },
-      "avg_margin": 22.6,
-      "ship_status": {
-        "pay_orders": 36,
-        "ship_orders": 24,
-        "unshipped_orders": 12,
-        "pay": 1054.78,
-        "ship": 719.23
-      }
+      "avg_margin": 22.8,
+      "ship_status": null
     },
     {
       "name": "新年小窗花",
@@ -6968,6 +7234,13 @@
       ],
       "profit_daily": {
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 0.0,
+            "ship": 17.43,
+            "margin": 25.5,
+            "profit_amt": 4.44
+          },
           {
             "date": "2026-09-13",
             "pay": 17.43,
@@ -7000,11 +7273,11 @@
       },
       "latest_profit": {
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 17.43,
-          "ship": 0.0,
-          "margin": null,
-          "profit_amt": 0.0,
+          "date": "2026-09-14",
+          "pay": 0.0,
+          "ship": 17.43,
+          "margin": 25.5,
+          "profit_amt": 4.44,
           "profit_pct": 0.0
         }
       },
@@ -7027,6 +7300,10 @@
             {
               "date": "2026-09-13",
               "pay": 17.43
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 0.0
             }
           ],
           "type": "stable",
@@ -7043,18 +7320,18 @@
         "天猫": {
           "pay_wow": null,
           "profit_wow": null,
-          "volatility": 2.01,
-          "data_points": 4,
-          "date_range": "2026-09-02 ~ 2026-09-13"
+          "volatility": 4.41,
+          "data_points": 5,
+          "date_range": "2026-09-02 ~ 2026-09-14"
         }
       },
       "ranking": {
         "天猫": {
-          "rank": 29,
+          "rank": 32,
           "total": 34
         }
       },
-      "avg_margin": -21.3,
+      "avg_margin": -9.6,
       "ship_status": null
     },
     {
@@ -7065,6 +7342,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 7116.55,
+            "ship": 7930.08,
+            "margin": 4.4,
+            "profit_amt": 351.86
+          },
           {
             "date": "2026-09-13",
             "pay": 8346.65,
@@ -7158,6 +7442,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 2429.26,
+            "ship": 2772.2,
+            "margin": 20.9,
+            "profit_amt": 580.38
+          },
           {
             "date": "2026-09-13",
             "pay": 2839.35,
@@ -7253,20 +7544,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 8346.65,
-          "ship": 8348.54,
-          "margin": 6.8,
-          "profit_amt": 565.05,
-          "profit_pct": 11.0
+          "date": "2026-09-14",
+          "pay": 7116.55,
+          "ship": 7930.08,
+          "margin": 4.4,
+          "profit_amt": 351.86,
+          "profit_pct": 10.5
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 2839.35,
-          "ship": 2450.7,
-          "margin": 6.1,
-          "profit_amt": 149.45,
-          "profit_pct": 1.6
+          "date": "2026-09-14",
+          "pay": 2429.26,
+          "ship": 2772.2,
+          "margin": 20.9,
+          "profit_amt": 580.38,
+          "profit_pct": 4.7
         }
       },
       "ad_roi": {
@@ -7481,6 +7772,10 @@
             {
               "date": "2026-09-13",
               "pay": 8346.65
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 7116.55
             }
           ],
           "type": "stable",
@@ -7539,6 +7834,10 @@
             {
               "date": "2026-09-13",
               "pay": 2839.35
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 2429.26
             }
           ],
           "type": "stable",
@@ -7557,18 +7856,18 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 18.6,
-          "profit_wow": 0.3,
-          "volatility": 4.55,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 3.7,
+          "profit_wow": -27.8,
+          "volatility": 3.82,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 19.3,
-          "profit_wow": 23.9,
-          "volatility": 0.59,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -9.5,
+          "profit_wow": -19.6,
+          "volatility": 0.57,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
@@ -7577,18 +7876,12 @@
           "total": 30
         },
         "天猫": {
-          "rank": 8,
+          "rank": 6,
           "total": 34
         }
       },
-      "avg_margin": 9.1,
-      "ship_status": {
-        "pay_orders": 793,
-        "ship_orders": 695,
-        "unshipped_orders": 98,
-        "pay": 11186.0,
-        "ship": 10799.24
-      }
+      "avg_margin": 9.4,
+      "ship_status": null
     },
     {
       "name": "木纹贴纸",
@@ -7598,6 +7891,13 @@
       ],
       "profit_daily": {
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 17.45,
+            "ship": 24.33,
+            "margin": 6.9,
+            "profit_amt": 1.67
+          },
           {
             "date": "2026-09-13",
             "pay": 76.71,
@@ -7695,12 +7995,12 @@
       },
       "latest_profit": {
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 76.71,
-          "ship": 93.86,
-          "margin": 39.8,
-          "profit_amt": 37.37,
-          "profit_pct": 0.4
+          "date": "2026-09-14",
+          "pay": 17.45,
+          "ship": 24.33,
+          "margin": 6.9,
+          "profit_amt": 1.67,
+          "profit_pct": 0.0
         },
         "拼多多": {
           "date": "2026-09-06",
@@ -7762,6 +8062,10 @@
             {
               "date": "2026-09-13",
               "pay": 76.71
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 17.45
             }
           ],
           "type": "stable",
@@ -7776,11 +8080,11 @@
       },
       "wow": {
         "天猫": {
-          "pay_wow": 24.0,
-          "profit_wow": -159.9,
-          "volatility": 1.59,
-          "data_points": 12,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -8.4,
+          "profit_wow": -157.2,
+          "volatility": 1.71,
+          "data_points": 13,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "拼多多": {
           "pay_wow": null,
@@ -7792,15 +8096,15 @@
       },
       "ranking": {
         "拼多多": {
-          "rank": 23,
+          "rank": 22,
           "total": 30
         },
         "天猫": {
-          "rank": 25,
+          "rank": 29,
           "total": 34
         }
       },
-      "avg_margin": -34.3,
+      "avg_margin": -31.4,
       "ship_status": null
     },
     {
@@ -7810,6 +8114,13 @@
       ],
       "profit_daily": {
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 68.49,
+            "ship": 252.08,
+            "margin": 55.1,
+            "profit_amt": 138.87
+          },
           {
             "date": "2026-09-13",
             "pay": 236.99,
@@ -7877,12 +8188,12 @@
       },
       "latest_profit": {
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 236.99,
-          "ship": 53.4,
-          "margin": -6.1,
-          "profit_amt": -3.28,
-          "profit_pct": -0.0
+          "date": "2026-09-14",
+          "pay": 68.49,
+          "ship": 252.08,
+          "margin": 55.1,
+          "profit_amt": 138.87,
+          "profit_pct": 1.1
         }
       },
       "ad_roi": null,
@@ -7924,6 +8235,10 @@
             {
               "date": "2026-09-13",
               "pay": 236.99
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 68.49
             }
           ],
           "type": "stable",
@@ -7938,20 +8253,20 @@
       },
       "wow": {
         "天猫": {
-          "pay_wow": 185.4,
-          "profit_wow": 50.0,
-          "volatility": 0.56,
-          "data_points": 9,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 71.2,
+          "profit_wow": 98.3,
+          "volatility": 0.52,
+          "data_points": 10,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "天猫": {
-          "rank": 21,
+          "rank": 22,
           "total": 34
         }
       },
-      "avg_margin": 32.9,
+      "avg_margin": 35.7,
       "ship_status": null
     },
     {
@@ -7962,6 +8277,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 114.39,
+            "ship": 83.96,
+            "margin": -9.3,
+            "profit_amt": -7.8
+          },
           {
             "date": "2026-09-13",
             "pay": 82.32,
@@ -8055,6 +8377,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 2094.79,
+            "ship": 2485.77,
+            "margin": 9.7,
+            "profit_amt": 241.19
+          },
           {
             "date": "2026-09-13",
             "pay": 2914.48,
@@ -8150,20 +8479,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 82.32,
-          "ship": 60.14,
-          "margin": 6.5,
-          "profit_amt": 3.93,
-          "profit_pct": 0.1
+          "date": "2026-09-14",
+          "pay": 114.39,
+          "ship": 83.96,
+          "margin": -9.3,
+          "profit_amt": -7.8,
+          "profit_pct": -0.2
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 2914.48,
-          "ship": 2998.65,
-          "margin": 19.8,
-          "profit_amt": 595.17,
-          "profit_pct": 6.3
+          "date": "2026-09-14",
+          "pay": 2094.79,
+          "ship": 2485.77,
+          "margin": 9.7,
+          "profit_amt": 241.19,
+          "profit_pct": 2.0
         }
       },
       "ad_roi": {
@@ -8378,6 +8707,10 @@
             {
               "date": "2026-09-13",
               "pay": 82.32
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 114.39
             }
           ],
           "type": "stable",
@@ -8436,6 +8769,10 @@
             {
               "date": "2026-09-13",
               "pay": 2914.48
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 2094.79
             }
           ],
           "type": "stable",
@@ -8454,31 +8791,31 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 67.4,
-          "profit_wow": 149.6,
-          "volatility": 6.13,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 18.9,
+          "profit_wow": 43.3,
+          "volatility": 7.48,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 16.4,
-          "profit_wow": -0.1,
-          "volatility": 1.06,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -14.9,
+          "profit_wow": -28.1,
+          "volatility": 1.05,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 14,
+          "rank": 12,
           "total": 30
         },
         "天猫": {
-          "rank": 7,
+          "rank": 8,
           "total": 34
         }
       },
-      "avg_margin": 10.0,
+      "avg_margin": 9.3,
       "ship_status": null
     },
     {
@@ -8596,6 +8933,13 @@
       "profit_daily": {
         "拼多多": [
           {
+            "date": "2026-09-14",
+            "pay": 172.78,
+            "ship": 205.47,
+            "margin": 46.9,
+            "profit_amt": 96.33
+          },
+          {
             "date": "2026-09-13",
             "pay": 530.28,
             "ship": 399.91,
@@ -8690,12 +9034,12 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 530.28,
-          "ship": 399.91,
-          "margin": 31.3,
-          "profit_amt": 125.04,
-          "profit_pct": 2.4
+          "date": "2026-09-14",
+          "pay": 172.78,
+          "ship": 205.47,
+          "margin": 46.9,
+          "profit_amt": 96.33,
+          "profit_pct": 2.9
         }
       },
       "ad_roi": null,
@@ -8753,6 +9097,10 @@
             {
               "date": "2026-09-13",
               "pay": 530.28
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 172.78
             }
           ],
           "type": "stable",
@@ -8767,11 +9115,11 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": -10.8,
-          "profit_wow": 4.7,
-          "volatility": 1.12,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -32.9,
+          "profit_wow": -4.5,
+          "volatility": 1.04,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
@@ -8780,13 +9128,13 @@
           "total": 30
         }
       },
-      "avg_margin": 20.7,
+      "avg_margin": 22.6,
       "ship_status": {
-        "pay_orders": 18,
-        "ship_orders": 12,
-        "unshipped_orders": 6,
-        "pay": 530.28,
-        "ship": 399.91
+        "pay_orders": 23,
+        "ship_orders": 14,
+        "unshipped_orders": 9,
+        "pay": 172.78,
+        "ship": 205.47
       }
     },
     {
@@ -8940,6 +9288,13 @@
       "profit_daily": {
         "拼多多": [
           {
+            "date": "2026-09-14",
+            "pay": 3193.21,
+            "ship": 3290.84,
+            "margin": 14.8,
+            "profit_amt": 486.06
+          },
+          {
             "date": "2026-09-13",
             "pay": 3949.59,
             "ship": 3872.02,
@@ -9032,6 +9387,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 96.79,
+            "ship": 105.89,
+            "margin": 14.5,
+            "profit_amt": 15.32
+          },
           {
             "date": "2026-09-13",
             "pay": 273.17,
@@ -9127,20 +9489,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 3949.59,
-          "ship": 3872.02,
-          "margin": 16.4,
-          "profit_amt": 635.83,
-          "profit_pct": 12.4
+          "date": "2026-09-14",
+          "pay": 3193.21,
+          "ship": 3290.84,
+          "margin": 14.8,
+          "profit_amt": 486.06,
+          "profit_pct": 14.5
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 273.17,
-          "ship": 181.18,
-          "margin": 19.1,
-          "profit_amt": 34.59,
-          "profit_pct": 0.4
+          "date": "2026-09-14",
+          "pay": 96.79,
+          "ship": 105.89,
+          "margin": 14.5,
+          "profit_amt": 15.32,
+          "profit_pct": 0.1
         }
       },
       "ad_roi": {
@@ -9355,6 +9717,10 @@
             {
               "date": "2026-09-13",
               "pay": 3949.59
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 3193.21
             }
           ],
           "type": "stable",
@@ -9413,6 +9779,10 @@
             {
               "date": "2026-09-13",
               "pay": 273.17
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 96.79
             }
           ],
           "type": "stable",
@@ -9431,18 +9801,18 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 34.7,
-          "profit_wow": 86.1,
-          "volatility": 0.46,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 10.2,
+          "profit_wow": 24.0,
+          "volatility": 0.44,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 44.8,
-          "profit_wow": 30.7,
-          "volatility": 0.49,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -17.9,
+          "profit_wow": 8.0,
+          "volatility": 0.51,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
@@ -9451,18 +9821,12 @@
           "total": 30
         },
         "天猫": {
-          "rank": 20,
+          "rank": 21,
           "total": 34
         }
       },
-      "avg_margin": 22.1,
-      "ship_status": {
-        "pay_orders": 267,
-        "ship_orders": 247,
-        "unshipped_orders": 20,
-        "pay": 4222.76,
-        "ship": 4053.2
-      }
+      "avg_margin": 21.6,
+      "ship_status": null
     },
     {
       "name": "烫金美边贴",
@@ -9472,6 +9836,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 0.0,
+            "ship": 23.2,
+            "margin": 56.4,
+            "profit_amt": 13.09
+          },
           {
             "date": "2026-09-13",
             "pay": 23.2,
@@ -9548,12 +9919,12 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 23.2,
-          "ship": 0.0,
-          "margin": null,
-          "profit_amt": 0.0,
-          "profit_pct": 0.0
+          "date": "2026-09-14",
+          "pay": 0.0,
+          "ship": 23.2,
+          "margin": 56.4,
+          "profit_amt": 13.09,
+          "profit_pct": 0.4
         },
         "天猫": {
           "date": "2026-09-12",
@@ -9579,6 +9950,10 @@
             {
               "date": "2026-09-13",
               "pay": 23.2
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 0.0
             }
           ],
           "type": "stable",
@@ -9633,9 +10008,9 @@
         "拼多多": {
           "pay_wow": null,
           "profit_wow": null,
-          "volatility": null,
-          "data_points": 3,
-          "date_range": "2026-09-06 ~ 2026-09-13"
+          "volatility": 0.1,
+          "data_points": 4,
+          "date_range": "2026-09-06 ~ 2026-09-14"
         },
         "天猫": {
           "pay_wow": null,
@@ -9647,7 +10022,7 @@
       },
       "ranking": {
         "拼多多": {
-          "rank": 21,
+          "rank": 25,
           "total": 30
         },
         "天猫": {
@@ -9655,7 +10030,7 @@
           "total": 34
         }
       },
-      "avg_margin": 15.1,
+      "avg_margin": 20.2,
       "ship_status": null
     },
     {
@@ -9910,6 +10285,13 @@
       "profit_daily": {
         "天猫": [
           {
+            "date": "2026-09-14",
+            "pay": -11.04,
+            "ship": 288.33,
+            "margin": -55.8,
+            "profit_amt": -161.0
+          },
+          {
             "date": "2026-09-13",
             "pay": 658.95,
             "ship": 1003.39,
@@ -10004,12 +10386,12 @@
       },
       "latest_profit": {
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 658.95,
-          "ship": 1003.39,
-          "margin": 20.9,
-          "profit_amt": 209.55,
-          "profit_pct": 2.2
+          "date": "2026-09-14",
+          "pay": -11.04,
+          "ship": 288.33,
+          "margin": -55.8,
+          "profit_amt": -161.0,
+          "profit_pct": -1.3
         }
       },
       "ad_roi": null,
@@ -10067,6 +10449,10 @@
             {
               "date": "2026-09-13",
               "pay": 658.95
+            },
+            {
+              "date": "2026-09-14",
+              "pay": -11.04
             }
           ],
           "type": "stable",
@@ -10081,20 +10467,20 @@
       },
       "wow": {
         "天猫": {
-          "pay_wow": 36.0,
-          "profit_wow": 26.0,
-          "volatility": 8.04,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -13.0,
+          "profit_wow": -9.2,
+          "volatility": 36.74,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "天猫": {
-          "rank": 15,
+          "rank": 34,
           "total": 34
         }
       },
-      "avg_margin": 3.4,
+      "avg_margin": -0.8,
       "ship_status": null
     },
     {
@@ -10268,11 +10654,11 @@
       },
       "ranking": {
         "拼多多": {
-          "rank": 16,
+          "rank": 15,
           "total": 30
         },
         "天猫": {
-          "rank": 23,
+          "rank": 18,
           "total": 34
         }
       },
@@ -10449,6 +10835,13 @@
       "profit_daily": {
         "天猫": [
           {
+            "date": "2026-09-14",
+            "pay": 2267.17,
+            "ship": 2407.02,
+            "margin": 16.1,
+            "profit_amt": 387.23
+          },
+          {
             "date": "2026-09-13",
             "pay": 3119.59,
             "ship": 3329.31,
@@ -10543,12 +10936,12 @@
       },
       "latest_profit": {
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 3119.59,
-          "ship": 3329.31,
-          "margin": 28.5,
-          "profit_amt": 949.03,
-          "profit_pct": 10.1
+          "date": "2026-09-14",
+          "pay": 2267.17,
+          "ship": 2407.02,
+          "margin": 16.1,
+          "profit_amt": 387.23,
+          "profit_pct": 3.2
         }
       },
       "ad_roi": null,
@@ -10606,6 +10999,10 @@
             {
               "date": "2026-09-13",
               "pay": 3119.59
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 2267.17
             }
           ],
           "type": "stable",
@@ -10620,27 +11017,21 @@
       },
       "wow": {
         "天猫": {
-          "pay_wow": 16.6,
-          "profit_wow": 46.8,
-          "volatility": 0.78,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -16.8,
+          "profit_wow": -5.9,
+          "volatility": 0.76,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "天猫": {
-          "rank": 6,
+          "rank": 7,
           "total": 34
         }
       },
-      "avg_margin": 20.2,
-      "ship_status": {
-        "pay_orders": 168,
-        "ship_orders": 160,
-        "unshipped_orders": 8,
-        "pay": 3119.59,
-        "ship": 3329.31
-      }
+      "avg_margin": 19.9,
+      "ship_status": null
     },
     {
       "name": "透明款(弱粘OPP)",
@@ -10650,6 +11041,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": -7.0,
+            "ship": 137.6,
+            "margin": 30.3,
+            "profit_amt": 41.65
+          },
           {
             "date": "2026-09-13",
             "pay": 347.86,
@@ -10743,6 +11141,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 5661.63,
+            "ship": 7756.53,
+            "margin": 25.0,
+            "profit_amt": 1938.75
+          },
           {
             "date": "2026-09-13",
             "pay": 8259.5,
@@ -10838,20 +11243,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 347.86,
-          "ship": 244.26,
-          "margin": 55.7,
-          "profit_amt": 136.12,
-          "profit_pct": 2.6
+          "date": "2026-09-14",
+          "pay": -7.0,
+          "ship": 137.6,
+          "margin": 30.3,
+          "profit_amt": 41.65,
+          "profit_pct": 1.2
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 8259.5,
-          "ship": 7433.99,
-          "margin": 15.2,
-          "profit_amt": 1132.3,
-          "profit_pct": 12.1
+          "date": "2026-09-14",
+          "pay": 5661.63,
+          "ship": 7756.53,
+          "margin": 25.0,
+          "profit_amt": 1938.75,
+          "profit_pct": 15.9
         }
       },
       "ad_roi": {
@@ -11066,6 +11471,10 @@
             {
               "date": "2026-09-13",
               "pay": 347.86
+            },
+            {
+              "date": "2026-09-14",
+              "pay": -7.0
             }
           ],
           "type": "stable",
@@ -11124,6 +11533,10 @@
             {
               "date": "2026-09-13",
               "pay": 8259.5
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 5661.63
             }
           ],
           "type": "stable",
@@ -11142,23 +11555,23 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": -17.0,
-          "profit_wow": 8.3,
-          "volatility": 5.07,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -42.9,
+          "profit_wow": -20.7,
+          "volatility": 4.21,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": 34.0,
-          "profit_wow": 45.8,
-          "volatility": 0.48,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 2.7,
+          "profit_wow": -32.4,
+          "volatility": 0.45,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
         "拼多多": {
-          "rank": 12,
+          "rank": 30,
           "total": 30
         },
         "天猫": {
@@ -11166,14 +11579,8 @@
           "total": 34
         }
       },
-      "avg_margin": 14.9,
-      "ship_status": {
-        "pay_orders": 284,
-        "ship_orders": 244,
-        "unshipped_orders": 40,
-        "pay": 8607.36,
-        "ship": 7678.25
-      }
+      "avg_margin": 15.8,
+      "ship_status": null
     },
     {
       "name": "铝箔隔热棉",
@@ -11297,7 +11704,7 @@
       },
       "ranking": {
         "拼多多": {
-          "rank": 22,
+          "rank": 21,
           "total": 30
         }
       },
@@ -11312,6 +11719,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 0.0,
+            "ship": 13.34,
+            "margin": 63.6,
+            "profit_amt": 8.49
+          },
           {
             "date": "2026-09-13",
             "pay": 13.34,
@@ -11409,12 +11823,12 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 13.34,
-          "ship": 0.0,
-          "margin": null,
-          "profit_amt": 0.0,
-          "profit_pct": 0.0
+          "date": "2026-09-14",
+          "pay": 0.0,
+          "ship": 13.34,
+          "margin": 63.6,
+          "profit_amt": 8.49,
+          "profit_pct": 0.3
         },
         "天猫": {
           "date": "2026-09-11",
@@ -11617,6 +12031,10 @@
             {
               "date": "2026-09-13",
               "pay": 13.34
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 0.0
             }
           ],
           "type": "stable",
@@ -11661,11 +12079,11 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": null,
-          "profit_wow": 1315.5,
-          "volatility": 1.04,
-          "data_points": 8,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 359.6,
+          "profit_wow": 690.0,
+          "volatility": 0.9,
+          "data_points": 9,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
           "pay_wow": null,
@@ -11677,15 +12095,15 @@
       },
       "ranking": {
         "拼多多": {
-          "rank": 24,
+          "rank": 27,
           "total": 30
         },
         "天猫": {
-          "rank": 32,
+          "rank": 31,
           "total": 34
         }
       },
-      "avg_margin": 51.1,
+      "avg_margin": 52.3,
       "ship_status": null
     },
     {
@@ -11696,6 +12114,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 49.6,
+            "ship": 22.8,
+            "margin": 47.7,
+            "profit_amt": 10.87
+          },
           {
             "date": "2026-09-11",
             "pay": 0.0,
@@ -11758,12 +12183,12 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-11",
-          "pay": 0.0,
-          "ship": 6.94,
-          "margin": -26.3,
-          "profit_amt": -1.83,
-          "profit_pct": -0.1
+          "date": "2026-09-14",
+          "pay": 49.6,
+          "ship": 22.8,
+          "margin": 47.7,
+          "profit_amt": 10.87,
+          "profit_pct": 0.3
         },
         "天猫": {
           "date": "2026-09-06",
@@ -11962,6 +12387,10 @@
             {
               "date": "2026-09-11",
               "pay": 0.0
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 49.6
             }
           ],
           "type": "stable",
@@ -11976,11 +12405,11 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": null,
-          "profit_wow": null,
-          "volatility": 5.41,
-          "data_points": 7,
-          "date_range": "2026-09-02 ~ 2026-09-11"
+          "pay_wow": 600.1,
+          "profit_wow": 716.3,
+          "volatility": 17.53,
+          "data_points": 8,
+          "date_range": "2026-09-02 ~ 2026-09-14"
         },
         "天猫": {
           "pay_wow": null,
@@ -11992,15 +12421,15 @@
       },
       "ranking": {
         "拼多多": {
-          "rank": 30,
+          "rank": 14,
           "total": 30
         },
         "天猫": {
-          "rank": 26,
+          "rank": 24,
           "total": 34
         }
       },
-      "avg_margin": 7.3,
+      "avg_margin": 13.1,
       "ship_status": null
     },
     {
@@ -12011,6 +12440,13 @@
       ],
       "profit_daily": {
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 23.99,
+            "ship": 36.43,
+            "margin": 49.6,
+            "profit_amt": 18.06
+          },
           {
             "date": "2026-09-13",
             "pay": 36.43,
@@ -12087,12 +12523,12 @@
       },
       "latest_profit": {
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 36.43,
-          "ship": 0.0,
-          "margin": null,
-          "profit_amt": 0.0,
-          "profit_pct": 0.0
+          "date": "2026-09-14",
+          "pay": 23.99,
+          "ship": 36.43,
+          "margin": 49.6,
+          "profit_amt": 18.06,
+          "profit_pct": 0.1
         },
         "拼多多": {
           "date": "2026-09-09",
@@ -12152,6 +12588,10 @@
             {
               "date": "2026-09-13",
               "pay": 36.43
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 23.99
             }
           ],
           "type": "stable",
@@ -12170,11 +12610,11 @@
       },
       "wow": {
         "天猫": {
-          "pay_wow": null,
-          "profit_wow": null,
-          "volatility": 0.14,
-          "data_points": 7,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": 485.0,
+          "profit_wow": 361.0,
+          "volatility": 0.13,
+          "data_points": 8,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "拼多多": {
           "pay_wow": null,
@@ -12194,7 +12634,7 @@
           "total": 34
         }
       },
-      "avg_margin": 56.9,
+      "avg_margin": 55.9,
       "ship_status": null
     },
     {
@@ -12205,6 +12645,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 6528.85,
+            "ship": 6394.18,
+            "margin": 3.9,
+            "profit_amt": 249.8
+          },
           {
             "date": "2026-09-13",
             "pay": 6384.2,
@@ -12298,6 +12745,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 2494.37,
+            "ship": 3428.66,
+            "margin": 16.9,
+            "profit_amt": 578.22
+          },
           {
             "date": "2026-09-13",
             "pay": 4036.35,
@@ -12393,20 +12847,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 6384.2,
-          "ship": 6479.38,
-          "margin": 18.1,
-          "profit_amt": 1174.84,
-          "profit_pct": 22.8
+          "date": "2026-09-14",
+          "pay": 6528.85,
+          "ship": 6394.18,
+          "margin": 3.9,
+          "profit_amt": 249.8,
+          "profit_pct": 7.4
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 4036.35,
-          "ship": 2940.41,
-          "margin": 1.8,
-          "profit_amt": 54.2,
-          "profit_pct": 0.6
+          "date": "2026-09-14",
+          "pay": 2494.37,
+          "ship": 3428.66,
+          "margin": 16.9,
+          "profit_amt": 578.22,
+          "profit_pct": 4.7
         }
       },
       "ad_roi": {
@@ -12621,6 +13075,10 @@
             {
               "date": "2026-09-13",
               "pay": 6384.2
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 6528.85
             }
           ],
           "type": "stable",
@@ -12679,6 +13137,10 @@
             {
               "date": "2026-09-13",
               "pay": 4036.35
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 2494.37
             }
           ],
           "type": "stable",
@@ -12697,18 +13159,18 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": -18.2,
-          "profit_wow": -57.8,
-          "volatility": 2.56,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -29.9,
+          "profit_wow": -55.2,
+          "volatility": 2.49,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": -8.3,
-          "profit_wow": -74.5,
-          "volatility": 4.04,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -23.7,
+          "profit_wow": -83.0,
+          "volatility": 3.49,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
@@ -12717,17 +13179,17 @@
           "total": 30
         },
         "天猫": {
-          "rank": 4,
+          "rank": 5,
           "total": 34
         }
       },
-      "avg_margin": 5.3,
+      "avg_margin": 5.6,
       "ship_status": {
-        "pay_orders": 558,
-        "ship_orders": 505,
-        "unshipped_orders": 53,
-        "pay": 10420.55,
-        "ship": 9419.79
+        "pay_orders": 532,
+        "ship_orders": 501,
+        "unshipped_orders": 31,
+        "pay": 9023.22,
+        "ship": 9822.84
       }
     },
     {
@@ -12738,6 +13200,13 @@
       ],
       "profit_daily": {
         "拼多多": [
+          {
+            "date": "2026-09-14",
+            "pay": 9322.3,
+            "ship": 9230.47,
+            "margin": 4.2,
+            "profit_amt": 383.22
+          },
           {
             "date": "2026-09-13",
             "pay": 9937.28,
@@ -12831,6 +13300,13 @@
           }
         ],
         "天猫": [
+          {
+            "date": "2026-09-14",
+            "pay": 136.6,
+            "ship": 133.82,
+            "margin": 26.8,
+            "profit_amt": 35.87
+          },
           {
             "date": "2026-09-13",
             "pay": 178.11,
@@ -12926,20 +13402,20 @@
       },
       "latest_profit": {
         "拼多多": {
-          "date": "2026-09-13",
-          "pay": 9937.28,
-          "ship": 9736.62,
-          "margin": 4.1,
-          "profit_amt": 401.28,
-          "profit_pct": 7.8
+          "date": "2026-09-14",
+          "pay": 9322.3,
+          "ship": 9230.47,
+          "margin": 4.2,
+          "profit_amt": 383.22,
+          "profit_pct": 11.4
         },
         "天猫": {
-          "date": "2026-09-13",
-          "pay": 178.11,
-          "ship": 212.77,
-          "margin": 23.2,
-          "profit_amt": 49.34,
-          "profit_pct": 0.5
+          "date": "2026-09-14",
+          "pay": 136.6,
+          "ship": 133.82,
+          "margin": 26.8,
+          "profit_amt": 35.87,
+          "profit_pct": 0.3
         }
       },
       "ad_roi": {
@@ -13154,6 +13630,10 @@
             {
               "date": "2026-09-13",
               "pay": 9937.28
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 9322.3
             }
           ],
           "type": "stable",
@@ -13212,6 +13692,10 @@
             {
               "date": "2026-09-13",
               "pay": 178.11
+            },
+            {
+              "date": "2026-09-14",
+              "pay": 136.6
             }
           ],
           "type": "stable",
@@ -13230,18 +13714,18 @@
       },
       "wow": {
         "拼多多": {
-          "pay_wow": 17.4,
-          "profit_wow": 9.0,
-          "volatility": 1.84,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -1.9,
+          "profit_wow": 4.1,
+          "volatility": 1.76,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         },
         "天猫": {
-          "pay_wow": -23.2,
-          "profit_wow": -50.9,
-          "volatility": 2.24,
-          "data_points": 13,
-          "date_range": "2026-09-01 ~ 2026-09-13"
+          "pay_wow": -37.3,
+          "profit_wow": -41.5,
+          "volatility": 2.06,
+          "data_points": 14,
+          "date_range": "2026-09-01 ~ 2026-09-14"
         }
       },
       "ranking": {
@@ -13250,17 +13734,17 @@
           "total": 30
         },
         "天猫": {
-          "rank": 22,
+          "rank": 19,
           "total": 34
         }
       },
-      "avg_margin": 9.6,
+      "avg_margin": 10.0,
       "ship_status": {
-        "pay_orders": 946,
-        "ship_orders": 859,
-        "unshipped_orders": 87,
-        "pay": 10115.39,
-        "ship": 9949.39
+        "pay_orders": 873,
+        "ship_orders": 781,
+        "unshipped_orders": 92,
+        "pay": 9458.9,
+        "ship": 9364.29
       }
     }
   ],

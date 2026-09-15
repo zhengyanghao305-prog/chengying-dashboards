@@ -236,7 +236,9 @@ function weekInfo(dStr){ const m=natMonday(dStr); if(!m)return null;
   const sun=new Date(m); sun.setDate(m.getDate()+6);
   return {key:m.getFullYear()+'-'+(m.getMonth()+1)+'-'+m.getDate(), label:fmtMD(m)+'-'+fmtMD(sun), ts:m.getTime()}; }
 function pad2(x){ return String(x).padStart(2,'0'); }
-function winLabel(win,we){ const m=String(win||'').match(/(\d{4})\/(\d{1,2})\/(\d{1,2})\s*-\s*(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+function winLabel(win,we){
+  // 兼容两种分隔符：2026/08/28-2026/09/03 或 2026-08-26-2026/09/01
+  const m=String(win||'').match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\s*-\s*(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
   if(m) return pad2(m[2])+'/'+pad2(m[3])+'-'+pad2(m[5])+'/'+pad2(m[6]);
   const s=String(we||'').slice(5); return s; }
 

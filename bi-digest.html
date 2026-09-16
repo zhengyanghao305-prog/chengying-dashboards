@@ -244,6 +244,25 @@
   .rhandled{padding:6px 8px;border-top:1px dashed #f3c9cb;background:#fbfcfe;}
   .rhandled .lrow{opacity:.96;}
 
+  /* ── 由盈转亏 · 快速处理（运营是否已处理） ── */
+  .amtbar-view{margin:0 12px 6px;}
+  .amtbar-view .lab{color:#9f1239;}
+  .reg-state-todo .lrow{border-left:3px solid #fca5a5;}
+  .reg-state-done .lrow{opacity:.62;filter:saturate(.7);}
+  .r-handle{display:flex;flex-direction:column;align-items:flex-end;gap:5px;min-width:148px;}
+  .r-handle .hstat{font-size:11px;font-weight:700;padding:2px 8px;border-radius:9px;white-space:nowrap;}
+  .r-handle .hstat.todo{color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;}
+  .r-handle .hstat.done{color:#15803d;background:#dcfce7;border:1px solid #bbf7d0;}
+  .r-handle .qbtns{display:flex;gap:5px;align-items:center;}
+  .qbtn{font-size:11px;font-weight:700;color:#fff;background:#be123c;border:1px solid #be123c;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap;transition:filter .1s;}
+  .qbtn:hover{filter:brightness(1.08);}
+  .qbtn.primary{background:#be123c;}
+  .qbtn:active{transform:translateY(1px);}
+  .qsel{font-size:11px;color:#9f1239;background:#fff;border:1px solid #fca5a5;border-radius:8px;padding:3px 4px;cursor:pointer;max-width:104px;}
+  .qundo{font-size:11px;color:#9f1239;background:#fff;border:1px solid #fca5a5;border-radius:8px;padding:2px 7px;cursor:pointer;}
+  .qundo:hover{background:#fff1f2;}
+  .regress-card .r-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+
   /* ── 产品折叠 ── */
   .pgroup{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;overflow:hidden;}
   .pgroup .ghead{display:flex;align-items:center;gap:10px;padding:10px 15px;cursor:pointer;font-size:13px;font-weight:600;transition:background .12s;}
@@ -928,7 +947,7 @@ function bindBatch(host,pool){
   host.querySelectorAll('.arow[data-id],.lrow[data-id]').forEach(row=>{
     if(row.classList.contains('head'))return;
     row.addEventListener('click',(e)=>{
-      if(e.target.closest('.chk')||e.target.closest('.ostate'))return;  // checkbox/状态点击不展开
+      if(e.target.closest('.chk')||e.target.closest('.ostate')||e.target.closest('.qbtn')||e.target.closest('.qsel')||e.target.closest('.qundo'))return;  // checkbox/状态/快速处理点击不展开
       toggleTrend(row);
     });
   });
@@ -1117,10 +1136,13 @@ function renderBuckets(){
 
 /* ============ 利润回退 · 由盈转亏（赚的没之前多 / 变亏，按档位划分）============ */
 let REG_OPEN=new Set();   // 展开的档位键集合，如 'turned:0' / 'shrink:2' / 'turned:all'
-let REG_DACT='all';        // 由盈转亏 · 动作类型筛选（与 BI 分档卡片同设计）
+let REG_DACT='all';        // 由盈转亏 · 动作类型筛选（保留兼容，现已改用 REG_VIEW）
+let REG_VIEW='all';        // 由盈转亏 · 处理状态筛选（全部 / 未处理 / 已处理）
 let REG_FVIEW='all';       // 由盈转亏观察看板 · 处理状态筛选
 let REG_FOLLOW_COLLAPSED=false;   // 由盈转亏观察区折叠状态（持久化）
 try{ REG_FOLLOW_COLLAPSED = localStorage.getItem('bi_regfollow_collapsed')==='1'; }catch(e){}
+// 由盈转亏链接的「推荐快速处理动作」→ 映射到处理状态（点击即标记运营已处理）
+const REC_TO_STATE={A_del:'已下架',A_stop:'已停推广',B_fix:'已提投产',C_price:'已提价',D_struct:'已停推广',E_watch:'不处理',F_keep:'不处理',G_scale:'已提投产',G_prio:'已提价',G_care:'已停推广',G_keep:'不处理'};
 function regressData(){
   const cur=platRows();                         // 全量（含已处理）：用于「处理状态检查」
   const wi=DATA.windows.indexOf(WIN);
@@ -1149,51 +1171,69 @@ const REGRESS_TIERS=[
 function regressTiers(){
   const d=regressData(); if(!d) return null;
   const reg=d.reg;
-  const pending=reg.filter(r=>!r._handled);       // 待办回退（动作分档卡用）
-  const handled=reg.filter(r=>r._handled);         // 已处理回退（处理状态检查用）
+  const pending=reg.filter(r=>!r._handled);       // 待办回退（回退额合计用）
+  const handled=reg.filter(r=>r._handled);         // 已处理回退（回退额合计用）
   const tiers=REGRESS_TIERS.map(t=>({name:t.name, lo:t.lo, hi:t.hi,
-    list:pending.filter(r=> r._dpr!==null && r._dpr>t.lo && r._dpr<=t.hi).sort((a,b)=>b.s-a.s)}));
-  const other=pending.filter(r=> r._dpr===null || r._dpr<=0);  // 利润额下滑但利润率反升/缺值
+    list:reg.filter(r=> r._dpr!==null && r._dpr>t.lo && r._dpr<=t.hi).sort((a,b)=>b.s-a.s)}));   // 档位含待办+已处理，供「处理状态」筛选
+  const other=reg.filter(r=> r._dpr===null || r._dpr<=0);  // 利润额下滑但利润率反升/缺值（含待办+已处理）
   const back=pending.reduce((a,r)=>a+(r.p-(r._prev||0)),0);
   const backHandled=handled.reduce((a,r)=>a+(r.p-(r._prev||0)),0);
   return {pw:d.pw, reg, pending, handled, tiers, other, back, backHandled};
 }
+function regressSideHTML(r){
+  const id=r.link_id, done=isHandled(id);
+  if(!done){
+    const rec=classifyRec(r), st=REC_TO_STATE[rec.k]||'已停推广';
+    return '<div class="r-handle todo">'
+      +'<span class="hstat todo">未处理</span>'
+      +'<div class="qbtns">'
+      +'<button class="qbtn primary" data-qid="'+id+'" data-qact="'+st+'">'+st+' ✓</button>'
+      +'<select class="qsel" data-qid="'+id+'" data-qsel><option value="">其他处理…</option>'+STATE_OPTS.filter(s=>s!=='待处理').map(s=>'<option value="'+s+'">'+s+'</option>').join('')+'</select>'
+      +'</div></div>';
+  }
+  const s=stateLabel(planState(id)), ts=planTs(id);
+  return '<div class="r-handle done">'
+    +'<span class="hstat done">✓ 已处理 · '+s+(ts?' · '+toDate(ts):'')+'</span>'
+    +'<button class="qundo" data-qid="'+id+'" data-qundo="1" title="撤销，标回未处理">↺</button>'
+    +'</div>';
+}
 function regressCard(data){
-  const pending=data.pending, total=pending.length, back=data.back, handled=data.handled, sub='reg';
-  const openKey=[...REG_OPEN].find(k=>k===sub+':all'||k.startsWith(sub+':'));
+  const reg=data.reg, total=reg.length;
+  const todoN=reg.filter(r=>!r._handled).length, doneN=total-todoN, sub='reg';
+  // 处理状态筛选（你唯一要关心的：运营有没有处理过）
+  const views=[['all','全部 '+total],['todo','🔴 未处理 '+todoN],['done','🟢 已处理 '+doneN]];
+  const vbar='<div class="amtbar amtbar-view"><span class="lab">处理状态</span>'+views.map(([k,lab])=>'<span class="amt-chip '+(REG_VIEW===k?'active':'')+'" data-rview="'+k+'">'+lab+'</span>').join('')+'</div>';
+  // 利润率下滑档（导航展开）
   let chips='<div class="amtbar"><span class="lab">利润率下滑档</span>'
     +'<span class="amt-chip '+(REG_OPEN.has(sub+':all')?'active':'')+'" data-rtier="'+sub+':all">全部<span class="n">'+total+'</span></span>';
-  data.tiers.forEach((c,i)=>{ chips+='<span class="amt-chip '+(REG_OPEN.has(sub+':'+i)?'active':'')+(c.list.length?'':' disable')+'" data-rtier="'+sub+':'+i+'">'+c.name+'<span class="n">'+c.list.length+'</span></span>'; });
+  data.tiers.forEach((c,i)=>{ chips+='<span class="amt-chip '+(REG_OPEN.has(sub+':'+i)?'active':'')+(c.list.length?'':' disable')+'" data-rtier="'+sub+':'+i+'">'+c.name+(c.list.length?'<span class="n">'+c.list.length+'</span>':'')+'</span>'; });
   chips+='</div>';
-  // 动作类型筛选（批量筛选，与 BI 分档卡片同设计）
-  const actCnt={all:pending.length}; pending.forEach(r=>{ const k=classifyRec(r).k; actCnt[k]=(actCnt[k]||0)+1; });
-  const regActOrder=[['all','全部'],['A_del','停推广下架'],['A_stop','停推广'],['B_fix','提投产'],['C_price','提价去优惠'],['D_struct','查成本退款'],['E_watch','观察收窄'],['G_scale','放大扩量'],['G_prio','先提毛利/降本'],['G_care','利润下滑·排查'],['G_keep','保持']];
-  const af='<div class="amtbar amtbar-act"><span class="lab">动作类型</span>'+regActOrder.map(([k,lab])=>'<span class="amt-chip '+(REG_DACT===k?'active':'')+(actCnt[k]?'':' disable')+'" data-rdact="'+k+'">'+lab+'<span class="n">'+(actCnt[k]||0)+'</span></span>').join('')+'</div>';
-  let cardInner='';
+  let list='';
+  const openKey=[...REG_OPEN].find(k=>k===sub+':all'||k.startsWith(sub+':'));
   if(openKey){
-    let rows = openKey===sub+':all' ? pending : data.tiers[parseInt(openKey.split(':')[1])].list;
-    if(REG_DACT!=='all') rows=rows.filter(r=>classifyRec(r).k===REG_DACT);
-    const shown=[...rows].sort((a,b)=>b.s-a.s).slice(0,200);
-    cardInner='<div class="listcard" id="regressCard" data-allids="'+esc(JSON.stringify(pending.map(r=>r.link_id)))+'">'
-      +af
+    let rows = openKey===sub+':all' ? reg : data.tiers[parseInt(openKey.split(':')[1])].list;
+    rows=rows.filter(r=> REG_VIEW==='all' || (REG_VIEW==='todo'&&!r._handled) || (REG_VIEW==='done'&&r._handled));
+    rows=[...rows].sort((a,b)=>(b._dpr||0)-(a._dpr||0)|| b.s-a.s);
+    const shown=rows.slice(0,300);
+    const stateCls=REG_VIEW==='todo'?'reg-state-todo':(REG_VIEW==='done'?'reg-state-done':'');
+    list='<div class="listcard" id="regressCard" data-allids="'+esc(JSON.stringify(reg.map(r=>r.link_id)))+'">'
       +batchBarHTML('regress',shown.length)
-      +'<div class="listhead">▾ 待办回退 · '+shown.length+' 条<span class="lsub">点行看趋势 · 勾选后批量复制/标记状态</span></div>'
-      +'<div class="rlist">'+shown.map(r=>drillRowHTML(r,'regress')).join('')+(rows.length>200?'<div class="empty">为保证流畅仅显示前 200 条，可缩小筛选范围</div>':'')+'</div>'
+      +'<div class="listhead">▾ 回退链接 · '+shown.length+(REG_VIEW!=='all'?'（'+(REG_VIEW==='todo'?'未处理':'已处理')+'）':'')+' 条<span class="lsub">点行看趋势 · 右侧「快速处理」一键标记运营是否已处理</span></div>'
+      +'<div class="rlist '+stateCls+'">'+shown.map(r=>drillRowHTML(r,'regress','regress')).join('')+'</div>'
+      +(rows.length>300?'<div class="empty">为保证流畅仅显示前 300 条</div>':'')
       +'</div>';
   } else {
-    cardInner='<div class="empty-follow">点上方「利润率下滑档」任意档位展开，查看待办回退链接（每行带操作状态标签，可勾选批量复制/标记状态）。</div>';
+    list='<div class="empty-follow">点上方「利润率下滑档」任意档位展开回退链接（每行右侧「快速处理」可一键标记运营是否已处理）。</div>';
   }
-  const sc='<div class="status-check"><span class="sclab">处理状态检查</span>'
-    +'<span class="scitem sc-todo">待办 '+total+' 条</span>'
-    +'<span class="scitem sc-done">已处理 '+handled.length+' 条</span>'
-    +(handled.length?'<span class="rtoggle" data-rtoggle="reg">查看已处理回退链接 ▾</span>':'')
-    +(handled.length?'<span class="sclink" data-jump="regfollow">→ 去由盈转亏观察看板</span>':'')
+  const sc='<div class="status-check"><span class="sclab">处理状态速览</span>'
+    +'<span class="scitem sc-todo">🔴 未处理 '+todoN+' 条</span>'
+    +'<span class="scitem sc-done">🟢 已处理 '+doneN+' 条</span>'
+    +(doneN?'<span class="sclink" data-jump="regfollow">→ 去由盈转亏观察看板（回弹跟踪）</span>':'')
     +'</div>';
-  const handledList=handled.length?'<div class="rhandled" id="regHandled" style="display:none">'+[...handled].sort((a,b)=>b.s-a.s).slice(0,200).map(r=>drillRowHTML(r,'regress')).join('')+'</div>':'';
   const otherNote = data.other.length ? '<div class="r-note">另有 <b>'+data.other.length+'</b> 条利润额下滑但利润率反升（多为销量萎缩），未计入上述下滑档。</div>' : '';
   return '<div class="bucket-card regress-card"><div class="bhead">📉 利润回退 · 由盈转亏'
-    +'<span class="bcnt">待办 '+total+' 条 · 较上期回退合计 '+fmtMoney(back)+' 元</span>'
-    +'<span class="bcomp down">对比上一期 '+data.pw.replace(/\//g,'-')+'</span></div>'+chips+sc+cardInner+handledList+otherNote+'</div>';
+    +'<span class="bcnt">较上期回退合计 '+fmtMoney(data.back+data.backHandled)+' 元</span>'
+    +'<span class="bcomp down">对比上一期 '+data.pw.replace(/\//g,'-')+'</span></div>'+vbar+chips+sc+list+otherNote+'</div>';
 }
 function renderRegress(){
   const host=document.getElementById('regressHost');
@@ -1206,15 +1246,23 @@ function renderRegress(){
     return;
   }
   host.innerHTML=regressCard(data);
-  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分五档（≤1% / 1–2% / 2–3% / 3–5% / >5%），档内链接按净销售额降序。点档位展开，每行含「较上期回退额 + 利润率下滑 + 操作状态」。顶部「处理状态检查」可核对哪些回退链接已处理；勾选可批量复制/标记状态';
+  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分五档（≤1% / 1–2% / 2–3% / 3–5% / >5%），档内链接按净销售额降序。每行右侧「快速处理」对应一个回归动作按钮，点一下即标记运营已处理（状态会保存并同步给运营）；顶部「处理状态」可切换 全部/未处理/已处理，一眼看清运营有没有处理过';
   host.querySelectorAll('[data-rtier]').forEach(ch=>{
     ch.addEventListener('click',()=>{ const k=ch.dataset.rtier; if(REG_OPEN.has(k))REG_OPEN.delete(k); else REG_OPEN.add(k); renderRegress(); });
   });
-  host.querySelectorAll('[data-rdact]').forEach(ch=>{
-    ch.addEventListener('click',()=>{ if(ch.classList.contains('disable'))return; REG_DACT=ch.dataset.rdact; renderRegress(); });
+  host.querySelectorAll('[data-rview]').forEach(ch=>{
+    ch.addEventListener('click',()=>{ REG_VIEW=ch.dataset.rview; renderRegress(); });
   });
-  host.querySelectorAll('[data-rtoggle]').forEach(el=>{
-    el.addEventListener('click',()=>{ const box=document.getElementById('regHandled'); if(!box)return; const open=box.style.display!=='none'; box.style.display=open?'none':''; el.textContent=open?'查看已处理回退链接 ▾':'收起已处理回退链接 ▴'; });
+  // 快速处理：一键标记运营已处理（按回归推荐动作）
+  host.querySelectorAll('[data-qact]').forEach(b=>{
+    b.addEventListener('click',e=>{ e.stopPropagation(); setPlan(b.dataset.qid,b.dataset.qact); refreshAllAfterState(); });
+  });
+  host.querySelectorAll('[data-qsel]').forEach(s=>{
+    s.addEventListener('change',e=>{ e.stopPropagation(); const v=s.value; if(v){ setPlan(s.dataset.qid,v); refreshAllAfterState(); } });
+    s.addEventListener('click',e=>e.stopPropagation());
+  });
+  host.querySelectorAll('[data-qundo]').forEach(b=>{
+    b.addEventListener('click',e=>{ e.stopPropagation(); setPlan(b.dataset.qid,'待处理'); refreshAllAfterState(); });
   });
   const rc=document.getElementById('regressCard');
   if(rc) bindBatch(rc,'regress');
@@ -1263,7 +1311,7 @@ function renderRegFollow(){
   if(fcard) bindBatch(fcard,'regfollow');
 }
 
-function drillRowHTML(r,pool){ CUR_POOL=pool||'drill';
+function drillRowHTML(r,pool,sideMode){ CUR_POOL=pool||'drill';
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
   const rec=classifyRec(r), meta=REC_META[rec.k];
   const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?pctStr(r.gmTxt):'—';
@@ -1296,7 +1344,7 @@ function drillRowHTML(r,pool){ CUR_POOL=pool||'drill';
       +'<div class="metric"><span class="k" title="自定义费用占比（表字段，缺失按 1-利润率-推广-货品 回退）">自定义费比</span><span class="v '+pctCls(customRatio)+'">'+pctTxt(customRatio)+'</span></div>'
       +'<div class="metric"><span class="k">趋势</span><span class="v '+dCls+'">'+dArw+'</span></div>'
       +'</div>'
-    +'<div class="r-side"><span class="act-chip '+meta.cls+'">'+rec.act+'</span>'+stateChipHTML(r.link_id)+'</div>'
+    +'<div class="r-side"><span class="act-chip '+meta.cls+'">'+rec.act+'</span>'+(sideMode==='regress'?regressSideHTML(r):stateChipHTML(r.link_id))+'</div>'
     +'</div>'
     +'<div class="r-why"><span class="wico">💡</span> '+esc(rec.why)+'</div>'
     +(r._prev!==undefined?'<div class="r-regress"><span class="ri">↘ 较上期（利润·支付）：'+fmtMoney(r._prev)+' → '+fmtMoney(r.p)+' <b class="rb">回退 '+fmtMoney(r.p-r._prev)+'</b></span>'+(r._ps!==undefined?'<span class="ri2">发货：'+fmtMoney(r._ps)+' → '+fmtMoney(r.ps)+'</span>':'')+(r._dpr!==null&&r._dpr>0?'<span class="ri3">利润率下滑 '+fmtPct(r._dpr)+'</span>':'')+'</div>':'')

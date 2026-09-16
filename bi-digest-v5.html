@@ -4,7 +4,7 @@
      新增：清单行多选 → 批量复制链接URL/ID、批量标记处理状态；数据窗口收敛为下拉选择
 -->
 <html lang="zh-CN">
-<head>
+<head><script>window.__SYNC_BASE = location.protocol + '//' + location.host;</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="js/echarts.min.js?v=202609161146"></script>
@@ -253,7 +253,7 @@ let PAGE=0, DRILL_PAGE=0, BUCKET=null;
 function toNum(v){ if(v===null||v===undefined||v==='')return 0; if(typeof v==='number')return v; return parseFloat(String(v).replace(/[%,¥\s]/g,''))||0; }
 function toDate(s){ return s?String(s).slice(0,10):''; }
 function fmtMoney(v){ if(v===null||v===undefined||isNaN(v))return '—'; const a=Math.abs(v); if(a>=10000)return (v/10000).toFixed(1)+'万'; return v.toLocaleString('zh-CN',{maximumFractionDigits:0}); }
-function fmtPct(v){ if(v===null||v===undefined||v==='')return '—'; const s=String(v); if(s.includes('%'))return s; const n=parseFloat(s); return isNaN(n)?s:(Math.round(n*100)/100)+'%'; }
+function fmtPct(v){ if(v===null||v===undefined||v==='')return '—'; const n=parseFloat(String(v).replace('%','')); return isNaN(n)?v:(Math.round(n*100)/100)+'%'; }
 function shortTitle(t){ if(!t)return''; return t.length>15?t.slice(0,15)+'…':t; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function stateLabel(s){ return s==='todo'?'待处理':(s==='doing'?'处理中':STATE_OPTS.includes(s)?s:'待处理'); }
@@ -638,7 +638,7 @@ function renderBuckets(){
 function drillRowHTML(r){
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
   const rec=classifyRec(r), meta=REC_META[rec.k];
-  const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?r.gmTxt:'—';
+  const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?fmtPct(r.gmTxt):'—';
   return '<div class="lrow" data-id="'+r.link_id+'">'
     +'<div class="r-top">'
     +chkHTML(r.link_id)
@@ -719,7 +719,7 @@ function renderProducts(){
 function drawTrend(canvas,id){
   const s=linkSeries(id); if(!s.length){ canvas.parentElement.innerHTML='<div class="empty">无趋势数据</div>'; return; }
   const chart=echarts.init(canvas);
-  chart.setOption({grid:{left:8,right:16,top:24,bottom:8,containLabel:true},tooltip:{trigger:'axis',valueFormatter:v=>v===null?'—':v+' 元'},
+  chart.setOption({grid:{left:8,right:16,top:24,bottom:8,containLabel:true},tooltip:{trigger:'axis',valueFormatter:v=>v===null?'—':(Math.round(v*100)/100).toLocaleString('zh-CN',{maximumFractionDigits:2})+' 元'},
     xAxis:{type:'category',data:s.map(x=>x[0].slice(5)),axisLabel:{fontSize:10,color:'#9ba3af'}},
     yAxis:{type:'value',axisLabel:{fontSize:10,color:'#9ba3af'},splitLine:{lineStyle:{color:'#f0f0f0'}}},
     series:[{type:'line',data:s.map(x=>x[1]),smooth:true,symbolSize:6,lineStyle:{width:2.5,color:'#8b5cf6'},itemStyle:{color:'#8b5cf6'},areaStyle:{opacity:0.08,color:'#8b5cf6'},markLine:{silent:true,symbol:'none',data:[{yAxis:0}],lineStyle:{type:'dashed',color:'#f59e0b'}}}]});

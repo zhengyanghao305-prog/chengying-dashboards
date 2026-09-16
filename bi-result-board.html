@@ -7,7 +7,7 @@
 <script>
 /* 版本自更新：打开时对比 version.json（带时间戳绕缓存），线上更新则自动跳到最新版
    → 根治 GitHub Pages CDN 缓存(HTML max-age=600)导致的「本机是新的、线上看到旧的/不同步」 */
-var __BUILD__='1789029390952';
+var __BUILD__='1789530601587';
 (function(){ try{
   if(String(__BUILD__).indexOf('__')===0) return;                 // 未注入构建号则跳过（本地直接打开时）
   fetch('version.json?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(v){

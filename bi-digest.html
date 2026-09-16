@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609161107"></script>
-<script src="js/xlsx.full.min.js?v=202609161107"></script>
+<script src="js/echarts.min.js?v=202609161121"></script>
+<script src="js/xlsx.full.min.js?v=202609161121"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -229,6 +229,8 @@
   .r-regress .ri{color:#9f1239;font-weight:600;}
   .r-regress .ri b.rb{color:#b91c1c;}
   .r-regress .ri2{color:#b45309;}
+  .r-regress .ri3{color:#7c3aed;font-weight:600;}
+  .r-note{margin-top:6px;padding:4px 8px;font-size:11px;color:#6b7280;background:#f9fafb;border:1px dashed #e5e7eb;border-radius:6px;}
 
   /* ── 产品折叠 ── */
   .pgroup{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;overflow:hidden;}
@@ -1103,38 +1105,45 @@ function regressData(){
     const pv=prevMap.get(r.link_id);
     if(!pv || pv.p===undefined) return;          // 上一期无此链接，无法判断回退
     if(r.p < pv.p){                              // 本期利润 < 上期 → 回退
-      reg.push(Object.assign({},r,{_prev:pv.p,_ps:pv.ps,_d:r.p-pv.p}));
+      const dpr=(typeof pv.prV==='number'&&typeof r.prV==='number')?(pv.prV-r.prV):null;  // 利润率较上期下滑（百分点）
+      reg.push(Object.assign({},r,{_prev:pv.p,_ps:pv.ps,_d:r.p-pv.p,_ppv:pv.prV,_dpr:dpr}));
     }
   });
   return {pw, reg};
 }
+const REGRESS_TIERS=[
+  {name:'下滑≤1%', lo:0, hi:1},
+  {name:'下滑1–2%', lo:1, hi:2},
+  {name:'下滑2–3%', lo:2, hi:3},
+  {name:'下滑3–5%', lo:3, hi:5},
+  {name:'下滑>5%',  lo:5, hi:Infinity},
+];
 function regressTiers(){
   const d=regressData(); if(!d) return null;
-  const turned=d.reg.filter(r=> r._prev>=0 && r.p<0);     // 由盈/持平 → 亏损
-  const shrunk=d.reg.filter(r=> r._prev>0 && r.p>=0 && r.p<r._prev); // 仍盈利但赚少了
-  const byTier=(arr,cfg,useAbs)=> cfg.map((b,i)=>({name:b[2],lo:b[0],hi:b[1],
-    list:arr.filter(r=>{ const v=useAbs?Math.abs(r.p):r.p; return v>=b[0]&&v<b[1]; }),amt:0}));
-  return {pw:d.pw,
-    turned, shrunk,
-    tTiers:byTier(turned,CONFIG.loss,true),      // 变亏：按亏损档位（|本期利润|）
-    sTiers:byTier(shrunk,CONFIG.profit,false)};  // 赚少了：按盈利档位（本期利润）
+  const reg=d.reg;
+  const tiers=REGRESS_TIERS.map(t=>({name:t.name, lo:t.lo, hi:t.hi,
+    list:reg.filter(r=> r._dpr!==null && r._dpr>t.lo && r._dpr<=t.hi).sort((a,b)=>b.s-a.s)}));
+  const other=reg.filter(r=> r._dpr===null || r._dpr<=0);  // 利润额下滑但利润率反升/缺值
+  const back=reg.reduce((a,r)=>a+(r.p-(r._prev||0)),0);
+  return {pw:d.pw, reg, tiers, other, back};
 }
-function regressCard(sub,title,arr,tiers,cfg,kind,pw){
-  const total=arr.length;
-  const back=arr.reduce((a,r)=>a+(r.p-(r._prev||0)),0);
+function regressCard(data){
+  const all=data.reg, total=all.length, back=data.back, sub='reg';
   const openKey=[...REG_OPEN].find(k=>k===sub+':all'||k.startsWith(sub+':'));
-  let chips='<div class="amtbar"><span class="lab">'+kind+'档位</span>'
+  let chips='<div class="amtbar"><span class="lab">利润率下滑档</span>'
     +'<span class="amt-chip '+(REG_OPEN.has(sub+':all')?'active':'')+'" data-rtier="'+sub+':all">全部<span class="n">'+total+'</span></span>';
-  tiers.forEach((c,i)=>{ chips+='<span class="amt-chip '+(REG_OPEN.has(sub+':'+i)?'active':'')+(c.list.length?'':' disable')+'" data-rtier="'+sub+':'+i+'">'+c.name+'<span class="n">'+c.list.length+'</span></span>'; });
+  data.tiers.forEach((c,i)=>{ chips+='<span class="amt-chip '+(REG_OPEN.has(sub+':'+i)?'active':'')+(c.list.length?'':' disable')+'" data-rtier="'+sub+':'+i+'">'+c.name+'<span class="n">'+c.list.length+'</span></span>'; });
   chips+='</div>';
   let list='';
   if(openKey){
-    const rows = openKey===sub+':all' ? arr : tiers[parseInt(openKey.split(':')[1])].list;
-    list='<div class="rlist">'+rows.slice(0,200).map(r=>drillRowHTML(r)).join('')+(rows.length>200?'<div class="empty">为保证流畅仅显示前 200 条，可缩小筛选范围</div>':'')+'</div>';
+    const rows = openKey===sub+':all' ? all : data.tiers[parseInt(openKey.split(':')[1])].list;
+    const shown=[...rows].sort((a,b)=>b.s-a.s).slice(0,200);
+    list='<div class="rlist">'+shown.map(r=>drillRowHTML(r)).join('')+(rows.length>200?'<div class="empty">为保证流畅仅显示前 200 条，可缩小筛选范围</div>':'')+'</div>';
   }
-  return '<div class="bucket-card regress-card"><div class="bhead">'+title
+  const otherNote = data.other.length ? '<div class="r-note">另有 <b>'+data.other.length+'</b> 条利润额下滑但利润率反升（多为销量萎缩），未计入上述下滑档。</div>' : '';
+  return '<div class="bucket-card regress-card"><div class="bhead">📉 利润回退 · 由盈转亏'
     +'<span class="bcnt">共 '+total+' 条 · 较上期回退合计 '+fmtMoney(back)+' 元</span>'
-    +'<span class="bcomp down">对比上一期 '+pw.replace(/\//g,'-')+'</span></div>'+chips+list+'</div>';
+    +'<span class="bcomp down">对比上一期 '+data.pw.replace(/\//g,'-')+'</span></div>'+chips+list+otherNote+'</div>';
 }
 function renderRegress(){
   const host=document.getElementById('regressHost');
@@ -1143,13 +1152,11 @@ function renderRegress(){
   const hint=document.getElementById('regressHint');
   if(!data){
     host.innerHTML='<div class="empty">最早窗口，无上一期可比，暂不显示回退分析。切到更早数据窗口即可对比。</div>';
-    if(hint) hint.textContent='对比所选窗口与上一期快照，识别「由盈变亏 / 利润下滑」的链接（待办口径，已处理的在观察区）';
+    if(hint) hint.textContent='对比所选窗口与上一期快照，按「利润率较上期下滑幅度」分五档（≤1% / 1–2% / 2–3% / 3–5% / >5%），识别回退链接（待办口径）';
     return;
   }
-  let html=regressCard('turned','🔻 由盈转亏（上期盈利/持平 → 本期亏损）',data.turned,data.tTiers,CONFIG.loss,'亏损',data.pw)
-        +regressCard('shrink','📉 利润下滑（仍盈利，但比上期赚的少）',data.shrunk,data.sTiers,CONFIG.profit,'盈利',data.pw);
-  host.innerHTML=html;
-  if(hint) hint.textContent='对比所选窗口与上一期快照：① 由盈转亏（按亏损档位）② 利润下滑（按盈利档位）。点档位展开链接，每行含「较上期回退额」。待办口径，已处理的在观察区';
+  host.innerHTML=regressCard(data);
+  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分五档（≤1% / 1–2% / 2–3% / 3–5% / >5%），档内链接按净销售额降序。点档位展开，每行含「较上期回退额 + 利润率下滑」。待办口径，已处理的在观察区';
   host.querySelectorAll('[data-rtier]').forEach(ch=>{
     ch.addEventListener('click',()=>{ const k=ch.dataset.rtier; if(REG_OPEN.has(k))REG_OPEN.delete(k); else REG_OPEN.add(k); renderRegress(); });
   });
@@ -1191,7 +1198,7 @@ function drillRowHTML(r){ CUR_POOL='drill';
     +'<div class="r-side"><span class="act-chip '+meta.cls+'">'+rec.act+'</span>'+stateChipHTML(r.link_id)+'</div>'
     +'</div>'
     +'<div class="r-why"><span class="wico">💡</span> '+esc(rec.why)+'</div>'
-    +(r._prev!==undefined?'<div class="r-regress"><span class="ri">↘ 较上期（利润·支付）：'+fmtMoney(r._prev)+' → '+fmtMoney(r.p)+' <b class="rb">回退 '+fmtMoney(r.p-r._prev)+'</b></span>'+(r._ps!==undefined?'<span class="ri2">发货：'+fmtMoney(r._ps)+' → '+fmtMoney(r.ps)+'</span>':'')+'</div>':'')
+    +(r._prev!==undefined?'<div class="r-regress"><span class="ri">↘ 较上期（利润·支付）：'+fmtMoney(r._prev)+' → '+fmtMoney(r.p)+' <b class="rb">回退 '+fmtMoney(r.p-r._prev)+'</b></span>'+(r._ps!==undefined?'<span class="ri2">发货：'+fmtMoney(r._ps)+' → '+fmtMoney(r.ps)+'</span>':'')+(r._dpr!==null&&r._dpr>0?'<span class="ri3">利润率下滑 '+fmtPct(r._dpr)+'</span>':'')+'</div>':'')
     +'</div>'
     +'<div class="trendbox"><div class="tlab">'+r.link_id+' · 滚动窗口利润走势（元/近7天）</div><div class="chart"></div></div>';
 }

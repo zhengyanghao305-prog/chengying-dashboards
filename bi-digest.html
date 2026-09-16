@@ -4,7 +4,7 @@
      新增：清单行多选 → 批量复制链接URL/ID、批量标记处理状态；数据窗口收敛为下拉选择
 -->
 <html lang="zh-CN">
-<head>
+<head><script>window.__SYNC_BASE = location.protocol + '//' + location.host;</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="js/echarts.min.js?v=202609161214"></script>
@@ -231,6 +231,18 @@
   .r-regress .ri2{color:#b45309;}
   .r-regress .ri3{color:#7c3aed;font-weight:600;}
   .r-note{margin-top:6px;padding:4px 8px;font-size:11px;color:#6b7280;background:#f9fafb;border:1px dashed #e5e7eb;border-radius:6px;}
+  /* ── 由盈转亏 · 处理状态检查 ── */
+  .status-check{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 16px;background:#fff7ed;border-top:1px solid #fde3c8;border-bottom:1px solid #fde3c8;font-size:12px;}
+  .status-check .sclab{font-weight:700;color:#9a3412;}
+  .status-check .scitem{padding:2px 9px;border-radius:10px;font-weight:600;}
+  .status-check .sc-todo{background:#fef3c7;color:#b45309;}
+  .status-check .sc-done{background:#dcfce7;color:#15803d;}
+  .status-check .rtoggle{cursor:pointer;color:#2563eb;font-weight:600;border-bottom:1px dashed #93c5fd;}
+  .status-check .rtoggle:hover{color:#1d4ed8;}
+  .status-check .sclink{cursor:pointer;color:#7c3aed;font-weight:600;border-bottom:1px dashed #c4b5fd;}
+  .status-check .sclink:hover{color:#6d28d9;}
+  .rhandled{padding:6px 8px;border-top:1px dashed #f3c9cb;background:#fbfcfe;}
+  .rhandled .lrow{opacity:.96;}
 
   /* ── 产品折叠 ── */
   .pgroup{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;overflow:hidden;}
@@ -1094,7 +1106,7 @@ function renderBuckets(){
 /* ============ 利润回退 · 由盈转亏（赚的没之前多 / 变亏，按档位划分）============ */
 let REG_OPEN=new Set();   // 展开的档位键集合，如 'turned:0' / 'shrink:2' / 'turned:all'
 function regressData(){
-  const cur=pendingOnly(platRows());
+  const cur=platRows();                         // 全量（含已处理）：用于「处理状态检查」
   const wi=DATA.windows.indexOf(WIN);
   const pw=wi>0?DATA.windows[wi-1]:null;
   if(!pw) return null;
@@ -1106,7 +1118,7 @@ function regressData(){
     if(!pv || pv.p===undefined) return;          // 上一期无此链接，无法判断回退
     if(r.p < pv.p){                              // 本期利润 < 上期 → 回退
       const dpr=(typeof pv.prV==='number'&&typeof r.prV==='number')?(pv.prV-r.prV):null;  // 利润率较上期下滑（百分点）
-      reg.push(Object.assign({},r,{_prev:pv.p,_ps:pv.ps,_d:r.p-pv.p,_ppv:pv.prV,_dpr:dpr}));
+      reg.push(Object.assign({},r,{_prev:pv.p,_ps:pv.ps,_d:r.p-pv.p,_ppv:pv.prV,_dpr:dpr,_handled:isHandled(r.link_id)}));
     }
   });
   return {pw, reg};
@@ -1121,14 +1133,17 @@ const REGRESS_TIERS=[
 function regressTiers(){
   const d=regressData(); if(!d) return null;
   const reg=d.reg;
+  const pending=reg.filter(r=>!r._handled);       // 待办回退（动作分档卡用）
+  const handled=reg.filter(r=>r._handled);         // 已处理回退（处理状态检查用）
   const tiers=REGRESS_TIERS.map(t=>({name:t.name, lo:t.lo, hi:t.hi,
-    list:reg.filter(r=> r._dpr!==null && r._dpr>t.lo && r._dpr<=t.hi).sort((a,b)=>b.s-a.s)}));
-  const other=reg.filter(r=> r._dpr===null || r._dpr<=0);  // 利润额下滑但利润率反升/缺值
-  const back=reg.reduce((a,r)=>a+(r.p-(r._prev||0)),0);
-  return {pw:d.pw, reg, tiers, other, back};
+    list:pending.filter(r=> r._dpr!==null && r._dpr>t.lo && r._dpr<=t.hi).sort((a,b)=>b.s-a.s)}));
+  const other=pending.filter(r=> r._dpr===null || r._dpr<=0);  // 利润额下滑但利润率反升/缺值
+  const back=pending.reduce((a,r)=>a+(r.p-(r._prev||0)),0);
+  const backHandled=handled.reduce((a,r)=>a+(r.p-(r._prev||0)),0);
+  return {pw:d.pw, reg, pending, handled, tiers, other, back, backHandled};
 }
 function regressCard(data){
-  const all=data.reg, total=all.length, back=data.back, sub='reg';
+  const pending=data.pending, total=pending.length, back=data.back, handled=data.handled, sub='reg';
   const openKey=[...REG_OPEN].find(k=>k===sub+':all'||k.startsWith(sub+':'));
   let chips='<div class="amtbar"><span class="lab">利润率下滑档</span>'
     +'<span class="amt-chip '+(REG_OPEN.has(sub+':all')?'active':'')+'" data-rtier="'+sub+':all">全部<span class="n">'+total+'</span></span>';
@@ -1136,14 +1151,21 @@ function regressCard(data){
   chips+='</div>';
   let list='';
   if(openKey){
-    const rows = openKey===sub+':all' ? all : data.tiers[parseInt(openKey.split(':')[1])].list;
+    const rows = openKey===sub+':all' ? pending : data.tiers[parseInt(openKey.split(':')[1])].list;
     const shown=[...rows].sort((a,b)=>b.s-a.s).slice(0,200);
     list='<div class="rlist">'+shown.map(r=>drillRowHTML(r)).join('')+(rows.length>200?'<div class="empty">为保证流畅仅显示前 200 条，可缩小筛选范围</div>':'')+'</div>';
   }
+  const sc='<div class="status-check"><span class="sclab">处理状态检查</span>'
+    +'<span class="scitem sc-todo">待办 '+total+' 条</span>'
+    +'<span class="scitem sc-done">已处理 '+handled.length+' 条</span>'
+    +(handled.length?'<span class="rtoggle" data-rtoggle="reg">查看已处理回退链接 ▾</span>':'')
+    +(handled.length?'<span class="sclink" data-jump="follow">→ 去观察区跟进</span>':'')
+    +'</div>';
+  const handledList=handled.length?'<div class="rhandled" id="regHandled" style="display:none">'+[...handled].sort((a,b)=>b.s-a.s).slice(0,200).map(r=>drillRowHTML(r)).join('')+'</div>':'';
   const otherNote = data.other.length ? '<div class="r-note">另有 <b>'+data.other.length+'</b> 条利润额下滑但利润率反升（多为销量萎缩），未计入上述下滑档。</div>' : '';
   return '<div class="bucket-card regress-card"><div class="bhead">📉 利润回退 · 由盈转亏'
-    +'<span class="bcnt">共 '+total+' 条 · 较上期回退合计 '+fmtMoney(back)+' 元</span>'
-    +'<span class="bcomp down">对比上一期 '+data.pw.replace(/\//g,'-')+'</span></div>'+chips+list+otherNote+'</div>';
+    +'<span class="bcnt">待办 '+total+' 条 · 较上期回退合计 '+fmtMoney(back)+' 元</span>'
+    +'<span class="bcomp down">对比上一期 '+data.pw.replace(/\//g,'-')+'</span></div>'+chips+sc+list+handledList+otherNote+'</div>';
 }
 function renderRegress(){
   const host=document.getElementById('regressHost');
@@ -1156,10 +1178,15 @@ function renderRegress(){
     return;
   }
   host.innerHTML=regressCard(data);
-  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分五档（≤1% / 1–2% / 2–3% / 3–5% / >5%），档内链接按净销售额降序。点档位展开，每行含「较上期回退额 + 利润率下滑」。待办口径，已处理的在观察区';
+  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分五档（≤1% / 1–2% / 2–3% / 3–5% / >5%），档内链接按净销售额降序。点档位展开，每行含「较上期回退额 + 利润率下滑 + 处理状态」。顶部「处理状态检查」可核对哪些回退链接已处理';
   host.querySelectorAll('[data-rtier]').forEach(ch=>{
     ch.addEventListener('click',()=>{ const k=ch.dataset.rtier; if(REG_OPEN.has(k))REG_OPEN.delete(k); else REG_OPEN.add(k); renderRegress(); });
   });
+  host.querySelectorAll('[data-rtoggle]').forEach(el=>{
+    el.addEventListener('click',()=>{ const box=document.getElementById('regHandled'); if(!box)return; const open=box.style.display!=='none'; box.style.display=open?'none':''; el.textContent=open?'查看已处理回退链接 ▾':'收起已处理回退链接 ▴'; });
+  });
+  const scLink=host.querySelector('[data-jump="follow"]');
+  if(scLink) scLink.addEventListener('click',()=>{ const fb=document.getElementById('followHost'); const sec=document.getElementById('followSection'); if(FOLLOW_COLLAPSED && sec){ FOLLOW_COLLAPSED=false; sec.classList.remove('collapsed'); if(fb)fb.style.display=''; try{localStorage.setItem('bi_follow_collapsed','0');}catch(e){} } if(fb){ fb.scrollIntoView({behavior:'smooth',block:'start'}); } });
 }
 
 function drillRowHTML(r){ CUR_POOL='drill';

@@ -4,11 +4,11 @@
      新增：清单行多选 → 批量复制链接URL/ID、批量标记处理状态；数据窗口收敛为下拉选择
 -->
 <html lang="zh-CN">
-<head>
+<head><script>window.__SYNC_BASE = location.protocol + '//' + location.host;</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609171124"></script>
-<script src="js/xlsx.full.min.js?v=202609171124"></script>
+<script src="js/echarts.min.js?v=202609171127"></script>
+<script src="js/xlsx.full.min.js?v=202609171127"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -232,6 +232,30 @@
   .r-regress .ri3{color:#7c3aed;font-weight:600;}
   .r-note{margin-top:6px;padding:4px 8px;font-size:11px;color:#6b7280;background:#f9fafb;border:1px dashed #e5e7eb;border-radius:6px;}
 
+  /* 由盈转亏：处理状态/动作类型筛选、速览、快速处理按钮 */
+  .amtbar-view{background:#fef7f7;}
+  .amtbar-act{background:#f7f6ff;}
+  .amt-chip.v-todo.active{background:#fee2e2;border-color:#fca5a5;color:#b91c1c;}
+  .amt-chip.v-done.active{background:#dcfce7;border-color:#86efac;color:#15803d;}
+  .status-check{display:flex;align-items:center;gap:12px;padding:7px 16px;flex-wrap:wrap;background:#fbfaff;border-bottom:1px solid #eee;}
+  .status-check .scitem{font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;}
+  .status-check .sc-todo{background:#fee2e2;color:#b91c1c;}
+  .status-check .sc-done{background:#dcfce7;color:#15803d;}
+  .status-check .sclink{margin-left:auto;font-size:12px;color:#7c3aed;cursor:pointer;font-weight:600;}
+  .status-check .sclink:hover{text-decoration:underline;}
+  .reg-side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+  .reg-state{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px;}
+  .reg-state.reg-todo{background:#fee2e2;color:#b91c1c;}
+  .reg-state.reg-done{background:#dcfce7;color:#15803d;}
+  .reg-st{font-size:10.5px;color:#6b7280;}
+  .qbtn{font-size:11px;font-weight:700;color:#fff;background:#dc2626;border:none;border-radius:9px;padding:4px 10px;cursor:pointer;white-space:nowrap;}
+  .qbtn:hover{background:#b91c1c;}
+  .qmore{font-size:13px;color:#9ca3af;cursor:pointer;padding:0 2px;}
+  .qsel{font-size:11px;padding:2px 4px;border-radius:6px;border:1px solid #ddd6fe;}
+  .qundo{font-size:13px;color:#9ca3af;cursor:pointer;padding:0 2px;}
+  .qundo:hover{color:#dc2626;}
+  .regress-card .lrow.r-done{opacity:.62;}
+
   /* ── 产品折叠 ── */
   .pgroup{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;overflow:hidden;}
   .pgroup .ghead{display:flex;align-items:center;gap:10px;padding:10px 15px;cursor:pointer;font-size:13px;font-weight:600;transition:background .12s;}
@@ -310,6 +334,9 @@
 
   <div class="section-title"><span class="dot" style="background:#be123c"></span>📉 利润回退 · 由盈转亏<span class="hint" id="regressHint"></span></div>
   <div id="regressHost"></div>
+
+  <div class="section-title collapsible" id="regFollowSection"><span class="tw">▾</span><span class="dot" style="background:#7c3aed"></span>由盈转亏 · 已处理观察看板<span class="hint" id="regFollowHint"></span></div>
+  <div id="regFollowHost"></div>
 
   <div class="section-title"><span class="dot"></span>按产品回看<span class="hint">看亏损/盈利集中在哪些产品，展开定位链接与建议</span></div>
   <div id="prodHost"></div>
@@ -904,7 +931,7 @@ function bindBatch(host,pool){
   host.querySelectorAll('.arow[data-id],.lrow[data-id]').forEach(row=>{
     if(row.classList.contains('head'))return;
     row.addEventListener('click',(e)=>{
-      if(e.target.closest('.chk')||e.target.closest('.ostate'))return;  // checkbox/状态点击不展开
+      if(e.target.closest('.chk')||e.target.closest('.ostate')||e.target.closest('.qbtn')||e.target.closest('.qsel')||e.target.closest('.qmore')||e.target.closest('.qundo'))return;  // checkbox/状态/快速处理按钮点击不展开
       toggleTrend(row);
     });
   });
@@ -949,7 +976,7 @@ function refreshSelUI(host,pool){
     const cb=row.querySelector('.chk'); if(cb) row.classList.toggle('sel',cb.checked);
   });
 }
-function refreshAllAfterState(){ renderOverview(); renderBuckets(); renderDrill(); renderRegress(); renderProducts(); renderFollow(); }
+function refreshAllAfterState(){ renderOverview(); renderBuckets(); renderDrill(); renderRegress(); renderProducts(); renderFollow(); renderRegFollow(); }
 function toggleTrend(row){
   const box=row.nextElementSibling;
   const isOpen=box&&box.classList.contains('trendbox')&&box.classList.contains('open');
@@ -1259,7 +1286,6 @@ function renderRegFollow(){
   if(!data){ host.innerHTML=''; return; }
   const hs=data.handled.slice();   // 已处理的回退链接
   if(!hs.length){ host.innerHTML='<div class="empty-follow">回退链接里还没有运营已处理的记录。在上方「利润回退」板块每行右侧点「{动作} ✓」标记后，会自动收录到这里，用于观察数据是否回弹。</div>'; return; }
-  const w=followWatchCounts(hs.concat(platRows().filter(r=>isHandled(r.link_id))));
   const stCounts={}; hs.forEach(r=>{ const s=stateLabel(planState(r.link_id)); stCounts[s]=(stCounts[s]||0)+1; });
   const stColor={'已停推广':'c-exp','已下架':'c-exp','已提投产':'c-watch','已提价':'c-watch','已完成':'c-ok','不处理':'c-all'};
   const cards=[['all','全部已处理',hs.length,'c-all']].concat(
@@ -1490,6 +1516,8 @@ async function main(){
   // 「已处理·观察跟进」折叠/展开：点分区标题切换，状态持久化到 localStorage
   const fs=document.getElementById('followSection');
   if(fs) fs.addEventListener('click',toggleFollowSection);
+  const rfs=document.getElementById('regFollowSection');
+  if(rfs) rfs.addEventListener('click',toggleRegFollowSection);
   try{
     const res=await fetch('data/feishu_bi.json?v='+Date.now()); if(!res.ok)throw new Error('HTTP '+res.status);
     const raw=await res.json();
@@ -1501,6 +1529,7 @@ async function main(){
     WIN=DATA.windows[DATA.windows.length-1];
     renderAll();
     if(FOLLOW_COLLAPSED){ const sec=document.getElementById('followSection'),host=document.getElementById('followHost'); if(sec)sec.classList.add('collapsed'); if(host)host.style.display='none'; }
+    if(REG_FOLLOW_COLLAPSED){ const sec=document.getElementById('regFollowSection'),host=document.getElementById('regFollowHost'); if(sec)sec.classList.add('collapsed'); if(host)host.style.display='none'; }
   }catch(err){
     document.querySelector('.controlbar').insertAdjacentHTML('afterend','<div class="err">加载 data/feishu_bi.json 失败：'+err.message+'<br>请用本地服务器地址打开 http://127.0.0.1:3588/bi-digest.html</div>');
   }

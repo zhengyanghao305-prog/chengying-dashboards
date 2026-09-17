@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609171223"></script>
-<script src="js/xlsx.full.min.js?v=202609171223"></script>
+<script src="js/echarts.min.js?v=202609171319"></script>
+<script src="js/xlsx.full.min.js?v=202609171319"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -1162,10 +1162,6 @@ function regressTiers(){
   return {pw:d.pw, reg, pending, handled, tiers, other, back};
 }
 /* 由盈转亏每行右侧：运营是否已处理（快速按钮）。推荐动作 → 处理状态映射 */
-const REG_ACT_LABELS={
-  A_del:'停推广下架', A_stop:'停推广', B_fix:'提投产', C_price:'提价去优惠', D_struct:'查成本退款', E_watch:'观察收窄',
-  G_scale:'放大扩量', G_prio:'先提毛利', G_care:'利润下滑排查', G_keep:'保持', G_roi:'提投产'
-};
 const REC_TO_STATE={
   A_del:'已下架', A_stop:'已停推广', B_fix:'已提投产', C_price:'已提价', D_struct:'已停推广', E_watch:'已完成',
   G_scale:'已提投产', G_prio:'已提价', G_care:'已完成', G_keep:'已完成', G_roi:'已提投产'
@@ -1189,12 +1185,26 @@ function regressSideHTML(r){
     +'<span class="qundo" data-qundo="'+id+'" title="撤销处理">↺</span>'
     +'</div>';
 }
-/* 下滑档多选：'reg:all' 或空集=全选，否则取并集 */
+/* 下滑档多选：'reg:all' 或空集=全选(取所有档+其它并集)，否则选中档并集 */
 function regSelectedTiers(data){
-  if(REG_OPEN.has('reg:all')||REG_OPEN.size===0) return data.tiers.concat([{name:'其它(利润率反升)',list:data.other}]);
-  const sel=[]; data.tiers.forEach((c,i)=>{ if(REG_OPEN.has('reg:'+i)) sel=sel.concat(c.list); });
+  if(REG_OPEN.has('reg:all')||REG_OPEN.size===0){
+    const list=data.tiers.reduce((a,c)=>a.concat(c.list),[]).concat(data.other);
+    return [{name:'全部',list}];
+  }
+  let sel=[];
+  data.tiers.forEach((c,i)=>{ if(REG_OPEN.has('reg:'+i)) sel=sel.concat(c.list); });
   if(REG_OPEN.has('reg:other')) sel=sel.concat(data.other);
   return [{name:'选中档',list:sel}];
+}
+/* 异常因素：这条回退链接「为什么异常」（由盈转亏 / 利润下滑 / 亏损扩大） */
+const REG_CAUSE_LABELS={turned:'由盈转亏',shrink:'利润下滑',deepen:'亏损扩大',other:'其它'};
+function regressCause(r){
+  const prev=r._prev, p=r.p;
+  if(prev===undefined) return 'other';
+  if(prev>0 && p<0) return 'turned';        // 上期赚、本期亏 → 由盈转亏
+  if(prev<=0 && p<prev) return 'deepen';    // 上期也亏、本期亏更多 → 亏损扩大
+  if(prev>0 && p>=0 && p<prev) return 'shrink'; // 上期赚、本期仍赚但减少 → 利润下滑
+  return 'other';
 }
 function regressCard(data){
   const all=data.reg, pending=data.pending, handled=data.handled, back=data.back, sub='reg';
@@ -1209,23 +1219,23 @@ function regressCard(data){
     +'<span class="amt-chip '+(REG_VIEW==='all'?'active':'')+'" data-rview="all">全部<span class="n">'+all.length+'</span></span>'
     +'<span class="amt-chip v-todo '+(REG_VIEW==='todo'?'active':'')+'" data-rview="todo">🔴 未处理<span class="n">'+todoN+'</span></span>'
     +'<span class="amt-chip v-done '+(REG_VIEW==='done'?'active':'')+'" data-rview="done">🟢 已处理<span class="n">'+doneN+'</span></span></div>';
-  // 动作类型筛选（回归推荐动作归类）
-  const actCnt={all:all.length}; pending.concat(handled).forEach(r=>{ const k=classifyRec(r).k; actCnt[k]=(actCnt[k]||0)+1; });
-  const order=['G_prio','G_care','G_scale','A_stop','B_fix','C_price','D_struct','A_del','E_watch','G_keep'];
-  const actBar='<div class="amtbar amtbar-act"><span class="lab">动作类型</span>'
+  // 异常因素筛选（为什么回退/异常）
+  const causeCnt={all:all.length}; all.forEach(r=>{ const k=regressCause(r); causeCnt[k]=(causeCnt[k]||0)+1; });
+  const causeOrder=['turned','shrink','deepen','other'];
+  const causeBar='<div class="amtbar amtbar-act"><span class="lab">异常因素</span>'
     +'<span class="amt-chip '+(REG_DACT==='all'?'active':'')+'" data-rdact="all">全部<span class="n">'+all.length+'</span></span>'
-    +order.filter(k=>actCnt[k]).map(k=>'<span class="amt-chip '+(REG_DACT===k?'active':'')+'" data-rdact="'+k+'">'+(REG_ACT_LABELS[k]||k)+'<span class="n">'+actCnt[k]+'</span></span>').join('')+'</div>';
-  // 列表：选中档并集 → 处理状态/动作类型筛选 → 渲染
+    +causeOrder.filter(k=>causeCnt[k]).map(k=>'<span class="amt-chip '+(REG_DACT===k?'active':'')+'" data-rdact="'+k+'">'+(REG_CAUSE_LABELS[k]||k)+'<span class="n">'+causeCnt[k]+'</span></span>').join('')+'</div>';
+  // 列表：选中档并集 → 处理状态/异常因素筛选 → 渲染
   const tiers=regSelectedTiers(data);
   let rows=tiers[0].list.slice();
   if(REG_VIEW==='todo') rows=rows.filter(r=>!r._handled);
   else if(REG_VIEW==='done') rows=rows.filter(r=>r._handled);
-  if(REG_DACT!=='all') rows=rows.filter(r=>classifyRec(r).k===REG_DACT);
+  if(REG_DACT!=='all') rows=rows.filter(r=>regressCause(r)===REG_DACT);
   rows=rows.sort((a,b)=>b.s-a.s);
   const shown=rows.slice(0,200);
   const listHTML='<div class="listcard" id="regressCard" data-allids="'+esc(JSON.stringify(all.map(r=>r.link_id)))+'">'
-    +actBar+batchBarHTML('regress',shown.length)
-    +'<div class="listhead">▾ 利润回退链接 · '+rows.length+' 条<span class="lsub">每行右侧可一键标记运营已处理（按回归推荐动作）；点行看趋势 · 勾选批量复制/标记</span></div>'
+    +causeBar+batchBarHTML('regress',shown.length)
+    +'<div class="listhead">▾ 利润回退链接 · '+rows.length+' 条<span class="lsub">每行右侧可一键标记运营已处理；点行看趋势 · 勾选批量复制/标记</span></div>'
     +'<div class="ltable">'+shown.map(r=>drillRowHTML(r,'regress')).join('')+'</div>'
     +(rows.length>200?'<div class="pager"><span>为保证流畅仅显示前 200 条，可缩小筛选范围</span></div>':'')
     +'</div>';
@@ -1247,7 +1257,7 @@ function renderRegress(){
     return;
   }
   host.innerHTML=regressCard(data);
-  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分档（可多选）。每行右侧可一键标记运营是否已处理（按回归推荐动作：先提毛利/利润下滑排查/放大扩量等），顶部「处理状态」可只看未处理/已处理，「动作类型」可按推荐动作筛选。已处理的可在下方「由盈转亏·观察看板」跟踪回弹';
+  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分档（可多选）。顶部「异常因素」按回退原因分类（由盈转亏/利润下滑/亏损扩大），「处理状态」看运营是否已处理。每行右侧可一键标记运营已处理。已处理的可在下方「由盈转亏·观察看板」跟踪回弹';
   // 下滑档多选
   host.querySelectorAll('[data-rtier]').forEach(ch=>{
     ch.addEventListener('click',()=>{ const k=ch.dataset.rtier; if(k===sub0('all')) REG_OPEN.clear(); else { if(REG_OPEN.has(sub0('all')))REG_OPEN.delete(sub0('all')); if(REG_OPEN.has(k))REG_OPEN.delete(k); else REG_OPEN.add(k); } renderRegress(); });

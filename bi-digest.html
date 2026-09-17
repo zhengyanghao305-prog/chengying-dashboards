@@ -4,11 +4,11 @@
      新增：清单行多选 → 批量复制链接URL/ID、批量标记处理状态；数据窗口收敛为下拉选择
 -->
 <html lang="zh-CN">
-<head>
+<head><script>window.__SYNC_BASE = location.protocol + '//' + location.host;</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609171329"></script>
-<script src="js/xlsx.full.min.js?v=202609171329"></script>
+<script src="js/echarts.min.js?v=202609171411"></script>
+<script src="js/xlsx.full.min.js?v=202609171411"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -599,8 +599,8 @@ function buildDedup(rows){
     const roi=toNum(r.roi), gm=toNum(r.gm);
     const gcRaw=r.goods_cost_pay, cfRaw=r.custom_fee_pay, pfRaw=r.promo_fee_pay_ship||r.promo_fee_ship;
     let a=map.get(k);
-    if(!a){ a={link_id:r.link_id,window:r.window,window_end:r.window_end,product:r.product||'',title:r.title||'',platform:r.platform||'',shop:r.shop||'',owner:r.owner||'',gmTxt:r.gm,prTxt:r.profit_rate,p,s,ps,ss,roiV:(roi>0&&roi<10)?roi:0,gmV:gm,prV:toNum(r.profit_rate),gcRaw:gcRaw||'',cfRaw:cfRaw||'',pfRaw:pfRaw||'',n:1}; map.set(k,a); }
-    else { a.p+=p; a.s+=s; a.ps+=ps; a.ss+=ss; a.n++; if(!(a.roiV>0)&&roi>0&&roi<10)a.roiV=roi; if(!a.gmV&&gm!==0)a.gmV=gm; if(!a.prV)a.prV=toNum(r.profit_rate); if(!a.prTxt)a.prTxt=r.profit_rate; if(!a.gcRaw&&gcRaw)a.gcRaw=gcRaw; if(!a.cfRaw&&cfRaw)a.cfRaw=cfRaw; if(!a.pfRaw&&pfRaw)a.pfRaw=pfRaw; }
+    if(!a){ a={link_id:r.link_id,window:r.window,window_end:r.window_end,product:r.product||'',title:r.title||'',platform:r.platform||'',shop:r.shop||'',owner:r.owner||'',gmTxt:r.gm,prTxt:r.profit_rate,p,s,ps,ss,roiV:(roi>0&&roi<10)?roi:0,gmV:gm,prV:toNum(r.profit_rate),gcRaw:gcRaw||'',cfRaw:cfRaw||'',pfRaw:pfRaw||'',refundRate:(r.refund_rate!=null&&r.refund_rate!=='')?r.refund_rate:'',refundRateOrd:(r.refund_rate_ord!=null&&r.refund_rate_ord!=='')?r.refund_rate_ord:'',n:1}; map.set(k,a); }
+    else { a.p+=p; a.s+=s; a.ps+=ps; a.ss+=ss; a.n++; if(!(a.roiV>0)&&roi>0&&roi<10)a.roiV=roi; if(!a.gmV&&gm!==0)a.gmV=gm; if(!a.prV)a.prV=toNum(r.profit_rate); if(!a.prTxt)a.prTxt=r.profit_rate; if(!a.gcRaw&&gcRaw)a.gcRaw=gcRaw; if(!a.cfRaw&&cfRaw)a.cfRaw=cfRaw; if(!a.pfRaw&&pfRaw)a.pfRaw=pfRaw; if(!a.refundRate&&r.refund_rate)a.refundRate=r.refund_rate; if(!a.refundRateOrd&&r.refund_rate_ord)a.refundRateOrd=r.refund_rate_ord; }
   });
   return [...map.values()];
 }
@@ -789,6 +789,10 @@ function followRowHTML(r,pool){ CUR_POOL=pool||'follow';
   const st=stateLabel(planState(r.link_id));
   const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?pctStr(r.gmTxt):'—';
   const prTxt=(r.prTxt&&r.prTxt!=='0.00%'&&r.prTxt!=='0%')?pctStr(r.prTxt):'—';
+  // 退款率(按金额)：已发货退货退款金额 / 支付金额。越高越伤利润
+  const _rfN=(function(x){ if(x===null||x===undefined||x===''||x==='0%'||x==='0.00%')return null; const n=parseFloat(String(x).replace(/[%\s]/g,'')); return isNaN(n)?null:n; })(r.refundRate);
+  const rfCls=_rfN===null?'mut':_rfN>10?'neg':_rfN>5?'warn':'pos';
+  const rfTxt=_rfN===null?'—':(Math.round(_rfN*100)/100)+'%';
   return '<div class="lrow fhandled" data-id="'+r.link_id+'">'
     +'<div class="r-top">'
     +chkHTML(r.link_id)
@@ -803,6 +807,7 @@ function followRowHTML(r,pool){ CUR_POOL=pool||'follow';
       +'<div class="metric"><span class="k">ROI</span><span class="v '+(r.roiV<1?'neg':'pos')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
       +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'
       +'<div class="metric"><span class="k">利润率</span><span class="v">'+prTxt+'</span></div>'
+      +'<div class="metric"><span class="k" title="退款率(按金额) = 已发货退货退款金额 / 支付金额。越高越伤利润">退款率</span><span class="v '+rfCls+'">'+rfTxt+'</span></div>'
       +'<div class="metric"><span class="k">趋势</span><span class="v '+dCls+'">'+dArw+'</span></div>'
       +'</div>'
     +'<div class="r-side">'+stateChipHTML(r.link_id)+'</div>'
@@ -1339,6 +1344,9 @@ function drillRowHTML(r,sideMode){ CUR_POOL=sideMode==='regress'?'regress':'dril
   const customRatio=(cfPct!==null)?(cfPct/100):((promoRatio!==null&&prodRatio!==null&&prRatio!==null)?Math.max(0,1-prRatio-promoRatio-prodRatio):null);
   const pctCls=v=>v===null?'mut':v>0.5?'neg':v>0.3?'warn':'pos';
   const pctTxt=v=>v===null?'—':(Math.round(v*10000)/100)+'%';
+  // 退款率(按金额)：已发货退货退款金额 / 支付金额。越高越伤利润
+  const rfPct=pctVal(r.refundRate), rfCls=rfPct===null?'mut':rfPct>10?'neg':rfPct>5?'warn':'pos';
+  const rfTxt=rfPct===null?'—':(Math.round(rfPct*100)/100)+'%';
   return '<div class="lrow" data-id="'+r.link_id+'">'
     +'<div class="r-top">'
     +chkHTML(r.link_id)
@@ -1353,6 +1361,7 @@ function drillRowHTML(r,sideMode){ CUR_POOL=sideMode==='regress'?'regress':'dril
       +'<div class="metric"><span class="k">ROI</span><span class="v '+(r.roiV<1?'neg':'pos')+'">'+(r.roiV?r.roiV.toFixed(2):'—')+'</span></div>'
       +'<div class="metric"><span class="k">毛利率</span><span class="v">'+gmTxt+'</span></div>'
       +'<div class="metric"><span class="k">利润率</span><span class="v">'+prTxt+'</span></div>'
+      +'<div class="metric"><span class="k" title="退款率(按金额) = 已发货退货退款金额 / 支付金额。越高越伤利润">退款率</span><span class="v '+rfCls+'">'+rfTxt+'</span></div>'
       +'<div class="metric"><span class="k" title="推广花费占销售额比（表字段或 1/ROI 回退）">推广费比</span><span class="v '+pctCls(promoRatio)+'">'+pctTxt(promoRatio)+'</span></div>'
       +'<div class="metric"><span class="k" title="货品成本占比(支付)（表字段，缺失按 1-毛利率 回退）">货品成本费比</span><span class="v '+pctCls(prodRatio)+'">'+pctTxt(prodRatio)+'</span></div>'
       +'<div class="metric"><span class="k" title="自定义费用占比（表字段，缺失按 1-利润率-推广-货品 回退）">自定义费比</span><span class="v '+pctCls(customRatio)+'">'+pctTxt(customRatio)+'</span></div>'

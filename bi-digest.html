@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609171111"></script>
-<script src="js/xlsx.full.min.js?v=202609171111"></script>
+<script src="js/echarts.min.js?v=202609171124"></script>
+<script src="js/xlsx.full.min.js?v=202609171124"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -343,7 +343,7 @@ function toggleFollowSection(){
   try{ localStorage.setItem('bi_follow_collapsed',FOLLOW_COLLAPSED?'1':'0'); }catch(e){}
 }
 /* 勾选集合按板块(act/drill/follow/search)分池，互不串扰：全选某列表不会把上一列表的勾选带过去 */
-const SEL_POOLS={act:new Set(),drill:new Set(),follow:new Set(),search:new Set()};
+const SEL_POOLS={act:new Set(),drill:new Set(),follow:new Set(),search:new Set(),regress:new Set(),regfollow:new Set()};
 let CUR_POOL='act';
 function selOf(pool){ return SEL_POOLS[pool]||(SEL_POOLS[pool]=new Set()); }
 function clearAllSel(){ Object.values(SEL_POOLS).forEach(function(s){ s.clear(); }); }
@@ -751,7 +751,7 @@ function followWatchCounts(rows){
 }
 
 /* ---------- 已处理 · 观察跟进（防重复核心） ---------- */
-function followRowHTML(r){ CUR_POOL='follow';
+function followRowHTML(r,pool){ CUR_POOL=pool||'follow';
   const t=followTag(r.link_id,r.p)||{tag:'new',days:0};
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
   const ts=planTs(r.link_id), days=t.days;
@@ -1092,13 +1092,18 @@ function renderBuckets(){
 }
 
 /* ============ 利润回退 · 由盈转亏（赚的没之前多 / 变亏，按档位划分）============ */
-let REG_OPEN=new Set();   // 展开的档位键集合，如 'turned:0' / 'shrink:2' / 'turned:all'
+let REG_OPEN=new Set();   // 下滑档多选集合：'reg:all' 或空集=全选；否则各 'reg:i' 取并集
+let REG_VIEW='all';       // 处理状态筛选：all / todo / done
+let REG_DACT='all';       // 动作类型筛选（与 BI 分档卡片同设计，用回归推荐动作归类）
+let REG_FVIEW='all';      // 由盈转亏观察看板 · 处理状态筛选
+let REG_FOLLOW_COLLAPSED=false;   // 由盈转亏观察区折叠状态（持久化）
+try{ REG_FOLLOW_COLLAPSED = localStorage.getItem('bi_regfollow_collapsed')==='1'; }catch(e){}
 function regressData(){
-  const cur=pendingOnly(platRows());
+  const cur=platRows();   // 全量（含已处理），便于「处理状态」核对：运营有没有处理过
   const wi=DATA.windows.indexOf(WIN);
   const pw=wi>0?DATA.windows[wi-1]:null;
   if(!pw) return null;
-  const prevRows=pendingOnly((DATA.winRowsMap[pw]||[]).filter(matchScope));
+  const prevRows=(DATA.winRowsMap[pw]||[]).filter(matchScope);
   const prevMap=new Map(); prevRows.forEach(r=>prevMap.set(r.link_id,r));
   const reg=[];
   cur.forEach(r=>{
@@ -1106,7 +1111,7 @@ function regressData(){
     if(!pv || pv.p===undefined) return;          // 上一期无此链接，无法判断回退
     if(r.p < pv.p){                              // 本期利润 < 上期 → 回退
       const dpr=(typeof pv.prV==='number'&&typeof r.prV==='number')?(pv.prV-r.prV):null;  // 利润率较上期下滑（百分点）
-      reg.push(Object.assign({},r,{_prev:pv.p,_ps:pv.ps,_d:r.p-pv.p,_ppv:pv.prV,_dpr:dpr}));
+      reg.push(Object.assign({},r,{_prev:pv.p,_ps:pv.ps,_d:r.p-pv.p,_ppv:pv.prV,_dpr:dpr,_handled:isHandled(r.link_id)}));
     }
   });
   return {pw, reg};
@@ -1121,29 +1126,88 @@ const REGRESS_TIERS=[
 function regressTiers(){
   const d=regressData(); if(!d) return null;
   const reg=d.reg;
+  const pending=reg.filter(r=>!r._handled);       // 待办回退（分档卡默认展示）
+  const handled=reg.filter(r=>r._handled);         // 已处理回退（处理状态检查/观察看板用）
   const tiers=REGRESS_TIERS.map(t=>({name:t.name, lo:t.lo, hi:t.hi,
-    list:reg.filter(r=> r._dpr!==null && r._dpr>t.lo && r._dpr<=t.hi).sort((a,b)=>b.s-a.s)}));
+    list:reg.filter(r=> r._dpr!==null && r._dpr>t.lo && r._dpr<=t.hi).sort((a,b)=>b.s-a.s)}));  // 全量建档，供筛选/已处理视图
   const other=reg.filter(r=> r._dpr===null || r._dpr<=0);  // 利润额下滑但利润率反升/缺值
-  const back=reg.reduce((a,r)=>a+(r.p-(r._prev||0)),0);
-  return {pw:d.pw, reg, tiers, other, back};
+  const back=pending.reduce((a,r)=>a+(r.p-(r._prev||0)),0);  // 仅待办回退合计
+  return {pw:d.pw, reg, pending, handled, tiers, other, back};
+}
+/* 由盈转亏每行右侧：运营是否已处理（快速按钮）。推荐动作 → 处理状态映射 */
+const REG_ACT_LABELS={
+  A_del:'停推广下架', A_stop:'停推广', B_fix:'提投产', C_price:'提价去优惠', D_struct:'查成本退款', E_watch:'观察收窄',
+  G_scale:'放大扩量', G_prio:'先提毛利', G_care:'利润下滑排查', G_keep:'保持', G_roi:'提投产'
+};
+const REC_TO_STATE={
+  A_del:'已下架', A_stop:'已停推广', B_fix:'已提投产', C_price:'已提价', D_struct:'已停推广', E_watch:'已完成',
+  G_scale:'已提投产', G_prio:'已提价', G_care:'已完成', G_keep:'已完成', G_roi:'已提投产'
+};
+function regressSideHTML(r){
+  const id=r.link_id, rec=classifyRec(r), meta=REC_META[rec.k];
+  const handled=isHandled(id), st=stateLabel(planState(id)), ts=planTs(id);
+  const actChip='<span class="act-chip '+meta.cls+'">'+rec.act+'</span>';
+  if(!handled){
+    const qst=REC_TO_STATE[rec.k]||'已提投产';
+    return actChip+'<div class="reg-side">'
+      +'<span class="reg-state reg-todo">未处理</span>'
+      +'<button class="qbtn" data-qact="'+id+'" data-qstate="'+qst+'">'+rec.act+' ✓</button>'
+      +'<span class="qmore" data-qmore="'+id+'" title="其他处理方式">⋯</span>'
+      +'<select class="qsel" data-qsel="'+id+'" style="display:none">'+STATE_OPTS.filter(s=>s!=='待处理').map(s=>'<option>'+s+'</option>').join('')+'</select>'
+      +'</div>';
+  }
+  return actChip+'<div class="reg-side">'
+    +'<span class="reg-state reg-done">✓ 已处理</span>'
+    +'<span class="reg-st">'+st+(ts?(' · '+String(ts).slice(0,10)):'')+'</span>'
+    +'<span class="qundo" data-qundo="'+id+'" title="撤销处理">↺</span>'
+    +'</div>';
+}
+/* 下滑档多选：'reg:all' 或空集=全选，否则取并集 */
+function regSelectedTiers(data){
+  if(REG_OPEN.has('reg:all')||REG_OPEN.size===0) return data.tiers.concat([{name:'其它(利润率反升)',list:data.other}]);
+  const sel=[]; data.tiers.forEach((c,i)=>{ if(REG_OPEN.has('reg:'+i)) sel=sel.concat(c.list); });
+  if(REG_OPEN.has('reg:other')) sel=sel.concat(data.other);
+  return [{name:'选中档',list:sel}];
 }
 function regressCard(data){
-  const all=data.reg, total=all.length, back=data.back, sub='reg';
-  const openKey=[...REG_OPEN].find(k=>k===sub+':all'||k.startsWith(sub+':'));
-  let chips='<div class="amtbar"><span class="lab">利润率下滑档</span>'
-    +'<span class="amt-chip '+(REG_OPEN.has(sub+':all')?'active':'')+'" data-rtier="'+sub+':all">全部<span class="n">'+total+'</span></span>';
-  data.tiers.forEach((c,i)=>{ chips+='<span class="amt-chip '+(REG_OPEN.has(sub+':'+i)?'active':'')+(c.list.length?'':' disable')+'" data-rtier="'+sub+':'+i+'">'+c.name+'<span class="n">'+c.list.length+'</span></span>'; });
-  chips+='</div>';
-  let list='';
-  if(openKey){
-    const rows = openKey===sub+':all' ? all : data.tiers[parseInt(openKey.split(':')[1])].list;
-    const shown=[...rows].sort((a,b)=>b.s-a.s).slice(0,200);
-    list='<div class="rlist">'+shown.map(r=>drillRowHTML(r)).join('')+(rows.length>200?'<div class="empty">为保证流畅仅显示前 200 条，可缩小筛选范围</div>':'')+'</div>';
-  }
-  const otherNote = data.other.length ? '<div class="r-note">另有 <b>'+data.other.length+'</b> 条利润额下滑但利润率反升（多为销量萎缩），未计入上述下滑档。</div>' : '';
+  const all=data.reg, pending=data.pending, handled=data.handled, back=data.back, sub='reg';
+  const todoN=pending.length, doneN=handled.length;
+  // 下滑档多选 chips（含「其它」）
+  const tiersHTML=data.tiers.map((c,i)=>'<span class="amt-chip '+(REG_OPEN.has(sub+':'+i)?'active':'')+(c.list.length?'':' disable')+'" data-rtier="'+sub+':'+i+'">'+c.name+'<span class="n">'+c.list.length+'</span></span>').join('')
+    +'<span class="amt-chip '+(REG_OPEN.has(sub+':other')?'active':'')+(data.other.length?'':' disable')+'" data-rtier="'+sub+':other">其它(利润率反升)<span class="n">'+data.other.length+'</span></span>';
+  const tiersBar='<div class="amtbar"><span class="lab">利润率下滑档（多选）</span>'
+    +'<span class="amt-chip '+(REG_OPEN.has(sub+':all')||REG_OPEN.size===0?'active':'')+'" data-rtier="'+sub+':all">全部<span class="n">'+all.length+'</span></span>'+tiersHTML+'</div>';
+  // 处理状态筛选
+  const viewBar='<div class="amtbar amtbar-view"><span class="lab">处理状态</span>'
+    +'<span class="amt-chip '+(REG_VIEW==='all'?'active':'')+'" data-rview="all">全部<span class="n">'+all.length+'</span></span>'
+    +'<span class="amt-chip v-todo '+(REG_VIEW==='todo'?'active':'')+'" data-rview="todo">🔴 未处理<span class="n">'+todoN+'</span></span>'
+    +'<span class="amt-chip v-done '+(REG_VIEW==='done'?'active':'')+'" data-rview="done">🟢 已处理<span class="n">'+doneN+'</span></span></div>';
+  // 动作类型筛选（回归推荐动作归类）
+  const actCnt={all:all.length}; pending.concat(handled).forEach(r=>{ const k=classifyRec(r).k; actCnt[k]=(actCnt[k]||0)+1; });
+  const order=['G_prio','G_care','G_scale','A_stop','B_fix','C_price','D_struct','A_del','E_watch','G_keep'];
+  const actBar='<div class="amtbar amtbar-act"><span class="lab">动作类型</span>'
+    +'<span class="amt-chip '+(REG_DACT==='all'?'active':'')+'" data-rdact="all">全部<span class="n">'+all.length+'</span></span>'
+    +order.filter(k=>actCnt[k]).map(k=>'<span class="amt-chip '+(REG_DACT===k?'active':'')+'" data-rdact="'+k+'">'+(REG_ACT_LABELS[k]||k)+'<span class="n">'+actCnt[k]+'</span></span>').join('')+'</div>';
+  // 列表：选中档并集 → 处理状态/动作类型筛选 → 渲染
+  const tiers=regSelectedTiers(data);
+  let rows=tiers[0].list.slice();
+  if(REG_VIEW==='todo') rows=rows.filter(r=>!r._handled);
+  else if(REG_VIEW==='done') rows=rows.filter(r=>r._handled);
+  if(REG_DACT!=='all') rows=rows.filter(r=>classifyRec(r).k===REG_DACT);
+  rows=rows.sort((a,b)=>b.s-a.s);
+  const shown=rows.slice(0,200);
+  const listHTML='<div class="listcard" id="regressCard" data-allids="'+esc(JSON.stringify(all.map(r=>r.link_id)))+'">'
+    +actBar+batchBarHTML('regress',shown.length)
+    +'<div class="listhead">▾ 利润回退链接 · '+rows.length+' 条<span class="lsub">每行右侧可一键标记运营已处理（按回归推荐动作）；点行看趋势 · 勾选批量复制/标记</span></div>'
+    +'<div class="ltable">'+shown.map(r=>drillRowHTML(r,'regress')).join('')+'</div>'
+    +(rows.length>200?'<div class="pager"><span>为保证流畅仅显示前 200 条，可缩小筛选范围</span></div>':'')
+    +'</div>';
+  const otherNote = data.other.length ? '<div class="r-note">另有 <b>'+data.other.length+'</b> 条利润额下滑但利润率反升（多为销量萎缩），在「其它(利润率反升)」档中。</div>' : '';
+  const sc=(doneN?'<div class="status-check"><span class="scitem sc-todo">🔴 未处理 '+todoN+' 条</span><span class="scitem sc-done">🟢 已处理 '+doneN+' 条</span><span class="sclink" data-jump="regfollow">→ 去由盈转亏观察看板</span></div>':'');
   return '<div class="bucket-card regress-card"><div class="bhead">📉 利润回退 · 由盈转亏'
-    +'<span class="bcnt">共 '+total+' 条 · 较上期回退合计 '+fmtMoney(back)+' 元</span>'
-    +'<span class="bcomp down">对比上一期 '+data.pw.replace(/\//g,'-')+'</span></div>'+chips+list+otherNote+'</div>';
+    +'<span class="bcnt">待办 '+todoN+' 条 · 较上期回退合计 '+fmtMoney(back)+' 元</span>'
+    +'<span class="bcomp down">对比上一期 '+data.pw.replace(/\//g,'-')+'</span></div>'
+    +tiersBar+viewBar+sc+listHTML+otherNote+'</div>';
 }
 function renderRegress(){
   const host=document.getElementById('regressHost');
@@ -1152,17 +1216,80 @@ function renderRegress(){
   const hint=document.getElementById('regressHint');
   if(!data){
     host.innerHTML='<div class="empty">最早窗口，无上一期可比，暂不显示回退分析。切到更早数据窗口即可对比。</div>';
-    if(hint) hint.textContent='对比所选窗口与上一期快照，按「利润率较上期下滑幅度」分五档（≤1% / 1–2% / 2–3% / 3–5% / >5%），识别回退链接（待办口径）';
+    if(hint) hint.textContent='对比所选窗口与上一期快照，按「利润率较上期下滑幅度」分档，识别回退链接';
     return;
   }
   host.innerHTML=regressCard(data);
-  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分五档（≤1% / 1–2% / 2–3% / 3–5% / >5%），档内链接按净销售额降序。点档位展开，每行含「较上期回退额 + 利润率下滑」。待办口径，已处理的在观察区';
+  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分档（可多选）。每行右侧可一键标记运营是否已处理（按回归推荐动作：先提毛利/利润下滑排查/放大扩量等），顶部「处理状态」可只看未处理/已处理，「动作类型」可按推荐动作筛选。已处理的可在下方「由盈转亏·观察看板」跟踪回弹';
+  // 下滑档多选
   host.querySelectorAll('[data-rtier]').forEach(ch=>{
-    ch.addEventListener('click',()=>{ const k=ch.dataset.rtier; if(REG_OPEN.has(k))REG_OPEN.delete(k); else REG_OPEN.add(k); renderRegress(); });
+    ch.addEventListener('click',()=>{ const k=ch.dataset.rtier; if(k===sub0('all')) REG_OPEN.clear(); else { if(REG_OPEN.has(sub0('all')))REG_OPEN.delete(sub0('all')); if(REG_OPEN.has(k))REG_OPEN.delete(k); else REG_OPEN.add(k); } renderRegress(); });
   });
+  // 处理状态筛选
+  host.querySelectorAll('[data-rview]').forEach(ch=>{ ch.addEventListener('click',()=>{ REG_VIEW=ch.dataset.rview; renderRegress(); }); });
+  // 动作类型筛选
+  host.querySelectorAll('[data-rdact]').forEach(ch=>{ ch.addEventListener('click',()=>{ if(ch.classList.contains('disable'))return; REG_DACT=ch.dataset.rdact; renderRegress(); }); });
+  // 每行快速处理
+  host.querySelectorAll('[data-qact]').forEach(b=>{ b.addEventListener('click',e=>{ e.stopPropagation(); setPlan(b.dataset.qact,b.dataset.qstate); refreshAllAfterState(); }); });
+  host.querySelectorAll('[data-qmore]').forEach(s=>{ s.addEventListener('click',e=>{ e.stopPropagation(); const sel=s.parentElement.querySelector('.qsel'); if(sel) sel.style.display=sel.style.display==='none'?'inline-block':'none'; }); });
+  host.querySelectorAll('[data-qsel]').forEach(s=>{ s.addEventListener('change',e=>{ e.stopPropagation(); setPlan(s.dataset.qsel,s.value); refreshAllAfterState(); }); s.addEventListener('click',e=>e.stopPropagation()); });
+  host.querySelectorAll('[data-qundo]').forEach(s=>{ s.addEventListener('click',e=>{ e.stopPropagation(); setPlan(s.dataset.qundo,'待处理'); refreshAllAfterState(); }); });
+  const rc=document.getElementById('regressCard');
+  if(rc) bindBatch(rc,'regress');
+  const scLink=host.querySelector('[data-jump="regfollow"]');
+  if(scLink) scLink.addEventListener('click',()=>{ const fb=document.getElementById('regFollowHost'), sec=document.getElementById('regFollowSection'); if(REG_FOLLOW_COLLAPSED&&sec){ REG_FOLLOW_COLLAPSED=false; sec.classList.remove('collapsed'); if(fb)fb.style.display=''; try{localStorage.setItem('bi_regfollow_collapsed','0');}catch(e){} } if(fb) fb.scrollIntoView({behavior:'smooth',block:'start'}); });
+}
+function sub0(t){ return 'reg:'+t; }
+
+/* ===== 由盈转亏 · 已处理观察看板（单独，跟踪运营处理后回弹）===== */
+function toggleRegFollowSection(){
+  REG_FOLLOW_COLLAPSED=!REG_FOLLOW_COLLAPSED;
+  const sec=document.getElementById('regFollowSection'), host=document.getElementById('regFollowHost');
+  if(!sec||!host) return;
+  sec.classList.toggle('collapsed',REG_FOLLOW_COLLAPSED);
+  host.style.display=REG_FOLLOW_COLLAPSED?'none':'';
+  try{ localStorage.setItem('bi_regfollow_collapsed',REG_FOLLOW_COLLAPSED?'1':'0'); }catch(e){}
+}
+function renderRegFollow(){
+  const host=document.getElementById('regFollowHost');
+  if(!host) return;
+  const data=regressTiers();
+  const hint=document.getElementById('regFollowHint');
+  if(hint) hint.textContent='仅收录「既是利润回退链接、又已标记运营已处理」的链接：按处理状态归档，跟踪是否回弹/超期。可与上方「处理状态」核对运营做了什么。点本分区标题可折叠';
+  if(!data){ host.innerHTML=''; return; }
+  const hs=data.handled.slice();   // 已处理的回退链接
+  if(!hs.length){ host.innerHTML='<div class="empty-follow">回退链接里还没有运营已处理的记录。在上方「利润回退」板块每行右侧点「{动作} ✓」标记后，会自动收录到这里，用于观察数据是否回弹。</div>'; return; }
+  const w=followWatchCounts(hs.concat(platRows().filter(r=>isHandled(r.link_id))));
+  const stCounts={}; hs.forEach(r=>{ const s=stateLabel(planState(r.link_id)); stCounts[s]=(stCounts[s]||0)+1; });
+  const stColor={'已停推广':'c-exp','已下架':'c-exp','已提投产':'c-watch','已提价':'c-watch','已完成':'c-ok','不处理':'c-all'};
+  const cards=[['all','全部已处理',hs.length,'c-all']].concat(
+    STATE_OPTS.filter(s=>s!=='待处理').map(s=>[s,s,(stCounts[s]||0),stColor[s]||'c-all']).filter(c=>c[2]>0)
+  );
+  let list=hs.slice().sort((a,b)=>{
+    const ta=followTag(a.link_id,a.p), tb=followTag(b.link_id,b.p);
+    const rank=t=> t&&t.tag==='exp'?0:(t&&t.tag==='new'?1:2);
+    return (rank(ta)-rank(tb))||(a.p-b.p);
+  });
+  if(REG_FVIEW!=='all') list=list.filter(r=>stateLabel(planState(r.link_id))===REG_FVIEW);
+  const tagCounts={new:0,exp:0,off:0};
+  list.forEach(r=>{ const tg=followTag(r.link_id,r.p); if(tg&&tg.tag!=='new')tagCounts[tg.tag]++; else if(tg)tagCounts.new++; });
+  const html='<div class="follow-head"><div class="follow-sum">'
+    +cards.map(c=>'<div class="fcard '+(REG_FVIEW===c[0]?'sel':'')+'" data-rfv="'+c[0]+'"><div class="fv '+c[3]+'">'+c[2]+'</div><div class="fk">'+c[1]+'</div></div>').join('')
+    +'</div><span class="idsearch-msg">当前列表 '+list.length+' 条'
+    +(tagCounts.exp?' · ⚠超期未回弹 '+tagCounts.exp:'')+(tagCounts.new?' · 观察中 '+tagCounts.new:'')+(tagCounts.off?' · 已回弹 '+tagCounts.off:'')+'</span></div>'
+    +'<div class="listcard" id="regFollowCard" data-allids="'+esc(JSON.stringify(hs.map(r=>r.link_id)))+'">'
+    +batchBarHTML('regfollow',list.length)
+    +'<div class="listhead">▾ 由盈转亏 · 已处理观察 '+list.length+' 条<span class="lsub">点行看趋势 · 点状态可改标（转「待处理」即回到待办）</span></div>'
+    +'<div class="ltable">'+list.slice(0,200).map(r=>followRowHTML(r,'regfollow')).join('')+'</div>'
+    +(list.length>200?'<div class="pager"><span>仅展示前 200 条，切换上方卡片查看其余</span></div>':'')
+    +'</div>';
+  host.innerHTML=html;
+  host.querySelectorAll('.fcard[data-rfv]').forEach(ch=>{ ch.addEventListener('click',()=>{ REG_FVIEW=ch.dataset.rfv; renderRegFollow(); }); });
+  const fcard=document.getElementById('regFollowCard');
+  if(fcard) bindBatch(fcard,'regfollow');
 }
 
-function drillRowHTML(r){ CUR_POOL='drill';
+function drillRowHTML(r,sideMode){ CUR_POOL=sideMode==='regress'?'regress':'drill';
   const d=trendDelta(r.link_id), dCls=d>2?'trend-up':(d<-2?'trend-down':'trend-flat'), dArw=d>2?'▲':(d<-2?'▼':'—');
   const rec=classifyRec(r), meta=REC_META[rec.k];
   const gmTxt=(r.gmTxt&&r.gmTxt!=='0.00%'&&r.gmTxt!=='0%'&&r.gmTxt!=='0')?pctStr(r.gmTxt):'—';
@@ -1195,7 +1322,7 @@ function drillRowHTML(r){ CUR_POOL='drill';
       +'<div class="metric"><span class="k" title="自定义费用占比（表字段，缺失按 1-利润率-推广-货品 回退）">自定义费比</span><span class="v '+pctCls(customRatio)+'">'+pctTxt(customRatio)+'</span></div>'
       +'<div class="metric"><span class="k">趋势</span><span class="v '+dCls+'">'+dArw+'</span></div>'
       +'</div>'
-    +'<div class="r-side"><span class="act-chip '+meta.cls+'">'+rec.act+'</span>'+stateChipHTML(r.link_id)+'</div>'
+    +'<div class="r-side">'+(sideMode==='regress'?regressSideHTML(r):('<span class="act-chip '+meta.cls+'">'+rec.act+'</span>'+stateChipHTML(r.link_id)))+'</div>'
     +'</div>'
     +'<div class="r-why"><span class="wico">💡</span> '+esc(rec.why)+'</div>'
     +(r._prev!==undefined?'<div class="r-regress"><span class="ri">↘ 较上期（利润·支付）：'+fmtMoney(r._prev)+' → '+fmtMoney(r.p)+' <b class="rb">回退 '+fmtMoney(r.p-r._prev)+'</b></span>'+(r._ps!==undefined?'<span class="ri2">发货：'+fmtMoney(r._ps)+' → '+fmtMoney(r.ps)+'</span>':'')+(r._dpr!==null&&r._dpr>0?'<span class="ri3">利润率下滑 '+fmtPct(r._dpr)+'</span>':'')+'</div>':'')
@@ -1277,7 +1404,7 @@ function drawTrend(canvas,id){
 }
 
 function renderAll(){
-  renderWinBar(); renderOverview(); renderBuckets(); renderDrill(); renderRegress(); renderProducts(); renderFollow(); renderIdSearch();
+  renderWinBar(); renderOverview(); renderBuckets(); renderDrill(); renderRegress(); renderProducts(); renderFollow(); renderRegFollow(); renderIdSearch();
 }
 
 /* ---------- 批量ID搜索（可搜索后批量调整优化动作状态） ---------- */

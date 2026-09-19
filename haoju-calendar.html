@@ -405,6 +405,8 @@ var BROKERS=[
   'wss://broker.hivemq.com:8884/mqtt'
 ];
 var CONNS=[], ANY=false, GOT_RETAIN=false, LAST_TS=0, PING=null;
+// REV=数据版本号（每次改动 +1）。用递增计数而不是机器时钟：几台电脑时间不一致也不会互相挡。
+var REV=0;
 var _sv=function(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} };
 var _ld=function(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } };
 var _sraw=function(k,s){ try{ localStorage.setItem(k,s); }catch(e){} };
@@ -432,20 +434,31 @@ function _badge(t,on){
   b.textContent=t; b.style.background=on?'rgba(22,163,74,.12)':'rgba(217,119,6,.14)';
   b.style.color=on?'#16a34a':'#b45309';
 }
-function _apply(rows,ts){
-  if(ts && LAST_TS && ts<LAST_TS)return;                     // 云端比本地旧 → 不覆盖（自己的新改动优先）
-  LAST_TS=ts||LAST_TS;
-  if(ts)_sv('hj_cal_ts',LAST_TS);
-  D=_norm(rows);
-  _sraw('hj_cal_cache',JSON.stringify(D));                   // 本地留一份：刷新/断网先渲染这份，不回落出厂计划
-  renderAll();
-}
 function _norm(rows){
   return rows.map(function(r){ return {p:r.p,n:r.n,d:r.d||'',m:r.m,lm:(r.lm==null?2:r.lm),
     pr:r.pr||'常规',th:r.th||'',ta:r.ta||'',by:r.by||'',on:r.on!==false}; });
 }
-function _snap(ts){
-  return JSON.stringify({ver:1,ts:ts,rows:D.map(function(r){
+function _cache(){ try{ _sraw('hj_cal_cache',JSON.stringify(D)); }catch(e){} }
+function _same(rows){                                        // 和页面上的数据一样吗（一样就不重渲染，免得打断正在打字的人）
+  if(!rows||rows.length!==D.length)return false;
+  for(var i=0;i<rows.length;i++){
+    var a=rows[i], b=D[i];
+    if(a.p!==b.p||a.n!==b.n||(a.d||'')!==(b.d||'')||a.pr!==b.pr||(a.th||'')!==(b.th||'')||
+       (a.ta||'')!==(b.ta||'')||(a.by||'')!==(b.by||'')||(a.on!==false)!==(b.on!==false)) return false;
+  }
+  return true;
+}
+function _apply(rows,rev,ts){
+  if(rev && REV && rev<REV)return;                           // 收到的版本比本地旧 → 忽略
+  if(rev)REV=Math.max(REV,rev);
+  if(ts)LAST_TS=ts;
+  _sv('hj_cal_rev',REV); _sv('hj_cal_ts',LAST_TS);
+  if(_pt)return;                                             // 本地有还没推出去的改动 → 先不覆盖页面
+  if(_same(rows))return;                                     // 内容一样 → 不重渲染
+  D=_norm(rows); _cache(); renderAll();
+}
+function _snap(){
+  return JSON.stringify({ver:2,rev:REV,ts:Date.now(),rows:D.map(function(r){
     return {p:r.p,n:r.n,d:r.d||'',m:r.m,lm:r.lm||2,pr:r.pr||'常规',th:r.th||'',ta:r.ta||'',by:r.by||'',on:r.on!==false};})});
 }
 // 同时连所有 broker 并各自订阅：谁改一处，所有 broker 都会收到 → 所有人一致。
@@ -461,7 +474,7 @@ function _openOne(url,i){
   var ws; try{ ws=new WebSocket(url,['mqtt']); }catch(e){ return setTimeout(connectAll,4000); }
   ws.binaryType='arraybuffer';
   CONNS[i]=ws;
-  var up=false, to=setTimeout(function(){ try{ws.close();}catch(e){} },9000);
+  var up=false, to=setTimeout(function(){ try{ws.close();}catch(e){} },12000);
   ws.onopen=function(){ ws.send(_con('hj'+Date.now().toString(36)+i+Math.random().toString(36).slice(2,5))); };
   ws.onmessage=function(ev){
     if(!(ev.data instanceof ArrayBuffer))return;
@@ -471,11 +484,11 @@ function _openOne(url,i){
       ws.send(_sub(TOPIC));
       setTimeout(function(){                                // 该 broker 上没有留存数据 → 播种
         if(ws.readyState!==1||GOT_RETAIN)return;
-        var pend=_lraw('hj_cal_pending'), cache=_lraw('hj_cal_cache');
-        if(pend||cache){ ws.send(_pub(TOPIC, pend||cache, true)); return; }  // 本地有数据：3 秒就播
+        var pend=_lraw('hj_cal_pending'), cac=_lraw('hj_cal_cache');
+        if(pend||cac){ ws.send(_pub(TOPIC, pend||cac, true)); return; }      // 本地有数据：3 秒就播
         setTimeout(function(){                                              // 全新访客：多等一会儿，别把别人的数据盖掉
           if(ws.readyState!==1||GOT_RETAIN)return;
-          ws.send(_pub(TOPIC,_snap(Date.now()),true));
+          ws.send(_pub(TOPIC,_snap(),true));
         },7000);
       },3000);
     } else if(t===3){                                       // 收到云端数据（含 retain）
@@ -485,22 +498,28 @@ function _openOne(url,i){
       if(!o||!o.rows||!o.rows.length)return;
       GOT_RETAIN=true;
       var pend=_lraw('hj_cal_pending');
-      if(pend && (!o.ts || LAST_TS>o.ts)){                  // 本地有更新的离线改动 → 以本地为准推回去
-        ws.send(_pub(TOPIC,pend,true)); _del('hj_cal_pending'); return;
+      if(pend){                                             // 有没推出去的离线改动 → 看谁更新
+        var po=null; try{ po=JSON.parse(pend); }catch(e){}
+        if(po && (!o.rev || (po.rev||0)>=(o.rev||0))){ ws.send(_pub(TOPIC,pend,true)); _del('hj_cal_pending'); return; }
+        _del('hj_cal_pending');
       }
-      _del('hj_cal_pending');
-      _apply(o.rows,o.ts);
+      _apply(o.rows,o.rev,o.ts);
     }
   };
   ws.onerror=function(){};
   ws.onclose=function(){
     clearTimeout(to);
     if(CONNS[i]===ws) CONNS[i]=null;
-    up && (ANY = CONNS.some(function(x){ return x && x.readyState===1; }));
+    ANY = CONNS.some(function(x){ return x && x.readyState===1; });
     _updBadge();
     setTimeout(connectAll, 2000+Math.random()*3000);         // 各自独立重连（错开避免同时抖动）
   };
 }
+// 每 15 秒重新订阅一次：broker 会把 retain 数据再发一遍。
+// 偶尔有网络抖动导致某次推送没收到，下一轮就自动补上，不用刷新页面。
+setInterval(function(){
+  CONNS.forEach(function(ws){ if(ws && ws.readyState===1){ try{ ws.send(_sub(TOPIC)); }catch(e){} } });
+},15000);
 function _updBadge(){
   var connected = CONNS.some(function(x){ return x && x.readyState===1; });
   ANY=connected;
@@ -510,15 +529,17 @@ function _updBadge(){
 }
 function connect(){ connectAll(); }
 function push(){
+  REV=REV+1;                                                 // 本地改动 = 新版本
   LAST_TS=Date.now();
+  _sv('hj_cal_rev',REV);
   _sv('hj_cal_ts',LAST_TS);                                  // 先记本地时间戳，自己的消息回来时不来回覆盖
-  _sraw('hj_cal_cache',JSON.stringify(D));                   // 同步存一份本地缓存
-  var snap=_snap(LAST_TS);
+  _cache();                                                  // 同步存一份本地缓存
+  var snap=_snap();
   _sraw('hj_cal_pending',snap);                              // 暂存待推（存字符串），断线也不丢
   var sent=false;
   CONNS.forEach(function(ws){ if(ws && ws.readyState===1){ try{ ws.send(_pub(TOPIC,snap,true)); sent=true; }catch(e){} } });
   if(sent){ _del('hj_cal_pending'); flash(); }
-  else _updBadge();
+  _updBadge();
 }
 function flash(){
   const el=document.getElementById('st'); if(!el)return;
@@ -934,7 +955,8 @@ function exportImage(){
 document.getElementById('btnImg').addEventListener('click',exportImage);
 // 先用本地缓存渲染（刷新/断网时不回落出厂计划），云端数据到了再覆盖
 try{ var _cc=_lraw('hj_cal_cache'), _cr=_cc?JSON.parse(_cc):null; if(_cr&&_cr.length)D=_norm(_cr); }catch(e){}
-LAST_TS=Number(_ld('hj_cal_ts')||0);   // 记住本地已有数据的时间戳，避免自己的旧数据覆盖云端新数据
+LAST_TS=Number(_ld('hj_cal_ts')||0);
+REV=Number(_ld('hj_cal_rev')||0);      // 记住本地数据版本，刷新后继续接得上云端
 renderAll();
 connectAll();   // 接上协同：任何人打开都是同一份，改一处全场实时同步
 </script>

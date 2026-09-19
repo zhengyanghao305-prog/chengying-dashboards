@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>短视频脚本生产流程 &amp; 提示词手册</title>
+<style>
+  :root{
+    --brand:#f97316; --brand-d:#ea580c; --brand-l:#fff7ed; --brand-b:#fed7aa;
+    --ink:#18181b; --ink-2:#3f3f46; --muted:#71717a; --mute-2:#a1a1aa;
+    --line:#e4e4e7; --line-2:#f4f4f5; --bg:#fafaf9; --card:#ffffff;
+    --code-bg:#111827; --code-ink:#e5e7eb;
+    --ok:#059669; --ok-l:#ecfdf5; --warn:#d97706; --warn-l:#fffbeb; --no:#dc2626; --no-l:#fef2f2;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:15px; line-height:1.75; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--brand-d); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    background:linear-gradient(150deg,#1c1917 0%,#292524 45%,#3b2f24 100%);
+    color:#fff; padding:56px 32px 48px; position:relative; overflow:hidden;
+  }
+  .hero::after{
+    content:""; position:absolute; right:-120px; top:-120px; width:420px; height:420px;
+    background:radial-gradient(circle,rgba(249,115,22,.45),transparent 68%); pointer-events:none;
+  }
+  .hero-inner{max-width:1120px; margin:0 auto; position:relative; z-index:1;}
+  .badge{
+    display:inline-block; font-size:12px; letter-spacing:.14em; font-weight:700;
+    color:#fdba74; background:rgba(249,115,22,.14); border:1px solid rgba(249,115,22,.42);
+    padding:5px 12px; border-radius:999px; margin-bottom:18px;
+  }
+  .hero h1{font-size:34px; line-height:1.3; margin:0 0 14px; font-weight:800; letter-spacing:-.01em;}
+  .hero h1 em{font-style:normal; color:#fdba74;}
+  .hero p.lead{font-size:16px; color:#d6d3d1; max-width:780px; margin:0 0 26px;}
+  .hero-meta{display:flex; flex-wrap:wrap; gap:10px;}
+  .hero-meta span{
+    font-size:12.5px; color:#e7e5e4; background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.14); padding:5px 12px; border-radius:8px;
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:1120px; margin:0 auto; padding:0 32px 96px; display:grid; grid-template-columns:212px 1fr; gap:44px; align-items:start;}
+  nav.toc{position:sticky; top:24px; padding-top:44px; font-size:13.5px;}
+  nav.toc .toc-t{font-size:11px; letter-spacing:.16em; color:var(--mute-2); font-weight:700; margin:0 0 12px 12px;}
+  nav.toc a{
+    display:block; color:var(--ink-2); padding:6px 12px; border-left:2px solid var(--line);
+    line-height:1.5; text-decoration:none;
+  }
+  nav.toc a:hover{border-left-color:var(--brand-b); background:var(--brand-l); color:var(--brand-d); text-decoration:none;}
+  nav.toc a.sub{padding-left:24px; font-size:12.5px; color:var(--muted);}
+  main{padding-top:44px; min-width:0;}
+
+  /* ---------- Blocks ---------- */
+  section{margin-bottom:52px; scroll-margin-top:20px;}
+  h2{
+    font-size:23px; font-weight:800; margin:0 0 8px; letter-spacing:-.01em;
+    display:flex; align-items:center; gap:12px; scroll-margin-top:24px;
+  }
+  h2 .n{
+    flex:0 0 auto; width:32px; height:32px; border-radius:9px; background:var(--brand); color:#fff;
+    font-size:15px; display:flex; align-items:center; justify-content:center; font-weight:800;
+  }
+  h2.no-num{display:block;}
+  h3{font-size:16.5px; font-weight:700; margin:30px 0 10px; color:var(--ink);}
+  h4{font-size:14.5px; font-weight:700; margin:20px 0 8px; color:var(--ink-2);}
+  .sub{color:var(--muted); font-size:14px; margin:0 0 22px 44px;}
+  .sub.wide{margin-left:0;}
+  p{margin:0 0 14px;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; margin:0 0 18px;}
+  .card.tight{padding:18px 20px;}
+
+  /* ---------- Pipeline ---------- */
+  .pipe{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:26px 0 8px;}
+  .pipe .step{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 14px 16px;
+    position:relative;
+  }
+  .pipe .step::after{
+    content:"›"; position:absolute; right:-11px; top:50%; transform:translateY(-50%);
+    color:var(--brand-b); font-size:24px; font-weight:700; z-index:2;
+  }
+  .pipe .step:last-child::after{display:none;}
+  .pipe .k{font-size:11px; font-weight:800; letter-spacing:.1em; color:var(--brand-d); margin-bottom:6px;}
+  .pipe .t{font-size:14px; font-weight:700; margin-bottom:4px;}
+  .pipe .d{font-size:12px; color:var(--muted); line-height:1.6;}
+
+  .pipe-note{
+    font-size:12.5px; color:var(--brand-d); background:var(--brand-l); border:1px dashed var(--brand-b);
+    border-radius:10px; padding:10px 14px; margin-top:14px;
+  }
+
+  /* ---------- Tables ---------- */
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:14px 0 18px; background:var(--card);}
+  th{background:#fafafa; text-align:left; font-weight:700; color:var(--ink-2); font-size:12.5px; letter-spacing:.02em;}
+  th,td{border:1px solid var(--line); padding:9px 12px; vertical-align:top; line-height:1.65;}
+  tbody tr:hover{background:#fcfcfc;}
+  td code, p code, li code{background:#f4f4f5; border:1px solid var(--line); border-radius:5px; padding:1px 5px; font-size:12.5px; font-family:ui-monospace,Consolas,monospace; color:var(--brand-d);}
+
+  /* ---------- Prompt / code ---------- */
+  .prompt{position:relative; background:var(--code-bg); border-radius:12px; margin:14px 0 18px; overflow:hidden;}
+  .prompt .bar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:9px 12px 9px 16px; background:rgba(255,255,255,.05); border-bottom:1px solid rgba(255,255,255,.09);
+  }
+  .prompt .bar .lb{color:#9ca3af; font-size:12px; font-weight:600; letter-spacing:.03em;}
+  .prompt .bar .lb b{color:#fdba74; font-weight:700;}
+  .copy{
+    background:rgba(249,115,22,.16); color:#fdba74; border:1px solid rgba(249,115,22,.4);
+    border-radius:7px; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer;
+    font-family:inherit; transition:.15s; white-space:nowrap;
+  }
+  .copy:hover{background:rgba(249,115,22,.3); color:#fff;}
+  .copy.done{background:rgba(16,185,129,.2); color:#6ee7b7; border-color:rgba(16,185,129,.45);}
+  .prompt pre{
+    margin:0; padding:18px 20px; overflow-x:auto; color:var(--code-ink);
+    font-family:ui-monospace,"SFMono-Regular",Consolas,"Courier New",monospace;
+    font-size:12.8px; line-height:1.85; white-space:pre-wrap; word-break:break-word;
+  }
+  .prompt pre .hl{color:#fdba74; font-weight:700;}
+
+  /* ---------- Callouts ---------- */
+  .note{border-left:3px solid var(--brand); background:var(--brand-l); border-radius:0 10px 10px 0; padding:12px 16px; margin:16px 0; font-size:13.5px; color:#7c2d12;}
+  .note b{color:#9a3412;}
+  .note.gray{border-left-color:var(--mute-2); background:#fafafa; color:var(--ink-2);}
+  .note.gray b{color:var(--ink);}
+  .note.ok{border-left-color:var(--ok); background:var(--ok-l); color:#065f46;}
+  .note.ok b{color:#064e3b;}
+  .note.warn{border-left-color:var(--warn); background:var(--warn-l); color:#92400e;}
+  .note.no{border-left-color:var(--no); background:var(--no-l); color:#991b1b;}
+
+  .tag{display:inline-block; font-size:11px; font-weight:800; letter-spacing:.06em; padding:2px 8px; border-radius:5px; vertical-align:middle;}
+  .tag.org{background:var(--brand-l); color:var(--brand-d); border:1px solid var(--brand-b);}
+  .tag.gry{background:#f4f4f5; color:var(--muted); border:1px solid var(--line);}
+  .tag.grn{background:var(--ok-l); color:var(--ok); border:1px solid #a7f3d0;}
+
+  ul,ol{margin:0 0 14px; padding-left:22px;}
+  li{margin-bottom:6px;}
+  li::marker{color:var(--brand);}
+  ol li::marker{font-weight:700;}
+
+  /* ---------- KPI / sample cards ---------- */
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:16px 0;}
+  .mini{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px;}
+  .mini .h{font-size:13px; font-weight:800; color:var(--brand-d); margin-bottom:7px;}
+  .mini .b{font-size:13px; color:var(--ink-2); line-height:1.7;}
+  .mini .b em{font-style:normal; background:#fff7ed; color:#9a3412; padding:0 4px; border-radius:4px;}
+
+  .shot{border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card); margin-bottom:16px;}
+  .shot .sh{background:#fafafa; border-bottom:1px solid var(--line); padding:10px 16px; font-size:13px; font-weight:800; color:var(--ink); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .shot .sh .time{font-weight:600; color:var(--muted); font-size:12px;}
+  .shot .sb{padding:14px 18px;}
+  .shot .sb .line{font-size:13.5px; margin-bottom:9px;}
+  .shot .sb .line:last-child{margin-bottom:0;}
+  .shot .sb .line .lb{display:inline-block; min-width:74px; color:var(--muted); font-size:12px; font-weight:700;}
+  .shot .sb blockquote{
+    margin:0; padding:10px 14px; background:#fafafa; border-left:3px solid var(--brand-b); border-radius:0 8px 8px 0;
+    font-size:13.5px; color:var(--ink-2); line-height:1.85;
+  }
+
+  footer{border-top:1px solid var(--line); margin-top:20px; padding:26px 0 0; font-size:12.5px; color:var(--mute-2);}
+
+  @media (max-width:900px){
+    .wrap{grid-template-columns:1fr; gap:0; padding:0 20px 64px;}
+    nav.toc{position:static; padding-top:28px;}
+    nav.toc a{display:inline-block; border-left:none; border-bottom:2px solid var(--line); padding:5px 10px;}
+    main{padding-top:24px;}
+    .pipe{grid-template-columns:1fr 1fr;}
+    .pipe .step::after{display:none;}
+    .grid2,.grid3{grid-template-columns:1fr;}
+    .hero{padding:40px 20px 34px;}
+    .hero h1{font-size:25px;}
+    .sub{margin-left:0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="badge">内容生产 SOP · 交付版</div>
+    <h1>短视频脚本到底是怎么写出来的<br><em>——完整流程 + 可直接复制的提示词</em></h1>
+    <p class="lead">
+      我们不是靠"文笔好"在写脚本，而是跑一条固定的流水线：先用产品知识库把弹药存好，再用爆款拆解学会结构，然后让 AI 按五个角色接力出稿，最后用投放数据回填迭代。下面把每一步的流程、标准、提示词原样交出来，复制即可复用。
+    </p>
+    <div class="hero-meta">
+      <span>适用品类：家居贴纸 / 墙贴 / 贴膜</span>
+      <span>主战场：抖音短视频脚本 + 天猫&拼多多详情</span>
+      <span>更新日期：2026-09</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc">
+    <p class="toc-t">目 录</p>
+    <a href="#core">核心心法</a>
+    <a href="#flow">一张图看懂流程</a>
+    <a href="#s0">Step 0 产品知识库</a>
+    <a href="#s1">Step 1 爆款拆解</a>
+    <a href="#s2">Step 2 五角色接力</a>
+    <a href="#s3">Step 3 成稿格式</a>
+    <a href="#s4">Step 4 数据回填</a>
+    <a href="#sample">实战样例</a>
+    <a href="#rules">调性铁律</a>
+    <a href="#use">怎么直接用</a>
+  </nav>
+
+  <main>
+
+    <!-- ============ 核心心法 ============ -->
+    <section id="core">
+      <h2 class="no-num">核心心法</h2>
+      <p class="sub wide">先讲结论。这套流程背后只有三句话，理解了这三句，后面所有环节都顺。</p>
+
+      <div class="grid3">
+        <div class="mini">
+          <div class="h">① 好脚本是测出来的</div>
+          <div class="b">不是写出来的。内容成本压到几乎为零，就一次性出 5~10 版去小预算测，<em>让数据选</em>，不要一条磨到死。</div>
+        </div>
+        <div class="mini">
+          <div class="h">② 写不出文案 ≠ 文笔差</div>
+          <div class="b">是缺两步：<em>没拆清产品卖什么</em>（一堆参数不知道哪个是买家在意的）、<em>没翻译成买家的话</em>（你说"静电免胶"，买家想的是"租的房不让贴墙，有没有不留痕的"）。</div>
+        </div>
+        <div class="mini">
+          <div class="h">③ 参数必须变成证据</div>
+          <div class="b">卖点从"厂家话"翻译成"买家话"还不算完，每个承诺都要配一个<em>镜头证据</em>。比如"无胶不留印"必须拍「撕下后底材干净如新」。</div>
+        </div>
+      </div>
+
+      <div class="note">
+        <b>一句话概括我们的活：</b>把"产品参数"翻译成"买家下单的理由"，并且把它变成能拍出来的画面。
+      </div>
+    </section>
+
+    <!-- ============ 流程图 ============ -->
+    <section id="flow">
+      <h2 class="no-num">一张图看懂流程</h2>
+      <p class="sub wide">五个环节，每步都有固定的输入和输出。其中 Step 0 和 Step 4 最容易被跳过，但恰恰是这两步决定脚本能不能持续越写越准。</p>
+
+      <div class="pipe">
+        <div class="step">
+          <div class="k">STEP 0 · 输入</div>
+          <div class="t">产品知识库</div>
+          <div class="d">卖点 / 痛点 / 人群 / 劣势 / 评价原话，每个产品填一份</div>
+        </div>
+        <div class="step">
+          <div class="k">STEP 1 · 学结构</div>
+          <div class="t">爆款拆解</div>
+          <div class="d">转写口播 → 拆出骨架 / 卖点 / 钩子三层，落成可套用句式</div>
+        </div>
+        <div class="step">
+          <div class="k">STEP 2 · 出稿</div>
+          <div class="t">五角色接力</div>
+          <div class="d">卖点分析 → 人群分析 → 文案策划 → 评审 → 优化</div>
+        </div>
+        <div class="step">
+          <div class="k">STEP 3 · 成稿</div>
+          <div class="t">标准格式</div>
+          <div class="d">钩子 / 画面 / 口播 / 字幕 / CTA / 黄金镜头，直接能开拍</div>
+        </div>
+        <div class="step">
+          <div class="k">STEP 4 · 迭代</div>
+          <div class="t">数据回填</div>
+          <div class="d">CTR 低改钩子，CVR 低补顾虑消除，回填知识库再来一轮</div>
+        </div>
+      </div>
+      <div class="pipe-note">
+        ↻ 闭环：Step 4 的数据回填到 Step 0 的知识库，下一轮出稿直接站在上一轮的经验上。
+      </div>
+    </section>
+
+    <!-- ============ Step 0 ============ -->
+    <section id="s0">
+      <h2><span class="n">0</span>产品知识库 —— 脚本的弹药库</h2>
+      <p class="sub">没有这一步，AI 只能写空话。填得越具体，尤其"劣势"和"买家常问"，脚本越能打动人。</p>
+
+      <p>我们现在的知识库有两层：</p>
+      <ul>
+        <li><b>底层原始资料</b>：飞书《零售部产品手册》（约 2542 个节点的思维笔记）+ 店铺链接真实数据，覆盖 10 大产品系列。</li>
+        <li><b>作战层</b>：提炼出的《产品知识档案》与《产品痛点弹药库》，写脚本时直接读这一层，不用重复问基础信息。</li>
+      </ul>
+
+      <div class="note gray">
+        <b>知识库长什么样？</b>每个产品固定五块：产品特性（材质/厚度/技术）、优势、劣势、客户最关心的点（用户痛点 → 对应卖点）、客服话术。写脚本时要用的就是"痛点 ↔ 卖点"的对应关系。
+      </div>
+
+      <h3>模板：产品知识库（每产品一份）<span class="tag org" style="margin-left:8px">档案原文</span></h3>
+      <p>两种用法任选：① 直接按区块填；② 填不动就跳过，让 AI 按文末"10 个引导提问"逐个问你，你回答即可。</p>
+
+      <div class="prompt">
+        <div class="bar"><span class="lb"><b>提示词 / 模板</b> · 产品知识库</span><button class="copy" data-copy>复制</button></div>
+<pre>【产品知识库】
+
+一、产品基础信息
+货品名称：
+大类别（仿瓷砖贴/油烟贴/静电墙贴/PVC贴纸/地毯/其他）：
+规格/尺寸（长×宽、按米卖还是按片卖）：
+材质/工艺（静电膜/PVC/带胶/撕拉线/现割等）：
+价格口径（客单价区间，或"不报价格、用冲击话术"）：
+主要销售端（零售端/批发端/天猫/拼多多/抖音）：
+
+二、真实卖点（3-5 条，越具体越好，尽量有数字）
+1.
+2.
+3.
+4.
+5.
+（提示：别写"质量好"，要写"静电吸附免胶，撕下不留印"这种有画面、有数字的）
+
+三、用户痛点（每条对应一条卖点）
+痛点 1：
+痛点 2：
+痛点 3：
+（提示：痛点要写到"具体场景 + 情绪"，不是"墙会脏"，而是"灶台后墙天天溅油，擦三遍还是发黄黏手"）
+
+四、目标人群（3 类）
+人群 1（身份 + 场景 + 怕什么 + 会被哪句话打动）：
+人群 2：
+人群 3：
+
+五、产品劣势 / 雷点（最值钱，必填）
+劣势 1（写文案要避开，或主动化解）：
+劣势 2：
+（提示：这一栏直接决定"顾虑消除"怎么写。比如静电产品"高温易起鼓"，
+  脚本就要主动化解，别让买家在评论区问出来）
+
+六、买家常问 + 差评雷点（从评价里抄，最值钱）
+买家常问 1：
+买家常问 2：
+差评关键词 1：
+差评关键词 2：
+
+七、客服话术（可选）
+售前（最常被问 2 条的回答）：
+售后（最常见 2 个问题及处理）：</pre>
+      </div>
+
+      <h3>附：10 个引导提问（让 AI 反过来问你）</h3>
+      <div class="card tight">
+        <ol style="margin-bottom:0">
+          <li>这个产品叫什么？属于哪一大类？</li>
+          <li>怎么卖的？规格尺寸（长×宽），按米卖还是按片卖？</li>
+          <li>什么材质/工艺？静电膜还是带胶，有没有撕拉线等特殊设计？</li>
+          <li>客单价大概多少？还是不想在视频里报价格？</li>
+          <li>它最核心的 3 个卖点是什么？（尽量有数字）</li>
+          <li>买家买它，是因为遇到了什么痛点/场景？</li>
+          <li>主要卖给谁？描述 2-3 类人（年龄/身份/场景）。</li>
+          <li>这个产品有什么缺点或容易被差评的地方？</li>
+          <li>买家在评价/客服里最常问的 2 个问题是什么？</li>
+          <li>现在主要在哪个平台卖？（影响脚本口吻和 CTA 设计）</li>
+        </ol>
+      </div>
+
+      <div class="note">
+        <b>为什么"差评"和"常问问题"最重要：</b>买家真正纠结的地方全在那里。文案写"你们担心什么，我们怎么解决"，转化率立刻不一样。
+      </div>
+    </section>
+
+    <!-- ============ Step 1 ============ -->
+    <section id="s1">
+      <h2><span class="n">1</span>爆款拆解 —— 学别人的结构</h2>
+      <p class="sub">手上有拍得好的参考视频时，先把它拆成可复用的骨架和句式，再套到自己的产品上。这一步是"抄结构，不抄内容"。</p>
+
+      <h3>1.1 先转写口播</h3>
+      <p>把视频里的口播转成带时间戳的文字稿，才能逐句拆。</p>
+      <div class="prompt">
+        <div class="bar"><span class="lb"><b>命令</b> · 音频自动转写（免装 ffmpeg）</span><button class="copy" data-copy>复制</button></div>
+<pre>python scripts/transcribe.py 【视频文件或目录】 -o 【输出目录】 --model small
+
+说明：
+· 首次运行会自动 pip install imageio-ffmpeg faster-whisper，并下载 whisper 模型
+  （small 约 500MB），之后离线可用；ffmpeg 由 imageio-ffmpeg 自带，无需系统单独安装。
+· 支持单文件或整个目录批量；已转写的文件自动跳过，加 --force 强制重跑。
+· 输出同名 .txt：文件头 + [起-止秒] 文本 逐句格式，可直接用于拆解。
+· 兜底方案：没有 Python 环境也不要紧，手动粘贴口播文字稿即可，拆解与生成能力不受影响。</pre>
+      </div>
+
+      <h3>1.2 拆解提示词<span class="tag org" style="margin-left:8px">档案原文</span></h3>
+      <div class="prompt">
+        <div class="bar"><span class="lb"><b>提示词</b> · 视频脚本拆解（把方法论整理成一键版）</span><button class="copy" data-copy>复制</button></div>
+<pre>你是短视频脚本拆解专家。下面给你一条参考视频的转写稿（带时间戳），
+以及视频基本信息：类目【 】、时长【 】秒、平台【 】、卖的产品【 】。
+
+请按下面的方法论，把它拆成"可复用、可迁移"的脚本资产，不要复述内容，
+每一节都要落到"可直接套用的公式/句式"上：
+
+第一步 · 结构层：按抖音带货 6 段式骨架，逐段标注它走了哪几段、每段几秒、干了什么
+  ① 前3秒钩子(约10%) ② 痛点放大(约20%) ③ 产品出场(约20%)
+  ④ 卖点对比(约25%) ⑤ 信任加固(约15%) ⑥ 结尾CTA(约10%)
+  并判断：这条视频是完整走完 6 段，还是哪段被压缩/加强了？为什么？（结合它的品类）
+
+第二步 · 卖点层：把它的卖点按"参数层 → 利益层"拆开
+  参数层=视频里说的（规格/材质/工艺/数字）；利益层=观众为什么买单。
+  每条卖点再回答三问：解决什么痛点场景？给的承诺是什么？有没有证据（实测镜头/数据/认证）？
+
+第三步 · 钩子层：单独拎出前 3 秒的钩子句，归入下面 5 类之一并说明判断依据
+  反常识/打假 · 扎心场景 · 悬念好奇 · 结果前置 · 数字冲击
+
+第四步 · 输出七节拆解报告（一节不能漏）：
+  一、视频速览（时长/类目/产品/平台/目标人群）
+  二、脚本逐句拆解（表格：时间段 / 画面推测 / 口播原文 / 段落归属 / 作用）
+  三、结构骨架对照（6 段式逐段标注 + 缺失或压缩判断）
+  四、卖点分析（表格：参数层 / 利益层 / 痛点 / 承诺 / 证据）
+  五、钩子梳理（钩子原文 / 钩子类型 / 可复用公式）
+  六、可复用句式清单（分五类列出：钩子句式、演示句式、对比句式、顾虑消除句式、CTA 句式）
+  七、迁移机会点（这条打法的哪几招能套到我们产品上，具体怎么套）
+
+注意：
+· 画面是推测，口播是原文，两者必须分清，不要把我的推测当事实写。
+· 如果转写稿里看不出画面信息，直接列出"需要补充的画面信息"清单来问我，不要瞎编。
+· 第六节和第七节是这次拆解的重点，务必写透。</pre>
+      </div>
+
+      <h3>1.3 拆解产出：三层 + 两张核心表</h3>
+      <p>拆一条爆款，必须拆出三层东西，缺一层都算浪费素材：</p>
+      <table>
+        <thead><tr><th style="width:88px">层</th><th>拆什么</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><b>① 结构层</b></td><td>这条视频按什么骨架走（几段、每段几秒、干什么）</td><td>直接照搬骨架</td></tr>
+          <tr><td><b>② 卖点层</b></td><td>它打的是哪个痛点、怎么把参数翻译成利益</td><td>学会"怎么说服"</td></tr>
+          <tr><td><b>③ 钩子层</b></td><td>前 3 秒靠什么留住人，用的哪类钩子公式</td><td>学会"怎么留人"</td></tr>
+        </tbody>
+      </table>
+
+      <h4>表 A · 标准骨架：抖音带货 6 段式</h4>
+      <table>
+        <thead><tr><th style="width:26%">段落</th><th style="width:34%">作用</th><th style="width:12%">时长占比</th><th>典型动作 / 句式</th></tr></thead>
+        <tbody>
+          <tr><td>① 前 3 秒钩子</td><td>给结果或冲突，留住划走的手指</td><td>10%</td><td>一句反常识 / 扎心场景 / 悬念</td></tr>
+          <tr><td>② 痛点放大</td><td>让观众代入"说的就是我"</td><td>20%</td><td>具体生活场景 + 情绪</td></tr>
+          <tr><td>③ 产品出场</td><td>亮出"这是什么、怎么用"</td><td>20%</td><td>演示核心动作（一撕 / 一贴 / 一擦）</td></tr>
+          <tr><td>④ 卖点对比</td><td>打消顾虑，建立差异</td><td>25%</td><td>无胶 vs 带胶、可撕 vs 难清</td></tr>
+          <tr><td>⑤ 信任加固</td><td>给证据 / 人群背书</td><td>15%</td><td>认证 / 适配面 / 实测 / 数据</td></tr>
+          <tr><td>⑥ 结尾 CTA</td><td>给行动指令</td><td>10%</td><td>小黄车 / 评论区扣关键词</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px;color:var(--muted)">时长占比是经验值，可上下浮动 5%。拆解时要判断：这条视频完整走完 6 段了吗？哪段缺失 / 压缩 / 拉长？为什么？</p>
+
+      <h4>表 B · 钩子的 5 种类型（前 3 秒靠什么留人）</h4>
+      <table>
+        <thead><tr><th style="width:20%">钩子类型</th><th style="width:42%">公式</th><th>例子（我们的品类）</th></tr></thead>
+        <tbody>
+          <tr><td><b>反常识 / 打假</b></td><td>「别再用 XX 了」/「XX 其实都是坑」</td><td>「带胶的窗花撕下来全是印」</td></tr>
+          <tr><td><b>扎心场景</b></td><td>「[人群]，[扎心场景]？」</td><td>「出租屋的墙，你是不是不敢动？」</td></tr>
+          <tr><td><b>悬念 / 好奇</b></td><td>「[结果]，原来只要 XX」</td><td>「贴一年的墙，撕下来像新的」</td></tr>
+          <tr><td><b>结果前置</b></td><td>直接给终态画面 + 一句话</td><td>「不刷漆，也能让墙焕然一新」</td></tr>
+          <tr><td><b>数字冲击</b></td><td>用数字制造反差</td><td>「一天才几毛钱，换你一年不用擦墙」</td></tr>
+        </tbody>
+      </table>
+
+      <h4>表 C · 可复用句式清单（拆解时必抽）</h4>
+      <div class="card tight">
+        <ul style="margin-bottom:0">
+          <li><b>钩子句式：</b>别再[错误做法]了，试试[产品]</li>
+          <li><b>演示句式：</b>往[位置]上一[贴/按]，[不用 X] 就[结果]</li>
+          <li><b>对比句式：</b>不像[竞品]，[竞品缺点]，我们[你的差异]</li>
+          <li><b>顾虑消除句式：</b>很多人怕[顾虑]，其实[解决方式]</li>
+          <li><b>CTA 句式：</b>评论区扣[关键词]，我帮你[动作]</li>
+        </ul>
+      </div>
+
+      <div class="note warn">
+        <b>两个坑别踩：</b>① 画面和口播要分开——口播是转写稿（原文），画面是推测，必须标注清楚，别把推测当事实。② 缺画面信息就直接问"前 3 秒画面是什么"，不要瞎编镜头。
+      </div>
+    </section>
+
+    <!-- ============ Step 2 ============ -->
+    <section id="s2">
+      <h2><span class="n">2</span>五角色接力 —— 核心出稿环节</h2>
+      <p class="sub">这是整套流程里最关键的一段提示词。原理是把"写文案"拆成五个专业工种，让 AI 一次只干一件事，避免一锅烩出平庸稿。</p>
+
+      <table>
+        <thead><tr><th style="width:22%">角色</th><th style="width:46%">职责</th><th>输出</th></tr></thead>
+        <tbody>
+          <tr><td><b>① 卖点分析师</b></td><td>把产品知识库的卖点拆成「参数层 + 利益层」</td><td>卖点清单（参数 → 利益）</td></tr>
+          <tr><td><b>② 人群分析师</b></td><td>定义 3 类最可能买单的人群画像</td><td>人群卡片（身份 / 时刻 / 怕什么 / 被什么打动）</td></tr>
+          <tr><td><b>③ 文案策划师</b></td><td>卖点逐条翻译成"买家听得懂的话"</td><td>买点清单（≤5 条，口语化）</td></tr>
+          <tr><td><b>④ 评审专家</b></td><td>用转化标准审稿，打回不过关的</td><td>审稿意见 + 打回理由</td></tr>
+          <tr><td><b>⑤ 优化专家</b></td><td>输出最终可用稿，按标准格式</td><td>脚本策划（多版）</td></tr>
+        </tbody>
+      </table>
+
+      <h3>主提示词（复制这段直接发给 AI）<span class="tag org" style="margin-left:8px">档案原文</span></h3>
+      <p>下面这段直接发给 AI（豆包 / Kimi / DeepSeek / 通义都行，建议用强的模型），然后按里面要求一步步跑。<b>一次只跑一个产品。</b>换产品时只换开头的产品名和素材卡，角色分工不用改。</p>
+
+      <div class="prompt">
+        <div class="bar"><span class="lb"><b>提示词 ①</b> · 五角色接力出稿（核心）</span><button class="copy" data-copy>复制</button></div>
+<pre>你是我的电商文案团队，下面要服务一个家居贴纸/墙贴卖家，产品是【贴产品名称】。
+请以五个角色分工，<span class="hl">严格按顺序接力，每一轮只输出当前角色的成果，不要一次性全给</span>：
+
+角色①卖点分析师：根据我提供的素材卡，把所有卖点拆出来，分两层列：
+  - "参数层"（规格/材质/工艺/数字）
+  - "利益层"（这个参数对买家意味着什么）
+  如果素材卡信息不足，直接列出"需要补的信息"问题清单，<span class="hl">不要瞎编卖点</span>。
+
+角色②人群分析师：根据产品和使用场景，定义 3 类最可能买单的人群画像。
+  每类人写清楚：身份场景、ta 在什么时刻想买这个、ta 最怕什么（顾虑）、ta 会被哪句话打动。
+  如果分不清，给出你最可能的 1-2 类，并说明为什么。
+
+角色③文案策划师：把素材卡里的"卖点"逐条翻译成"买家听得懂的话"（痛点→场景→承诺）。
+  参考句式：参数"静电免胶" → 买家话"租房也能贴，撕下来不留印，房东检查不扣钱"
+  输出"买点清单"（5 条以内），每条一句话，口语化。
+
+角色④评审专家：拿转化标准审稿：
+  - 3 秒内能不能看懂"这是什么、关我什么事"
+  - 有没有具体场景让买家代入
+  - 有没有消除顾虑（留痕？难贴？会掉？尺寸？）
+  - 有没有行动指令（下单 / 点关注 / 看详情）
+  把不过关的买点打回去重写，给出理由。
+
+角色⑤优化专家：输出最终可用稿，严格按出口格式给：
+  【出口A 抖音脚本】给 2 版，每版含：前 3 秒钩子 / 画面建议 / 口播文案 / 字幕关键词 / 结尾 CTA
+  【出口B 电商详情文案】给 1 套，含：标题关键词组合 / 首图卖点字 / 详情页 5 条卖点小标题+正文 / 规格说明提醒
+
+（每次换产品，把【产品素材卡】换成新卡，上面这段角色分工不用改。
+  想更针对某个平台，就加一句："本次只要出口A，参考平台：抖音，人群偏 XX。"）</pre>
+      </div>
+
+      <p style="font-size:13px;color:var(--muted)">配套用法：跑之前先把 Step 0 的【产品知识库 / 素材卡】内容粘贴在后面一起发给它。</p>
+
+      <h3>评审专家的 4 条硬标准（转化四问）</h3>
+      <div class="grid2">
+        <div class="mini"><div class="h">① 3 秒懂吗</div><div class="b">3 秒内能不能看懂"这是什么、关我什么事"</div></div>
+        <div class="mini"><div class="h">② 能代入吗</div><div class="b">有没有具体场景让买家代入（不是抽象形容词）</div></div>
+        <div class="mini"><div class="h">③ 顾虑消了吗</div><div class="b">留痕？难贴？会掉？尺寸？——买家怕的四个问题有没有正面回答</div></div>
+        <div class="mini"><div class="h">④ 有行动指令吗</div><div class="b">下单 / 点关注 / 看详情 / 评论区扣关键词</div></div>
+      </div>
+
+      <h3>可选增强：一次出多版测款脚本<span class="tag gry" style="margin-left:8px">整理版</span></h3>
+      <p>如果要批量测款（默认动作就是出 5~10 版，别磨一条），在五角色之后追加这段：</p>
+      <div class="prompt">
+        <div class="bar"><span class="lb"><b>提示词 ②</b> · 批量出多版测款脚本</span><button class="copy" data-copy>复制</button></div>
+<pre>基于上面的买点清单和人群卡片，一次性给我【5~10】版可开拍的抖音脚本。
+
+要求：
+1. <span class="hl">每版用不同的钩子类型</span>（反常识/打假、扎心场景、悬念好奇、结果前置、数字冲击），
+   并在版本标题里标明这版是"什么钩子 + 打哪类人群"。
+2. 每版严格按这个格式输出：
+   【版本 N：钩子类型名】
+   - 目标人群：
+   - 前 3 秒钩子（口播原文）：
+   - 前 3 秒画面：
+   - 结构：①钩子(0-x s) ②痛点(x-x s) ③产品出场 ④卖点对比 ⑤信任加固 ⑥CTA
+   - 口播全文（按约 5 字/秒估算，卡着时间轴走）：
+   - 字幕关键词：
+   - 结尾 CTA：
+   - 黄金镜头（必拍）：
+   - 这版靠什么留人 / 靠什么转化：
+3. <span class="hl">黄金镜头</span>是把卖点从"参数"变成"证据"的关键画面，所有版本都要保留。
+   例如静电类产品必拍「撕下后底材干净如新」。
+4. 价格统一<span class="hl">不展示客单价区间</span>，改用冲击话术：
+   "一天才几毛钱，换你 XX"。</pre>
+      </div>
+    </section>
+
+    <!-- ============ Step 3 ============ -->
+    <section id="s3">
+      <h2><span class="n">3</span>成稿格式 —— 交出去的稿子长什么样</h2>
+      <p class="sub">格式统一，拍摄和剪辑才能直接照着执行。我们目前用两种格式，取决于脚本要不要拆人群。</p>
+
+      <h3>3.1 单版脚本格式（每版含 8 项）</h3>
+      <div class="prompt">
+        <div class="bar"><span class="lb"><b>模板</b> · 标准脚本策划格式</span><button class="copy" data-copy>复制</button></div>
+<pre>【版本 N：钩子类型名】
+- 目标人群：
+- 前 3 秒钩子（口播原文）：
+- 前 3 秒画面：
+- 结构：①钩子(0-x s) ②痛点(x-x s) ③产品出场 ④卖点对比 ⑤信任加固 ⑥CTA
+- 口播全文（按约 5 字/秒估算，卡时间轴）：
+- 字幕关键词：
+- 结尾 CTA：小黄车 / 评论区扣「关键词」
+- 黄金镜头（必拍）：</pre>
+      </div>
+
+      <h3>3.2 多人版脚本格式（画面固定，只换口播）</h3>
+      <p>这是我们目前最常用的方式：<b>画面脚本拍一条，口播配多版</b>，一条素材变成多条测试内容。</p>
+      <div class="prompt">
+        <div class="bar"><span class="lb"><b>模板</b> · 固定画面 + 多版口播</span><button class="copy" data-copy>复制</button></div>
+<pre>一、拍摄脚本（固定 · XX 秒）
+| 段 | 时间轴 | 画面建议 | 情绪 |
+
+二、口播文案（只换这段，画面不变）
+### 版本 1 · 【人群 A】
+- ① 痛点（0-Xs）：「……」
+- ② 卖点+买点（X-Xs）：「……」
+- ③ 转化（X-Xs）：「……」
+
+### 版本 2 · 【人群 B】
+……
+
+三、说明
+- 一条画面拍完，配 N 段口播 = N 条测试素材，一条打"XX"，一条打"XX"。
+- 口播按约 5 字/秒估算；主播语速偏慢就适当留白，别硬压。
+- 必拍黄金镜头：① …… ② ……（无胶证据）③ 对比镜头。</pre>
+      </div>
+
+      <div class="note">
+        <b>为什么口播按「约 5 字/秒」卡？</b>这是实测下来的中文口播舒适语速。先把画面时长定死（比如 25 秒 → 约 125 字），再写口播，就不会出现"稿子太长念不完"或"画面空转"的问题。
+      </div>
+
+      <h3>3.3 线上出稿工具用的分镜表格式</h3>
+      <p>内部「文案智能体」页面（workbench 里的 copywriter-ai.html）已经把这套流程做成了表单：填知识库 → 选投放平台和脚本数量 → 直接出稿。它输出的短视频脚本是<b>六段分镜表</b>：</p>
+      <div class="card tight">
+        <p style="margin-bottom:8px"><b>镜号 / 时间 / 段落 / 景别运镜 / 画面内容 / 口播 / 字幕</b></p>
+        <p style="margin-bottom:0;font-size:13px;color:var(--muted)">段数、时长、环节名称由 AI 根据产品和平台自由编排，只锁定这张表的格式。默认脚本时长 15-30 秒。</p>
+      </div>
+    </section>
+
+    <!-- ============ Step 4 ============ -->
+    <section id="s4">
+      <h2><span class="n">4</span>数据回填 —— 让脚本越写越准</h2>
+      <p class="sub">这一步最容易跳过，但它是整套流程"能持续变好"的原因。发布/上架后，回填两个数到知识库。</p>
+
+      <table>
+        <thead><tr><th style="width:22%">数据</th><th style="width:38%">说明什么问题</th><th>去改哪里</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>点击率 CTR 低</b></td>
+            <td>钩子 / 首图 / 标题没抓人，人根本点不进来</td>
+            <td>改出口 A 的<b>前 3 秒钩子</b>、首帧画面；电商端改标题关键词和首图卖点字</td>
+          </tr>
+          <tr>
+            <td><b>转化率 CVR 低</b></td>
+            <td>人进来了但不买，说服逻辑不够</td>
+            <td>补<b>「顾虑消除」</b>和<b>「行动指令」</b>；电商端改详情页说服逻辑</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note ok">
+        <b>为什么能无限测：</b>内容生产成本压到几乎为零，于是可以批量出、批量测，让数据来选版本。每个产品的知识库都值得跑 5 版去测一遍。别在一条稿子上反复磨。
+      </div>
+
+      <div class="grid3">
+        <div class="mini"><div class="h">投放前</div><div class="b">同一产品出 5~10 版（不同钩子 × 不同人群），小预算测</div></div>
+        <div class="mini"><div class="h">投放中</div><div class="b">盯 CTR / CVR 两个数，判断是"钩子问题"还是"说服问题"</div></div>
+        <div class="mini"><div class="h">投放后</div><div class="b">把这轮结论回填到知识库，下一轮直接站在经验上出稿</div></div>
+      </div>
+    </section>
+
+    <!-- ============ 样例 ============ -->
+    <section id="sample">
+      <h2 class="no-num">实战样例：真实产出的脚本</h2>
+      <p class="sub wide">下面是按这套流程做出来的真实交付稿，可以直观看到"流程 → 成稿"的结果。</p>
+
+      <h3>样例一 · 点断撕厨房防油贴纸（25 秒 · 固定画面 + 2 版口播）</h3>
+      <p><b>骨架（3 段）：</b>① 痛点·留人（0-7s）→ ② 卖点+买点（7-19s）★ → ③ 转化（19-25s）</p>
+
+      <div class="shot">
+        <div class="sh"><span>拍摄脚本（固定，一条画面拍完）</span><span class="time">全片 25 秒 · 口播约 125 字</span></div>
+        <div class="sb">
+          <div class="line"><span class="lb">① 0-7s</span>灶台后墙油渍满墙、发黄，抹布擦一遍两遍三遍还是花的、油光黏手，越擦越花。<span style="color:var(--muted)">（情绪：烦躁）</span></div>
+          <div class="line"><span class="lb">② 7-19s ★</span>展示一卷 → 沿虚线"啪"撕一张 → 往墙上一按就吸住（无胶）→ 油点一擦即净 → 一卷好几张不用裁剪；脏了撕下来换一张，墙还是干净的。</div>
+          <div class="line"><span class="lb">③ 19-25s</span>多款式展示 + 结尾 CTA。</div>
+          <div class="line"><span class="lb">CTA</span>左下角小黄车，30/45/60cm 三种宽幅自己挑；拿不准尺寸评论区扣"尺寸"。</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="mini">
+          <div class="h">口播版本 1 · 租房上班族</div>
+          <div class="b" style="line-height:1.9">
+            <b>①0-7s</b>「上了一天班回到家，厨房那面墙油得发黄，擦三遍还是花的，手黏糊糊的——那一刻真的不想干了。」<br>
+            <b>②7-19s</b>「后来我用上这个防油贴，一卷好几张，一撕一张按墙就吸住，油一擦就没，脏了撕下来换张新的，墙永远干干净净；再也不用下班了还跟这面墙较劲。」<br>
+            <b>③19-25s</b>「租房党都懂，退租也不怕墙脏扣押金。一天才几毛钱，厨房清清爽爽，左下角自己挑。」
+          </div>
+        </div>
+        <div class="mini">
+          <div class="h">口播版本 2 · 中老年 + 家庭主妇</div>
+          <div class="b" style="line-height:1.9">
+            <b>①0-7s</b>「顿顿开火，灶台后墙油腻发黄，一遍一遍擦还是花的，弯着腰、手黏糊糊，心里是真烦。」<br>
+            <b>②7-19s</b>「后来用上这个防油贴，一卷好几张，一撕一张按上就吸住，油一擦就净，脏了撕下来换新，墙一点不伤；再不用爬高弯腰地去擦了。」<br>
+            <b>③19-25s</b>「过日子图个省心，一天才几毛钱，省下的都是工夫。灶台瓷砖玻璃都能贴，左下角拍。」
+          </div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted)">必拍黄金镜头：① 擦不掉的油墙 ② <b>撕下旧张露出白净墙</b>（无胶证据）③ 一卷 vs 带胶单张对比。</p>
+
+      <h3>样例二 · 静电新年玻璃贴纸（22 秒 · 打假式）</h3>
+      <p><b>骨架（5 段）：</b>① 痛点·放大（0-3s）→ ② 打假（3-8s）→ ③ 展示（8-13s）★ → ④ 动作效果（13-18s）→ ⑤ 互动（18-22s）</p>
+
+      <div class="shot">
+        <div class="sh"><span>拍摄脚本（固定）</span><span class="time">全片 22 秒 · 口播约 110 字</span></div>
+        <div class="sb">
+          <div class="line"><span class="lb">① 0-3s</span>镜头怼玻璃上旧贴撕下的色印——擦不掉、铲不净、晒过更深。　<span style="color:var(--muted)">字幕：别再去贴那些假的静电窗贴啦</span></div>
+          <div class="line"><span class="lb">② 3-8s</span>主播拿着我们的产品。　<span style="color:var(--muted)">字幕：看好了，真正的静电无胶窗贴</span></div>
+          <div class="line"><span class="lb">③ 8-13s ★</span>产品细节特写——好看的款式、高饱和的颜色；演示撕下窗贴特写——玻璃无胶印、不留色、不沾手。</div>
+          <div class="line"><span class="lb">④ 13-18s</span>喷水往玻璃一贴、卡片一刮就服帖；贴一整年撕下玻璃如新。　<span style="color:var(--muted)">字幕：真无胶 · 贴一年零留色</span></div>
+          <div class="line"><span class="lb">⑤ 18-22s</span>展示窗贴贴在玻璃上的整体效果。　<span style="color:var(--muted)">字幕：大家觉得这个咋样？评论区告诉我</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0">口播原文（1 版 · 约 110 字 / 22 秒）</h4>
+        <blockquote style="margin:0;border-left:3px solid var(--brand-b);padding:10px 14px;background:#fafafa;border-radius:0 8px 8px 0;line-height:2">
+          <b>①0-3s</b>「旧窗贴撕下这圈色印，擦不掉、铲不净。」<br>
+          <b>②3-8s</b>「看好了，真正的静电无胶窗贴——我们才真无胶、真不留胶。」<br>
+          <b>③8-13s</b>「你看这羊年新款，颜色多正，撕下玻璃无胶印、不留色、不沾手。」<br>
+          <b>④13-18s</b>「喷点水一贴、卡片一刮就服帖，贴一整年撕下如新。」<br>
+          <b>⑤18-22s</b>「大家觉得咋样？想要哪个花色，评论区告诉我。」
+        </blockquote>
+        <p style="margin:14px 0 0;font-size:13px;color:var(--muted)">三条证据镜头：① 旧贴色印（打假靶子）② 撕下零胶印 / 不留色（核心证据）③ 喷水→卡片一刮→服帖（动作效果）。</p>
+      </div>
+
+      <div class="note gray">
+        <b>从上面两个样例能看出什么：</b>骨架不同（3 段 vs 5 段），但底层逻辑一致——<b>痛点 → 产品 → 证据 → 转化</b>。骨架是按产品特性定的：防油贴"擦墙累"是主痛点，所以痛点段拉到 7 秒；玻璃贴要对打"假静电窗贴"，所以单开一个"打假"段。
+      </div>
+    </section>
+
+    <!-- ============ 铁律 ============ -->
+    <section id="rules">
+      <h2 class="no-num">调性铁律</h2>
+      <p class="sub wide">这些是实际跑下来反复打磨出来的规则，比方法论更容易踩坑。</p>
+
+      <div class="card">
+        <h4 style="margin-top:0">关于口播</h4>
+        <ul>
+          <li><b>口播要有情绪、讲代入感，不是在背产品参数。</b>先讲"人的感受"，产品只作为"后来我怎么解决了"轻轻带过。</li>
+          <li><b>按约 5 字/秒卡时间轴。</b>先把画面时长定死，再写口播；语速偏慢就留白，别硬压。</li>
+          <li><b>不展示客单价区间</b>，统一改用冲击话术："一天才几毛钱，换你不用搭理厨房 / 窗户"。</li>
+          <li><b>版本宁少勿多</b>，但测款要 5~10 版——这是两件事：给客户看要精，投出去测要多。</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0">关于结构与分工</h4>
+        <ul>
+          <li><b>画面骨架由人定死，口播换人群。</b>骨架（时间轴 / 镜头）由业务方固定不可改，AI 只在口播上做人群切换。<span class="tag grn">最常用</span></li>
+          <li><b>人群话术分工：</b>年轻人强调"省事 + 不担责"（租房、退租、房东）；中年强调"省心 + 对家人负责"（当家的、体面、环保无味）。</li>
+          <li><b>同一卖点对不同人群要说两种话。</b>例："静电免胶" → 年轻版"退租一撕就走，房东不扣押金"；中年版"不伤墙不留印，家里墙面好好的"。</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0">关于产品信息</h4>
+        <ul>
+          <li><b>参数必须变证据。</b>静电类产品所有版本都要保留「撕下后底材干净如新」这个黄金镜头。</li>
+          <li><b>劣势要主动化解，不要藏。</b>比如静电产品"高温容易起鼓"，脚本里主动说清楚或给实测画面，别让买家在评论区问出来。</li>
+          <li><b>AI 不许编。</b>素材卡里没有的信息，要求 AI 列"需要补的信息"清单，用【待核实】标注，不能造假。</li>
+          <li><b>款式归类由拍摄方定。</b>脚本里统称"节庆款 / 新年款"，具体哪张图配哪套，拍摄时自行配对。</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h4 style="margin-top:0">分平台口味差异</h4>
+        <table>
+          <thead><tr><th style="width:26%">出口</th><th style="width:36%">一句话核心</th><th>容易踩的坑</th></tr></thead>
+          <tbody>
+            <tr><td><b>抖音脚本</b></td><td>前 3 秒给"结果或冲突"，别铺垫</td><td>口播像念说明书</td></tr>
+            <tr><td><b>天猫 / 拼多多详情</b></td><td>每条卖点 = 一个场景 + 一个承诺 + 一个证据</td><td>堆参数，没有画面感</td></tr>
+            <tr><td><b>小红书</b></td><td>收藏欲 &gt; 购买欲，笔记要让人想存</td><td>太广告，像卖家秀</td></tr>
+          </tbody>
+        </table>
+        <p style="margin:0;font-size:13px;color:var(--muted)"><b>标题和卖点分开：</b>天猫拼多多流量贵，标题堆的是"搜索词"，卖点是给"详情页"的。标题负责被搜到，详情负责让下单。</p>
+      </div>
+    </section>
+
+    <!-- ============ 怎么用 ============ -->
+    <section id="use">
+      <h2 class="no-num">怎么直接用起来</h2>
+      <p class="sub wide">三条路径，按你手上的条件挑一条。</p>
+
+      <div class="grid3">
+        <div class="mini">
+          <div class="h">路径 A · 纯手工（零成本）</div>
+          <div class="b">
+            1. 复制「产品知识库模板」→ 填自己产品<br>
+            2. 复制「五角色接力提示词」→ 粘贴给任意 AI<br>
+            3. 按角色一步步跑，出稿<br>
+            <span style="color:var(--muted)">不需要装任何东西，任何 AI 都能跑。</span>
+          </div>
+        </div>
+        <div class="mini">
+          <div class="h">路径 B · 带爆款参考</div>
+          <div class="b">
+            1. 跑转写脚本拿到口播文字稿<br>
+            2. 用「拆解提示词」出七节拆解报告<br>
+            3. 把拆出的句式 + 骨架喂给五角色<br>
+            <span style="color:var(--muted)">结构抄，内容换。</span>
+          </div>
+        </div>
+        <div class="mini">
+          <div class="h">路径 C · 用内部工具</div>
+          <div class="b">
+            内部「文案智能体」页面已把流程做成表单：<br>
+            选品 → 填知识库 → 选平台和版本数 → 直接出稿<br>
+            <span style="color:var(--muted)">适合运营同学日常批量出稿。</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>需要向我们索取的东西</h3>
+      <div class="card tight">
+        <ul style="margin-bottom:0">
+          <li><b>产品知识库模板</b>（空白版，含 10 个引导提问）</li>
+          <li><b>爆款拆解技能包</b>（含转写脚本 + 拆解方法论 + 脚本生成方法论 + 知识库模板，解压即用，只需 Python 3 环境）</li>
+          <li><b>内部出稿工具</b>（在线页面，需账号）</li>
+        </ul>
+      </div>
+
+      <h3>最后一句</h3>
+      <div class="note">
+        这套东西真正的门槛不在提示词，而在<b>第 0 步的产品知识库</b>——尤其是"用户痛点"和"差评 / 常问问题"那两栏。这两栏填得越像买家原话，脚本就越像人话。提示词可以照抄，弹药得自己存。
+      </div>
+    </section>
+
+    <footer>
+      短视频脚本生产流程 &amp; 提示词手册 · 内容生产 SOP 交付版<br>
+      流程与提示词来源：产品知识档案 / 文案智能体操作手册 / 爆款拆解方法论 / 脚本生成方法论
+    </footer>
+
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var box = btn.closest('.prompt');
+    var pre = box ? box.querySelector('pre') : null;
+    if(!pre) return;
+    var text = pre.innerText;
+    var done = function(){
+      btn.textContent = '✓ 已复制';
+      btn.classList.add('done');
+      setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('done'); }, 1800);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, function(){ fallback(text, done); });
+    } else {
+      fallback(text, done);
+    }
+  });
+});
+function fallback(text, cb){
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.top = '-1000px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); cb(); } catch(e) { alert('复制失败，请手动选中复制'); }
+  document.body.removeChild(ta);
+}
+</script>
+</body>
+</html>

@@ -1,5 +1,33 @@
 [
   {
+    "date": "2026-09-20",
+    "platform": "拼多多",
+    "sales": 41202.82,
+    "orders": 2556,
+    "visitors": 29123,
+    "cvr": 8.78,
+    "promotion_cost": 9540.02,
+    "net_sales_pay": null,
+    "net_sales_ship": null,
+    "note": "自动同步 · 2026-09-20"
+  },
+  {
+    "date": "2026-09-20",
+    "platform": "天猫",
+    "sales": 70803.55,
+    "orders": 2083,
+    "visitors": 36566,
+    "cvr": 5.14,
+    "promotion_cost": 21269.08,
+    "promo_video": 4776.63,
+    "promo_quanzh": 13404.22,
+    "promo_keyword": 2606.23,
+    "promo_crowd": 482.0,
+    "net_sales_pay": null,
+    "net_sales_ship": null,
+    "note": "自动同步 · 2026-07-23"
+  },
+  {
     "date": "2026-09-19",
     "platform": "拼多多",
     "sales": 42215.33,
@@ -27,7 +55,7 @@
     "promo_crowd": 944.4,
     "net_sales_pay": 54795.51,
     "net_sales_ship": 47521.12,
-    "note": "自动同步 · 2026-07-22",
+    "note": "自动同步 · 2026-09-20",
     "pay_orders": 1957,
     "ship_orders": 1615
   },
@@ -1882,37 +1910,5 @@
     "note": "自动同步 · 2026-07-24",
     "pay_orders": 1382,
     "ship_orders": 1302
-  },
-  {
-    "date": "2026-07-22",
-    "platform": "拼多多",
-    "sales": 48998.71,
-    "orders": 3155,
-    "visitors": 40760,
-    "cvr": 7.74,
-    "promotion_cost": 11325.21,
-    "net_sales_pay": 39292.72,
-    "net_sales_ship": 43181.37,
-    "note": "自动同步 · 2026-07-22",
-    "pay_orders": 3110,
-    "ship_orders": 3045
-  },
-  {
-    "date": "2026-07-22",
-    "platform": "天猫",
-    "sales": 47541.73,
-    "orders": 1468,
-    "visitors": 24618,
-    "cvr": 5.46,
-    "promotion_cost": 16007.01,
-    "promo_video": 3950.02,
-    "promo_quanzh": 8711.09,
-    "promo_keyword": 2865.89,
-    "promo_crowd": 480.01,
-    "net_sales_pay": 40525.09,
-    "net_sales_ship": 42238.9,
-    "note": "自动同步 · 2026-07-23",
-    "pay_orders": 1450,
-    "ship_orders": 1392
   }
 ]

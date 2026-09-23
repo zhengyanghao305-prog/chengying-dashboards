@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>竞争分析</title>
 <script src="js/echarts.min.js"></script>
-<script src="js/diagnostics-config.js?v=202609231702"></script>
-<script src="js/diagnosis.js?v=202609231702"></script>
-<script src="js/deep-link.js?v=202609231702"></script>
+<script src="js/diagnostics-config.js?v=202609231706"></script>
+<script src="js/diagnosis.js?v=202609231706"></script>
+<script src="js/deep-link.js?v=202609231706"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -178,7 +178,7 @@
 </style>
 </head>
 <body>
-<script src="js/freshness-alert.js?v=202609231702"></script>
+<script src="js/freshness-alert.js?v=202609231706"></script>
 <div class="wrap">
   <header>
     <div class="ttl">
@@ -356,8 +356,14 @@ function $(id) { return document.getElementById(id); }
 function catState(cat) {
   var s = cat.series;
   if (!s || !s.length) return { key: "none", label: "无我方", cls: "tag-none" };
-  var last = s[s.length - 1];
-  var pct = last.ours_pct != null ? last.ours_pct : (last.market && last.ours != null ? last.ours / last.market : null);
+  // 取「最近一个市占率有效的日子」：最新一天常因竞品还没录而缺数（market=null），
+  // 若直接拿最后一天判断，会被误判成「无我方」。
+  var pct = null;
+  for (var i = s.length - 1; i >= 0; i--) {
+    var d = s[i];
+    var p = d.ours_pct != null ? d.ours_pct : (d.market && d.ours != null ? d.ours / d.market : null);
+    if (p != null) { pct = p; break; }
+  }
   if (pct == null) return { key: "none", label: "无我方", cls: "tag-none" };
   if (pct >= 0.5) return { key: "lead", label: "领先", cls: "tag-lead" };
   if (pct >= 0.3) return { key: "gap", label: "追赶", cls: "tag-gap" };
@@ -409,9 +415,14 @@ function renderCatGrid() {
     var chgHtml = '<span class="cc-chg flat">无我方对比</span>';
     var shareHtml = '—';
     var barHtml = '';
-    if (last && last.market) {
-      var pct = last.ours_pct != null ? last.ours_pct : (last.ours != null ? last.ours / last.market : null);
-      shareHtml = pct != null ? '<span class="cc-share">' + fmtPct(pct) + '</span>' : '<span class="cc-share">补录中</span>';
+    // 市占率：仅在「当天有竞品数据」时才算。竞品缺数一律不显示（不拿我方/我方 当 100%）
+    var pct = (last && last.market)
+      ? (last.ours_pct != null ? last.ours_pct : (last.ours != null ? last.ours / last.market : null))
+      : null;
+    if (last && last.ours != null) {
+      shareHtml = pct != null
+        ? '<span class="cc-share">' + fmtPct(pct) + '</span>'
+        : '<span class="cc-share">' + (last.market ? '补录中' : '同行待补') + '</span>';
       var r30 = avgRange(cat.series, 30);
       var r60 = avgRange(cat.series, 60);
       if (r30 && r60 && pct != null) {
@@ -423,6 +434,8 @@ function renderCatGrid() {
       if (pct != null) {
         barHtml = '<div class="cc-bar"><i class="' + (st.key === 'lead' ? 'bar-lead' : st.key === 'gap' ? 'bar-gap' : 'bar-risk') + '" style="width:' + Math.round(pct * 100) + '%"></i></div>';
       }
+    } else if (last) {
+      shareHtml = '—';
     }
     var compCnt = cat.competitors ? cat.competitors.length : 0;
     grid.innerHTML += '<div class="cat-card" data-name="' + escapeHtml(cat.name) + '">' +

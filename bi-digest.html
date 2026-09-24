@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609241547"></script>
-<script src="js/xlsx.full.min.js?v=202609241547"></script>
+<script src="js/echarts.min.js?v=202609241551"></script>
+<script src="js/xlsx.full.min.js?v=202609241551"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -1279,7 +1279,7 @@ function renderRegress(){
     return;
   }
   host.innerHTML=regressCard(data);
-  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分档（可多选）。顶部「异常因素」按回退原因分类（由盈转亏/利润下滑/亏损扩大），「处理状态」看运营是否已处理。每行右侧可一键标记运营已处理。已处理的可在下方「由盈转亏·观察看板」跟踪回弹';
+  if(hint) hint.textContent='对比所选窗口与上一期快照：按「利润率较上期下滑幅度（百分点）」分档（可多选）。顶部「异常因素」按回退原因分类（由盈转亏/利润下滑/亏损扩大），「处理状态」看运营是否已处理。每行右侧可一键标记运营已处理。已处理的可在下方「由盈转亏·观察看板」跟踪回弹。要用「🔎 按ID筛选」时，把链接ID粘贴进去回车，只看这几个链接的回退情况';
   // 下滑档多选
   host.querySelectorAll('[data-rtier]').forEach(ch=>{
     ch.addEventListener('click',()=>{ const k=ch.dataset.rtier; if(k===sub0('all')) REG_OPEN.clear(); else { if(REG_OPEN.has(sub0('all')))REG_OPEN.delete(sub0('all')); if(REG_OPEN.has(k))REG_OPEN.delete(k); else REG_OPEN.add(k); } renderRegress(); });

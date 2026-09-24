@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609241527"></script>
-<script src="js/xlsx.full.min.js?v=202609241527"></script>
+<script src="js/echarts.min.js?v=202609241536"></script>
+<script src="js/xlsx.full.min.js?v=202609241536"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -1130,6 +1130,8 @@ let REG_DACT='all';       // 动作类型筛选（与 BI 分档卡片同设计�
 let REG_FVIEW='all';      // 由盈转亏观察看板 · 处理状态筛选
 let REG_FOLLOW_COLLAPSED=false;   // 由盈转亏观察区折叠状态（持久化）
 try{ REG_FOLLOW_COLLAPSED = localStorage.getItem('bi_regfollow_collapsed')==='1'; }catch(e){}
+let REG_SEARCH_IDS=[];    // 利润回退 · 按ID筛选（粘贴多个 链接ID/商品ID，回车或点「筛选」生效）
+let REG_SEARCH_FOCUS=false;  // 因筛选重渲染时把焦点还给输入框
 function regressData(){
   const cur=platRows();   // 全量（含已处理），便于「处理状态」核对：运营有没有处理过
   const wi=DATA.windows.indexOf(WIN);
@@ -1236,10 +1238,25 @@ function regressCard(data){
   if(REG_VIEW==='todo') rows=rows.filter(r=>!r._handled);
   else if(REG_VIEW==='done') rows=rows.filter(r=>r._handled);
   if(REG_DACT!=='all') rows=rows.filter(r=>regressCause(r)===REG_DACT);
+  // 按ID筛选（链接ID；粘贴多个用 逗号/空格/换行 分隔）
+  let regIdMiss=0;
+  if(REG_SEARCH_IDS.length){
+    const set=new Set(REG_SEARCH_IDS.map(String));
+    rows=rows.filter(r=>set.has(String(r.link_id)));
+    const hit=new Set(rows.map(r=>String(r.link_id)));
+    regIdMiss=REG_SEARCH_IDS.filter(id=>!hit.has(String(id))).length;
+  }
   rows=rows.sort((a,b)=>b.s-a.s);
   const shown=rows.slice(0,200);
+  // 按ID筛选框（只作用于「利润回退」这一段，不影响上方 BI 分档卡片）
+  const regSearchBar='<div class="searchbar reg-searchbar" id="regSearchBar">'
+    +'<span class="lab">🔎 按ID筛选</span>'
+    +'<input id="regSearchInput" placeholder="粘贴/输入 链接ID 或 商品ID，多个用 逗号/空格/换行 分隔；回车即筛选" spellcheck="false" value="'+esc(REG_SEARCH_IDS.join(' '))+'">'
+    +'<button class="bbtn primary" id="regSearchBtn">筛选</button>'
+    +'<button class="bbtn" id="regSearchClear">清空</button>'
+    +'<span class="idsearch-msg" id="regSearchMsg">'+(REG_SEARCH_IDS.length?('命中 '+rows.length+' 条'+(regIdMiss?(' · 未命中 '+regIdMiss+' 个ID'):'')):'')+'</span></div>';
   const listHTML='<div class="listcard" id="regressCard" data-allids="'+esc(JSON.stringify(all.map(r=>r.link_id)))+'">'
-    +causeBar+batchBarHTML('regress',shown.length)
+    +regSearchBar+causeBar+batchBarHTML('regress',shown.length)
     +'<div class="listhead">▾ 利润回退链接 · '+rows.length+' 条<span class="lsub">每行右侧可一键标记运营已处理；点行看趋势 · 勾选批量复制/标记</span></div>'
     +'<div class="ltable">'+shown.map(r=>drillRowHTML(r,'regress')).join('')+'</div>'
     +(rows.length>200?'<div class="pager"><span>为保证流畅仅显示前 200 条，可缩小筛选范围</span></div>':'')
@@ -1278,6 +1295,16 @@ function renderRegress(){
   host.querySelectorAll('[data-qundo]').forEach(s=>{ s.addEventListener('click',e=>{ e.stopPropagation(); setPlan(s.dataset.qundo,'待处理'); refreshAllAfterState(); }); });
   const rc=document.getElementById('regressCard');
   if(rc) bindBatch(rc,'regress');
+  // 利润回退 · 按ID筛选：输入框只筛这一段；回车/点「筛选」生效，清空恢复全部
+  const ri=host.querySelector('#regSearchInput');
+  if(ri){
+    const apply=()=>{ REG_SEARCH_IDS=parseIds(ri.value); REG_SEARCH_FOCUS=true; renderRegress(); };
+    ri.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); apply(); } });
+    const rb=host.querySelector('#regSearchBtn'); if(rb) rb.addEventListener('click',apply);
+    const rcl=host.querySelector('#regSearchClear');
+    if(rcl) rcl.addEventListener('click',()=>{ REG_SEARCH_IDS=[]; REG_SEARCH_FOCUS=true; renderRegress(); });
+    if(REG_SEARCH_FOCUS){ REG_SEARCH_FOCUS=false; ri.focus(); try{ ri.setSelectionRange(ri.value.length,ri.value.length); }catch(e){} }
+  }
   const scLink=host.querySelector('[data-jump="regfollow"]');
   if(scLink) scLink.addEventListener('click',()=>{ const fb=document.getElementById('regFollowHost'), sec=document.getElementById('regFollowSection'); if(REG_FOLLOW_COLLAPSED&&sec){ REG_FOLLOW_COLLAPSED=false; sec.classList.remove('collapsed'); if(fb)fb.style.display=''; try{localStorage.setItem('bi_regfollow_collapsed','0');}catch(e){} } if(fb) fb.scrollIntoView({behavior:'smooth',block:'start'}); });
 }

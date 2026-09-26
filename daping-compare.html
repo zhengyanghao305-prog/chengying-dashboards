@@ -113,7 +113,7 @@
 <body>
 <a class="backbtn" href="index.html"><span class="arw">←</span> 返回工作台</a>
 <h1>运营打品 · 竞品对比看板</h1>
-<div class="sub">数据来源：打品登记表（我们 vs 竞品）· 维度参考「竞争分析」天猫对比 · 生成时间 2026-09-25 12:19 · 数据最新日期（我方）<b style="color:#0284c7">2026-09-24</b>（数据按前一日登记，最新达「昨日」即为正常，早于昨日才提示滞后）<br>
+<div class="sub">数据来源：打品登记表（我们 vs 竞品）· 维度参考「竞争分析」天猫对比 · 生成时间 2026-09-26 10:00 · 数据最新日期（我方）<b style="color:#0284c7">2026-09-24</b>（数据按前一日登记，最新达「昨日」即为正常，早于昨日才提示滞后）<br>
 竞品区间值按日取中值推算、『比本品高/低』按我方同日值 ±15%/−13% 推算；推广计划 = 近7天汇总。</div>
 <div class="tabs" id="tabs"></div>
 <div id="panels"></div>
@@ -160,9 +160,9 @@ function rivTxt(rv){ return rv.txt||{}; }
 function yDate(s){ const d=new Date(s+'T00:00:00'); d.setDate(d.getDate()-1); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function dateTag(dt){
   let cls='datetag', lab;
-  if(dt==="2026-09-25"){ cls+=' today'; lab='今日数据'; }
-  else if(dt===yDate("2026-09-25")){ cls+=' yesterday'; lab='截至昨日'; }
-  else if(dt < "2026-09-25"){ cls+=' stale'; lab='数据滞后'; }
+  if(dt==="2026-09-26"){ cls+=' today'; lab='今日数据'; }
+  else if(dt===yDate("2026-09-26")){ cls+=' yesterday'; lab='截至昨日'; }
+  else if(dt < "2026-09-26"){ cls+=' stale'; lab='数据滞后'; }
   else { cls+=' today'; lab='数据最新'; }
   return '<span class="'+cls+'"><span class="tagd">'+lab+'</span><span class="dt">'+dt+'</span></span>';
 }

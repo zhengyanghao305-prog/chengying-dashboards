@@ -287,7 +287,15 @@ async function loadActions(){
   ACTIONS=out;
 }
 
-/* 2026-09-29：原实现 `?v=202609291518'data/feishu_bi.json',{method:'HEAD',cache:'no-store'});
+/* 2026-09-29：原实现是「每次打开都给数据地址挂一个 Date.now() 时间戳」强制破缓存 ——
+   结果每次打开都让 CDN 回源拉整包 feishu_bi.json（未压缩 11MB），实测 3 次里有 1 次
+   4 分钟都拉不完，页面永远停在「正在加载 BI 数据…」，运营反馈「打不开」。
+   改成按内容版本号取数：先用 HEAD 拿 ETag/Last-Modified 当版本号 → 数据没变就命中
+   CDN/浏览器缓存（快），数据一变版本号就变 → 照样拿到最新，不牺牲新鲜度。
+   注意：注释里不要出现问号加 v 的缓存号写法，会被 sync_all 的刷新正则误伤。*/
+async function biDataVer(){
+  try{
+    const h=await fetch('data/feishu_bi.json',{method:'HEAD',cache:'no-store'});
     const t=h.headers.get('etag')||h.headers.get('last-modified')||'';
     return String(t).replace(/[^0-9A-Za-z]/g,'')||'0';
   }catch(e){ return '0'; }

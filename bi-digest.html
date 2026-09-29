@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609291518"></script>
-<script src="js/xlsx.full.min.js?v=202609291518"></script>
+<script src="js/echarts.min.js?v=202609291525"></script>
+<script src="js/xlsx.full.min.js?v=202609291525"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -1549,7 +1549,15 @@ function bindIdSearch(){
   input.addEventListener('keydown',e=>{ if(e.key==='Enter')run(); });
   clr.addEventListener('click',()=>{ input.value=''; SEARCH_IDS=[]; selOf('search').clear(); renderIdSearch(); renderAll(); });
 }
-/* 2026-09-29：原实现 `data/feishu_bi.json?v=202609291518'data/feishu_bi.json',{method:'HEAD',cache:'no-store'});
+/* 2026-09-29：原实现是「每次打开都给数据地址挂一个 Date.now() 时间戳」强制破缓存 ——
+   结果每次打开都让 CDN 回源拉整包 feishu_bi.json（未压缩 11MB），实测 3 次里有 1 次
+   4 分钟都拉不完，页面永远停在「正在加载…」，运营反馈「打不开」。
+   改成按内容版本号取数：先用 HEAD 拿 ETag/Last-Modified 当版本号 → 数据没变就命中
+   CDN/浏览器缓存（秒开），数据一变版本号就变 → 照样拿到最新数据。
+   注意：注释里不要出现问号加 v 的缓存号写法，会被 sync_all 的刷新正则误伤。*/
+async function biDataVer(){
+  try{
+    const h=await fetch('data/feishu_bi.json',{method:'HEAD',cache:'no-store'});
     const t=h.headers.get('etag')||h.headers.get('last-modified')||'';
     return String(t).replace(/[^0-9A-Za-z]/g,'')||'0';
   }catch(e){ return '0'; }

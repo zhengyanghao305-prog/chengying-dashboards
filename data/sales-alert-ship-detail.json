@@ -1,419 +1,418 @@
 {
-  "date": "2026-09-27",
-  "total_pay": 95834.07,
-  "total_ship": 88323.19,
-  "pay_ship_ratio": 92.2,
+  "date": "2026-09-28",
+  "total_pay": 81781.67,
+  "total_ship": 78942.36,
+  "pay_ship_ratio": 96.5,
   "judgment": "发货滞后（预警）",
-  "total_profit": 9270.27,
-  "profit_rate": 10.5,
-  "abnormal_count": 13,
+  "total_profit": 9690.23,
+  "profit_rate": 12.28,
+  "abnormal_count": 10,
   "abnormal_products": [
     {
       "product": "静电黑板贴",
-      "pay": 12549.21,
-      "ship": 12105.61,
-      "pay_orders": 1182,
-      "ship_orders": 1045,
-      "unshipped_orders": 137
-    },
-    {
-      "product": "墙面保护膜（静电款）",
-      "pay": 15104.87,
-      "ship": 12411.24,
-      "pay_orders": 665,
-      "ship_orders": 531,
-      "unshipped_orders": 134
-    },
-    {
-      "product": "墙面保护膜（静电磨砂款）",
-      "pay": 14123.25,
-      "ship": 12201.94,
-      "pay_orders": 370,
-      "ship_orders": 293,
-      "unshipped_orders": 77
+      "pay": 11662.98,
+      "ship": 10053.5,
+      "pay_orders": 1066,
+      "ship_orders": 833,
+      "unshipped_orders": 233
     },
     {
       "product": "静电肤感",
-      "pay": 6581.6,
-      "ship": 6149.86,
-      "pay_orders": 373,
-      "ship_orders": 303,
-      "unshipped_orders": 70
-    },
-    {
-      "product": "无胶白板贴",
-      "pay": 7858.03,
-      "ship": 6972.2,
-      "pay_orders": 481,
-      "ship_orders": 419,
-      "unshipped_orders": 62
-    },
-    {
-      "product": "透明款（弱粘OPP）",
-      "pay": 9737.1,
-      "ship": 8901.35,
-      "pay_orders": 295,
-      "ship_orders": 247,
-      "unshipped_orders": 48
-    },
-    {
-      "product": "点断撕防油贴（静电款）",
-      "pay": 3280.67,
-      "ship": 3130.44,
-      "pay_orders": 205,
-      "ship_orders": 178,
-      "unshipped_orders": 27
-    },
-    {
-      "product": "开关贴",
-      "pay": 2841.17,
-      "ship": 2658.1,
-      "pay_orders": 206,
-      "ship_orders": 189,
-      "unshipped_orders": 17
-    },
-    {
-      "product": "打印玻璃贴纸",
-      "pay": 1605.04,
-      "ship": 1407.61,
-      "pay_orders": 50,
-      "ship_orders": 38,
-      "unshipped_orders": 12
-    },
-    {
-      "product": "油烟贴",
-      "pay": 3964.71,
-      "ship": 3743.49,
-      "pay_orders": 110,
-      "ship_orders": 99,
-      "unshipped_orders": 11
-    },
-    {
-      "product": "异形猫抓贴",
-      "pay": 3107.86,
-      "ship": 2604.01,
-      "pay_orders": 115,
-      "ship_orders": 104,
-      "unshipped_orders": 11
-    },
-    {
-      "product": "身高贴",
-      "pay": 2752.44,
-      "ship": 2762.3,
-      "pay_orders": 145,
-      "ship_orders": 136,
-      "unshipped_orders": 9
-    },
-    {
-      "product": "带胶地毯",
-      "pay": 3833.52,
-      "ship": 3707.65,
-      "pay_orders": 125,
-      "ship_orders": 117,
-      "unshipped_orders": 8
-    }
-  ],
-  "overshipped_products": [],
-  "products": [
-    {
-      "product": "透明款（弱粘OPP）",
-      "pay": 9737.1,
-      "ship": 8901.35,
-      "pay_orders": 295,
-      "ship_orders": 247,
-      "unshipped_orders": 48,
-      "profit_margin": -141.5,
-      "profit_amt": 1824.77
-    },
-    {
-      "product": "墙面保护膜（静电款）",
-      "pay": 15104.87,
-      "ship": 12411.24,
-      "pay_orders": 665,
-      "ship_orders": 531,
-      "unshipped_orders": 134,
-      "profit_margin": 28.3,
-      "profit_amt": 1766.24
+      "pay": 6453.64,
+      "ship": 6028.54,
+      "pay_orders": 326,
+      "ship_orders": 267,
+      "unshipped_orders": 59
     },
     {
       "product": "墙面保护膜（静电磨砂款）",
-      "pay": 14123.25,
-      "ship": 12201.94,
-      "pay_orders": 370,
-      "ship_orders": 293,
-      "unshipped_orders": 77,
-      "profit_margin": 9.2,
-      "profit_amt": 1656.63
+      "pay": 11275.6,
+      "ship": 10158.16,
+      "pay_orders": 306,
+      "ship_orders": 255,
+      "unshipped_orders": 51
     },
     {
-      "product": "油烟贴",
-      "pay": 3964.71,
-      "ship": 3743.49,
-      "pay_orders": 110,
-      "ship_orders": 99,
-      "unshipped_orders": 11,
-      "profit_margin": -114.7,
-      "profit_amt": 760.68
+      "product": "墙面保护膜（静电款）",
+      "pay": 13120.86,
+      "ship": 12862.95,
+      "pay_orders": 552,
+      "ship_orders": 505,
+      "unshipped_orders": 47
     },
     {
-      "product": "带胶地毯",
-      "pay": 3833.52,
-      "ship": 3707.65,
-      "pay_orders": 125,
-      "ship_orders": 117,
-      "unshipped_orders": 8,
-      "profit_margin": 18.7,
-      "profit_amt": 693.81
+      "product": "开关贴",
+      "pay": 2702.02,
+      "ship": 2457.98,
+      "pay_orders": 187,
+      "ship_orders": 157,
+      "unshipped_orders": 30
     },
     {
-      "product": "身高贴",
-      "pay": 2752.44,
-      "ship": 2762.3,
-      "pay_orders": 145,
-      "ship_orders": 136,
-      "unshipped_orders": 9,
-      "profit_margin": 22.2,
-      "profit_amt": 614.08
-    },
-    {
-      "product": "家具膜",
-      "pay": 3050.34,
-      "ship": 3240.93,
-      "pay_orders": 106,
-      "ship_orders": 101,
-      "unshipped_orders": 5,
-      "profit_margin": 22.9,
-      "profit_amt": 396.41
-    },
-    {
-      "product": "点断撕防油贴（静电款）",
-      "pay": 3280.67,
-      "ship": 3130.44,
-      "pay_orders": 205,
-      "ship_orders": 178,
-      "unshipped_orders": 27,
-      "profit_margin": 27.2,
-      "profit_amt": 384.44
-    },
-    {
-      "product": "打印地毯",
-      "pay": 922.32,
-      "ship": 2077.64,
-      "pay_orders": 34,
-      "ship_orders": 32,
-      "unshipped_orders": 2,
-      "profit_margin": 13.9,
-      "profit_amt": 289.72
-    },
-    {
-      "product": "带胶黑板",
-      "pay": 619.03,
-      "ship": 770.16,
-      "pay_orders": 27,
-      "ship_orders": 27,
-      "unshipped_orders": 0,
-      "profit_margin": 59.3,
-      "profit_amt": 266.74
-    },
-    {
-      "product": "打印玻璃贴纸",
-      "pay": 1605.04,
-      "ship": 1407.61,
-      "pay_orders": 50,
-      "ship_orders": 38,
-      "unshipped_orders": 12,
-      "profit_margin": 17.1,
-      "profit_amt": 241.26
+      "product": "异形猫抓贴",
+      "pay": 2177.21,
+      "ship": 2202.18,
+      "pay_orders": 95,
+      "ship_orders": 75,
+      "unshipped_orders": 20
     },
     {
       "product": "吸附异形猫抓贴",
-      "pay": 1823.68,
-      "ship": 1861.37,
-      "pay_orders": 73,
-      "ship_orders": 75,
-      "unshipped_orders": -2,
-      "profit_margin": 11.6,
-      "profit_amt": 200.41
+      "pay": 1338.87,
+      "ship": 1083.81,
+      "pay_orders": 63,
+      "ship_orders": 43,
+      "unshipped_orders": 20
     },
     {
-      "product": "PVC贴纸",
-      "pay": 381.38,
-      "ship": 603.93,
-      "pay_orders": 12,
-      "ship_orders": 12,
-      "unshipped_orders": 0,
-      "profit_margin": 34.4,
-      "profit_amt": 194.07
+      "product": "油烟贴",
+      "pay": 3643.37,
+      "ship": 3889.14,
+      "pay_orders": 98,
+      "ship_orders": 82,
+      "unshipped_orders": 16
     },
     {
-      "product": "静电黑板贴",
-      "pay": 12549.21,
-      "ship": 12105.61,
-      "pay_orders": 1182,
-      "ship_orders": 1045,
-      "unshipped_orders": 137,
-      "profit_margin": 5.7,
-      "profit_amt": 186.69
-    },
-    {
-      "product": "开关贴",
-      "pay": 2841.17,
-      "ship": 2658.1,
-      "pay_orders": 206,
-      "ship_orders": 189,
-      "unshipped_orders": 17,
-      "profit_margin": 4.4,
-      "profit_amt": 151.38
-    },
-    {
-      "product": "异形猫抓贴",
-      "pay": 3107.86,
-      "ship": 2604.01,
-      "pay_orders": 115,
-      "ship_orders": 104,
-      "unshipped_orders": 11,
-      "profit_margin": 2.8,
-      "profit_amt": 86.88
-    },
-    {
-      "product": "节庆窗贴",
-      "pay": 0.0,
-      "ship": 80.02,
-      "pay_orders": 0,
-      "ship_orders": 4,
-      "unshipped_orders": -4,
-      "profit_margin": 80.9,
-      "profit_amt": 64.77
-    },
-    {
-      "product": "待分配",
-      "pay": 400.81,
-      "ship": 313.91,
-      "pay_orders": 20,
-      "ship_orders": 17,
-      "unshipped_orders": 3,
-      "profit_margin": -2.8,
-      "profit_amt": 62.32
-    },
-    {
-      "product": "吸附地毯",
-      "pay": 626.45,
-      "ship": 65.21,
-      "pay_orders": 6,
-      "ship_orders": 2,
-      "unshipped_orders": 4,
-      "profit_margin": 33.5,
-      "profit_amt": 21.82
-    },
-    {
-      "product": "消防栓贴纸",
-      "pay": 24.03,
-      "ship": 24.03,
-      "pay_orders": 1,
-      "ship_orders": 1,
-      "unshipped_orders": 0,
-      "profit_margin": 44.6,
-      "profit_amt": 10.71
-    },
-    {
-      "product": "静电磨砂膜",
-      "pay": 0.0,
-      "ship": 13.0,
-      "pay_orders": 0,
-      "ship_orders": 1,
-      "unshipped_orders": -1,
-      "profit_margin": 66.1,
-      "profit_amt": 8.59
-    },
-    {
-      "product": "隔热膜",
-      "pay": 38.36,
-      "ship": 9.38,
-      "pay_orders": 2,
-      "ship_orders": 1,
-      "unshipped_orders": 1,
-      "profit_margin": -57.2,
-      "profit_amt": 5.21
-    },
-    {
-      "product": "清库存",
-      "pay": 38.05,
-      "ship": 18.31,
-      "pay_orders": 2,
-      "ship_orders": 1,
-      "unshipped_orders": 1,
-      "profit_margin": 27.0,
-      "profit_amt": 4.95
-    },
-    {
-      "product": "白卡地板贴",
-      "pay": 0.0,
-      "ship": 0.0,
-      "pay_orders": 1,
-      "ship_orders": 0,
-      "unshipped_orders": 1,
-      "profit_margin": 1.0,
-      "profit_amt": 0.0
-    },
-    {
-      "product": "水电井门贴纸",
-      "pay": 96.42,
-      "ship": 0.0,
-      "pay_orders": 2,
-      "ship_orders": 0,
-      "unshipped_orders": 2,
-      "profit_margin": -2529.0,
-      "profit_amt": 0.0
+      "product": "点断撕防油贴（静电款）",
+      "pay": 2677.02,
+      "ship": 2535.57,
+      "pay_orders": 165,
+      "ship_orders": 149,
+      "unshipped_orders": 16
     },
     {
       "product": "无胶白板贴",
-      "pay": 7858.03,
-      "ship": 6972.2,
-      "pay_orders": 481,
-      "ship_orders": 419,
-      "unshipped_orders": 62,
-      "profit_margin": 2.1,
-      "profit_amt": -2.51
+      "pay": 6344.74,
+      "ship": 6788.04,
+      "pay_orders": 374,
+      "ship_orders": 363,
+      "unshipped_orders": 11
+    }
+  ],
+  "overshipped_products": [
+    {
+      "product": "带胶地毯",
+      "pay": 1764.27,
+      "ship": 2323.09,
+      "pay_orders": 59,
+      "ship_orders": 75,
+      "unshipped_orders": -16
     },
     {
-      "product": "pvc窗贴",
-      "pay": 169.39,
-      "ship": 69.41,
-      "pay_orders": 9,
-      "ship_orders": 7,
-      "unshipped_orders": 2,
-      "profit_margin": -28.0,
-      "profit_amt": -21.93
+      "product": "透明款（弱粘OPP）",
+      "pay": 7258.33,
+      "ship": 8095.06,
+      "pay_orders": 218,
+      "ship_orders": 233,
+      "unshipped_orders": -15
     },
     {
-      "product": "仿瓷砖贴",
-      "pay": 185.16,
-      "ship": 194.36,
-      "pay_orders": 7,
-      "ship_orders": 5,
-      "unshipped_orders": 2,
-      "profit_margin": -152.0,
-      "profit_amt": -33.74
+      "product": "身高贴",
+      "pay": 1945.85,
+      "ship": 2291.95,
+      "pay_orders": 87,
+      "ship_orders": 102,
+      "unshipped_orders": -15
+    },
+    {
+      "product": "打印玻璃贴纸",
+      "pay": 690.3,
+      "ship": 1066.02,
+      "pay_orders": 19,
+      "ship_orders": 30,
+      "unshipped_orders": -11
+    }
+  ],
+  "products": [
+    {
+      "product": "墙面保护膜（静电款）",
+      "pay": 13120.86,
+      "ship": 12862.95,
+      "pay_orders": 552,
+      "ship_orders": 505,
+      "unshipped_orders": 47,
+      "profit_margin": 27.5,
+      "profit_amt": 2507.02
+    },
+    {
+      "product": "透明款（弱粘OPP）",
+      "pay": 7258.33,
+      "ship": 8095.06,
+      "pay_orders": 218,
+      "ship_orders": 233,
+      "unshipped_orders": -15,
+      "profit_margin": 24.8,
+      "profit_amt": 2242.52
+    },
+    {
+      "product": "墙面保护膜（静电磨砂款）",
+      "pay": 11275.6,
+      "ship": 10158.16,
+      "pay_orders": 306,
+      "ship_orders": 255,
+      "unshipped_orders": 51,
+      "profit_margin": 14.8,
+      "profit_amt": 1103.64
+    },
+    {
+      "product": "油烟贴",
+      "pay": 3643.37,
+      "ship": 3889.14,
+      "pay_orders": 98,
+      "ship_orders": 82,
+      "unshipped_orders": 16,
+      "profit_margin": 31.9,
+      "profit_amt": 903.27
+    },
+    {
+      "product": "无胶白板贴",
+      "pay": 6344.74,
+      "ship": 6788.04,
+      "pay_orders": 374,
+      "ship_orders": 363,
+      "unshipped_orders": 11,
+      "profit_margin": 12.8,
+      "profit_amt": 781.58
+    },
+    {
+      "product": "身高贴",
+      "pay": 1945.85,
+      "ship": 2291.95,
+      "pay_orders": 87,
+      "ship_orders": 102,
+      "unshipped_orders": -15,
+      "profit_margin": 31.2,
+      "profit_amt": 713.95
+    },
+    {
+      "product": "家具膜",
+      "pay": 2436.19,
+      "ship": 2867.85,
+      "pay_orders": 88,
+      "ship_orders": 87,
+      "unshipped_orders": 1,
+      "profit_margin": 29.8,
+      "profit_amt": 553.44
+    },
+    {
+      "product": "打印玻璃贴纸",
+      "pay": 690.3,
+      "ship": 1066.02,
+      "pay_orders": 19,
+      "ship_orders": 30,
+      "unshipped_orders": -11,
+      "profit_margin": 36.6,
+      "profit_amt": 389.79
+    },
+    {
+      "product": "吸附地毯",
+      "pay": 0.0,
+      "ship": 626.45,
+      "pay_orders": 0,
+      "ship_orders": 4,
+      "unshipped_orders": -4,
+      "profit_margin": 52.0,
+      "profit_amt": 374.62
+    },
+    {
+      "product": "待分配",
+      "pay": 382.9,
+      "ship": 539.9,
+      "pay_orders": 14,
+      "ship_orders": 18,
+      "unshipped_orders": -4,
+      "profit_margin": 22.5,
+      "profit_amt": 300.13
+    },
+    {
+      "product": "异形猫抓贴",
+      "pay": 2177.21,
+      "ship": 2202.18,
+      "pay_orders": 95,
+      "ship_orders": 75,
+      "unshipped_orders": 20,
+      "profit_margin": 3.9,
+      "profit_amt": 281.52
+    },
+    {
+      "product": "点断撕防油贴（静电款）",
+      "pay": 2677.02,
+      "ship": 2535.57,
+      "pay_orders": 165,
+      "ship_orders": 149,
+      "unshipped_orders": 16,
+      "profit_margin": 8.8,
+      "profit_amt": 263.72
     },
     {
       "product": "静电肤感",
-      "pay": 6581.6,
-      "ship": 6149.86,
-      "pay_orders": 373,
-      "ship_orders": 303,
-      "unshipped_orders": 70,
-      "profit_margin": -2.6,
-      "profit_amt": -210.25
+      "pay": 6453.64,
+      "ship": 6028.54,
+      "pay_orders": 326,
+      "ship_orders": 267,
+      "unshipped_orders": 59,
+      "profit_margin": 3.3,
+      "profit_amt": 198.16
+    },
+    {
+      "product": "带胶地毯",
+      "pay": 1764.27,
+      "ship": 2323.09,
+      "pay_orders": 59,
+      "ship_orders": 75,
+      "unshipped_orders": -16,
+      "profit_margin": 7.6,
+      "profit_amt": 176.36
+    },
+    {
+      "product": "PVC贴纸",
+      "pay": 499.47,
+      "ship": 527.91,
+      "pay_orders": 11,
+      "ship_orders": 10,
+      "unshipped_orders": 1,
+      "profit_margin": 43.2,
+      "profit_amt": 137.06
+    },
+    {
+      "product": "水电井门贴纸",
+      "pay": 207.6,
+      "ship": 252.02,
+      "pay_orders": 3,
+      "ship_orders": 4,
+      "unshipped_orders": -1,
+      "profit_margin": 53.5,
+      "profit_amt": 134.84
+    },
+    {
+      "product": "pvc窗贴",
+      "pay": 18.72,
+      "ship": 157.56,
+      "pay_orders": 1,
+      "ship_orders": 5,
+      "unshipped_orders": -4,
+      "profit_margin": 50.7,
+      "profit_amt": 79.93
+    },
+    {
+      "product": "清库存",
+      "pay": 96.42,
+      "ship": 115.31,
+      "pay_orders": 4,
+      "ship_orders": 4,
+      "unshipped_orders": 0,
+      "profit_margin": 58.3,
+      "profit_amt": 67.26
+    },
+    {
+      "product": "消防栓贴纸",
+      "pay": 136.62,
+      "ship": 87.6,
+      "pay_orders": 3,
+      "ship_orders": 2,
+      "unshipped_orders": 1,
+      "profit_margin": 48.9,
+      "profit_amt": 42.84
+    },
+    {
+      "product": "隔热膜",
+      "pay": 0.0,
+      "ship": 28.98,
+      "pay_orders": 0,
+      "ship_orders": 1,
+      "unshipped_orders": -1,
+      "profit_margin": 60.9,
+      "profit_amt": 17.66
+    },
+    {
+      "product": "开关贴",
+      "pay": 2702.02,
+      "ship": 2457.98,
+      "pay_orders": 187,
+      "ship_orders": 157,
+      "unshipped_orders": 30,
+      "profit_margin": -0.5,
+      "profit_amt": 16.09
+    },
+    {
+      "product": "三联画",
+      "pay": 4.79,
+      "ship": 0.0,
+      "pay_orders": 1,
+      "ship_orders": 0,
+      "unshipped_orders": 1,
+      "profit_margin": null,
+      "profit_amt": 0.0
     },
     {
       "product": "电梯门贴纸",
-      "pay": 158.88,
-      "ship": 225.73,
-      "pay_orders": 12,
-      "ship_orders": 11,
+      "pay": 963.18,
+      "ship": 649.46,
+      "pay_orders": 15,
+      "ship_orders": 12,
+      "unshipped_orders": 3,
+      "profit_margin": -3.2,
+      "profit_amt": -20.52
+    },
+    {
+      "product": "静电磨砂膜",
+      "pay": 638.24,
+      "ship": 32.81,
+      "pay_orders": 5,
+      "ship_orders": 3,
+      "unshipped_orders": 2,
+      "profit_margin": -100.1,
+      "profit_amt": -32.84
+    },
+    {
+      "product": "吸附异形猫抓贴",
+      "pay": 1338.87,
+      "ship": 1083.81,
+      "pay_orders": 63,
+      "ship_orders": 43,
+      "unshipped_orders": 20,
+      "profit_margin": -0.2,
+      "profit_amt": -41.61
+    },
+    {
+      "product": "带胶黑板",
+      "pay": 485.58,
+      "ship": 336.41,
+      "pay_orders": 16,
+      "ship_orders": 14,
+      "unshipped_orders": 2,
+      "profit_margin": -14.6,
+      "profit_amt": -49.04
+    },
+    {
+      "product": "仿瓷砖贴",
+      "pay": 207.83,
+      "ship": 28.43,
+      "pay_orders": 8,
+      "ship_orders": 7,
       "unshipped_orders": 1,
-      "profit_margin": -156.8,
-      "profit_amt": -353.9
+      "profit_margin": 214.7,
+      "profit_amt": -199.65
+    },
+    {
+      "product": "打印地毯",
+      "pay": 2649.07,
+      "ship": 855.68,
+      "pay_orders": 17,
+      "ship_orders": 20,
+      "unshipped_orders": -3,
+      "profit_margin": -39.7,
+      "profit_amt": -339.77
+    },
+    {
+      "product": "静电黑板贴",
+      "pay": 11662.98,
+      "ship": 10053.5,
+      "pay_orders": 1066,
+      "ship_orders": 833,
+      "unshipped_orders": 233,
+      "profit_margin": -4.9,
+      "profit_amt": -911.75
     }
   ]
 }

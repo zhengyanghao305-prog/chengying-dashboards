@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609291638"></script>
-<script src="js/xlsx.full.min.js?v=202609291638"></script>
+<script src="js/echarts.min.js?v=202609291644"></script>
+<script src="js/xlsx.full.min.js?v=202609291644"></script>
 <title>BI 承接 · 亏损处理中心（合并预览 v5）</title>
 <style>
   :root{
@@ -277,11 +277,12 @@ function planProgress(){
 function buildDedup(rows){
   const map=new Map();
   rows.forEach(r=>{
-    const k=r.link_id+'|'+r.window, p=toNum(r.profit_pay), s=toNum(r.net_pay);
+    const _id=String(r.link_id==null?'':r.link_id);   // 2026-09-29：link_id 统一成字符串（公盘兜底窗口曾是数字）
+    const k=_id+'|'+r.window, p=toNum(r.profit_pay), s=toNum(r.net_pay);
     const ps=toNum(r.profit_ship), ss=toNum(r.net_ship);
     const roi=toNum(r.roi), gm=toNum(r.gm);
     let a=map.get(k);
-    if(!a){ a={link_id:r.link_id,window:r.window,window_end:r.window_end,product:r.product||'',title:r.title||'',platform:r.platform||'',shop:r.shop||'',owner:r.owner||'',gmTxt:r.gm,p,s,ps,ss,roiV:(roi>0&&roi<10)?roi:0,gmV:gm,n:1}; map.set(k,a); }
+    if(!a){ a={link_id:_id,window:r.window,window_end:r.window_end,product:r.product||'',title:r.title||'',platform:r.platform||'',shop:r.shop||'',owner:r.owner||'',gmTxt:r.gm,p,s,ps,ss,roiV:(roi>0&&roi<10)?roi:0,gmV:gm,n:1}; map.set(k,a); }
     else { a.p+=p; a.s+=s; a.ps+=ps; a.ss+=ss; a.n++; if(!(a.roiV>0)&&roi>0&&roi<10)a.roiV=roi; if(!a.gmV&&gm!==0)a.gmV=gm; }
   });
   return [...map.values()];

@@ -7,8 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="js/echarts.min.js?v=202609291508"></script>
-<script src="js/xlsx.full.min.js?v=202609291508"></script>
+<script src="js/echarts.min.js?v=202609291515"></script>
+<script src="js/xlsx.full.min.js?v=202609291515"></script>
 <title>BI指标归档处理中心</title>
 <style>
   :root{
@@ -1549,6 +1549,26 @@ function bindIdSearch(){
   input.addEventListener('keydown',e=>{ if(e.key==='Enter')run(); });
   clr.addEventListener('click',()=>{ input.value=''; SEARCH_IDS=[]; selOf('search').clear(); renderIdSearch(); renderAll(); });
 }
+/* 2026-09-29：原实现 `data/feishu_bi.json?v=202609291515'data/feishu_bi.json',{method:'HEAD',cache:'no-store'});
+    const t=h.headers.get('etag')||h.headers.get('last-modified')||'';
+    return String(t).replace(/[^0-9A-Za-z]/g,'')||'0';
+  }catch(e){ return '0'; }
+}
+async function biFetchJson(path){
+  const ver=await biDataVer();
+  const opt={};
+  if(window.AbortSignal&&AbortSignal.timeout) opt.signal=AbortSignal.timeout(90000);
+  let lastErr=null;
+  for(let i=0;i<2;i++){
+    try{
+      const r=await fetch(path+'?v='+ver,opt);
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return await r.json();
+    }catch(e){ lastErr=e; if(i===0) await new Promise(s=>setTimeout(s,1500)); }
+  }
+  throw lastErr||new Error('unknown');
+}
+
 async function main(){
   loadPlan();
   // 点同步徽标 → 强制手动同步：本机覆盖到服务器 + 拉回服务器最新（解决 cloudflared 隧道临时断线后不再重连的问题）
@@ -1565,8 +1585,7 @@ async function main(){
   const rfs=document.getElementById('regFollowSection');
   if(rfs) rfs.addEventListener('click',toggleRegFollowSection);
   try{
-    const res=await fetch('data/feishu_bi.json?v='+Date.now()); if(!res.ok)throw new Error('HTTP '+res.status);
-    const raw=await res.json();
+    const raw=await biFetchJson('data/feishu_bi.json');
     const rows=buildDedup(raw.rows);
     DATA.rows=rows;
     DATA.windows=raw.windows.slice().sort((a,b)=>{ const ea=rows.find(r=>r.window===a),eb=rows.find(r=>r.window===b); return (toDate(ea&&ea.window_end)||a).localeCompare(toDate(eb&&eb.window_end)||b); });
@@ -1577,7 +1596,7 @@ async function main(){
     if(FOLLOW_COLLAPSED){ const sec=document.getElementById('followSection'),host=document.getElementById('followHost'); if(sec)sec.classList.add('collapsed'); if(host)host.style.display='none'; }
     if(REG_FOLLOW_COLLAPSED){ const sec=document.getElementById('regFollowSection'),host=document.getElementById('regFollowHost'); if(sec)sec.classList.add('collapsed'); if(host)host.style.display='none'; }
   }catch(err){
-    document.querySelector('.controlbar').insertAdjacentHTML('afterend','<div class="err">加载 data/feishu_bi.json 失败：'+err.message+'<br>请用本地服务器地址打开 http://127.0.0.1:3588/bi-digest.html</div>');
+    document.querySelector('.controlbar').insertAdjacentHTML('afterend','<div class="err">加载 data/feishu_bi.json 失败：'+err.message+'<br>网络抖动时点这里<a href="javascript:location.reload()">刷新重试</a>；本机可用 http://127.0.0.1:3588/bi-digest.html 打开</div>');
   }
 }
 main();

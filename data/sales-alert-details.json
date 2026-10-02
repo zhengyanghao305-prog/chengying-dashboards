@@ -1,5 +1,406 @@
 [
   {
+    "_key": "2026-10-01_天猫",
+    "date": "2026-10-01",
+    "platform": "天猫",
+    "dimension": "日维度",
+    "total_ship": -3028.33,
+    "total_pay": 47165.17,
+    "total_profit": -30307.69,
+    "profit_rate": 1000.81,
+    "judgment": "✅ 利润健康",
+    "top3_products": "静电黑板贴(¥0)、点断撕防油贴（静电款）(¥0)、吸附地毯(¥0)",
+    "high_margin_product": "打印地毯",
+    "low_margin_product": "待分配",
+    "products": [
+      {
+        "product": "静电黑板贴",
+        "ship": 0.0,
+        "pay": 88.32,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "点断撕防油贴（静电款）",
+        "ship": 0.0,
+        "pay": 120.29,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "吸附地毯",
+        "ship": 0.0,
+        "pay": 101.11,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "pvc窗贴",
+        "ship": 0.0,
+        "pay": 63.76,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "木纹贴纸",
+        "ship": 0.0,
+        "pay": 25.46,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "节庆窗贴",
+        "ship": 0.0,
+        "pay": 60.91,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "水电井门贴纸",
+        "ship": 0.0,
+        "pay": 190.32,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "仿瓷砖贴",
+        "ship": -17.2,
+        "pay": 17.78,
+        "margin": 383.5,
+        "profit_amt": -65.96,
+        "profit_pct": 0.2
+      },
+      {
+        "product": "家具膜",
+        "ship": -34.37,
+        "pay": 475.13,
+        "margin": 446.9,
+        "profit_amt": -153.61,
+        "profit_pct": 0.5
+      },
+      {
+        "product": "待分配",
+        "ship": 43.0,
+        "pay": 526.72,
+        "margin": -447.9,
+        "profit_amt": -192.59,
+        "profit_pct": 0.6
+      },
+      {
+        "product": "PVC贴纸",
+        "ship": -115.8,
+        "pay": 49.72,
+        "margin": 200.7,
+        "profit_amt": -232.42,
+        "profit_pct": 0.8
+      },
+      {
+        "product": "吸附异形猫抓贴",
+        "ship": -107.77,
+        "pay": 367.61,
+        "margin": 229.8,
+        "profit_amt": -247.61,
+        "profit_pct": 0.8
+      },
+      {
+        "product": "带胶黑板",
+        "ship": -29.37,
+        "pay": 415.59,
+        "margin": 985.4,
+        "profit_amt": -289.4,
+        "profit_pct": 1.0
+      },
+      {
+        "product": "打印玻璃贴纸",
+        "ship": -29.31,
+        "pay": 759.86,
+        "margin": 1781.3,
+        "profit_amt": -522.11,
+        "profit_pct": 1.7
+      },
+      {
+        "product": "身高贴",
+        "ship": -69.93,
+        "pay": 927.19,
+        "margin": 907.0,
+        "profit_amt": -634.26,
+        "profit_pct": 2.1
+      },
+      {
+        "product": "电梯门贴纸",
+        "ship": -40.55,
+        "pay": 2372.61,
+        "margin": 1576.0,
+        "profit_amt": -639.06,
+        "profit_pct": 2.1
+      },
+      {
+        "product": "异形猫抓贴",
+        "ship": -178.57,
+        "pay": 1374.32,
+        "margin": 413.3,
+        "profit_amt": -738.04,
+        "profit_pct": 2.4
+      },
+      {
+        "product": "打印地毯",
+        "ship": -14.05,
+        "pay": 1462.22,
+        "margin": 5938.2,
+        "profit_amt": -834.31,
+        "profit_pct": 2.8
+      },
+      {
+        "product": "开关贴",
+        "ship": -49.44,
+        "pay": 993.25,
+        "margin": 1768.0,
+        "profit_amt": -874.09,
+        "profit_pct": 2.9
+      },
+      {
+        "product": "无胶白板贴",
+        "ship": -75.75,
+        "pay": 1383.27,
+        "margin": 1259.1,
+        "profit_amt": -953.79,
+        "profit_pct": 3.1
+      },
+      {
+        "product": "带胶地毯",
+        "ship": -58.97,
+        "pay": 2908.68,
+        "margin": 2475.1,
+        "profit_amt": -1459.58,
+        "profit_pct": 4.8
+      },
+      {
+        "product": "静电肤感",
+        "ship": -577.46,
+        "pay": 2078.73,
+        "margin": 327.2,
+        "profit_amt": -1889.44,
+        "profit_pct": 6.2
+      },
+      {
+        "product": "油烟贴",
+        "ship": -310.41,
+        "pay": 3103.23,
+        "margin": 731.1,
+        "profit_amt": -2269.41,
+        "profit_pct": 7.5
+      },
+      {
+        "product": "透明款（弱粘OPP）",
+        "ship": -499.06,
+        "pay": 6426.92,
+        "margin": 973.8,
+        "profit_amt": -4859.92,
+        "profit_pct": 16.0
+      },
+      {
+        "product": "墙面保护膜（静电磨砂款）",
+        "ship": -275.18,
+        "pay": 10862.73,
+        "margin": 2362.8,
+        "profit_amt": -6501.96,
+        "profit_pct": 21.5
+      },
+      {
+        "product": "墙面保护膜（静电款）",
+        "ship": -588.14,
+        "pay": 10009.44,
+        "margin": 1181.7,
+        "profit_amt": -6950.12,
+        "profit_pct": 22.9
+      }
+    ],
+    "suggestions": [
+      "低利润产品待分配需要关注成本或调价",
+      "产品间利润率差距较大(6386.1%)，高利润产品打印地毯可带动整体盈利能力"
+    ],
+    "content": "══════════════════════════════════════════════════\n  📊 2026-10-01  天猫  利润分析报告\n══════════════════════════════════════════════════\n\n【总体概况】\n  净销售额(发货)：¥-3,028.33\n  净销售额(支付)：¥47,165.17\n  发货利润额：¥-30,307.69\n  发货利润率：1000.81%\n  判断：✅ 利润健康\n\n【利润贡献 TOP 3】\n  静电黑板贴(¥0)、点断撕防油贴（静电款）(¥0)、吸附地毯(¥0)\n\n【产品明细】\n  产品                          发货额      利润率        利润额     贡献占比\n  ────────────────────────────────────────────────────────────\n  静电黑板贴                ¥       0        — ¥       0    -0.0%\n  点断撕防油贴（静电款）          ¥       0        — ¥       0    -0.0%\n  吸附地毯                 ¥       0        — ¥       0    -0.0%\n  pvc窗贴                ¥       0        — ¥       0    -0.0%\n  木纹贴纸                 ¥       0        — ¥       0    -0.0%\n  节庆窗贴                 ¥       0        — ¥       0    -0.0%\n  水电井门贴纸               ¥       0        — ¥       0    -0.0%\n  仿瓷砖贴                 ¥     -17   383.5% ¥     -66     0.2%\n  家具膜                  ¥     -34   446.9% ¥    -154     0.5%\n  待分配                  ¥      43  -447.9% ¥    -193     0.6%\n  ... 还有 16 个产品\n\n【分析建议】\n  · 低利润产品待分配需要关注成本或调价\n  · 产品间利润率差距较大(6386.1%)，高利润产品打印地毯可带动整体盈利能力\n\n— 数据来源：飞书 Base 自动同步 —\n"
+  },
+  {
+    "_key": "2026-10-01_拼多多",
+    "date": "2026-10-01",
+    "platform": "拼多多",
+    "dimension": "日维度",
+    "total_ship": -2392.17,
+    "total_pay": 26117.55,
+    "total_profit": -17201.79,
+    "profit_rate": 719.09,
+    "judgment": "✅ 利润健康",
+    "top3_products": "墙面保护膜（静电款）(¥0)、透明款（弱粘OPP）(¥0)、静电撕拉白板(¥0)",
+    "high_margin_product": "点断撕防油贴（静电款）",
+    "low_margin_product": "家具膜",
+    "products": [
+      {
+        "product": "墙面保护膜（静电款）",
+        "ship": 0.0,
+        "pay": 527.82,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "透明款（弱粘OPP）",
+        "ship": 0.0,
+        "pay": 140.83,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "静电撕拉白板",
+        "ship": 0.0,
+        "pay": 18.8,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "仿瓷砖贴",
+        "ship": 0.0,
+        "pay": 272.0,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "吸附地毯",
+        "ship": 0.0,
+        "pay": 37.0,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "静电磨砂膜",
+        "ship": 0.0,
+        "pay": 27.72,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "三联画",
+        "ship": 0.0,
+        "pay": 4.79,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "PVC贴纸",
+        "ship": 0.0,
+        "pay": 74.66,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "清库存",
+        "ship": 0.0,
+        "pay": 23.41,
+        "margin": null,
+        "profit_amt": 0.0,
+        "profit_pct": -0.0
+      },
+      {
+        "product": "油烟贴",
+        "ship": -24.18,
+        "pay": 22.14,
+        "margin": 214.4,
+        "profit_amt": -51.85,
+        "profit_pct": 0.3
+      },
+      {
+        "product": "墙面保护膜（静电磨砂款）",
+        "ship": -161.76,
+        "pay": 525.07,
+        "margin": 279.4,
+        "profit_amt": -451.89,
+        "profit_pct": 2.6
+      },
+      {
+        "product": "吸附异形猫抓贴",
+        "ship": -95.38,
+        "pay": 850.77,
+        "margin": 558.5,
+        "profit_amt": -532.65,
+        "profit_pct": 3.1
+      },
+      {
+        "product": "异形猫抓贴",
+        "ship": -95.38,
+        "pay": 1130.86,
+        "margin": 690.9,
+        "profit_amt": -658.94,
+        "profit_pct": 3.8
+      },
+      {
+        "product": "开关贴",
+        "ship": -52.12,
+        "pay": 934.99,
+        "margin": 1382.7,
+        "profit_amt": -720.66,
+        "profit_pct": 4.2
+      },
+      {
+        "product": "家具膜",
+        "ship": -400.19,
+        "pay": 892.63,
+        "margin": 206.9,
+        "profit_amt": -828.16,
+        "profit_pct": 4.8
+      },
+      {
+        "product": "点断撕防油贴（静电款）",
+        "ship": -10.0,
+        "pay": 3052.43,
+        "margin": 19587.8,
+        "profit_amt": -1958.78,
+        "profit_pct": 11.4
+      },
+      {
+        "product": "静电肤感",
+        "ship": -470.79,
+        "pay": 3675.21,
+        "margin": 487.2,
+        "profit_amt": -2293.62,
+        "profit_pct": 13.3
+      },
+      {
+        "product": "无胶白板贴",
+        "ship": -382.86,
+        "pay": 3379.45,
+        "margin": 652.2,
+        "profit_amt": -2496.94,
+        "profit_pct": 14.5
+      },
+      {
+        "product": "静电黑板贴",
+        "ship": -699.51,
+        "pay": 10526.97,
+        "margin": 1030.5,
+        "profit_amt": -7208.3,
+        "profit_pct": 41.9
+      }
+    ],
+    "suggestions": [
+      "产品间利润率差距较大(19380.9%)，高利润产品点断撕防油贴（静电款）可带动整体盈利能力"
+    ],
+    "content": "══════════════════════════════════════════════════\n  📊 2026-10-01  拼多多  利润分析报告\n══════════════════════════════════════════════════\n\n【总体概况】\n  净销售额(发货)：¥-2,392.17\n  净销售额(支付)：¥26,117.55\n  发货利润额：¥-17,201.79\n  发货利润率：719.09%\n  判断：✅ 利润健康\n\n【利润贡献 TOP 3】\n  墙面保护膜（静电款）(¥0)、透明款（弱粘OPP）(¥0)、静电撕拉白板(¥0)\n\n【产品明细】\n  产品                          发货额      利润率        利润额     贡献占比\n  ────────────────────────────────────────────────────────────\n  墙面保护膜（静电款）           ¥       0        — ¥       0    -0.0%\n  透明款（弱粘OPP）           ¥       0        — ¥       0    -0.0%\n  静电撕拉白板               ¥       0        — ¥       0    -0.0%\n  仿瓷砖贴                 ¥       0        — ¥       0    -0.0%\n  吸附地毯                 ¥       0        — ¥       0    -0.0%\n  静电磨砂膜                ¥       0        — ¥       0    -0.0%\n  三联画                  ¥       0        — ¥       0    -0.0%\n  PVC贴纸                ¥       0        — ¥       0    -0.0%\n  清库存                  ¥       0        — ¥       0    -0.0%\n  油烟贴                  ¥     -24   214.4% ¥     -52     0.3%\n  ... 还有 9 个产品\n\n【分析建议】\n  · 产品间利润率差距较大(19380.9%)，高利润产品点断撕防油贴（静电款）可带动整体盈利能力\n\n— 数据来源：飞书 Base 自动同步 —\n"
+  },
+  {
     "_key": "2026-09-30_天猫",
     "date": "2026-09-30",
     "platform": "天猫",

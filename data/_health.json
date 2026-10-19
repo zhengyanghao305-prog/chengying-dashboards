@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-10-19 11:00:01",
+  "checked_at": "2026-10-19 17:00:01",
   "today": "2026-10-19",
-  "ok": 10,
-  "warn": 1,
+  "ok": 11,
+  "warn": 0,
   "error": 1,
   "items": [
     {
@@ -45,10 +45,10 @@
       "file": "sales-alert-ship-detail.json",
       "label": "发货明细",
       "max_lag": 2,
-      "max_date": "2026-10-16",
-      "lag_days": 3,
-      "status": "warn",
-      "msg": "数据停在 2026-10-16，已滞后 3 天（上限 2 天）"
+      "max_date": "2026-10-18",
+      "lag_days": 1,
+      "status": "ok",
+      "msg": "最新 2026-10-18（滞后 1 天）"
     },
     {
       "file": "inventory-warning.json",

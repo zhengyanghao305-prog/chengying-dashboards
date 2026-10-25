@@ -1,5 +1,943 @@
 [
   {
+    "id": "9bb350e3",
+    "ts": "2026-10-25 14:23:10",
+    "task": "数据完整性自检",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "待同步: 2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "steps": [],
+    "target": "BI-sales-alert"
+  },
+  {
+    "id": "ab10b536",
+    "ts": "2026-10-25 14:23:04",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "7e315609",
+    "ts": "2026-10-25 14:23:02",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "脚本异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "details": "异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "steps": [],
+    "target": "ad-roi"
+  },
+  {
+    "id": "08d53e14",
+    "ts": "2026-10-25 14:22:58",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 204 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 177 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 177 条 / 周维度 27 条",
+        "count": 204
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "3cce4925",
+    "ts": "2026-10-25 14:22:58",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "baa2149e",
+    "ts": "2026-10-25 13:49:07",
+    "task": "数据完整性自检",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "待同步: 2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "steps": [],
+    "target": "BI-sales-alert"
+  },
+  {
+    "id": "5668691f",
+    "ts": "2026-10-25 13:49:00",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "a1974c53",
+    "ts": "2026-10-25 13:48:59",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "脚本异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "details": "异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "steps": [],
+    "target": "ad-roi"
+  },
+  {
+    "id": "137f2696",
+    "ts": "2026-10-25 13:48:55",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 204 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 177 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 177 条 / 周维度 27 条",
+        "count": 204
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "91355ab0",
+    "ts": "2026-10-25 13:48:55",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "78ac4fb5",
+    "ts": "2026-10-25 13:22:29",
+    "task": "数据完整性自检",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "待同步: 2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "steps": [],
+    "target": "BI-sales-alert"
+  },
+  {
+    "id": "78245d85",
+    "ts": "2026-10-25 13:22:22",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "9a0994bf",
+    "ts": "2026-10-25 13:22:21",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "脚本异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "details": "异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "steps": [],
+    "target": "ad-roi"
+  },
+  {
+    "id": "8b9e8a7a",
+    "ts": "2026-10-25 13:22:17",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 204 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 177 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 177 条 / 周维度 27 条",
+        "count": 204
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "c86b7f86",
+    "ts": "2026-10-25 13:22:16",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "dda132b8",
+    "ts": "2026-10-25 13:12:54",
+    "task": "数据完整性自检",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "待同步: 2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "steps": [],
+    "target": "BI-sales-alert"
+  },
+  {
+    "id": "e57e2409",
+    "ts": "2026-10-25 13:12:48",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "0eccb445",
+    "ts": "2026-10-25 13:12:47",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "脚本异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "details": "异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "steps": [],
+    "target": "ad-roi"
+  },
+  {
+    "id": "eac025c1",
+    "ts": "2026-10-25 13:12:43",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 204 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 177 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 177 条 / 周维度 27 条",
+        "count": 204
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "1e69be04",
+    "ts": "2026-10-25 13:12:42",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "47e7f95b",
+    "ts": "2026-10-25 12:46:31",
+    "task": "数据完整性自检",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "待同步: 2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "steps": [],
+    "target": "BI-sales-alert"
+  },
+  {
+    "id": "cd6b8aa0",
+    "ts": "2026-10-25 12:46:25",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "e5fdb70d",
+    "ts": "2026-10-25 12:46:24",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "脚本异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "details": "异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "steps": [],
+    "target": "ad-roi"
+  },
+  {
+    "id": "243a331d",
+    "ts": "2026-10-25 12:46:19",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 204 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 177 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 177 条 / 周维度 27 条",
+        "count": 204
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "f331bb0f",
+    "ts": "2026-10-25 12:46:19",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "90bba190",
+    "ts": "2026-10-25 12:19:49",
+    "task": "数据完整性自检",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "待同步: 2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "steps": [],
+    "target": "BI-sales-alert"
+  },
+  {
+    "id": "83c9344c",
+    "ts": "2026-10-25 12:19:42",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "d40e03ca",
+    "ts": "2026-10-25 12:19:41",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "脚本异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "details": "异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "steps": [],
+    "target": "ad-roi"
+  },
+  {
+    "id": "7ac9ba2e",
+    "ts": "2026-10-25 12:19:37",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 204 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 177 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 177 条 / 周维度 27 条",
+        "count": 204
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "67391298",
+    "ts": "2026-10-25 12:19:37",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "c695fa01",
+    "ts": "2026-10-25 12:10:40",
+    "task": "数据完整性自检",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "待同步: 2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "steps": [],
+    "target": "BI-sales-alert"
+  },
+  {
+    "id": "387753d4",
+    "ts": "2026-10-25 12:10:34",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "1e2d7066",
+    "ts": "2026-10-25 12:10:33",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "脚本异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "details": "异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "steps": [],
+    "target": "ad-roi"
+  },
+  {
+    "id": "4fecfde2",
+    "ts": "2026-10-25 12:10:28",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 204 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 177 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 177 条 / 周维度 27 条",
+        "count": 204
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "db70137b",
+    "ts": "2026-10-25 12:10:28",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
     "id": "3f1d6dc6",
     "ts": "2026-10-24 13:57:42",
     "task": "数据完整性自检",
@@ -14654,1030 +15592,5 @@
       }
     ],
     "target": "daily-pulse"
-  },
-  {
-    "id": "8eabbcee",
-    "ts": "2026-10-12 11:14:09",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 4776 条主数据",
-    "details": "· 推广ROI汇总：[ok] 14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01\n· 天猫推广：[ok] 0 条计划明细（0 天）\n· 拼多多推广：[ok] 0天汇总 | 0条计划\n· 天猫推广·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-    "steps": [
-      {
-        "board": "推广ROI汇总",
-        "status": "ok",
-        "msg": "14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01"
-      },
-      {
-        "board": "天猫推广",
-        "status": "ok",
-        "msg": "0 条计划明细（0 天）"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "ok",
-        "msg": "0天汇总 | 0条计划"
-      },
-      {
-        "board": "天猫推广·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-        "count": 4776
-      }
-    ],
-    "target": "ad-roi"
-  },
-  {
-    "id": "af2ac42a",
-    "ts": "2026-10-12 11:14:02",
-    "task": "同步 BI销售分析与预警",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 207 条主数据",
-    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
-    "steps": [
-      {
-        "board": "BI销售分析与预警",
-        "status": "ok",
-        "msg": "日维度 180 条 / 周维度 27 条",
-        "count": 207
-      }
-    ],
-    "target": "sales-alert"
-  },
-  {
-    "id": "46fa5ef3",
-    "ts": "2026-10-12 11:13:24",
-    "task": "同步 店铺日报",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 120 条主数据，85 条详情",
-    "details": "· 店铺日报·拼多多：[ok] 同步 45 天\n· 店铺日报·天猫：[ok] 同步 40 天\n· 店铺日报·发货数据：[warn] ⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）\n· 店铺日报·发货数据：[ok] 合并 118 天净销售额(发货/支付)",
-    "steps": [
-      {
-        "board": "店铺日报·拼多多",
-        "status": "ok",
-        "msg": "同步 45 天",
-        "count": 45
-      },
-      {
-        "board": "店铺日报·天猫",
-        "status": "ok",
-        "msg": "同步 40 天",
-        "count": 40
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "warn",
-        "msg": "⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "ok",
-        "msg": "合并 118 天净销售额(发货/支付)",
-        "count": 118
-      }
-    ],
-    "target": "daily-pulse"
-  },
-  {
-    "id": "6b8b648a",
-    "ts": "2026-10-12 11:06:24",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 4776 条主数据",
-    "details": "· 推广ROI汇总：[ok] 14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01\n· 天猫推广：[ok] 0 条计划明细（0 天）\n· 拼多多推广：[ok] 0天汇总 | 0条计划\n· 天猫推广·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-    "steps": [
-      {
-        "board": "推广ROI汇总",
-        "status": "ok",
-        "msg": "14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01"
-      },
-      {
-        "board": "天猫推广",
-        "status": "ok",
-        "msg": "0 条计划明细（0 天）"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "ok",
-        "msg": "0天汇总 | 0条计划"
-      },
-      {
-        "board": "天猫推广·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-        "count": 4776
-      }
-    ],
-    "target": "ad-roi"
-  },
-  {
-    "id": "294dd4e3",
-    "ts": "2026-10-12 11:06:15",
-    "task": "同步 BI销售分析与预警",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 207 条主数据",
-    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
-    "steps": [
-      {
-        "board": "BI销售分析与预警",
-        "status": "ok",
-        "msg": "日维度 180 条 / 周维度 27 条",
-        "count": 207
-      }
-    ],
-    "target": "sales-alert"
-  },
-  {
-    "id": "d81d625b",
-    "ts": "2026-10-12 11:05:34",
-    "task": "同步 店铺日报",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 120 条主数据，85 条详情",
-    "details": "· 店铺日报·拼多多：[ok] 同步 45 天\n· 店铺日报·天猫：[ok] 同步 40 天\n· 店铺日报·发货数据：[warn] ⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）\n· 店铺日报·发货数据：[ok] 合并 118 天净销售额(发货/支付)",
-    "steps": [
-      {
-        "board": "店铺日报·拼多多",
-        "status": "ok",
-        "msg": "同步 45 天",
-        "count": 45
-      },
-      {
-        "board": "店铺日报·天猫",
-        "status": "ok",
-        "msg": "同步 40 天",
-        "count": 40
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "warn",
-        "msg": "⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "ok",
-        "msg": "合并 118 天净销售额(发货/支付)",
-        "count": 118
-      }
-    ],
-    "target": "daily-pulse"
-  },
-  {
-    "id": "4caf3dc8",
-    "ts": "2026-10-12 10:39:16",
-    "task": "数据完整性自检",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "定时",
-    "status": "pending_data",
-    "status_label": "等待数据源",
-    "summary": "待同步: 2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "steps": [],
-    "target": "BI-sales-alert"
-  },
-  {
-    "id": "5c8adb53",
-    "ts": "2026-10-12 10:39:09",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 4776 条主数据",
-    "details": "· 推广ROI汇总：[ok] 14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01\n· 天猫推广：[ok] 0 条计划明细（0 天）\n· 拼多多推广：[ok] 0天汇总 | 0条计划\n· 天猫推广·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-    "steps": [
-      {
-        "board": "推广ROI汇总",
-        "status": "ok",
-        "msg": "14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01"
-      },
-      {
-        "board": "天猫推广",
-        "status": "ok",
-        "msg": "0 条计划明细（0 天）"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "ok",
-        "msg": "0天汇总 | 0条计划"
-      },
-      {
-        "board": "天猫推广·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-        "count": 4776
-      }
-    ],
-    "target": "ad-roi"
-  },
-  {
-    "id": "acb3f9d1",
-    "ts": "2026-10-12 10:39:01",
-    "task": "同步 BI销售分析与预警",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 207 条主数据",
-    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
-    "steps": [
-      {
-        "board": "BI销售分析与预警",
-        "status": "ok",
-        "msg": "日维度 180 条 / 周维度 27 条",
-        "count": 207
-      }
-    ],
-    "target": "sales-alert"
-  },
-  {
-    "id": "449967f9",
-    "ts": "2026-10-12 10:38:21",
-    "task": "同步 店铺日报",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 120 条主数据，85 条详情",
-    "details": "· 店铺日报·拼多多：[ok] 同步 45 天\n· 店铺日报·天猫：[ok] 同步 40 天\n· 店铺日报·发货数据：[warn] ⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）\n· 店铺日报·发货数据：[ok] 合并 116 天净销售额(发货/支付)\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-    "steps": [
-      {
-        "board": "店铺日报·拼多多",
-        "status": "ok",
-        "msg": "同步 45 天",
-        "count": 45
-      },
-      {
-        "board": "店铺日报·天猫",
-        "status": "ok",
-        "msg": "同步 40 天",
-        "count": 40
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "warn",
-        "msg": "⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "ok",
-        "msg": "合并 116 天净销售额(发货/支付)",
-        "count": 116
-      },
-      {
-        "board": "店铺日报·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·共享盘兜底(拼多多)",
-        "status": "warn",
-        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      }
-    ],
-    "target": "daily-pulse"
-  },
-  {
-    "id": "9fbaf80f",
-    "ts": "2026-10-12 10:32:35",
-    "task": "数据完整性自检",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "定时",
-    "status": "pending_data",
-    "status_label": "等待数据源",
-    "summary": "待同步: 2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "steps": [],
-    "target": "BI-sales-alert"
-  },
-  {
-    "id": "47b8e0ad",
-    "ts": "2026-10-12 10:32:27",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 4776 条主数据",
-    "details": "· 推广ROI汇总：[ok] 14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01\n· 天猫推广：[ok] 0 条计划明细（0 天）\n· 拼多多推广：[ok] 0天汇总 | 0条计划\n· 天猫推广·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-    "steps": [
-      {
-        "board": "推广ROI汇总",
-        "status": "ok",
-        "msg": "14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01"
-      },
-      {
-        "board": "天猫推广",
-        "status": "ok",
-        "msg": "0 条计划明细（0 天）"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "ok",
-        "msg": "0天汇总 | 0条计划"
-      },
-      {
-        "board": "天猫推广·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-        "count": 4776
-      }
-    ],
-    "target": "ad-roi"
-  },
-  {
-    "id": "3eea58a3",
-    "ts": "2026-10-12 10:32:19",
-    "task": "同步 BI销售分析与预警",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 207 条主数据",
-    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
-    "steps": [
-      {
-        "board": "BI销售分析与预警",
-        "status": "ok",
-        "msg": "日维度 180 条 / 周维度 27 条",
-        "count": 207
-      }
-    ],
-    "target": "sales-alert"
-  },
-  {
-    "id": "1b5bdab4",
-    "ts": "2026-10-12 10:31:35",
-    "task": "同步 店铺日报",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 120 条主数据，85 条详情",
-    "details": "· 店铺日报·拼多多：[ok] 同步 45 天\n· 店铺日报·天猫：[ok] 同步 40 天\n· 店铺日报·发货数据：[warn] ⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）\n· 店铺日报·发货数据：[ok] 合并 116 天净销售额(发货/支付)\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-    "steps": [
-      {
-        "board": "店铺日报·拼多多",
-        "status": "ok",
-        "msg": "同步 45 天",
-        "count": 45
-      },
-      {
-        "board": "店铺日报·天猫",
-        "status": "ok",
-        "msg": "同步 40 天",
-        "count": 40
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "warn",
-        "msg": "⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "ok",
-        "msg": "合并 116 天净销售额(发货/支付)",
-        "count": 116
-      },
-      {
-        "board": "店铺日报·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·共享盘兜底(拼多多)",
-        "status": "warn",
-        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      }
-    ],
-    "target": "daily-pulse"
-  },
-  {
-    "id": "ba3c2044",
-    "ts": "2026-10-12 10:24:38",
-    "task": "数据完整性自检",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "定时",
-    "status": "pending_data",
-    "status_label": "等待数据源",
-    "summary": "待同步: 2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "steps": [],
-    "target": "BI-sales-alert"
-  },
-  {
-    "id": "ebb0acd6",
-    "ts": "2026-10-12 10:24:31",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 4776 条主数据",
-    "details": "· 推广ROI汇总：[ok] 14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01\n· 天猫推广：[ok] 0 条计划明细（0 天）\n· 拼多多推广：[ok] 0天汇总 | 0条计划\n· 天猫推广·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-    "steps": [
-      {
-        "board": "推广ROI汇总",
-        "status": "ok",
-        "msg": "14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01"
-      },
-      {
-        "board": "天猫推广",
-        "status": "ok",
-        "msg": "0 条计划明细（0 天）"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "ok",
-        "msg": "0天汇总 | 0条计划"
-      },
-      {
-        "board": "天猫推广·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-        "count": 4776
-      }
-    ],
-    "target": "ad-roi"
-  },
-  {
-    "id": "646f9e24",
-    "ts": "2026-10-12 10:24:24",
-    "task": "同步 BI销售分析与预警",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 207 条主数据",
-    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
-    "steps": [
-      {
-        "board": "BI销售分析与预警",
-        "status": "ok",
-        "msg": "日维度 180 条 / 周维度 27 条",
-        "count": 207
-      }
-    ],
-    "target": "sales-alert"
-  },
-  {
-    "id": "dad7882c",
-    "ts": "2026-10-12 10:23:42",
-    "task": "同步 店铺日报",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 120 条主数据，85 条详情",
-    "details": "· 店铺日报·拼多多：[ok] 同步 45 天\n· 店铺日报·天猫：[ok] 同步 40 天\n· 店铺日报·发货数据：[warn] ⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）\n· 店铺日报·发货数据：[ok] 合并 116 天净销售额(发货/支付)\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-    "steps": [
-      {
-        "board": "店铺日报·拼多多",
-        "status": "ok",
-        "msg": "同步 45 天",
-        "count": 45
-      },
-      {
-        "board": "店铺日报·天猫",
-        "status": "ok",
-        "msg": "同步 40 天",
-        "count": 40
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "warn",
-        "msg": "⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "ok",
-        "msg": "合并 116 天净销售额(发货/支付)",
-        "count": 116
-      },
-      {
-        "board": "店铺日报·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·共享盘兜底(拼多多)",
-        "status": "warn",
-        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      }
-    ],
-    "target": "daily-pulse"
-  },
-  {
-    "id": "d1455d41",
-    "ts": "2026-10-12 10:18:03",
-    "task": "数据完整性自检",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "定时",
-    "status": "pending_data",
-    "status_label": "等待数据源",
-    "summary": "待同步: 2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "steps": [],
-    "target": "BI-sales-alert"
-  },
-  {
-    "id": "5f71260b",
-    "ts": "2026-10-12 10:17:55",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 4776 条主数据",
-    "details": "· 推广ROI汇总：[ok] 14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01\n· 天猫推广：[ok] 0 条计划明细（0 天）\n· 拼多多推广：[ok] 0天汇总 | 0条计划\n· 天猫推广·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-    "steps": [
-      {
-        "board": "推广ROI汇总",
-        "status": "ok",
-        "msg": "14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01"
-      },
-      {
-        "board": "天猫推广",
-        "status": "ok",
-        "msg": "0 条计划明细（0 天）"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "ok",
-        "msg": "0天汇总 | 0条计划"
-      },
-      {
-        "board": "天猫推广·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-        "count": 4776
-      }
-    ],
-    "target": "ad-roi"
-  },
-  {
-    "id": "70af5e3f",
-    "ts": "2026-10-12 10:17:48",
-    "task": "同步 BI销售分析与预警",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 207 条主数据",
-    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
-    "steps": [
-      {
-        "board": "BI销售分析与预警",
-        "status": "ok",
-        "msg": "日维度 180 条 / 周维度 27 条",
-        "count": 207
-      }
-    ],
-    "target": "sales-alert"
-  },
-  {
-    "id": "5ddce7e6",
-    "ts": "2026-10-12 10:17:01",
-    "task": "同步 店铺日报",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 120 条主数据，85 条详情",
-    "details": "· 店铺日报·拼多多：[ok] 同步 45 天\n· 店铺日报·天猫：[ok] 同步 40 天\n· 店铺日报·发货数据：[warn] ⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）\n· 店铺日报·发货数据：[ok] 合并 116 天净销售额(发货/支付)\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-    "steps": [
-      {
-        "board": "店铺日报·拼多多",
-        "status": "ok",
-        "msg": "同步 45 天",
-        "count": 45
-      },
-      {
-        "board": "店铺日报·天猫",
-        "status": "ok",
-        "msg": "同步 40 天",
-        "count": 40
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "warn",
-        "msg": "⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "ok",
-        "msg": "合并 116 天净销售额(发货/支付)",
-        "count": 116
-      },
-      {
-        "board": "店铺日报·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·共享盘兜底(拼多多)",
-        "status": "warn",
-        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      }
-    ],
-    "target": "daily-pulse"
-  },
-  {
-    "id": "beb7dc8a",
-    "ts": "2026-10-12 10:10:23",
-    "task": "数据完整性自检",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "定时",
-    "status": "pending_data",
-    "status_label": "等待数据源",
-    "summary": "待同步: 2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "steps": [],
-    "target": "BI-sales-alert"
-  },
-  {
-    "id": "13aaeba6",
-    "ts": "2026-10-12 10:10:16",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 4776 条主数据",
-    "details": "· 推广ROI汇总：[ok] 14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01\n· 天猫推广：[ok] 0 条计划明细（0 天）\n· 拼多多推广：[ok] 0天汇总 | 0条计划\n· 天猫推广·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-    "steps": [
-      {
-        "board": "推广ROI汇总",
-        "status": "ok",
-        "msg": "14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01"
-      },
-      {
-        "board": "天猫推广",
-        "status": "ok",
-        "msg": "0 条计划明细（0 天）"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "ok",
-        "msg": "0天汇总 | 0条计划"
-      },
-      {
-        "board": "天猫推广·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-        "count": 4776
-      }
-    ],
-    "target": "ad-roi"
-  },
-  {
-    "id": "6343d058",
-    "ts": "2026-10-12 10:10:09",
-    "task": "同步 BI销售分析与预警",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 207 条主数据",
-    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
-    "steps": [
-      {
-        "board": "BI销售分析与预警",
-        "status": "ok",
-        "msg": "日维度 180 条 / 周维度 27 条",
-        "count": 207
-      }
-    ],
-    "target": "sales-alert"
-  },
-  {
-    "id": "62b4fbdf",
-    "ts": "2026-10-12 10:09:29",
-    "task": "同步 店铺日报",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 120 条主数据，85 条详情",
-    "details": "· 店铺日报·拼多多：[ok] 同步 45 天\n· 店铺日报·天猫：[ok] 同步 40 天\n· 店铺日报·发货数据：[warn] ⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）\n· 店铺日报·发货数据：[ok] 合并 116 天净销售额(发货/支付)\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-    "steps": [
-      {
-        "board": "店铺日报·拼多多",
-        "status": "ok",
-        "msg": "同步 45 天",
-        "count": 45
-      },
-      {
-        "board": "店铺日报·天猫",
-        "status": "ok",
-        "msg": "同步 40 天",
-        "count": 40
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "warn",
-        "msg": "⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "ok",
-        "msg": "合并 116 天净销售额(发货/支付)",
-        "count": 116
-      },
-      {
-        "board": "店铺日报·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·共享盘兜底(拼多多)",
-        "status": "warn",
-        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      }
-    ],
-    "target": "daily-pulse"
-  },
-  {
-    "id": "5704e196",
-    "ts": "2026-10-12 10:02:50",
-    "task": "数据完整性自检",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "定时",
-    "status": "pending_data",
-    "status_label": "等待数据源",
-    "summary": "待同步: 2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "steps": [],
-    "target": "BI-sales-alert"
-  },
-  {
-    "id": "d60186da",
-    "ts": "2026-10-12 10:02:43",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 4776 条主数据",
-    "details": "· 推广ROI汇总：[ok] 14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01\n· 天猫推广：[ok] 0 条计划明细（0 天）\n· 拼多多推广：[ok] 0天汇总 | 0条计划\n· 天猫推广·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-    "steps": [
-      {
-        "board": "推广ROI汇总",
-        "status": "ok",
-        "msg": "14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01"
-      },
-      {
-        "board": "天猫推广",
-        "status": "ok",
-        "msg": "0 条计划明细（0 天）"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "ok",
-        "msg": "0天汇总 | 0条计划"
-      },
-      {
-        "board": "天猫推广·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-        "count": 4776
-      }
-    ],
-    "target": "ad-roi"
-  },
-  {
-    "id": "028d8f48",
-    "ts": "2026-10-12 10:02:35",
-    "task": "同步 BI销售分析与预警",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 207 条主数据",
-    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
-    "steps": [
-      {
-        "board": "BI销售分析与预警",
-        "status": "ok",
-        "msg": "日维度 180 条 / 周维度 27 条",
-        "count": 207
-      }
-    ],
-    "target": "sales-alert"
-  },
-  {
-    "id": "cbc44dc6",
-    "ts": "2026-10-12 10:01:51",
-    "task": "同步 店铺日报",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 120 条主数据，85 条详情",
-    "details": "· 店铺日报·拼多多：[ok] 同步 45 天\n· 店铺日报·天猫：[ok] 同步 40 天\n· 店铺日报·发货数据：[warn] ⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）\n· 店铺日报·发货数据：[ok] 合并 116 天净销售额(发货/支付)\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-    "steps": [
-      {
-        "board": "店铺日报·拼多多",
-        "status": "ok",
-        "msg": "同步 45 天",
-        "count": 45
-      },
-      {
-        "board": "店铺日报·天猫",
-        "status": "ok",
-        "msg": "同步 40 天",
-        "count": 40
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "warn",
-        "msg": "⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "ok",
-        "msg": "合并 116 天净销售额(发货/支付)",
-        "count": 116
-      },
-      {
-        "board": "店铺日报·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·共享盘兜底(拼多多)",
-        "status": "warn",
-        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      }
-    ],
-    "target": "daily-pulse"
-  },
-  {
-    "id": "d4a9ac72",
-    "ts": "2026-10-12 09:55:05",
-    "task": "数据完整性自检",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "定时",
-    "status": "pending_data",
-    "status_label": "等待数据源",
-    "summary": "待同步: 2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "steps": [],
-    "target": "BI-sales-alert"
-  },
-  {
-    "id": "d51044a3",
-    "ts": "2026-10-12 09:54:57",
-    "task": "同步 推广投放 ROI",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 4776 条主数据",
-    "details": "· 推广ROI汇总：[ok] 14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01\n· 天猫推广：[ok] 0 条计划明细（0 天）\n· 拼多多推广：[ok] 0天汇总 | 0条计划\n· 天猫推广·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-    "steps": [
-      {
-        "board": "推广ROI汇总",
-        "status": "ok",
-        "msg": "14天 | 天猫4776条计划 | 拼多多0条计划 | 总花费¥259,750 | 总成交¥520,980 | 综合ROI 2.01"
-      },
-      {
-        "board": "天猫推广",
-        "status": "ok",
-        "msg": "0 条计划明细（0 天）"
-      },
-      {
-        "board": "拼多多推广",
-        "status": "ok",
-        "msg": "0天汇总 | 0条计划"
-      },
-      {
-        "board": "天猫推广·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 4776 条计划行",
-        "count": 4776
-      }
-    ],
-    "target": "ad-roi"
-  },
-  {
-    "id": "586c52f9",
-    "ts": "2026-10-12 09:54:50",
-    "task": "同步 BI销售分析与预警",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 207 条主数据",
-    "details": "· BI销售分析与预警：[ok] 日维度 180 条 / 周维度 27 条",
-    "steps": [
-      {
-        "board": "BI销售分析与预警",
-        "status": "ok",
-        "msg": "日维度 180 条 / 周维度 27 条",
-        "count": 207
-      }
-    ],
-    "target": "sales-alert"
-  },
-  {
-    "id": "e7f10b13",
-    "ts": "2026-10-12 09:54:10",
-    "task": "同步 店铺日报",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "自动",
-    "status": "success",
-    "status_label": "正常输出",
-    "summary": "写入 120 条主数据，85 条详情",
-    "details": "· 店铺日报·拼多多：[ok] 同步 45 天\n· 店铺日报·天猫：[ok] 同步 40 天\n· 店铺日报·发货数据：[warn] ⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）\n· 店铺日报·发货数据：[ok] 合并 116 天净销售额(发货/支付)\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-    "steps": [
-      {
-        "board": "店铺日报·拼多多",
-        "status": "ok",
-        "msg": "同步 45 天",
-        "count": 45
-      },
-      {
-        "board": "店铺日报·天猫",
-        "status": "ok",
-        "msg": "同步 40 天",
-        "count": 40
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "warn",
-        "msg": "⚠ 2026-09-25·拼多多 发货净额异常已置空（源表损坏，待人工核查）",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·发货数据",
-        "status": "ok",
-        "msg": "合并 116 天净销售额(发货/支付)",
-        "count": 116
-      },
-      {
-        "board": "店铺日报·共享盘兜底",
-        "status": "warn",
-        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      },
-      {
-        "board": "店铺日报·共享盘兜底(拼多多)",
-        "status": "warn",
-        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 1 天",
-        "count": 1
-      }
-    ],
-    "target": "daily-pulse"
-  },
-  {
-    "id": "06d2e742",
-    "ts": "2026-10-12 09:33:41",
-    "task": "数据完整性自检",
-    "trigger": "每日数据同步(日报+预警)",
-    "trigger_type": "定时",
-    "status": "pending_data",
-    "status_label": "等待数据源",
-    "summary": "待同步: 2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-11 拼多多; 2026-10-11 天猫; 2026-10-11 双平台",
-    "steps": [],
-    "target": "BI-sales-alert"
   }
 ]

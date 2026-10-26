@@ -1,5 +1,139 @@
 [
   {
+    "id": "51b6c222",
+    "ts": "2026-10-26 10:43:08",
+    "task": "数据完整性自检",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "待同步: 2026-10-25 拼多多; 2026-10-25 天猫; 2026-10-25 双平台; 2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "details": "以下日期/平台发货或利润数据缺失(飞书未填完或延迟)，下次同步将自动补齐：2026-10-25 拼多多; 2026-10-25 天猫; 2026-10-25 双平台; 2026-10-24 拼多多; 2026-10-24 天猫; 2026-10-24 双平台",
+    "steps": [],
+    "target": "BI-sales-alert"
+  },
+  {
+    "id": "84ecf7d5",
+    "ts": "2026-10-26 10:43:02",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "定时(重试)",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
+    "id": "3733d160",
+    "ts": "2026-10-26 10:43:00",
+    "task": "同步 推广投放 ROI",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "error",
+    "status_label": "错误失败",
+    "summary": "脚本异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "details": "异常：unsupported operand type(s) for /: 'NoneType' and 'float'",
+    "steps": [],
+    "target": "ad-roi"
+  },
+  {
+    "id": "04e27114",
+    "ts": "2026-10-26 10:42:56",
+    "task": "同步 BI销售分析与预警",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "success",
+    "status_label": "正常输出",
+    "summary": "写入 204 条主数据",
+    "details": "· BI销售分析与预警：[ok] 日维度 177 条 / 周维度 27 条",
+    "steps": [
+      {
+        "board": "BI销售分析与预警",
+        "status": "ok",
+        "msg": "日维度 177 条 / 周维度 27 条",
+        "count": 204
+      }
+    ],
+    "target": "sales-alert"
+  },
+  {
+    "id": "a69ac01c",
+    "ts": "2026-10-26 10:42:55",
+    "task": "同步 店铺日报",
+    "trigger": "每日数据同步(日报+预警)",
+    "trigger_type": "自动",
+    "status": "pending_data",
+    "status_label": "等待数据源",
+    "summary": "写入 118 条主数据",
+    "details": "· 店铺日报·拼多多：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·天猫：[no_data] 飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑\n· 店铺日报·发货数据：[skip] 发货数据源不可达，净销售额(发货)保持空缺\n· 店铺日报·共享盘兜底：[warn] ⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天\n· 店铺日报·共享盘兜底(拼多多)：[warn] ⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+    "steps": [
+      {
+        "board": "店铺日报·拼多多",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·天猫",
+        "status": "no_data",
+        "msg": "飞书拉取失败（token/表ID无效或网络异常），需补充数据源后重跑",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·发货数据",
+        "status": "skip",
+        "msg": "发货数据源不可达，净销售额(发货)保持空缺",
+        "count": 0
+      },
+      {
+        "board": "店铺日报·共享盘兜底",
+        "status": "warn",
+        "msg": "⚠ 飞书天猫源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      },
+      {
+        "board": "店铺日报·共享盘兜底(拼多多)",
+        "status": "warn",
+        "msg": "⚠ 飞书拼多多源表滞后，已用共享盘补齐 59 天",
+        "count": 59
+      }
+    ],
+    "target": "daily-pulse"
+  },
+  {
     "id": "7cb2c37b",
     "ts": "2026-10-26 10:19:33",
     "task": "数据完整性自检",

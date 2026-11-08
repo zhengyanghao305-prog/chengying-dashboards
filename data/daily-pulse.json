@@ -1,5 +1,23 @@
 [
   {
+    "date": "2026-11-07",
+    "platform": "天猫",
+    "sales": 60455.99,
+    "orders": 1842,
+    "visitors": 44288,
+    "cvr": 3.75,
+    "promotion_cost": null,
+    "promo_video": null,
+    "promo_quanzh": null,
+    "promo_keyword": null,
+    "promo_crowd": null,
+    "net_sales_pay": 55490.32,
+    "net_sales_ship": null,
+    "pay_orders": 1842,
+    "note": "共享盘兜底 · 2026-11-07（飞书源表滞后）",
+    "src": "共享盘兜底"
+  },
+  {
     "date": "2026-11-06",
     "platform": "天猫",
     "sales": 59056.95,
@@ -14,6 +32,19 @@
     "net_sales_pay": 54190.4,
     "net_sales_ship": null,
     "pay_orders": 1742,
+    "note": "共享盘兜底 · 2026-11-06（飞书源表滞后）",
+    "src": "共享盘兜底"
+  },
+  {
+    "date": "2026-11-06",
+    "platform": "拼多多",
+    "sales": 45513.1,
+    "orders": 3298,
+    "visitors": 31719,
+    "cvr": 10.4,
+    "promotion_cost": 2844.2,
+    "net_sales_pay": null,
+    "net_sales_ship": null,
     "note": "共享盘兜底 · 2026-11-06（飞书源表滞后）",
     "src": "共享盘兜底"
   },
@@ -1782,37 +1813,6 @@
     "net_sales_pay": null,
     "net_sales_ship": null,
     "note": "共享盘兜底 · 2026-09-09（飞书源表滞后）",
-    "src": "共享盘兜底"
-  },
-  {
-    "date": "2026-09-08",
-    "platform": "天猫",
-    "sales": 74096.56,
-    "orders": 2230,
-    "visitors": 35845,
-    "cvr": 5.73,
-    "promotion_cost": 22762.17,
-    "promo_video": 4729.78,
-    "promo_quanzh": 15440.33,
-    "promo_keyword": 2147.22,
-    "promo_crowd": 444.84,
-    "net_sales_pay": 69007.49,
-    "net_sales_ship": null,
-    "pay_orders": 2230,
-    "note": "共享盘兜底 · 2026-09-08（飞书源表滞后）",
-    "src": "共享盘兜底"
-  },
-  {
-    "date": "2026-09-08",
-    "platform": "拼多多",
-    "sales": 48160.1,
-    "orders": 2785,
-    "visitors": 29494,
-    "cvr": 9.44,
-    "promotion_cost": 12003.66,
-    "net_sales_pay": null,
-    "net_sales_ship": null,
-    "note": "共享盘兜底 · 2026-09-08（飞书源表滞后）",
     "src": "共享盘兜底"
   }
 ]
